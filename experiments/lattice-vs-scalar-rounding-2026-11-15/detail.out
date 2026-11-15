@@ -3,8 +3,7 @@
    q =  4: -9.2519, -9.2705, -9.2470
    q =  8: -14.2682, -14.2962, -14.2881
    q = 16: -19.3514, -19.4144, -19.4421
-   Scalar floors from bounds/bounds.out: -7.2086 (q = 3), -9.3003 (q = 4). One standard error of the error on one
-   matrix of 262,144 weights is about 0.016 dB at q = 3.
+   Scalar floors from bounds/bounds.out: -7.2086 (q = 3), -9.3003 (q = 4). See table 6 for the spread of one matrix.
 
 2. Exact search against the shrink rule on the same matrix, q = 4
    matrix | arm | scalar | shrink rule | exact search | lost to the rule | blocks out of range at the chosen scale
@@ -45,3 +44,6 @@
 
 5. Bits per weight of the balanced arms at q = 4, with the two scale vectors counted: 2.0391, 2.0625
    Largest imbalance left after balancing on a real matrix: 1.055
+
+6. Spread of the scalar error on one matrix (needs NumPy)
+   300 Gaussian matrices of 512 by 512, three levels at the best fixed step 1.224: mean -7.2069 dB, standard deviation 0.0104 dB

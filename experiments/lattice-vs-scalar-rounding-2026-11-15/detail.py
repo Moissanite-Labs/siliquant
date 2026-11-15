@@ -28,8 +28,7 @@ def main():
     print("1. Arm S on the Gaussian family, each seed, in dB")
     for q in (3, 4, 8, 16):
         print(f"   q = {q:>2}: " + ", ".join(f"{db(by[(f'G/{s}', q, 'S')]['rel_err']):.4f}" for s in range(3)))
-    print("   Scalar floors from bounds/bounds.out: -7.2086 (q = 3), -9.3003 (q = 4). One standard error of the error on one")
-    print("   matrix of 262,144 weights is about 0.016 dB at q = 3.")
+    print("   Scalar floors from bounds/bounds.out: -7.2086 (q = 3), -9.3003 (q = 4). See table 6 for the spread of one matrix.")
     print()
     print("2. Exact search against the shrink rule on the same matrix, q = 4")
     print("   matrix | arm | scalar | shrink rule | exact search | lost to the rule | blocks out of range at the chosen scale")
@@ -63,6 +62,21 @@ def main():
     print("5. Bits per weight of the balanced arms at q = 4, with the two scale vectors counted: "
           + ", ".join(f"{b:.4f}" for b in sorted({r["bits"] for r in rows if r["arm"] == "D+S" and r["q"] == 4})))
     print(f"   Largest imbalance left after balancing on a real matrix: {max(r.get('imbalance_after', 0) for r in rows if r['matrix'].startswith('real/')):.3f}")
+    print()
+    print("6. Spread of the scalar error on one matrix (needs NumPy)")
+    try:
+        import numpy as np
+    except ImportError:
+        print("   NumPy not found; table skipped.")
+        return
+    rng = np.random.default_rng(20261115)
+    step, vals = 1.2240, []
+    for _ in range(300):
+        w = rng.normal(size=(512, 512))
+        wh = np.clip(np.rint(w / step), -1, 1) * step
+        vals.append(db(float(np.sum((w - wh) ** 2) / np.sum(w ** 2))))
+    print(f"   300 Gaussian matrices of 512 by 512, three levels at the best fixed step {step}: "
+          f"mean {np.mean(vals):.4f} dB, standard deviation {np.std(vals, ddof=1):.4f} dB")
 
 
 if __name__ == "__main__":

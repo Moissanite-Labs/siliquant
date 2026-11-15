@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Proved limits on rounding weights, computed from their formulas.
 
-Every line of the output is a floor or a ceiling that no scheme can pass, or
-an exact constant of a lattice. A proposal is read against this table before
-anything is run: a gain that would have to exceed a ceiling is closed, and a
-gain inside the limits has a known largest size.
+Sections 1 and 2 hold floors and ceilings that no scheme can pass, and
+constants of lattices. A proposal is read against them before anything is
+run: a gain that would have to exceed a ceiling is closed, and a gain inside
+the limits has a known largest size. Section 3 checks one constant. Sections
+4 to 6 hold covering thickness, codebook counts and a packing figure.
 
 Needs NumPy. Usage, from the root of a checkout:
   python3 bounds/bounds.py > bounds/bounds.out
@@ -102,6 +103,7 @@ def main():
         print(f"   {q:>6} | {r:.3f} | {q ** -2.0:.5f} = {db(q ** -2.0):.2f} dB | {lm:.5f} = {db(lm):.2f} dB | {ue:.5f} = {db(ue):.2f} dB | {step:.4f}")
     print("   The first column of numbers is Shannon's rate-distortion function: a proved floor for block codes of any length.")
     print("   The second is the floor for any code that rounds one weight at a time to a fixed number of levels.")
+    print("   Both are floors on the expected error. One finite matrix can fall a little under them.")
     print()
     print("2. What the shape of the cells is worth when the cells are fine and nothing is clipped")
     print("   Error is G times the cell volume to the power 2/n. Gain is against the cube, G = 1/12. One bit is 6.02 dB.")
@@ -127,10 +129,10 @@ def main():
     print(f"   E_8: exact 929/12960 = {929.0 / 12960.0:.6f}, measured {est:.6f} +- {se:.6f} ({(est - 929.0 / 12960.0) / se:+.1f} standard errors)")
     print("   The formula was fitted here to the exact values for n = 1, 2, 3 and then tested at n = 4 and 8. Its source has not been opened.")
     print()
-    print("4. Covering thickness: balls needed to cover space, per unit of the least conceivable number")
+    print("4. Covering thickness: the mean number of balls that cover a point. 1 would be a covering with no overlap")
     print("   n | cubic grid | A_n* | note")
     notes = {2: "A_2* is the thinnest covering of the plane", 3: "A_3* is the thinnest lattice covering", 4: "thinnest lattice covering",
-             5: "thinnest lattice covering", 8: "E_8 has 4.0587; the best lattice known has 3.1422 (Schurmann and Vallentin 2006)"}
+             5: "thinnest lattice covering", 8: "E_8 has 4.0587; the best lattice known has 3.1422, a record and not a bound (Schurmann and Vallentin 2006)"}
     for n in (2, 3, 4, 5, 8):
         print(f"   {n} | {thickness_cubic(n):.4f} | {thickness_a_star(n):.4f} | {notes[n]}")
     print(f"   E_8 computed here: ball volume in 8 dimensions = {ball_volume(8):.4f}")

@@ -6,6 +6,7 @@
        16 | 4.000 | 0.00391 = -24.08 dB | 0.00950 = -20.22 dB | 0.01154 = -19.38 dB | 0.3352
    The first column of numbers is Shannon's rate-distortion function: a proved floor for block codes of any length.
    The second is the floor for any code that rounds one weight at a time to a fixed number of levels.
+   Both are floors on the expected error. One finite matrix can fall a little under them.
 
 2. What the shape of the cells is worth when the cells are fine and nothing is clipped
    Error is G times the cell volume to the power 2/n. Gain is against the cube, G = 1/12. One bit is 6.02 dB.
@@ -32,13 +33,13 @@
    E_8: exact 929/12960 = 0.071682, measured 0.071685 +- 0.000008 (+0.4 standard errors)
    The formula was fitted here to the exact values for n = 1, 2, 3 and then tested at n = 4 and 8. Its source has not been opened.
 
-4. Covering thickness: balls needed to cover space, per unit of the least conceivable number
+4. Covering thickness: the mean number of balls that cover a point. 1 would be a covering with no overlap
    n | cubic grid | A_n* | note
    2 | 1.5708 | 1.2092 | A_2* is the thinnest covering of the plane
    3 | 2.7207 | 1.4635 | A_3* is the thinnest lattice covering
    4 | 4.9348 | 1.7655 | thinnest lattice covering
    5 | 9.1955 | 2.1243 | thinnest lattice covering
-   8 | 64.9394 | 3.6658 | E_8 has 4.0587; the best lattice known has 3.1422 (Schurmann and Vallentin 2006)
+   8 | 64.9394 | 3.6658 | E_8 has 4.0587; the best lattice known has 3.1422, a record and not a bound (Schurmann and Vallentin 2006)
    E_8 computed here: ball volume in 8 dimensions = 4.0587
 
 5. Exact size of a codebook cut from a lattice by a box, by inclusion-exclusion
