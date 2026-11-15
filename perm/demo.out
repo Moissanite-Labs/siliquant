@@ -1,0 +1,26 @@
+1. Row and column scaling at a cell that no perfect matching uses
+   4 by 4 example; cells on no perfect matching: [(2, 0), (2, 1)]
+   after    10 rounds the entry at (2, 0) is 0.0488836; 1/(2k) is 0.05
+   after   100 rounds the entry at (2, 0) is 0.00505071; 1/(2k) is 0.005
+   after  1000 rounds the entry at (2, 0) is 0.000501087; 1/(2k) is 0.0005
+   after 10000 rounds the entry at (2, 0) is 5.00166e-05; 1/(2k) is 5e-05
+   One example only.
+
+2. Scaling as a lower bound on the permanent: cases where the computed bound exceeds the exact permanent
+   200 random 0/1 matrices with a perfect matching per cell, seed 1
+   n = 4: failures at 4, 16, 64, 1000 rounds: [0, 0, 0, 0]
+   n = 6: failures at 4, 16, 64, 1000 rounds: [0, 0, 0, 0]
+   n = 8: failures at 4, 16, 64, 1000 rounds: [0, 0, 0, 0]
+   0 failures in 2400 cases. This is a sample, not a proof.
+
+3. Godsil-Gutman estimator on the all-ones matrix: standard deviation of one sample over the permanent
+   n =  4: 1.638
+   n =  6: 2.173
+   n =  8: 2.761
+   n = 10: 3.393
+
+4. Fixed points of a random permutation against the Poisson law of mean 1
+   n | bound from the coupling formula | exact total variation distance | 2^n / (n+1)!
+   5 | 0.252848 | 0.03441 | 0.04444
+   10 | 0.126424 | 2.195e-05 | 2.565e-05
+   20 | 0.063212 | 1.88e-14 | 2.052e-14
