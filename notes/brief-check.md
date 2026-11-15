@@ -13,7 +13,7 @@ An AI agent checked each factual claim from sources and reported what it found. 
 - **The links to the existing tracks are proposals.** A read of the three tracks' summaries found no work on rounding weights. The briefs call them quantisation tracks.
 - **Most of the headline pipeline exists already.** NestQuant rounds weights to E8 with no table. QuIP# uses an E8 codebook. SINQ balances rows and columns before scalar rounding. A search found no use of A8\* for weights and no combination of balancing with a lattice.
 - **A8\* is the weaker lattice for this job.** At high rates it is worth 0.40 dB against 0.65 dB for E8, and E8 also has a nearest-point rule with no table.
-- **Measured here.** At 2 bits A8\* gains 0.16 to 0.53 dB over scalar rounding in the mean of each family of data, balanced or not, and E8 gains 0.85 to 1.67 dB. The briefs' own prediction held on the real matrices and missed on the synthetic family built for it. See the first experiment.
+- **Measured here.** At 2 bits A8\* gains 0.16 to 0.53 dB over scalar rounding in the mean of each family of data, balanced or not, and E8 gains 0.85 to 1.76 dB. The briefs' own prediction held on the real matrices and missed on the synthetic family built for it. See the first experiment.
 - **Several statements are wrong or unsupported.** The verdict column says which.
 
 ## Claims
@@ -36,8 +36,8 @@ An AI agent checked each factual claim from sources and reported what it found. 
 | 14 | Hit polynomials give exact bit-flip error laws for lattice codes | No source, no construction | Nothing published was found, and the briefs do not say what the board would be. Not evaluated. | search |
 | 15 | The rigidity matrix can pick out weights to protect | Proposal only | No construction is given. The rigid-realizations track counts realisations of small graphs. Not evaluated. | read of the track |
 | 16 | Packing five ternary weights in a byte wastes about 5 percent | Right in states | 243 of 256 states are used. In bits the byte is 99.06 percent used. | recomputed |
-| 17 | The 16,240 exact certificate coefficients | Real, unrelated | The figure belongs to a packing motion in incentre-lattices. It says nothing about rounding. The read of the tracks found no machine-checked statement about scaling or lattice radii. | source |
-| 18 | An optimal-transport distance can certify that an adapted cell stays within a verified radius | Tested, and closed for one-radius gates on 12 test hosts | On those hosts no radius admits a passing fine-tune and rejects a breaking move, for any distance between the singular-value distance and the Frobenius distance. That range includes the 2-Wasserstein distance between neuron sets with equal weights, suitably scaled. See the weft-loom closure register, CL-5. | recomputed in weft-loom |
+| 17 | The 16,240 exact certificate coefficients | Real, unrelated | The figure belongs to a packing motion in incentre-lattices. It says nothing about rounding. The read of the tracks found no machine-checked statement about scaling or lattice radii. | read of the tracks |
+| 18 | An optimal-transport distance can certify that an adapted cell stays within a verified radius | Tested, and closed for one-radius gates on 12 test hosts | On those hosts no radius admits a passing fine-tune and rejects a breaking move, for any distance between the singular-value distance and the Frobenius distance. That range includes the 2-Wasserstein distance between neuron sets with equal weights, suitably scaled. See the weft-loom closure register, CL-5. | reported from weft-loom |
 | 19 | BosonSampling as a source of quantisation methods | Nothing found | Its output probabilities are squared sizes of permanents of complex matrices. The word there refers to quantised light. No published link to rounding weights was found. | search |
 
 ## Sources

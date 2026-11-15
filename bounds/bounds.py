@@ -2,7 +2,8 @@
 """Proved limits on rounding weights, computed from their formulas.
 
 Sections 1 and 2 hold floors and ceilings that no scheme can pass, and
-constants of lattices. A proposal is read against them before anything is
+constants of lattices (those of A_4* and A_8* from a closed form that
+section 3 checks). A proposal is read against them before anything is
 run: a gain that would have to exceed a ceiling is closed, and a gain inside
 the limits has a known largest size. Section 3 checks one constant. Sections
 4 to 6 hold covering thickness, codebook counts and a packing figure.
