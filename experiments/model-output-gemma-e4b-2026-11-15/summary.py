@@ -241,6 +241,36 @@ def main():
                   f"clip:5 {spec['clip:5']['spectral_err_db_mean'] - x:+.2f} dB (both have the larger mean KL)")
         print()
 
+    apath = HERE / "actweighted.jsonl"
+    if apath.exists() and spath.exists():
+        act = {}
+        for ln in apath.read_text().splitlines():
+            r = json.loads(ln)
+            act[r["variant"]] = r
+        listed = [v for v in act if v in rows and v != "flip:3.45"]
+        n_mat = act[listed[0]]["matrices"]
+        print(f"7c. Activation-weighted error on the {n_mat} matrices of those layers that the model reads (round 6)")
+        print("   each column counted by the mean square of the input it multiplies, from llama-imatrix on 40 passages that are not scored")
+        print("   variant | squared error, mean dB | activation-weighted error, mean dB | mean KL")
+        for v in sorted(listed, key=kl):
+            print(f"   {v} | {act[v]['squared_err_db_mean']:.2f} | {act[v]['act_err_db_mean']:.2f} | {kl(v):.4f}")
+        if "flip:3.45" in act and "flip:3.45" in rows:
+            print(f"   flip:3.45 (not among the 26) | {act['flip:3.45']['squared_err_db_mean']:.2f} | {act['flip:3.45']['act_err_db_mean']:.2f} | {kl('flip:3.45'):.4f}")
+        ks = [kl(v) for v in listed]
+        ra = spearman([act[v]["act_err_db_mean"] for v in listed], ks)
+        rf = spearman([act[v]["squared_err_db_mean"] for v in listed], ks)
+        rs_read = spearman([spec[v]["spectral_err_db_mean_read"] for v in listed], ks)
+        x = act["XR:32"]["act_err_db_mean"]
+        above = act["clip:3.45"]["act_err_db_mean"] > x and act["clip:5"]["act_err_db_mean"] > x
+        verdict("E1", len(listed) == 26 and ra >= 0.8 and ra > 0.889 and above,
+                f"rank correlation with mean KL over {len(listed)} variants: activation-weighted error {ra:+.3f} (squared error on the same matrices {rf:+.3f}, "
+                f"spectral error on the same matrices {rs_read:+.3f}); against XR at q = 32 the clip probes are {act['clip:3.45']['act_err_db_mean'] - x:+.2f} "
+                f"and {act['clip:5']['act_err_db_mean'] - x:+.2f} dB")
+        rounding = [v for v in listed if not v.startswith("clip:")]
+        kr = [kl(v) for v in rounding]
+        print(f"   over the {len(rounding)} variants that round: activation-weighted error {spearman([act[v]['act_err_db_mean'] for v in rounding], kr):+.3f}")
+        print()
+
     kinds = [v for v in rows if v.startswith("S:16@")]
     if kinds:
         print("8. Arm S at q = 16 on one kind of matrix at a time (not part of the predictions)")

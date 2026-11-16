@@ -144,6 +144,39 @@ Reference model against its own saved outputs
    over the 23 variants that round (the clip probes left out): spectral error +0.916, squared error +0.550
    spectral error of the clip probes against XR at q = 32: clip:3.45 -4.58 dB, clip:5 -9.60 dB (both have the larger mean KL)
 
+7c. Activation-weighted error on the 36 matrices of those layers that the model reads (round 6)
+   each column counted by the mean square of the input it multiplies, from llama-imatrix on 40 passages that are not scored
+   variant | squared error, mean dB | activation-weighted error, mean dB | mean KL
+   clip:8 | -55.62 | -54.11 | 0.0100
+   X32:32 | -27.06 | -26.46 | 0.0313
+   VE8R:32 | -24.97 | -24.38 | 0.0593
+   VE832:16 | -22.58 | -22.02 | 0.0747
+   XR:32~0.7 | -22.56 | -21.60 | 0.1011
+   X32:16 | -21.00 | -20.41 | 0.1173
+   XR:32 | -21.99 | -21.40 | 0.1180
+   B32+S:32 | -24.31 | -22.96 | 0.1314
+   clip:5 | -40.68 | -37.59 | 0.2001
+   VE8R:16 | -18.92 | -18.33 | 0.2146
+   D+E8:32 | -25.43 | -23.82 | 0.2748
+   clip:3.45 | -30.60 | -27.48 | 0.3179
+   R+S:32 | -22.93 | -21.16 | 0.3395
+   B32+S:16 | -19.23 | -18.11 | 0.3648
+   D+E8:16 | -20.41 | -19.43 | 0.4209
+   D+S:32 | -23.42 | -21.35 | 0.4326
+   XR:16 | -15.98 | -15.40 | 0.4483
+   XR:32~0.5 | -17.09 | -16.55 | 0.5021
+   R+S:16 | -18.31 | -16.94 | 0.6616
+   D+S:16 | -18.70 | -17.33 | 0.7257
+   XR:32~0.35 | -11.55 | -11.41 | 1.8674
+   S:32 | -21.22 | -18.85 | 2.1839
+   E8:32 | -22.55 | -20.51 | 2.3447
+   C+S:32 | -21.46 | -19.13 | 2.8993
+   S:16 | -17.01 | -15.24 | 6.5046
+   E8:16 | -18.18 | -16.59 | 7.2807
+   flip:3.45 (not among the 26) | -30.60 | -27.47 | 0.0954
+   E1: FAILS. rank correlation with mean KL over 26 variants: activation-weighted error +0.763 (squared error on the same matrices +0.667, spectral error on the same matrices +0.945); against XR at q = 32 the clip probes are -6.07 and -16.19 dB
+   over the 23 variants that round: activation-weighted error +0.754
+
 8. Arm S at q = 16 on one kind of matrix at a time (not part of the predictions)
    kind | matrices | weights, millions | weight error, mean dB | mean KL | top token kept, %
    ffn_down | 42 | 1101 | -16.71 | 1.9889 | 63.29
@@ -198,5 +231,5 @@ Reference model against its own saved outputs
 
    XR:32 scored a second time with nothing else running: every number equal to the first run's
 
-10. Verdicts: K1 holds, K2 holds, R1 fails, R2 holds, R3 fails, R4 holds, R5 holds, A1 fails, A2 fails, A3 fails, B1 holds, B2 fails, B3 holds, C1 holds, C2 holds, D1 holds, D2 fails
-    10 of 17 predictions hold.
+10. Verdicts: K1 holds, K2 holds, R1 fails, R2 holds, R3 fails, R4 holds, R5 holds, A1 fails, A2 fails, A3 fails, B1 holds, B2 fails, B3 holds, C1 holds, C2 holds, D1 holds, D2 fails, E1 fails
+    10 of 18 predictions hold.
