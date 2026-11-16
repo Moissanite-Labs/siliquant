@@ -10,7 +10,14 @@ Variants:
   identity          the block matrices unrounded, stored as 16-bit floats (a control)
   ARM:Q             a rounding arm at Q levels per weight on the block matrices,
                     ARM one of S, Z8, E8, with an optional prefix D+ (rows and columns balanced),
-                    R+ (rows only) or C+ (columns only)
+                    R+ (rows only), C+ (columns only), Rp+ (rows divided by their standard deviation
+                    to the power p, as in R0.5+S) or P+ (rows and columns scaled for the second
+                    path-weighted error) or Bn+ (one scale per block of n consecutive weights in a
+                    row, as in B32+S)
+  XG:Q              llama.cpp's Q4_0 rule at Q levels: one scale per group G of weights, set by the
+                    group's largest entry, with no search and no clipping. G is a number of
+                    consecutive weights in a row, R for a row or M for the matrix (X32:16 is Q4_0).
+                    XG:Q~C multiplies the step by C, which clips entries above C times the largest
   ARM:Q@KIND        the same on one kind of matrix only (attn_q, attn_k, attn_v, attn_output,
                     ffn_gate, ffn_up, ffn_down), the rest left alone
   close:TENSOR      zero the rows of a token table (per_layer_token_embd or token_embd)
@@ -100,6 +107,82 @@ def path_weighted_err(name, W, Wh, by, layer=None):
         row = g(WRITE_GAIN[kind]) ** 2
         if kind == "ffn_down":
             col = (g("ffn_up") ** 2 * (g("ffn_norm") ** 2)[None, :]).sum(axis=1)
+    if col is not None:
+        num, den = num * col[None, :], den * col[None, :]
+    if row is not None:
+        num, den = num * row[:, None], den * row[:, None]
+    return float(num.sum() / den.sum())
+
+
+_PW = {}
+
+
+def path2_weights(reader, by, il, layer=None):
+    """Row and column weights for the seven matrices of one layer: {kind: (row weights, column weights)}.
+
+    Written after round 2. Each weight's squared error is counted by the squared size of everything
+    it is multiplied with on both sides, read off the forward pass with no data:
+      - columns of the five reading matrices by the gain vector before them (as in the first measure);
+      - rows of attn_output and ffn_down by the gain vector after the norm that follows them;
+      - the three feed-forward matrices by each other: hidden unit i computes
+        gelu(gate_i x) * (up_i x) and writes it through column i of ffn_down, so row i of ffn_gate
+        counts by the sizes of row i of ffn_up and column i of ffn_down, and so on round;
+      - rows of attn_q and attn_k by the gains of the two norms between them and the dot product,
+        divided by the size of their own head, because the norm rescales a head as a whole;
+      - rows of attn_v by the columns of attn_output they feed, divided by the size of their head.
+    Sizes are taken with the matrix's own gains. Query heads are taken to share a key and value head
+    in consecutive groups. The keys and values of the last 18 layers are never read: weight one.
+    """
+    if layer is None and il in _PW:
+        return _PW[il]
+
+    def g(n, layer_index=il):
+        full = f"blk.{layer_index}.{n}.weight"
+        return (layer[full] if layer and full in layer else ggufedit.tensor_float(by[full])).astype(np.float64)
+
+    arch = meta(reader, "general.architecture")
+    live = live_kv_layers(reader)
+    swa = meta(reader, f"{arch}.attention.sliding_window_pattern")
+    src = il if il < live else live - (2 if swa[il] else 1)       # the layer whose keys this layer's queries meet
+    ga, gf = g("attn_norm") ** 2, g("ffn_norm") ** 2
+    ha, hf = g("post_attention_norm") ** 2, g("post_ffw_norm") ** 2
+    qn, kn = g("attn_q_norm") ** 2, g("attn_k_norm", src) ** 2
+    hd = len(qn)
+
+    def per_head(M, colw):
+        e = (M ** 2 * colw[None, :]).sum(axis=1)
+        return np.repeat(e.reshape(-1, hd).mean(axis=1), hd)
+
+    out = {}
+    q, o = g("attn_q"), g("attn_output")
+    n_head = q.shape[0] // hd
+    out["attn_q"] = (np.tile(qn * kn, n_head) / per_head(q, ga), ga)
+    out["attn_output"] = (ha, None)
+    if il < live:
+        k, v = g("attn_k"), g("attn_v")
+        n_kv = k.shape[0] // hd
+        out["attn_k"] = (np.tile(qn * kn, n_kv) / per_head(k, ga), ga)
+        ocol = (o ** 2 * ha[:, None]).sum(axis=0).reshape(n_kv, n_head // n_kv, hd).sum(axis=1).reshape(-1)
+        out["attn_v"] = (ocol / per_head(v, ga), ga)
+    else:
+        out["attn_k"] = out["attn_v"] = (None, None)
+    gate, up, down = g("ffn_gate"), g("ffn_up"), g("ffn_down")
+    ng, nu = (gate ** 2 * gf[None, :]).sum(axis=1), (up ** 2 * gf[None, :]).sum(axis=1)
+    nd = (down ** 2 * hf[:, None]).sum(axis=0)
+    out["ffn_gate"] = (nu * nd, gf)
+    out["ffn_up"] = (ng * nd, gf)
+    out["ffn_down"] = (hf, ng * nu)
+    if layer is None:
+        _PW[il] = out
+    return out
+
+
+def path2_err(reader, name, W, Wh, by, layer=None):
+    """Relative error under the weights of path2_weights."""
+    il, kind = BLOCK.match(name).groups()
+    row, col = path2_weights(reader, by, int(il), layer)[kind]
+    num = (W.astype(np.float64) - Wh.astype(np.float64)) ** 2
+    den = W.astype(np.float64) ** 2
     if col is not None:
         num, den = num * col[None, :], den * col[None, :]
     if row is not None:
@@ -234,10 +317,10 @@ def build_dead_kv(reader):
                      "weights_in_model": int(sum(int(np.prod(x.shape)) for x in reader.tensors))}
 
 
-def build_rounded(reader, arm, q, kind):
+def build_rounded(reader, arm, q, kind, row_power=None, shrink=1.0):
     import tq
     replace, per_kind, weights, energy_err, energy = {}, {}, 0, 0.0, 0.0
-    bits, gw = [], {}
+    bits, gw, gw2 = [], {}, {}
     by = {t.name: t for t in reader.tensors}
     for t in targets(reader, kind):
         W = ggufedit.tensor_float(t)
@@ -245,12 +328,19 @@ def build_rounded(reader, arm, q, kind):
             Wh = W.astype(np.float16)
             W64 = W.astype(np.float64)
             info = {"rel_err": float(np.sum((W64 - Wh.astype(np.float64)) ** 2) / np.sum(W64 ** 2)), "bits": 16.0, "overload": 0.0}
+        elif arm.startswith("X"):
+            Wh, info = tq.maxscale_round(W, q, arm[1:], shrink=shrink)
+        elif arm.startswith("P+"):
+            il_, kind_ = BLOCK.match(t.name).groups()
+            rw, cw = path2_weights(reader, by, int(il_))[kind_]
+            Wh, info = tq.round_matrix(W, arm, q, row_w=rw, col_w=cw)
         else:
-            Wh, info = tq.round_matrix(W, arm, q)
+            Wh, info = tq.round_matrix(W, arm, q, row_power=row_power)
         replace[t.name] = Wh
         k = BLOCK.match(t.name).group(2)
         per_kind.setdefault(k, []).append(info["rel_err"])
         gw.setdefault(k, []).append(path_weighted_err(t.name, W, Wh, by))
+        gw2.setdefault(k, []).append(path2_err(reader, t.name, W, Wh, by))
         e = float(np.sum(W.astype(np.float64) ** 2))
         energy += e
         energy_err += e * info["rel_err"]
@@ -264,6 +354,8 @@ def build_rounded(reader, arm, q, kind):
         "weight_err_db_by_kind": {k: sum(db(v) for v in vs) / len(vs) for k, vs in sorted(per_kind.items())},
         "path_err_db_mean": sum(db(v) for vs in gw.values() for v in vs) / len(every),
         "path_err_db_by_kind": {k: sum(db(v) for v in vs) / len(vs) for k, vs in sorted(gw.items())},
+        "path2_err_db_mean": sum(db(v) for vs in gw2.values() for v in vs) / len(every),
+        "path2_err_db_by_kind": {k: sum(db(v) for v in vs) / len(vs) for k, vs in sorted(gw2.items())},
     }
     return replace, stats
 
@@ -343,14 +435,17 @@ def main():
                 replace, stats = build_gauged(reader, m.group(2), int(m.group(3)), 0, full=bool(m.group(1)))
                 row.update({"arm": "G" + m.group(1) + "+" + m.group(2), "q": int(m.group(3)), "kind": "all"})
             else:
-                m = re.match(r"^([DRC]\+)?(S|Z8|E8):(\d+)(?:@(\w+))?$", v)
+                m = re.match(r"^(?:([DRCP]\+|B\d+\+)|R(\d*\.?\d+)\+)?(S|Z8|E8|X\d+|XR|XM):(\d+)(?:~(\d*\.?\d+))?(?:@(\w+))?$", v)
                 if not m:
                     raise SystemExit(f"unknown variant {v}")
-                arm, q, kind = (m.group(1) or "") + m.group(2), int(m.group(3)), m.group(4)
+                power = float(m.group(2)) if m.group(2) else None
+                arm = (m.group(1) or ("R+" if power is not None else "")) + m.group(3)
+                q, kind = int(m.group(4)), m.group(6)
+                shrink = float(m.group(5)) if m.group(5) else 1.0
                 if kind is not None and kind not in KINDS:
                     raise SystemExit(f"unknown kind {kind}")
-                replace, stats = build_rounded(reader, arm, q, kind)
-                row.update({"arm": arm, "q": q, "kind": kind or "all"})
+                replace, stats = build_rounded(reader, arm, q, kind, row_power=power, shrink=shrink)
+                row.update({"arm": v.split(":")[0], "q": q, "kind": kind or "all"})
             row.update(stats)
             row["build_seconds"] = round(time.time() - t0, 1)
             if args.metrics_only:

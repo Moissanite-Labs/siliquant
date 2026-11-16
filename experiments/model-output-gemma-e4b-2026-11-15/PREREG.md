@@ -94,3 +94,40 @@ Two variants were scored with no prediction written down. Zeroing the key and va
 | A1 | R+S and C+S at q = 32 each have a lower mean KL than S, and D+S is lower than both. | any of the four comparisons goes the other way |
 | A2 | G+S at q = 32 has a lower mean KL than S. | it is not lower |
 | A3 | Over the eight arms at q = 32 (S, E8, D+S, D+E8, R+S, C+S, G+S, GF+S) the path-weighted error ranks the arms by mean KL better than the plain weight error does, with a rank correlation of at least 0.7. | its rank correlation is under 0.7 or not above that of the plain error |
+
+## Round 3, added after round 2's rounding arms were scored
+
+Written after these further results and before any variant of this round was scored.
+
+| Variant | Bits | Weight error, mean | Mean KL | Top token kept |
+|---|---|---|---|---|
+| D+E8 at q = 32 | 5.009 | -25.46 dB | 0.275 | 85.99 % |
+| R+S at q = 32 | 5.005 | -23.20 dB | 0.340 | 84.20 % |
+| C+S at q = 32 | 5.004 | -22.02 dB | 2.899 | 57.70 % |
+| G+S at q = 32 | 5.000 | -19.32 dB | 5.507 | 35.02 % |
+| GF+S at q = 32 | 5.000 | -16.65 dB | 17.846 | 0.63 % |
+| S at q = 16 | 4.000 | -17.25 dB | 6.505 | 37.38 % |
+| E8 at q = 16 | 4.000 | -18.29 dB | 7.281 | 36.25 % |
+| D+S at q = 16 | 4.009 | -18.92 dB | 0.726 | 77.39 % |
+| llama.cpp `Q4_0` | 4.500 | -21.06 dB | 0.117 | 89.40 % |
+
+A1 and A2 have failed. Scaling rows helps and scaling columns hurts. Balancing through the symmetries makes the output far worse. `Q4_0` has a larger weight error than three of the arms above and a KL two to three times smaller.
+
+`Q4_0` differs from the arms in two ways. It gives every 32 consecutive weights their own scale, and it sets that scale from the largest entry, so nothing is clipped. The arms search for the scale with the least squared error, which clips the largest weights. This round separates the two.
+
+### What this round runs
+
+- `XG` at q levels: the `Q4_0` rule with one scale per group G, where G is 32 weights (`X32`) or a row (`XR`). `X32` at q = 16 is `Q4_0` itself: on three matrices it gives the same values as llama.cpp's file on every entry.
+- `XR` at q = 32 with the step multiplied by 0.7, 0.5 and 0.35. A smaller step is finer and clips every entry above that share of the row's largest.
+- `B32+S`: one scale per 32 weights, the block's root mean square, then the searched step with clipping as in arm S.
+- `R+S` at q = 16, to complete the grid of two group sizes at q = 16 and 32.
+
+Weight errors were looked at on two or three matrices of layers 12 and 30 before writing this. At q = 16, `X32` has -20.8 to -21.3 dB and `B32+S` has -19.1 and -19.9 dB, so at this group size the rule with no clipping also has the smaller weight error. At q = 32 on rows, `XR` has -20.9 to -22.5 dB against -22.6 to -22.9 dB for `R+S`.
+
+### Predictions
+
+| | Prediction | Fails if |
+|---|---|---|
+| B1 | `X32` at q = 16 scores as `Q4_0` does: mean KL within 10 percent of 0.1173. | it is outside 0.106 to 0.129 |
+| B2 | Clipping is what hurts. Among `XR` at q = 32 with the step multiplied by 1, 0.7, 0.5 and 0.35, the mean KL is lowest with no clipping (1), and the mean weight error is lowest at one of the others. | the lowest mean KL is at 0.7, 0.5 or 0.35, or the lowest weight error is at 1 |
+| B3 | A finer scale gives a lower mean KL under both rules, at both q: `X32` under `XR`, and `B32+S` under `R+S`. | any of the four goes the other way |
