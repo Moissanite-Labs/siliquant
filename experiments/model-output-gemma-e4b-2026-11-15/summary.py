@@ -187,12 +187,58 @@ def main():
 
     clips = sorted((v for v in rows if v.startswith("clip:")), key=lambda v: float(v.split(":")[1].split("@")[0]))
     if clips:
-        print("7. Clipping with no rounding (not part of the predictions)")
+        print("7. Clipping with no rounding (not part of the predictions, except D1)")
         print("   every entry beyond the limit, in standard deviations of its row, is pulled back to the limit")
         print("   limit | share of entries clipped, % | weight error, mean dB | mean KL | top token kept, %")
         for v in clips:
             r = rows[v]
             print(f"   {v[5:]} | {100 * r.get('share_clipped', 0):.4f} | {r['weight_err_db_mean']:.2f} | {r['kl_mean']:.4f} +- {r['kl_mean_se']:.4f} | {r['same_top']:.2f}")
+        if "flip:3.45" in rows and "clip:3.45" in rows:
+            r = rows["flip:3.45"]
+            print(f"   the same entries as limit 3.45 moved by the same amounts, each toward or away from zero at random: "
+                  f"weight error {r['weight_err_db_mean']:.2f} dB, mean KL {r['kl_mean']:.4f} +- {r['kl_mean_se']:.4f}, top token kept {r['same_top']:.2f} %")
+            verdict("D1", kl("flip:3.45") < 0.5 * kl("clip:3.45"), f"flip {kl('flip:3.45'):.4f} against clip {kl('clip:3.45'):.4f}")
+        by_kind = [v for v in clips if "@" in v]
+        if by_kind:
+            print(f"   the seven separate values at limit 5 add up to {sum(kl(v) for v in by_kind):.4f}")
+        if "XR:32" in rows and "clip:3.45" in rows:
+            a, b = rows["clip:3.45"], rows["XR:32"]
+            print(f"   per unit of squared error, clipping at 3.45 does {a['kl_mean'] / b['kl_mean'] * 10 ** ((b['weight_err_db_mean'] - a['weight_err_db_mean']) / 10):.0f} "
+                  f"times the damage of the rounding noise of XR at q = 32 (mean KL over weight error, as a ratio)")
+        print()
+
+    spath = HERE / "spectral.jsonl"
+    if spath.exists():
+        spec = {}
+        for ln in spath.read_text().splitlines():
+            r = json.loads(ln)
+            spec[r["variant"]] = r
+        listed = [v for v in spec if v in rows and v != "flip:3.45"]
+        print("7b. Spectral error on the 42 matrices of layers 0, 8, 16, 24, 32 and 40 (round 5)")
+        print("   variant | squared error, mean dB | spectral error, mean dB | mean KL")
+        for v in sorted(listed, key=kl):
+            print(f"   {v} | {spec[v]['squared_err_db_mean']:.2f} | {spec[v]['spectral_err_db_mean']:.2f} | {kl(v):.4f}")
+        if "flip:3.45" in spec and "flip:3.45" in rows:
+            print(f"   flip:3.45 (not among the 26) | {spec['flip:3.45']['squared_err_db_mean']:.2f} | {spec['flip:3.45']['spectral_err_db_mean']:.2f} | {kl('flip:3.45'):.4f}")
+        ks = [kl(v) for v in listed]
+        rs = spearman([spec[v]["spectral_err_db_mean"] for v in listed], ks)
+        rf = spearman([spec[v]["squared_err_db_mean"] for v in listed], ks)
+        above = "clip:3.45" in spec and "XR:32" in spec and spec["clip:3.45"]["spectral_err_db_mean"] > spec["XR:32"]["spectral_err_db_mean"]
+        verdict("D2", len(listed) == 26 and rs >= 0.8 and rs > rf and above,
+                f"rank correlation with mean KL over {len(listed)} variants: spectral error {rs:+.3f}, squared error {rf:+.3f}; "
+                f"clip:3.45 {'above' if above else 'not above'} XR:32 in spectral error")
+        rs2 = spearman([spec[v]["spectral_err_db_mean_read"] for v in listed], ks)
+        rf2 = spearman([spec[v]["squared_err_db_mean_read"] for v in listed], ks)
+        print(f"   on the 36 of those matrices that are read: spectral error {rs2:+.3f}, squared error {rf2:+.3f}")
+        rounding = [v for v in listed if not v.startswith("clip:")]
+        kr = [kl(v) for v in rounding]
+        print(f"   over the {len(rounding)} variants that round (the clip probes left out): spectral error "
+              f"{spearman([spec[v]['spectral_err_db_mean'] for v in rounding], kr):+.3f}, squared error "
+              f"{spearman([spec[v]['squared_err_db_mean'] for v in rounding], kr):+.3f}")
+        if "clip:3.45" in spec and "clip:5" in spec and "XR:32" in spec:
+            x = spec["XR:32"]["spectral_err_db_mean"]
+            print(f"   spectral error of the clip probes against XR at q = 32: clip:3.45 {spec['clip:3.45']['spectral_err_db_mean'] - x:+.2f} dB, "
+                  f"clip:5 {spec['clip:5']['spectral_err_db_mean'] - x:+.2f} dB (both have the larger mean KL)")
         print()
 
     kinds = [v for v in rows if v.startswith("S:16@")]
@@ -222,6 +268,15 @@ def main():
            if rows[a]["weight_err_db_mean"] < rows[b]["weight_err_db_mean"] - 1.0 and kl(a) > 2.0 * kl(b)]
     print(f"   pairs where one variant has a weight error at least 1 dB smaller and a mean KL at least twice as large: {len(inv)} of {len(full) * (len(full) - 1) // 2}")
     print()
+    rr = HERE / "rerun.jsonl"
+    if rr.exists():
+        r2 = json.loads(rr.read_text().splitlines()[0])
+        r1 = rows[r2["variant"]]
+        keys = ("weight_err_db_mean", "kl_mean", "kl_mean_se", "kl_median", "kl_max", "same_top", "ppl")
+        same = all(r1[k] == r2[k] for k in keys)
+        print(f"   {r2['variant']} scored a second time with nothing else running: "
+              + ("every number equal to the first run's" if same else "; ".join(f"{k} {r1[k]} then {r2[k]}" for k in keys if r1[k] != r2[k])))
+        print()
     print("10. Verdicts: " + ", ".join(f"{n} {'holds' if ok else 'fails'}" for n, ok in VERDICTS))
     print(f"    {sum(ok for _, ok in VERDICTS)} of {len(VERDICTS)} predictions hold.")
 

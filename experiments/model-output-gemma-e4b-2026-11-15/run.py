@@ -21,7 +21,7 @@ Variants:
   VE8G:Q            the E8 Voronoi code with one scale per group G, set so that no block of the
                     group is shrunk (VE832:16 is the lattice form of Q4_0; VZ8G uses the cube)
   clip:C            no rounding: every entry beyond C standard deviations of its row is pulled back
-                    to that limit
+                    to that limit (clip:C@KIND on one kind of matrix only)
   flip:C            the same entries as clip:C moved by the same amounts, each toward or away from
                     zero at random
   ARM:Q@KIND        the same on one kind of matrix only (attn_q, attn_k, attn_v, attn_output,
@@ -454,7 +454,11 @@ def main():
             if v == "identity":
                 replace, stats = build_rounded(reader, "identity", 0, None)
             elif v.startswith("clip:") or v.startswith("flip:"):
-                replace, stats = build_rounded(reader, v[:4], 0, None, shrink=float(v[5:]))
+                limit, _, only = v[5:].partition("@")
+                if only and only not in KINDS:
+                    raise SystemExit(f"unknown kind {only}")
+                replace, stats = build_rounded(reader, v[:4], 0, only or None, shrink=float(limit))
+                row["kind"] = only or "all"
             elif v.startswith("close:"):
                 replace, stats = build_closed(reader, v[6:], args.kld)
             elif v == "dead:kv":

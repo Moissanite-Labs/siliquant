@@ -11,12 +11,13 @@ The repository follows one rule from weft-loom: a path is closed only on a proof
 | `bounds/` | Proved floors and ceilings for rounding weights, computed from their formulas: Shannon's floor, the best scalar quantiser, what the shape of a lattice cell is worth. Also lattice constants, covering thickness and codebook counts. Start with `bounds/bounds.out`. |
 | `perm/` | Exact counting of matchings that avoid forbidden pairs: derangements, rook and hit polynomials, permanents, bounds on permanents, and the closure of a set of forbidden cells. Counts are tested against full enumeration on small cases, and bounds against exact values. `perm/demo.out` holds the figures the notes quote. |
 | `lattice/` | Nearest-point decoders for the lattices Z^n, D_n, E_8, A_n and A_n\*, Voronoi codes, scalar reference quantisers, and row and column balancing. Tested against brute force and against known constants. |
+| `harness/` | Tools for experiments on real model files: read weights out of a GGUF file and write a changed copy, round on a GPU, and score a changed model against the original with llama.cpp's own tool. `harness/test_tq.py` checks the GPU code against `lattice/`. |
 | `experiments/` | One folder per study, each with its plan, program, output and limits. Index in [experiments/README.md](experiments/README.md). |
 | `notes/` | [concept-map.md](notes/concept-map.md): the combinatorics the project owner listed, mapped to code, to the closure rule and to rounding. [brief-check.md](notes/brief-check.md): a source check of the two briefs the repository started from. |
 
 ## How to check it
 
-The counting code needs only Python 3. The rest needs NumPy.
+The counting code needs only Python 3. The rest needs NumPy. The harness also needs torch.
 
 ```bash
 python3 -m unittest perm/test_permlib.py
@@ -30,6 +31,10 @@ python3 -m unittest lattice/test_lattices.py
 python3 bounds/bounds.py
 ```
 
+```bash
+python3 harness/test_tq.py
+```
+
 ## How records are kept
 
 The conventions are those of [weft-loom's CONTRIBUTING.md](https://github.com/Moissanite-Labs/weft-loom/blob/main/CONTRIBUTING.md). In short:
@@ -41,7 +46,11 @@ The conventions are those of [weft-loom's CONTRIBUTING.md](https://github.com/Mo
 
 ## Status
 
-One study so far, on weight error only: at 2 bits per weight the lattice E8 beats scalar rounding on every matrix tried, and the lattice the starting briefs proposed, A8\*, gains less than half as much in the mean of each family of data. Nothing here has measured the output of a quantised model.
+Two studies so far.
+
+The first measured weight error only: at 2 bits per weight the lattice E8 beats scalar rounding on every matrix tried, and the lattice the starting briefs proposed, A8\*, gains less than half as much in the mean of each family of data.
+
+The second measured the output of a real model, `gemma-4-E4B-it`. Weight error turned out not to say what the output does. What it follows is how the scale is set. With one scale per 32 weights, set from the largest entry, E8 gives a closer output than llama.cpp's `Q4_0` at the same 4.5 bits. With the first study's scale rule E8 is worse than scalar rounding. One model and one text so far.
 
 ## Licence
 
