@@ -1,0 +1,57 @@
+1. Where the searched step of R+S clips at q = 32, on the 42 matrices of layers (0, 8, 16, 24, 32, 40)
+   clip limit in standard deviations of the row: least 2.22, median 3.27, most 3.92
+   share of entries clipped: 0.1842 %
+   The clip probes use one limit, 3.45, on every matrix. So they touch nearly the entries R+S clips, not exactly those.
+
+2. What XR at q = 32 clips when its step is multiplied by 0.7
+   share of entries clipped: 0.8645 %
+   largest entry of a row, in standard deviations of the row: median over rows 2.3 to 4.8 by matrix, 99th percentile 2.3 to 14.1
+   so the limit, 0.7 of the row's largest entry, is 1.6 to 3.4 standard deviations for the median row and higher for rows with a large entry. No entry is cut by more than 30 percent.
+
+3. Blocks shrunk by the lattice arms with one scale per group
+   VE832 at q = 16: share of blocks shrunk 0.000000 %
+   VE8R at q = 32: share of blocks shrunk 0.000000 %
+   VE8R at q = 16: share of blocks shrunk 0.000000 %
+
+4. Balancing through the symmetries (arm G): kurtosis of the matrices before and after
+   layer | matrix | before | after
+   0 | ffn_up | 3.4 | 3.9
+   0 | ffn_gate | 3.7 | 3.7
+   0 | ffn_down | 4.5 | 4.2
+   0 | attn_q | 3.5 | 4.1
+   12 | ffn_up | 3.8 | 24.8
+   12 | ffn_gate | 4.0 | 33.0
+   12 | ffn_down | 4.4 | 4.4
+   12 | attn_q | 3.6 | 18.3
+   30 | ffn_up | 3.9 | 4.3
+   30 | ffn_gate | 5.0 | 6.7
+   30 | ffn_down | 4.6 | 5.0
+   30 | attn_q | 7.6 | 19.7
+   41 | ffn_up | 4.4 | 4.9
+   41 | ffn_gate | 5.1 | 4.9
+   41 | ffn_down | 4.7 | 6.1
+   41 | attn_q | 5.7 | 12.3
+   A normal distribution has kurtosis 3. Whether the heavier tails cause the damage of arm G was not tested.
+
+5. The arm built to minimise the second path-weighted error (P+S), layer 12, q = 32
+   matrix | S: squared error, second path-weighted error | R+S | P+S     (all in dB)
+   attn_q | -22.90, -22.58 | -23.34, -23.28 | -8.11, -21.54
+   attn_k | -21.51, -22.36 | -22.05, -22.94 | -8.75, -21.93
+   attn_v | -22.56, -21.97 | -22.98, -22.87 | -7.76, -22.14
+   attn_output | -18.80, -18.68 | -22.94, -22.45 | -8.29, -20.55
+   ffn_gate | -22.09, -22.68 | -22.64, -24.16 | 0.30, -20.56
+   ffn_up | -22.04, -23.87 | -22.64, -24.26 | 0.02, -20.76
+   ffn_down | -20.93, -23.20 | -22.51, -23.86 | -11.63, -22.75
+   On its own measure P+S is worse than S on 5 of 7 matrices and worse than R+S on 7 of 7. It was not scored on the model.
+
+6. This repo's code for the Q4_0 rule against llama.cpp's Q4_0 file
+   blk.12.ffn_up.weight: equal on 95.96 % of entries, largest difference 3.0e-04 of the largest weight
+   blk.12.attn_output.weight: equal on 95.64 % of entries, largest difference 3.9e-04 of the largest weight
+   blk.30.ffn_down.weight: equal on 95.42 % of entries, largest difference 1.8e-04 of the largest weight
+   The differences are of the size of one step of a 16-bit float: llama.cpp stores the scale as a 16-bit float and
+   multiplies, this code multiplies and then stores the product as a 16-bit float.
+
+7. Which tensors llama.cpp's quantisers changed
+   Q4_0.gguf: 294 tensors differ from the reference, 0 of them outside the 294 block matrices []. Block matrices by storage type: {'Q4_0': 294}
+   Q4_K_M.gguf: 294 tensors differ from the reference, 0 of them outside the 294 block matrices []. Block matrices by storage type: {'Q4_K': 252, 'Q6_K': 42}
+   Q3_K_M.gguf: 294 tensors differ from the reference, 0 of them outside the 294 block matrices []. Block matrices by storage type: {'Q3_K': 168, 'Q4_K': 122, 'Q5_K': 4}
