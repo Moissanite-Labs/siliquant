@@ -25,7 +25,7 @@ Findings 2 and 3 below were found along the way. The largest-entry rule and the 
 | Text | Built by `harness/build_eval_text.py` from the llama.cpp repository at commit `427291b`: slices of documentation alternating with slices of source code. 40 passages of 512 tokens, the second half of each scored. |
 | Score | `llama-perplexity --kl-divergence`: mean KL divergence from the reference model's next-token distribution, and the share of positions where the top token stays the same. |
 | Bits | Counted from the codebook: log2 of the levels per weight, plus 16 bits for each scale. Rounded values are stored as 16-bit floats so that llama.cpp reads what the rounding produced. For llama.cpp's own quantisers the bits are those of the file. |
-| Weight error | Squared change over squared size. "Mean" is the mean over matrices of that ratio in dB. "Pooled" sums both over all matrices first. The two differ by under 1 dB for the rounding variants and by 7 to 14 dB for the clip probes. |
+| Weight error | Squared change over squared size. "Mean" is the mean over matrices of that ratio in dB. "Pooled" sums both over all matrices first. The two differ by under 1 dB for this repo's rounding variants, by up to 2 dB for llama.cpp's quantisers, and by 7 to 14 dB for the clip probes on all matrices. |
 
 Checks of the harness:
 
@@ -131,9 +131,9 @@ The largest-entry rule beats the searched step in all four cells. A finer group 
 | 0.5 | -16.28 dB | 0.502 |
 | 0.35 | -11.05 dB | 1.867 |
 
-At a factor of 0.7 the rule clips 0.86 percent of entries, more than the 0.18 percent that `R+S` clips, and the output is no worse than with nothing clipped. It cuts no entry by more than 30 percent. So the number of entries clipped is not what hurts.
+At a factor of 0.7 the rule clips 0.86 percent of entries, more than the 0.18 percent that `R+S` clips, and the output is no worse than with nothing clipped. It cuts no entry by more than 30 percent.
 
-The same factor on `X32` at q = 16 does not help. This control was added after the second read: 0.9 gives 0.142, 0.8 gives 0.220 and 0.7 gives 0.416, against 0.117 with no factor.
+The same factor on `X32` at q = 16 does cost. This control was added after the second read: 0.9 gives 0.142, 0.8 gives 0.220 and 0.7 gives 0.416, against 0.117 with no factor. There it clips 4.9, 7.5 and 11.1 percent of entries. Why the factor is free on rows and costly on groups of 32 was not identified.
 
 ## A few large weights
 
@@ -189,7 +189,7 @@ At 4.5 bits `VE832` scores 0.075 and `Q4_K_M` at 4.8 bits scores 0.069. At 4.005
 |---|---|---|
 | Squared weight error | the plan | Rank correlation with mean KL over 32 variants: 0.751 pooled, 0.721 as a mean. In 54 of the 496 pairs one variant has the smaller pooled error by at least 1 dB and a mean KL at least twice as large. It has the clip at 3.45 as 5.8 dB better than `XR`, whose KL is 2.7 times smaller. |
 | Path-weighted error: each weight counted by the gains and the partner matrix it meets in the forward pass | round 2, before its arms were scored | Ranks the eight arms at 5 bits no better than squared error (0.833 against 0.905). |
-| Second path-weighted error, with rows weighted too | after round 2 | An arm built to minimise it was tried on layer 12. It was worse than plain rounding on its own measure on all seven matrices (`checks.out`) and was not scored. |
+| Second path-weighted error, with rows weighted too | after round 2 | An arm built to minimise it was tried on layer 12. On its own measure it was worse than rows-only rounding (`R+S`) on all seven matrices and worse than plain rounding on five (`checks.out`). It was not scored. |
 | Spectral error: the largest singular value of the weight change | round 5, before it was computed | Rank correlation 0.889 over 26 variants, against 0.603 for squared error on the same matrices. It has both clip probes as better than `XR`, by 4.6 and 9.6 dB, when both are worse. With the three clip probes left out, a choice made after seeing the result, it is 0.916 over 23. |
 | Activation-weighted error: each column counted by the mean square of the input it multiplies, from `llama-imatrix` on 40 passages that are not scored | round 6, before it was computed | Rank correlation 0.763 over 26 variants, below the spectral error. It has the clip probes as better than `XR` by 6.1 and 16.2 dB. |
 

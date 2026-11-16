@@ -42,7 +42,7 @@
    ffn_gate | -22.09, -22.68 | -22.64, -24.16 | 0.30, -20.56
    ffn_up | -22.04, -23.87 | -22.64, -24.26 | 0.02, -20.76
    ffn_down | -20.93, -23.20 | -22.51, -23.86 | -11.63, -22.75
-   P+S is worse than S on its own measure on all seven matrices, so it was not scored on the model.
+   On its own measure P+S is worse than S on 5 of 7 matrices and worse than R+S on 7 of 7. It was not scored on the model.
 
 6. This repo's code for the Q4_0 rule against llama.cpp's Q4_0 file
    blk.12.ffn_up.weight: equal on 95.96 % of entries, largest difference 3.0e-04 of the largest weight

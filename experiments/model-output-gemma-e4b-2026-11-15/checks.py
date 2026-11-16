@@ -85,16 +85,20 @@ def main():
     print("5. The arm built to minimise the second path-weighted error (P+S), layer 12, q = 32")
     print("   matrix | S: squared error, second path-weighted error | R+S | P+S     (all in dB)")
     pw = run.path2_weights(reader, by, 12)
+    worse_s = worse_r = 0
     for k in run.KINDS:
         name = f"blk.12.{k}.weight"
         W = ggufedit.tensor_float(by[name])
         rw, cw = pw[k]
-        cells = []
+        cells, own = [], {}
         for arm in ("S", "R+S", "P+S"):
             Wh, info = tq.round_matrix(W, arm, 32, row_w=rw, col_w=cw) if arm == "P+S" else tq.round_matrix(W, arm, 32)
-            cells.append(f"{db(info['rel_err']):.2f}, {db(run.path2_err(reader, name, W, Wh, by)):.2f}")
+            own[arm] = run.path2_err(reader, name, W, Wh, by)
+            cells.append(f"{db(info['rel_err']):.2f}, {db(own[arm]):.2f}")
+        worse_s += own["P+S"] > own["S"]
+        worse_r += own["P+S"] > own["R+S"]
         print(f"   {k} | " + " | ".join(cells))
-    print("   P+S is worse than S on its own measure on all seven matrices, so it was not scored on the model.")
+    print(f"   On its own measure P+S is worse than S on {worse_s} of 7 matrices and worse than R+S on {worse_r} of 7. It was not scored on the model.")
     print()
 
     if len(sys.argv) >= 3:
