@@ -25,7 +25,7 @@ def main():
     reader = ggufedit.open_model(sys.argv[1])
     by = {t.name: t for t in reader.tensors}
     layers = sum(1 for n in by if n.endswith(".ffn_down.weight"))
-    total, size, per_layer, top_cols = 0, 0, [], []
+    total, size, per_layer, top_cols, top_rows = 0, 0, [], [], []
     print(f"ffn_down entries beyond {LIMIT:g} standard deviations of their row")
     print("layer | entries | share of the matrix, % | share of them in the 10 busiest columns, % | in the 10 busiest rows, % | largest entry, in standard deviations of its row")
     for il in range(layers):
@@ -39,11 +39,14 @@ def main():
         size += W.size
         per_layer.append((n, il))
         top_cols.append(100.0 * cols[:10].sum() / max(n, 1))
-        print(f"{il} | {n} | {100.0 * n / W.size:.4f} | {top_cols[-1]:.1f} | {100.0 * rows[:10].sum() / max(n, 1):.1f} | {Z.max():.1f}")
+        top_rows.append(100.0 * rows[:10].sum() / max(n, 1))
+        print(f"{il} | {n} | {100.0 * n / W.size:.4f} | {top_cols[-1]:.1f} | {top_rows[-1]:.1f} | {Z.max():.1f}")
     print(f"total: {total} of {size} entries, one in {size / total:.0f}")
     five = sorted(per_layer, reverse=True)[:5]
     print(f"the five layers with the most ({', '.join(str(il) for _, il in five)}) hold {100.0 * sum(n for n, _ in five) / total:.1f} % of them")
-    print(f"fewest in a layer: {min(per_layer)[0]}. Largest share held by the 10 busiest columns of a layer: {max(top_cols):.1f} %")
+    print(f"fewest in a layer: {min(per_layer)[0]}")
+    print(f"share held by the 10 busiest columns (of 10240) of a layer: {min(top_cols):.1f} to {max(top_cols):.1f} %")
+    print(f"share held by the 10 busiest rows (of 2560) of a layer: {min(top_rows):.1f} to {max(top_rows):.1f} %")
 
 
 if __name__ == "__main__":

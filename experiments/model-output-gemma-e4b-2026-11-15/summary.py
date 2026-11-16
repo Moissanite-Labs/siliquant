@@ -72,10 +72,14 @@ def main():
             if v in rows:
                 print(line(rows[v], v[5:].replace(".gguf", "") if v.startswith("file:") else None))
 
-    ref = rows["identity"]
     print("Reference model against its own saved outputs")
-    print(f"   perplexity {ref['ppl']:.4f}, mean KL {ref['kl_mean']:.6f}, largest KL at one position {ref['kl_max']:.6f}, top token kept {ref['same_top']:.2f} %")
-    print("   This row is the control copy with the block matrices stored as 16-bit floats. The unchanged file scores the same.")
+    for v, label in (("unchanged", "the unchanged file"), ("identity", "a copy with the block matrices stored as 16-bit floats")):
+        if v in rows:
+            r = rows[v]
+            print(f"   {label}: perplexity {r['ppl']:.6f}, mean KL {r['kl_mean']:.6f}, largest KL at one position {r['kl_max']:.6f}, top token kept {r['same_top']:.2f} %")
+    if "unchanged" in rows and "identity" in rows:
+        keys = ("ppl", "kl_mean", "kl_mean_se", "kl_median", "kl_p99", "kl_max", "rms_dp", "same_top")
+        print("   every printed statistic of the two is equal" if all(rows["unchanged"][k] == rows["identity"][k] for k in keys) else "   the two differ")
     print()
 
     print("1. Closures")
@@ -171,6 +175,15 @@ def main():
         verdict("B3", all(kl(a) < kl(b) for a, b in b3), "; ".join(f"{a} {kl(a):.4f} against {b} {kl(b):.4f}" for a, b in b3))
     print()
 
+    ctl = [("X32:16", 1.0), ("X32:16~0.9", 0.9), ("X32:16~0.8", 0.8), ("X32:16~0.7", 0.7)]
+    if all(v in rows for v, _ in ctl):
+        print("5b. A control added after the second read: X32 at q = 16 with its step multiplied by a factor (not part of the predictions)")
+        for v, c in ctl:
+            r = rows[v]
+            share = f", entries clipped {100 * r['share_out_of_range']:.2f} %" if "share_out_of_range" in r else ""
+            print(f"   factor {c}: weight error {r['weight_err_db_mean']:.2f} dB, mean KL {kl(v):.4f} +- {r['kl_mean_se']:.4f}, top token kept {r['same_top']:.2f} %{share}")
+        print()
+
     print("6. Round 4: the lattice with one scale per group and no block shrunk")
     table(["X32:16", "VE832:16", "XR:16", "VE8R:16", "XR:32", "VE8R:32"])
     pairs = [(a, b) for a, b in (("X32:16", "VE832:16"), ("XR:32", "VE8R:32"), ("XR:16", "VE8R:16")) if a in rows and b in rows]
@@ -189,22 +202,24 @@ def main():
     if clips:
         print("7. Clipping with no rounding (not part of the predictions, except D1)")
         print("   every entry beyond the limit, in standard deviations of its row, is pulled back to the limit")
-        print("   limit | share of entries clipped, % | weight error, mean dB | mean KL | top token kept, %")
+        print("   'pooled' is the squared change summed over all the matrices changed, over their summed squares. 'mean' is the mean of the 294 or 42 ratios in dB.")
+        print("   limit | share of entries clipped, % | weight error pooled, dB | weight error mean, dB | mean KL | top token kept, %")
         for v in clips:
             r = rows[v]
-            print(f"   {v[5:]} | {100 * r.get('share_clipped', 0):.4f} | {r['weight_err_db_mean']:.2f} | {r['kl_mean']:.4f} +- {r['kl_mean_se']:.4f} | {r['same_top']:.2f}")
+            print(f"   {v[5:]} | {100 * r.get('share_clipped', 0):.4f} | {r['weight_err_db_pooled']:.2f} | {r['weight_err_db_mean']:.2f} | {r['kl_mean']:.4f} +- {r['kl_mean_se']:.4f} | {r['same_top']:.2f}")
         if "flip:3.45" in rows and "clip:3.45" in rows:
             r = rows["flip:3.45"]
             print(f"   the same entries as limit 3.45 moved by the same amounts, each toward or away from zero at random: "
-                  f"weight error {r['weight_err_db_mean']:.2f} dB, mean KL {r['kl_mean']:.4f} +- {r['kl_mean_se']:.4f}, top token kept {r['same_top']:.2f} %")
+                  f"weight error pooled {r['weight_err_db_pooled']:.2f} dB, mean KL {r['kl_mean']:.4f} +- {r['kl_mean_se']:.4f}, top token kept {r['same_top']:.2f} %")
             verdict("D1", kl("flip:3.45") < 0.5 * kl("clip:3.45"), f"flip {kl('flip:3.45'):.4f} against clip {kl('clip:3.45'):.4f}")
         by_kind = [v for v in clips if "@" in v]
         if by_kind:
             print(f"   the seven separate values at limit 5 add up to {sum(kl(v) for v in by_kind):.4f}")
         if "XR:32" in rows and "clip:3.45" in rows:
             a, b = rows["clip:3.45"], rows["XR:32"]
-            print(f"   per unit of squared error, clipping at 3.45 does {a['kl_mean'] / b['kl_mean'] * 10 ** ((b['weight_err_db_mean'] - a['weight_err_db_mean']) / 10):.0f} "
-                  f"times the damage of the rounding noise of XR at q = 32 (mean KL over weight error, as a ratio)")
+            print(f"   XR at q = 32 for comparison: weight error pooled {b['weight_err_db_pooled']:.2f} dB, mean {b['weight_err_db_mean']:.2f} dB, mean KL {b['kl_mean']:.4f}")
+            print(f"   per unit of pooled squared error, clipping at 3.45 does {a['kl_mean'] / b['kl_mean'] * 10 ** ((b['weight_err_db_pooled'] - a['weight_err_db_pooled']) / 10):.1f} "
+                  f"times the damage of the rounding of XR at q = 32 (ratio of mean KL over ratio of squared error)")
         print()
 
     spath = HERE / "spectral.jsonl"
@@ -284,19 +299,21 @@ def main():
         print()
 
     print("9. Weight error against output, all variants that round every block matrix")
-    full = [v for v, r in rows.items() if r.get("weights") == 3945267200 and "weight_err_db_mean" in r and "bits_per_weight" in r and r["bits_per_weight"] < 15
-            and not v.startswith("clip:")]
-    full.sort(key=lambda v: rows[v]["weight_err_db_mean"])
-    print("   in order of weight error, smallest first")
-    print("   variant | bits per weight | weight error, mean dB | mean KL")
+    full = [v for v, r in rows.items() if r.get("weights") == 3945267200 and "weight_err_db_pooled" in r and "bits_per_weight" in r and r["bits_per_weight"] < 15
+            and not v.startswith("clip:") and not v.startswith("flip:") and "~" not in v.split(":")[0] and not (v.startswith("X32:16~"))]
+    full.sort(key=lambda v: rows[v]["weight_err_db_pooled"])
+    print("   The two symmetry arms are left out: their error is measured against moved matrices. Q4_0 and X32:16 are the same rule.")
+    print("   in order of pooled weight error, smallest first")
+    print("   variant | bits per weight | weight error pooled, dB | weight error mean, dB | mean KL")
     for v in full:
         r = rows[v]
-        print(f"   {v.replace('file:', '').replace('.gguf', '')} | {r['bits_per_weight']:.3f} | {r['weight_err_db_mean']:.2f} | {r['kl_mean']:.4f}")
-    rho = spearman([rows[v]["weight_err_db_mean"] for v in full], [kl(v) for v in full])
-    print(f"   rank correlation of weight error with mean KL over these {len(full)} variants: {rho:+.3f}")
+        print(f"   {v.replace('file:', '').replace('.gguf', '')} | {r['bits_per_weight']:.3f} | {r['weight_err_db_pooled']:.2f} | {r['weight_err_db_mean']:.2f} | {r['kl_mean']:.4f}")
+    ks = [kl(v) for v in full]
+    print(f"   rank correlation with mean KL over these {len(full)} variants: pooled weight error {spearman([rows[v]['weight_err_db_pooled'] for v in full], ks):+.3f}, "
+          f"mean weight error {spearman([rows[v]['weight_err_db_mean'] for v in full], ks):+.3f}")
     inv = [(a, b) for a in full for b in full
-           if rows[a]["weight_err_db_mean"] < rows[b]["weight_err_db_mean"] - 1.0 and kl(a) > 2.0 * kl(b)]
-    print(f"   pairs where one variant has a weight error at least 1 dB smaller and a mean KL at least twice as large: {len(inv)} of {len(full) * (len(full) - 1) // 2}")
+           if rows[a]["weight_err_db_pooled"] < rows[b]["weight_err_db_pooled"] - 1.0 and kl(a) > 2.0 * kl(b)]
+    print(f"   pairs where one variant has a pooled weight error at least 1 dB smaller and a mean KL at least twice as large: {len(inv)} of {len(full) * (len(full) - 1) // 2}")
     print()
     rr = HERE / "rerun.jsonl"
     if rr.exists():

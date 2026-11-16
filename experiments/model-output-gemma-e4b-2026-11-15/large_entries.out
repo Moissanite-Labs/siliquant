@@ -44,4 +44,6 @@ layer | entries | share of the matrix, % | share of them in the 10 busiest colum
 41 | 4362 | 0.0166 | 8.3 | 10.7 | 23.7
 total: 188362 of 1101004800 entries, one in 5845
 the five layers with the most (21, 20, 22, 10, 11) hold 35.1 % of them
-fewest in a layer: 666. Largest share held by the 10 busiest columns of a layer: 24.0 %
+fewest in a layer: 666
+share held by the 10 busiest columns (of 10240) of a layer: 2.2 to 24.0 %
+share held by the 10 busiest rows (of 2560) of a layer: 3.2 to 23.4 %

@@ -1,6 +1,7 @@
 Reference model against its own saved outputs
-   perplexity 7.8871, mean KL 0.000000, largest KL at one position 0.000058, top token kept 99.99 %
-   This row is the control copy with the block matrices stored as 16-bit floats. The unchanged file scores the same.
+   the unchanged file: perplexity 7.887085, mean KL 0.000000, largest KL at one position 0.000058, top token kept 99.99 %
+   a copy with the block matrices stored as 16-bit floats: perplexity 7.887085, mean KL 0.000000, largest KL at one position 0.000058, top token kept 99.99 %
+   every printed statistic of the two is equal
 
 1. Closures
    variant | weights changed | share of the model's weights, % | mean KL | largest KL at one position | top token kept, % | perplexity
@@ -81,6 +82,12 @@ Reference model against its own saved outputs
    B2: FAILS. lowest mean KL at factor 0.7, lowest weight error at factor 1.0
    B3: HOLDS. X32:16 0.1173 against XR:16 0.4483; X32:32 0.0313 against XR:32 0.1180; B32+S:16 0.3648 against R+S:16 0.6616; B32+S:32 0.1314 against R+S:32 0.3395
 
+5b. A control added after the second read: X32 at q = 16 with its step multiplied by a factor (not part of the predictions)
+   factor 1.0: weight error -21.06 dB, mean KL 0.1173 +- 0.0037, top token kept 89.41 %
+   factor 0.9: weight error -20.23 dB, mean KL 0.1419 +- 0.0040, top token kept 88.71 %, entries clipped 4.91 %
+   factor 0.8: weight error -17.50 dB, mean KL 0.2197 +- 0.0053, top token kept 86.70 %, entries clipped 7.48 %
+   factor 0.7: weight error -14.51 dB, mean KL 0.4155 +- 0.0091, top token kept 81.89 %, entries clipped 11.12 %
+
 6. Round 4: the lattice with one scale per group and no block shrunk
    variant | bits per weight | weight error, mean dB | mean KL | median KL | top token kept, % | perplexity
    X32:16 | 4.500 | -21.06 | 0.1173 +- 0.0037 | 0.0052 | 89.41 | 7.82
@@ -94,21 +101,23 @@ Reference model against its own saved outputs
 
 7. Clipping with no rounding (not part of the predictions, except D1)
    every entry beyond the limit, in standard deviations of its row, is pulled back to the limit
-   limit | share of entries clipped, % | weight error, mean dB | mean KL | top token kept, %
-   3.45 | 0.1732 | -34.50 | 0.3179 +- 0.0080 | 85.04
-   5 | 0.0150 | -42.85 | 0.2001 +- 0.0055 | 87.12
-   5@ffn_down | 0.0171 | -33.96 | 0.1638 +- 0.0047 | 88.43
-   5@attn_output | 0.0072 | -47.33 | 0.0022 +- 0.0006 | 98.90
-   5@ffn_up | 0.0130 | -36.02 | 0.0129 +- 0.0008 | 96.54
-   5@ffn_gate | 0.0147 | -35.71 | 0.0138 +- 0.0010 | 96.67
-   5@attn_q | 0.0182 | -38.94 | 0.0028 +- 0.0008 | 98.79
-   5@attn_k | 0.0277 | -51.78 | 0.0026 +- 0.0002 | 98.89
-   5@attn_v | 0.0260 | -56.22 | 0.0058 +- 0.0003 | 97.66
-   8 | 0.0014 | -56.93 | 0.0100 +- 0.0008 | 97.35
-   the same entries as limit 3.45 moved by the same amounts, each toward or away from zero at random: weight error -34.50 dB, mean KL 0.0954 +- 0.0032, top token kept 91.17 %
+   'pooled' is the squared change summed over all the matrices changed, over their summed squares. 'mean' is the mean of the 294 or 42 ratios in dB.
+   limit | share of entries clipped, % | weight error pooled, dB | weight error mean, dB | mean KL | top token kept, %
+   3.45 | 0.1732 | -27.52 | -34.50 | 0.3179 +- 0.0080 | 85.04
+   5 | 0.0150 | -33.85 | -42.85 | 0.2001 +- 0.0055 | 87.12
+   5@ffn_down | 0.0171 | -32.29 | -33.96 | 0.1638 +- 0.0047 | 88.43
+   5@attn_output | 0.0072 | -42.93 | -47.33 | 0.0022 +- 0.0006 | 98.90
+   5@ffn_up | 0.0130 | -33.72 | -36.02 | 0.0129 +- 0.0008 | 96.54
+   5@ffn_gate | 0.0147 | -33.86 | -35.71 | 0.0138 +- 0.0010 | 96.67
+   5@attn_q | 0.0182 | -35.32 | -38.94 | 0.0028 +- 0.0008 | 98.79
+   5@attn_k | 0.0277 | -32.73 | -51.78 | 0.0026 +- 0.0002 | 98.89
+   5@attn_v | 0.0260 | -34.27 | -56.22 | 0.0058 +- 0.0003 | 97.66
+   8 | 0.0014 | -43.24 | -56.93 | 0.0100 +- 0.0008 | 97.35
+   the same entries as limit 3.45 moved by the same amounts, each toward or away from zero at random: weight error pooled -27.52 dB, mean KL 0.0954 +- 0.0032, top token kept 91.17 %
    D1: HOLDS. flip 0.0954 against clip 0.3179
    the seven separate values at limit 5 add up to 0.2038
-   per unit of squared error, clipping at 3.45 does 44 times the damage of the rounding noise of XR at q = 32 (mean KL over weight error, as a ratio)
+   XR at q = 32 for comparison: weight error pooled -21.73 dB, mean -22.39 dB, mean KL 0.1180
+   per unit of pooled squared error, clipping at 3.45 does 10.2 times the damage of the rounding of XR at q = 32 (ratio of mean KL over ratio of squared error)
 
 7b. Spectral error on the 42 matrices of layers 0, 8, 16, 24, 32 and 40 (round 5)
    variant | squared error, mean dB | spectral error, mean dB | mean KL
@@ -190,44 +199,43 @@ Reference model against its own saved outputs
    18 of the 42 attn_k and attn_v matrices are never read (section 1), so rounding them changes nothing.
 
 9. Weight error against output, all variants that round every block matrix
-   in order of weight error, smallest first
-   variant | bits per weight | weight error, mean dB | mean KL
-   X32:32 | 5.500 | -27.13 | 0.0313
-   D+E8:32 | 5.009 | -25.46 | 0.2748
-   VE8R:32 | 5.005 | -24.94 | 0.0593
-   B32+S:32 | 5.500 | -24.49 | 0.1314
-   Q4_K_M | 4.803 | -24.48 | 0.0689
-   D+S:32 | 5.009 | -23.75 | 0.4326
-   R+S:32 | 5.005 | -23.20 | 0.3395
-   E8:32 | 5.000 | -22.75 | 2.3447
-   VE832:16 | 4.500 | -22.58 | 0.0747
-   XR:32 | 5.005 | -22.39 | 0.1180
-   C+S:32 | 5.004 | -22.02 | 2.8993
-   XR:32~0.7 | 5.005 | -21.69 | 0.1011
-   S:32 | 5.000 | -21.59 | 2.1839
-   Q4_0 | 4.500 | -21.06 | 0.1173
-   X32:16 | 4.500 | -21.06 | 0.1173
-   D+E8:16 | 4.009 | -20.41 | 0.4209
-   B32+S:16 | 4.500 | -19.35 | 0.3648
-   G+S:32 | 5.000 | -19.32 | 5.5067
-   Q3_K_M | 3.834 | -19.12 | 0.1884
-   D+S:16 | 4.009 | -18.92 | 0.7257
-   VE8R:16 | 4.005 | -18.89 | 0.2146
-   R+S:16 | 4.005 | -18.47 | 0.6616
-   E8:16 | 4.000 | -18.29 | 7.2807
-   S:16 | 4.000 | -17.25 | 6.5046
-   GF+S:32 | 5.000 | -16.65 | 17.8460
-   XR:16 | 4.005 | -16.36 | 0.4483
-   XR:32~0.5 | 5.005 | -16.28 | 0.5021
-   D+E8:8 | 3.009 | -15.26 | 0.8163
-   D+S:8 | 3.009 | -14.01 | 1.6350
-   E8:8 | 3.000 | -13.84 | 15.0221
-   S:8 | 3.000 | -12.87 | 15.5981
-   XR:32~0.35 | 5.005 | -11.05 | 1.8674
-   E8:4 | 2.000 | -9.19 | 22.2490
-   S:4 | 2.000 | -8.42 | 21.6134
-   rank correlation of weight error with mean KL over these 34 variants: +0.720
-   pairs where one variant has a weight error at least 1 dB smaller and a mean KL at least twice as large: 64 of 561
+   The two symmetry arms are left out: their error is measured against moved matrices. Q4_0 and X32:16 are the same rule.
+   in order of pooled weight error, smallest first
+   variant | bits per weight | weight error pooled, dB | weight error mean, dB | mean KL
+   X32:32 | 5.500 | -26.97 | -27.13 | 0.0313
+   D+E8:32 | 5.009 | -25.04 | -25.46 | 0.2748
+   VE8R:32 | 5.005 | -24.85 | -24.94 | 0.0593
+   B32+S:32 | 5.500 | -24.03 | -24.49 | 0.1314
+   Q4_K_M | 4.803 | -23.06 | -24.48 | 0.0689
+   D+S:32 | 5.009 | -22.82 | -23.75 | 0.4326
+   VE832:16 | 4.500 | -22.55 | -22.58 | 0.0747
+   R+S:32 | 5.005 | -22.50 | -23.20 | 0.3395
+   XR:32~0.7 | 5.005 | -22.32 | -21.69 | 0.1011
+   E8:32 | 5.000 | -22.14 | -22.75 | 2.3447
+   XR:32 | 5.005 | -21.73 | -22.39 | 0.1180
+   C+S:32 | 5.004 | -21.03 | -22.02 | 2.8993
+   Q4_0 | 4.500 | -20.91 | -21.06 | 0.1173
+   X32:16 | 4.500 | -20.91 | -21.06 | 0.1173
+   S:32 | 5.000 | -20.80 | -21.59 | 2.1839
+   D+E8:16 | 4.009 | -20.20 | -20.41 | 0.4209
+   B32+S:16 | 4.500 | -19.02 | -19.35 | 0.3648
+   VE8R:16 | 4.005 | -18.80 | -18.89 | 0.2146
+   D+S:16 | 4.009 | -18.36 | -18.92 | 0.7257
+   R+S:16 | 4.005 | -18.06 | -18.47 | 0.6616
+   E8:16 | 4.000 | -17.97 | -18.29 | 7.2807
+   Q3_K_M | 3.834 | -17.12 | -19.12 | 0.1884
+   XR:32~0.5 | 5.005 | -16.88 | -16.28 | 0.5021
+   S:16 | 4.000 | -16.78 | -17.25 | 6.5046
+   XR:16 | 4.005 | -15.72 | -16.36 | 0.4483
+   D+E8:8 | 3.009 | -15.15 | -15.26 | 0.8163
+   E8:8 | 3.000 | -13.71 | -13.84 | 15.0221
+   D+S:8 | 3.009 | -13.69 | -14.01 | 1.6350
+   S:8 | 3.000 | -12.63 | -12.87 | 15.5981
+   XR:32~0.35 | 5.005 | -11.46 | -11.05 | 1.8674
+   E8:4 | 2.000 | -9.16 | -9.19 | 22.2490
+   S:4 | 2.000 | -8.31 | -8.42 | 21.6134
+   rank correlation with mean KL over these 32 variants: pooled weight error +0.751, mean weight error +0.721
+   pairs where one variant has a pooled weight error at least 1 dB smaller and a mean KL at least twice as large: 54 of 496
 
    XR:32 scored a second time with nothing else running: every number equal to the first run's
 

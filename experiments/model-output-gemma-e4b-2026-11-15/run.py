@@ -7,6 +7,7 @@ reference model's saved outputs with llama.cpp's own tool, appends one line
 to a results file and deletes the copy.
 
 Variants:
+  unchanged         the reference file itself, scored against its own saved outputs
   identity          the block matrices unrounded, stored as 16-bit floats (a control)
   ARM:Q             a rounding arm at Q levels per weight on the block matrices,
                     ARM one of S, Z8, E8, with an optional prefix D+ (rows and columns balanced),
@@ -326,7 +327,7 @@ def build_dead_kv(reader):
 def build_rounded(reader, arm, q, kind, row_power=None, shrink=1.0):
     import tq
     replace, per_kind, weights, energy_err, energy = {}, {}, 0, 0.0, 0.0
-    bits, gw, gw2, clipped = [], {}, {}, []
+    bits, gw, gw2, clipped, over = [], {}, {}, [], []
     by = {t.name: t for t in reader.tensors}
     for t in targets(reader, kind):
         W = ggufedit.tensor_float(t)
@@ -366,6 +367,8 @@ def build_rounded(reader, arm, q, kind, row_power=None, shrink=1.0):
         replace[t.name] = Wh
         k = BLOCK.match(t.name).group(2)
         per_kind.setdefault(k, []).append(info["rel_err"])
+        if info.get("overload") is not None and arm not in ("clip", "flip"):
+            over.append(info["overload"] * W.size)
         gw.setdefault(k, []).append(path_weighted_err(t.name, W, Wh, by))
         gw2.setdefault(k, []).append(path2_err(reader, t.name, W, Wh, by))
         e = float(np.sum(W.astype(np.float64) ** 2))
@@ -386,6 +389,9 @@ def build_rounded(reader, arm, q, kind, row_power=None, shrink=1.0):
     }
     if clipped:
         stats["share_clipped"] = sum(clipped) / weights
+    if over:
+        # Share of weights clipped (scalar arms) or of blocks shrunk (lattice arms). Not recorded for the first 57 variants.
+        stats["share_out_of_range"] = sum(over) / weights
     return replace, stats
 
 
@@ -445,7 +451,9 @@ def main():
     for v in args.variants:
         t0 = time.time()
         row = {"variant": v}
-        if v.startswith("file:"):
+        if v == "unchanged":
+            path, made = args.model, False
+        elif v.startswith("file:"):
             path, made = v[5:], False
             row.update(compare_file(reader, path))
             row["variant"] = "file:" + os.path.basename(path)

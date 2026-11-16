@@ -68,7 +68,7 @@ Arm S at q = 16 on one kind of matrix at a time, for the seven kinds, to see whe
 
 Written at 00:46 UTC on 2026-11-16 (the time of the commit that added it), after these results were in and before any variant of this round was scored.
 
-| Variant | Bits | Weight error | Mean KL | Top token kept |
+| Variant | Bits | Weight error, pooled | Mean KL | Top token kept |
 |---|---|---|---|---|
 | K1, unused rows of `per_layer_token_embd` zeroed | | | 0.0000 | 99.99 % |
 | K2, the same rows of `token_embd` zeroed | | | 1.364 | 95.51 % |
