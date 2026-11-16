@@ -194,3 +194,21 @@ The 26 variants are every rounding variant scored so far at 4 to 5.5 bits with a
 |---|---|---|
 | D1 | The direction of the error carries the damage, not the choice of entries: `flip:3.45` has a mean KL under half that of `clip:3.45`. | it is half or more |
 | D2 | The spectral error ranks the 26 variants by mean KL with a rank correlation of at least 0.8, above that of the squared error on the same matrices, and it puts `clip:3.45` above `XR` at q = 32. | any of the three parts fails |
+
+## Round 6, added after the write-up
+
+Written after every result above was in, and before the measure below was computed for any variant.
+
+Three measures read from the weights alone have failed to rank the changes by their damage. This round tries one that uses data. llama.cpp's `llama-imatrix` records, for every block matrix, the mean square of each input it multiplies. It was run on 40 passages of the same text that are not among the 40 scored ones (passages 60 to 99).
+
+One look was taken at the file. The inputs of `ffn_down` in layer 12, which are the outputs of the hidden units, have mean squares from 0.0001 to 133, with a median of 0.013.
+
+### What this round computes
+
+The activation-weighted error of a variant on a matrix is its squared error with column j counted by the mean square of input j, over the same sum for the matrix itself. It is taken as a mean in dB over the same 42 matrices and the same 26 variants as the spectral error. Nothing new is scored.
+
+### Prediction
+
+| | Prediction | Fails if |
+|---|---|---|
+| E1 | The activation-weighted error ranks the 26 variants by mean KL with a rank correlation of at least 0.8 and above the spectral error's 0.889, and it puts both `clip:3.45` and `clip:5` above `XR` at q = 32. | any of the three parts fails |
