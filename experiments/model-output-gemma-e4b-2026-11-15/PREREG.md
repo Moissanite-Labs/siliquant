@@ -161,3 +161,32 @@ Weight errors were looked at on three matrices before writing this. `VE832` at q
 |---|---|---|
 | C1 | With the scale set this way the lattice gives a closer output at equal bits: `VE832` at q = 16 has a lower mean KL than `X32` at q = 16, and `VE8R` lower than `XR` at q = 32 and at q = 16. | any of the three goes the other way |
 | C2 | The gain is in proportion: in each of the three pairs the ratio of mean KL in dB is between 0.5 and 1.5 times the gain in mean weight error in dB. | any ratio is outside the range |
+
+## Round 5, added after the first clipping probe
+
+Written after these further results. The first variant of this round was started a minute before this was committed and had not been scored.
+
+| Variant | Bits | Weight error, mean | Mean KL | Top token kept |
+|---|---|---|---|---|
+| `VE832` at q = 16 | 4.500 | -22.58 dB | 0.075 | 91.57 % |
+| `VE8R` at q = 32 | 5.005 | -24.94 dB | 0.059 | 92.32 % |
+| `XR` at q = 32, step times 0.5 and 0.35 | 5.005 | -16.28 and -11.05 dB | 0.502 and 1.867 | |
+| `XR` at q = 16 | 4.005 | -16.36 dB | 0.448 | 79.98 % |
+| `X32` at q = 32 | 5.500 | -27.13 dB | 0.031 | 94.79 % |
+| `B32+S` at q = 16 and 32 | 4.5 and 5.5 | -19.35 and -24.49 dB | 0.365 and 0.131 | |
+| `R+S` at q = 16 | 4.005 | -18.47 dB | 0.662 | 78.50 % |
+| clip only, beyond 3.45 standard deviations of the row | | -34.50 dB | 0.318 | 85.04 % |
+
+The clip-only probe rounds nothing. It pulls back the 0.17 percent of entries that the searched step of `R+S` clips. Its weight error is 12 dB smaller than that of `XR` at q = 32 and its KL is 2.7 times larger. An error that shrinks the largest weights does far more damage than the same amount of error spread as noise.
+
+### What this round runs
+
+- `flip:3.45`: the same entries as the clip probe, moved by the same amounts, each toward or away from zero at random. The squared error is the same. Only the direction differs.
+- A spectral error for 26 variants on the 42 matrices of layers 0, 8, 16, 24, 32 and 40: the squared largest singular value of the weight change over the squared largest singular value of the matrix, as a mean in dB. Noise spreads over all directions and has a small largest singular value for its size. A change with structure does not. The variants are every rounding variant scored so far at 4 to 5.5 bits with a scale per matrix, row or block, and the clip-only probes. The two symmetry arms are left out, because their error is measured against moved matrices.
+
+### Predictions
+
+| | Prediction | Fails if |
+|---|---|---|
+| D1 | The direction of the error carries the damage, not the choice of entries: `flip:3.45` has a mean KL under half that of `clip:3.45`. | it is half or more |
+| D2 | The spectral error ranks the 26 variants by mean KL with a rank correlation of at least 0.8, above that of the squared error on the same matrices, and it puts `clip:3.45` above `XR` at q = 32. | any of the three parts fails |

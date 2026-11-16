@@ -20,6 +20,10 @@ Variants:
                     XG:Q~C multiplies the step by C, which clips entries above C times the largest
   VE8G:Q            the E8 Voronoi code with one scale per group G, set so that no block of the
                     group is shrunk (VE832:16 is the lattice form of Q4_0; VZ8G uses the cube)
+  clip:C            no rounding: every entry beyond C standard deviations of its row is pulled back
+                    to that limit
+  flip:C            the same entries as clip:C moved by the same amounts, each toward or away from
+                    zero at random
   ARM:Q@KIND        the same on one kind of matrix only (attn_q, attn_k, attn_v, attn_output,
                     ffn_gate, ffn_up, ffn_down), the rest left alone
   close:TENSOR      zero the rows of a token table (per_layer_token_embd or token_embd)
@@ -322,7 +326,7 @@ def build_dead_kv(reader):
 def build_rounded(reader, arm, q, kind, row_power=None, shrink=1.0):
     import tq
     replace, per_kind, weights, energy_err, energy = {}, {}, 0, 0.0, 0.0
-    bits, gw, gw2 = [], {}, {}
+    bits, gw, gw2, clipped = [], {}, {}, []
     by = {t.name: t for t in reader.tensors}
     for t in targets(reader, kind):
         W = ggufedit.tensor_float(t)
@@ -330,6 +334,25 @@ def build_rounded(reader, arm, q, kind, row_power=None, shrink=1.0):
             Wh = W.astype(np.float16)
             W64 = W.astype(np.float64)
             info = {"rel_err": float(np.sum((W64 - Wh.astype(np.float64)) ** 2) / np.sum(W64 ** 2)), "bits": 16.0, "overload": 0.0}
+        elif arm == "clip":
+            # No rounding: every entry beyond `shrink` standard deviations of its row is pulled back to that limit.
+            lim = shrink * W.std(axis=1, keepdims=True)
+            Wh = np.clip(W, -lim, lim).astype(np.float16)
+            W64 = W.astype(np.float64)
+            info = {"rel_err": float(np.sum((W64 - Wh.astype(np.float64)) ** 2) / np.sum(W64 ** 2)), "bits": 16.0,
+                    "overload": float(np.mean(np.abs(W) > lim))}
+            clipped.append(info["overload"] * W.size)
+        elif arm == "flip":
+            # The same entries as clip, moved by the same amounts, but each toward or away from zero at random.
+            sd = W.std(axis=1, keepdims=True)
+            lim = shrink * sd
+            excess = np.maximum(np.abs(W) - lim, 0.0)
+            sign = np.random.default_rng(len(replace)).choice([-1.0, 1.0], size=W.shape).astype(np.float32)
+            Wh = (W + np.sign(W) * excess * sign).astype(np.float16)
+            W64 = W.astype(np.float64)
+            info = {"rel_err": float(np.sum((W64 - Wh.astype(np.float64)) ** 2) / np.sum(W64 ** 2)), "bits": 16.0,
+                    "overload": float(np.mean(excess > 0))}
+            clipped.append(info["overload"] * W.size)
         elif arm.startswith("V"):
             Wh, info = tq.maxscale_voronoi(W, q, arm[3:], name=arm[1:3])
         elif arm.startswith("X"):
@@ -361,6 +384,8 @@ def build_rounded(reader, arm, q, kind, row_power=None, shrink=1.0):
         "path2_err_db_mean": sum(db(v) for vs in gw2.values() for v in vs) / len(every),
         "path2_err_db_by_kind": {k: sum(db(v) for v in vs) / len(vs) for k, vs in sorted(gw2.items())},
     }
+    if clipped:
+        stats["share_clipped"] = sum(clipped) / weights
     return replace, stats
 
 
@@ -428,6 +453,8 @@ def main():
             path, made = os.path.join(args.work, re.sub(r"[^A-Za-z0-9_.+-]", "_", v) + ".gguf"), True
             if v == "identity":
                 replace, stats = build_rounded(reader, "identity", 0, None)
+            elif v.startswith("clip:") or v.startswith("flip:"):
+                replace, stats = build_rounded(reader, v[:4], 0, None, shrink=float(v[5:]))
             elif v.startswith("close:"):
                 replace, stats = build_closed(reader, v[6:], args.kld)
             elif v == "dead:kv":
