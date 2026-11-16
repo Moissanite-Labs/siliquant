@@ -63,3 +63,34 @@ Arm S at q = 16 on one kind of matrix at a time, for the seven kinds, to see whe
 ## Reference file
 
 `gemma-4-E4B-it-Q8_0.gguf`, 8,192,953,472 bytes, SHA-256 `f8854aa4480df62585a279e7ca0a881554fc18a41c59c4f62642d16a2ae47012`.
+
+## Round 2, added while the first grid was running
+
+Written at 00:50 UTC on 2026-11-16, after these results were in and before any variant of this round was scored.
+
+| Variant | Bits | Weight error | Mean KL | Top token kept |
+|---|---|---|---|---|
+| K1, unused rows of `per_layer_token_embd` zeroed | | | 0.0000 | 99.99 % |
+| K2, the same rows of `token_embd` zeroed | | | 1.364 | 95.51 % |
+| S at q = 32 | 5.000 | -20.80 dB | 2.184 | 62.49 % |
+| E8 at q = 32 | 5.000 | -22.14 dB | 2.345 | 62.03 % |
+| D+S at q = 32 | 5.009 | -22.82 dB | 0.433 | 82.89 % |
+
+E8 has the smaller weight error and the larger KL, so R1 has already failed. Balancing cuts the KL five times for 2 dB of weight error. Weight error is not what the output follows, and this round asks what it does follow.
+
+Two variants were scored with no prediction written down. Zeroing the key and value matrices of the 18 layers that reuse an earlier layer's keys and values (55,050,240 weights that llama.cpp never reads) left every score unchanged. Moving the weights by random amounts along three exact symmetries of the forward pass, a move 4.1 dB larger than the weights themselves, gave a mean KL of 0.00005.
+
+### What this round runs
+
+- `R+S` and `C+S` at q = 32: scalar rounding with the rows only, or the columns only, divided by their standard deviations.
+- `G+S` and `GF+S` at q = 32: scalar rounding after the matrices are balanced through the exact symmetries, which costs no bits. `G` gives both sides of each symmetry the same size. `GF` moves the gain vectors wholly into the matrices.
+- The path-weighted error of every arm: squared error with each weight counted by the gains and the partner matrix it is multiplied with in the forward pass. It is unchanged by the three symmetries, which plain squared error is not. One look was taken before writing this: for arm S on layer 12 it was within 1.5 dB of the plain error on four matrices.
+- llama.cpp's `Q4_0` next to the two quantisers already in the plan.
+
+### Predictions
+
+| | Prediction | Fails if |
+|---|---|---|
+| A1 | R+S and C+S at q = 32 each have a lower mean KL than S, and D+S is lower than both. | any of the four comparisons goes the other way |
+| A2 | G+S at q = 32 has a lower mean KL than S. | it is not lower |
+| A3 | Over the eight arms at q = 32 (S, E8, D+S, D+E8, R+S, C+S, G+S, GF+S) the path-weighted error ranks the arms by mean KL better than the plain weight error does, with a rank correlation of at least 0.7. | its rank correlation is under 0.7 or not above that of the plain error |

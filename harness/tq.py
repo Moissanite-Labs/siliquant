@@ -160,16 +160,29 @@ def search_scale(err, t0):
 def round_matrix(W, arm, q, seed=0, sample=SAMPLE_BLOCKS):
     """Round one matrix (NumPy float32, entries a multiple of 8) with one arm at q levels per weight.
 
-    Arms: "S" scalar, "Z8", "E8", each with an optional "D+" prefix for balanced rows and columns.
+    Arms: "S" scalar, "Z8", "E8", each with an optional prefix: "D+" rows and columns balanced,
+    "R+" rows only (each row divided by its standard deviation), "C+" columns only. The scale
+    vectors are counted at 16 bits per entry.
     Returns (the rounded matrix as float16, a dict of what happened).
     """
-    dual, base = arm.startswith("D+"), arm.replace("D+", "")
+    prefix, base = (arm[:2], arm[2:]) if arm[:2] in ("D+", "R+", "C+") else ("", arm)
+    dual = prefix != ""
     m, n = W.shape
     Wt = torch.from_numpy(np.ascontiguousarray(W)).to(DEV)
-    if dual:
+    if prefix == "D+":
         s, t, Wn = dual_scale(Wt)
         back = (s[:, None] * t[None, :]).reshape(-1, 8)
         side = 16.0 * (m + n) / (m * n)
+    elif prefix == "R+":
+        s = Wt.std(dim=1, correction=0)
+        Wn = Wt / s[:, None]
+        back = (s[:, None] * torch.ones(n, device=DEV)[None, :]).reshape(-1, 8)
+        side = 16.0 * m / (m * n)
+    elif prefix == "C+":
+        t = Wt.std(dim=0, correction=0)
+        Wn = Wt / t[None, :]
+        back = (torch.ones(m, device=DEV)[:, None] * t[None, :]).reshape(-1, 8)
+        side = 16.0 * n / (m * n)
     else:
         Wn, back, side = Wt, None, 0.0
     X = Wn.reshape(-1, 8)

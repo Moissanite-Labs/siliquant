@@ -9,11 +9,18 @@ to a results file and deletes the copy.
 Variants:
   identity          the block matrices unrounded, stored as 16-bit floats (a control)
   ARM:Q             a rounding arm at Q levels per weight on the block matrices,
-                    ARM one of S, Z8, E8, D+S, D+Z8, D+E8
+                    ARM one of S, Z8, E8, with an optional prefix D+ (rows and columns balanced),
+                    R+ (rows only) or C+ (columns only)
   ARM:Q@KIND        the same on one kind of matrix only (attn_q, attn_k, attn_v, attn_output,
                     ffn_gate, ffn_up, ffn_down), the rest left alone
   close:TENSOR      zero the rows of a token table (per_layer_token_embd or token_embd)
                     for every token that does not occur in the evaluation text
+  dead:kv           zero the key and value matrices of the layers that reuse an earlier
+                    layer's keys and values (llama.cpp never reads them)
+  gauge:SEED        move the weights along the model's exact symmetries by random amounts,
+                    with no rounding
+  G+ARM:Q           use the same symmetries to balance the matrices, then round with ARM
+  GF+ARM:Q          the same with the gain vectors moved wholly into the matrices
   file:PATH         score an existing model file (for llama.cpp's own quantisers)
 
 Usage, with NumPy and torch, llama.cpp's gguf package and llama-perplexity:
@@ -54,10 +61,184 @@ def db(x):
     return 10.0 * math.log10(x) if x > 0 else float("-inf")
 
 
+def meta(reader, key):
+    return reader.get_field(key).contents()
+
+
+READ_GAIN = {"attn_q": "attn_norm", "attn_k": "attn_norm", "attn_v": "attn_norm", "ffn_gate": "ffn_norm", "ffn_up": "ffn_norm"}
+WRITE_GAIN = {"attn_output": "post_attention_norm", "ffn_down": "post_ffw_norm"}
+
+
+def path_weighted_err(name, W, Wh, by, layer=None):
+    """Relative error with each weight counted by what it is multiplied with on its way through the block.
+
+    Read off the forward pass, with no data:
+      - a matrix that reads the normalised stream (attn_q, attn_k, attn_v, ffn_gate, ffn_up) has
+        column j multiplied by entry j of the gain vector before it, so column j counts by that gain squared;
+      - a matrix that writes to the stream (attn_output, ffn_down) is followed by a norm and a gain
+        vector, so row k counts by that gain squared;
+      - row i of ffn_up is then multiplied by column i of ffn_down, and column i of ffn_down by the
+        output of hidden unit i, so each also counts by the squared size of the other, taken with the
+        other's own gains.
+    The measure does not change under the three symmetries of gauge_layer, which plain squared
+    error does. `layer` holds tensors a variant has changed (matrices before rounding, and gains).
+    """
+    il, kind = BLOCK.match(name).groups()
+
+    def g(n):
+        full = f"blk.{il}.{n}.weight"
+        return (layer[full] if layer and full in layer else ggufedit.tensor_float(by[full])).astype(np.float64)
+
+    num = (W.astype(np.float64) - Wh.astype(np.float64)) ** 2
+    den = W.astype(np.float64) ** 2
+    row = col = None
+    if kind in READ_GAIN:
+        col = g(READ_GAIN[kind]) ** 2
+        if kind == "ffn_up":
+            row = (g("ffn_down") ** 2 * (g("post_ffw_norm") ** 2)[:, None]).sum(axis=0)
+    else:
+        row = g(WRITE_GAIN[kind]) ** 2
+        if kind == "ffn_down":
+            col = (g("ffn_up") ** 2 * (g("ffn_norm") ** 2)[None, :]).sum(axis=1)
+    if col is not None:
+        num, den = num * col[None, :], den * col[None, :]
+    if row is not None:
+        num, den = num * row[:, None], den * row[:, None]
+    return float(num.sum() / den.sum())
+
+
+def live_kv_layers(reader):
+    """Layers that compute their own keys and values. The last `shared_kv_layers` reuse an earlier layer's."""
+    arch = meta(reader, "general.architecture")
+    return int(meta(reader, f"{arch}.block_count")) - int(meta(reader, f"{arch}.attention.shared_kv_layers"))
+
+
+def rms(W, axis):
+    return np.sqrt(np.mean(W.astype(np.float64) ** 2, axis=axis))
+
+
+def gauge_layer(by, il, live, rng, full=False, factors=None):
+    """One layer moved along its exact symmetries. Returns {tensor name: new float32 array}.
+
+    The three symmetries used, each exact in the forward pass llama.cpp builds for this model:
+      1. a hidden unit of the feed-forward block: its row of ffn_up times c, its column of ffn_down
+         divided by c (the ffn_up branch is linear: the unit computes gelu(gate x) * (up x));
+      2. an input dimension of the feed-forward block: its column of ffn_gate and of ffn_up times d,
+         its entry of the gain vector ffn_norm divided by d;
+      3. an input dimension of the attention block: its column of attn_q, attn_k and attn_v times e,
+         its entry of the gain vector attn_norm divided by e.
+    With rng given the amounts are random. Without, they balance each pair: the two sides of a
+    symmetry are given the same size. For symmetries 2 and 3 that is the choice that minimises
+    the effect of equal noise in every weight when the normalised inputs are equally large. With
+    full=True symmetries 2 and 3 instead move the whole gain into the matrices (the gain vector
+    becomes plus or minus one).
+    """
+    def get(kind):
+        return ggufedit.tensor_float(by[f"blk.{il}.{kind}.weight"])
+
+    up, gate, down = get("ffn_up"), get("ffn_gate"), get("ffn_down")
+    g_ffn, g_attn = get("ffn_norm").astype(np.float64), get("attn_norm").astype(np.float64)
+    att = {k: get(k) for k in (("attn_q", "attn_k", "attn_v") if il < live else ("attn_q",))}
+    n_hidden, n_in = up.shape
+    tiny = 1e-12
+    if rng is not None:
+        d = np.exp(rng.uniform(-math.log(2), math.log(2), n_in))
+        e = np.exp(rng.uniform(-math.log(2), math.log(2), n_in))
+        c = np.exp(rng.uniform(-math.log(4), math.log(4), n_hidden)) * rng.choice([-1.0, 1.0], n_hidden)
+    else:
+        s_ffn = np.sqrt((rms(gate, 0) ** 2 + rms(up, 0) ** 2) / 2.0)
+        s_att = np.sqrt(sum(rms(W, 0) ** 2 * W.shape[0] for W in att.values()) / sum(W.shape[0] for W in att.values()))
+        if full:
+            d, e = np.maximum(np.abs(g_ffn), tiny), np.maximum(np.abs(g_attn), tiny)
+        else:
+            d = np.sqrt(np.maximum(np.abs(g_ffn), tiny) / np.maximum(s_ffn, tiny))
+            e = np.sqrt(np.maximum(np.abs(g_attn), tiny) / np.maximum(s_att, tiny))
+        a = rms(up * d[None, :].astype(np.float32), 1)
+        c = np.sqrt(np.maximum(rms(down, 0), tiny) / np.maximum(a, tiny))
+    d32, e32, c32 = d.astype(np.float32), e.astype(np.float32), c.astype(np.float32)
+    out = {
+        f"blk.{il}.ffn_up.weight": up * d32[None, :] * c32[:, None],
+        f"blk.{il}.ffn_gate.weight": gate * d32[None, :],
+        f"blk.{il}.ffn_down.weight": down / c32[None, :],
+        f"blk.{il}.ffn_norm.weight": (g_ffn / d).astype(np.float32),
+        f"blk.{il}.attn_norm.weight": (g_attn / e).astype(np.float32),
+    }
+    for k, W in att.items():
+        out[f"blk.{il}.{k}.weight"] = W * e32[None, :]
+    if factors is not None:
+        factors.update({"c": c, "d": d, "e": e})
+    return out
+
+
+def build_gauged(reader, arm, q, seed, full=False):
+    """Move every layer along its symmetries, then round with `arm` (or not at all when arm is None)."""
+    by = {t.name: t for t in reader.tensors}
+    live = live_kv_layers(reader)
+    n_layer = live + int(meta(reader, f"{meta(reader, 'general.architecture')}.attention.shared_kv_layers"))
+    rng = np.random.default_rng(seed) if arm is None else None
+    replace, per_kind, weights, energy_err, energy, moved, bits, gw = {}, {}, 0, 0.0, 0.0, 0.0, [], {}
+    if arm is not None:
+        import tq
+    for il in range(n_layer):
+        layer = gauge_layer(by, il, live, rng, full)
+        for name, W in layer.items():
+            if W.ndim == 1:
+                replace[name] = W
+                continue
+            W0 = ggufedit.tensor_float(by[name]).astype(np.float64)
+            e0 = float(np.sum(W0 ** 2))
+            moved += float(np.sum((W0 - W.astype(np.float64)) ** 2))
+            energy += e0
+            weights += W.size
+            if arm is None:
+                replace[name] = W.astype(np.float16)
+                continue
+            Wh, info = tq.round_matrix(np.ascontiguousarray(W), arm, q)
+            replace[name] = Wh
+            per_kind.setdefault(BLOCK.match(name).group(2), []).append(info["rel_err"])
+            gw.setdefault(BLOCK.match(name).group(2), []).append(path_weighted_err(name, W, Wh, by, layer))
+            energy_err += float(np.sum(W.astype(np.float64) ** 2)) * info["rel_err"]
+            bits.append(info["bits"] * W.size)
+    stats = {"weights": weights, "weight_move_db": db(moved / energy), "layers": n_layer}
+    if arm is not None:
+        # attn_output and the unread key and value matrices have no symmetry used here: round them as they are.
+        for t in targets(reader):
+            if t.name not in replace:
+                W = ggufedit.tensor_float(t)
+                Wh, info = tq.round_matrix(W, arm, q)
+                replace[t.name] = Wh
+                per_kind.setdefault(BLOCK.match(t.name).group(2), []).append(info["rel_err"])
+                gw.setdefault(BLOCK.match(t.name).group(2), []).append(path_weighted_err(t.name, W, Wh, by))
+                bits.append(info["bits"] * W.size)
+                weights += W.size
+        every = [v for vs in per_kind.values() for v in vs]
+        stats.update({"weights": weights, "matrices": len(every), "bits_per_weight": sum(bits) / weights,
+                      "weight_err_db_mean": sum(db(v) for v in every) / len(every),
+                      "weight_err_db_by_kind": {k: sum(db(v) for v in vs) / len(vs) for k, vs in sorted(per_kind.items())},
+                      "path_err_db_mean": sum(db(v) for vs in gw.values() for v in vs) / len(every),
+                      "path_err_db_by_kind": {k: sum(db(v) for v in vs) / len(vs) for k, vs in sorted(gw.items())}})
+    return replace, stats
+
+
+def build_dead_kv(reader):
+    by = {t.name: t for t in reader.tensors}
+    live = live_kv_layers(reader)
+    n_layer = live + int(meta(reader, f"{meta(reader, 'general.architecture')}.attention.shared_kv_layers"))
+    replace, n = {}, 0
+    for il in range(live, n_layer):
+        for kind in ("attn_k", "attn_v"):
+            t = by[f"blk.{il}.{kind}.weight"]
+            replace[t.name] = np.zeros_like(np.array(t.data))
+            n += int(np.prod(t.shape))
+    return replace, {"layers": n_layer - live, "tensors": len(replace), "weights_zeroed": n,
+                     "weights_in_model": int(sum(int(np.prod(x.shape)) for x in reader.tensors))}
+
+
 def build_rounded(reader, arm, q, kind):
     import tq
     replace, per_kind, weights, energy_err, energy = {}, {}, 0, 0.0, 0.0
-    bits = []
+    bits, gw = [], {}
+    by = {t.name: t for t in reader.tensors}
     for t in targets(reader, kind):
         W = ggufedit.tensor_float(t)
         if arm == "identity":
@@ -69,6 +250,7 @@ def build_rounded(reader, arm, q, kind):
         replace[t.name] = Wh
         k = BLOCK.match(t.name).group(2)
         per_kind.setdefault(k, []).append(info["rel_err"])
+        gw.setdefault(k, []).append(path_weighted_err(t.name, W, Wh, by))
         e = float(np.sum(W.astype(np.float64) ** 2))
         energy += e
         energy_err += e * info["rel_err"]
@@ -80,6 +262,8 @@ def build_rounded(reader, arm, q, kind):
         "weight_err_db_mean": sum(db(v) for v in every) / len(every),
         "weight_err_db_pooled": db(energy_err / energy),
         "weight_err_db_by_kind": {k: sum(db(v) for v in vs) / len(vs) for k, vs in sorted(per_kind.items())},
+        "path_err_db_mean": sum(db(v) for vs in gw.values() for v in vs) / len(every),
+        "path_err_db_by_kind": {k: sum(db(v) for v in vs) / len(vs) for k, vs in sorted(gw.items())},
     }
     return replace, stats
 
@@ -100,6 +284,31 @@ def build_closed(reader, tensor_name, kld):
     return {tensor_name: raw}, stats
 
 
+def compare_file(reader, path):
+    """Bits per weight and weight error of the block matrices of another model file against the reference."""
+    other = {t.name: t for t in ggufedit.open_model(path).tensors}
+    by = {t.name: t for t in reader.tensors}
+    per_kind, gw, weights, nbytes, energy_err, energy = {}, {}, 0, 0, 0.0, 0.0
+    for t in targets(reader):
+        o = other[t.name]
+        W = ggufedit.tensor_float(t).astype(np.float64)
+        Wh = ggufedit.tensor_float(o).astype(np.float64)
+        e = float(np.sum(W ** 2))
+        rel = float(np.sum((W - Wh) ** 2)) / e
+        per_kind.setdefault(BLOCK.match(t.name).group(2), []).append(rel)
+        gw.setdefault(BLOCK.match(t.name).group(2), []).append(path_weighted_err(t.name, W, Wh, by))
+        energy += e
+        energy_err += e * rel
+        weights += W.size
+        nbytes += int(o.n_bytes)
+    every = [v for vs in per_kind.values() for v in vs]
+    return {"matrices": len(every), "weights": weights, "bits_per_weight": 8.0 * nbytes / weights,
+            "path_err_db_mean": sum(db(v) for vs in gw.values() for v in vs) / len(every),
+            "path_err_db_by_kind": {k: sum(db(v) for v in vs) / len(vs) for k, vs in sorted(gw.items())},
+            "weight_err_db_mean": sum(db(v) for v in every) / len(every), "weight_err_db_pooled": db(energy_err / energy),
+            "weight_err_db_by_kind": {k: sum(db(v) for v in vs) / len(vs) for k, vs in sorted(per_kind.items())}}
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", required=True)
@@ -107,6 +316,7 @@ def main():
     ap.add_argument("--work", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--keep", action="store_true", help="keep the changed model files")
+    ap.add_argument("--metrics-only", action="store_true", help="build each variant and record its weight errors, without scoring it")
     ap.add_argument("variants", nargs="+")
     args = ap.parse_args()
     reader = ggufedit.open_model(args.model)
@@ -116,14 +326,24 @@ def main():
         row = {"variant": v}
         if v.startswith("file:"):
             path, made = v[5:], False
+            row.update(compare_file(reader, path))
+            row["variant"] = "file:" + os.path.basename(path)
         else:
             path, made = os.path.join(args.work, re.sub(r"[^A-Za-z0-9_.+-]", "_", v) + ".gguf"), True
             if v == "identity":
                 replace, stats = build_rounded(reader, "identity", 0, None)
             elif v.startswith("close:"):
                 replace, stats = build_closed(reader, v[6:], args.kld)
+            elif v == "dead:kv":
+                replace, stats = build_dead_kv(reader)
+            elif v.startswith("gauge:"):
+                replace, stats = build_gauged(reader, None, 0, int(v[6:]))
+            elif re.match(r"^G(F?)\+(S|E8):(\d+)$", v):
+                m = re.match(r"^G(F?)\+(S|E8):(\d+)$", v)
+                replace, stats = build_gauged(reader, m.group(2), int(m.group(3)), 0, full=bool(m.group(1)))
+                row.update({"arm": "G" + m.group(1) + "+" + m.group(2), "q": int(m.group(3)), "kind": "all"})
             else:
-                m = re.match(r"^(D\+)?(S|Z8|E8):(\d+)(?:@(\w+))?$", v)
+                m = re.match(r"^([DRC]\+)?(S|Z8|E8):(\d+)(?:@(\w+))?$", v)
                 if not m:
                     raise SystemExit(f"unknown variant {v}")
                 arm, q, kind = (m.group(1) or "") + m.group(2), int(m.group(3)), m.group(4)
@@ -133,6 +353,12 @@ def main():
                 row.update({"arm": arm, "q": q, "kind": kind or "all"})
             row.update(stats)
             row["build_seconds"] = round(time.time() - t0, 1)
+            if args.metrics_only:
+                del replace
+                with open(args.out, "a") as f:
+                    f.write(json.dumps(row) + "\n")
+                print(json.dumps(row), flush=True)
+                continue
             ggufedit.write_copy(reader, path, replace)
             del replace
         t1 = time.time()
