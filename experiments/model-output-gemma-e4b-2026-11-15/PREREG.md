@@ -182,7 +182,11 @@ The clip-only probe rounds nothing. It pulls back the 0.17 percent of entries th
 ### What this round runs
 
 - `flip:3.45`: the same entries as the clip probe, moved by the same amounts, each toward or away from zero at random. The squared error is the same. Only the direction differs.
-- A spectral error for 26 variants on the 42 matrices of layers 0, 8, 16, 24, 32 and 40: the squared largest singular value of the weight change over the squared largest singular value of the matrix, as a mean in dB. Noise spreads over all directions and has a small largest singular value for its size. A change with structure does not. The variants are every rounding variant scored so far at 4 to 5.5 bits with a scale per matrix, row or block, and the clip-only probes. The two symmetry arms are left out, because their error is measured against moved matrices.
+- A spectral error for 26 variants on the 42 matrices of layers 0, 8, 16, 24, 32 and 40. It is the squared largest singular value of the weight change over the squared largest singular value of the matrix, as a mean in dB.
+
+Noise spreads over all directions and has a small largest singular value for its size. A change with structure does not.
+
+The 26 variants are every rounding variant scored so far at 4 to 5.5 bits with a scale per matrix, row or block, and the clip-only probes. The two symmetry arms are left out, because their error is measured against moved matrices.
 
 ### Predictions
 
