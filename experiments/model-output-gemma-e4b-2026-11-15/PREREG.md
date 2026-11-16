@@ -131,3 +131,33 @@ Weight errors were looked at on two or three matrices of layers 12 and 30 before
 | B1 | `X32` at q = 16 scores as `Q4_0` does: mean KL within 10 percent of 0.1173. | it is outside 0.106 to 0.129 |
 | B2 | Clipping is what hurts. Among `XR` at q = 32 with the step multiplied by 1, 0.7, 0.5 and 0.35, the mean KL is lowest with no clipping (1), and the mean weight error is lowest at one of the others. | the lowest mean KL is at 0.7, 0.5 or 0.35, or the lowest weight error is at 1 |
 | B3 | A finer scale gives a lower mean KL under both rules, at both q: `X32` under `XR`, and `B32+S` under `R+S`. | any of the four goes the other way |
+
+## Round 4, added while round 3 was running
+
+Written after these further results and before any variant of this round was scored.
+
+| Variant | Bits | Weight error, mean | Mean KL | Top token kept |
+|---|---|---|---|---|
+| `X32` at q = 16 | 4.500 | -21.06 dB | 0.1173 | 89.41 % |
+| `XR` at q = 32 | 5.005 | -22.39 dB | 0.118 | 89.82 % |
+| `XR` at q = 32, step times 0.7 | 5.005 | -21.69 dB | 0.101 | 90.78 % |
+| llama.cpp `Q4_K_M` | 4.803 | -24.48 dB | 0.069 | 91.79 % |
+| llama.cpp `Q3_K_M` | 3.834 | -19.12 dB | 0.188 | 86.89 % |
+| S at q = 16 on `attn_output` alone | | -15.29 dB | 0.962 | 76.40 % |
+| S at q = 16 on `ffn_down` alone | | -16.71 dB | 1.989 | 63.29 % |
+| S at q = 16 on each of the other five kinds alone | | | 0.049 to 0.172 | |
+
+B1 holds: the copy of the `Q4_0` rule scores as llama.cpp's file does. A scale per row with nothing clipped (`XR`, 0.118) is three times closer than a scale per row with the searched step (`R+S`, 0.340). Under plain rounding the damage comes from the two kinds of matrix that write into the stream.
+
+### What this round runs
+
+The lattice was tested in the first grid with a scale found by least squared error, which shrinks 3 to 4 percent of blocks. This round gives it the rule that works for scalar rounding. `VE8G` at q levels is the E8 Voronoi code with one scale per group G, the smallest at which no block of the group is shrunk. `VE832` at q = 16 is the lattice form of `Q4_0`.
+
+Weight errors were looked at on three matrices before writing this. `VE832` at q = 16 has -22.5 to -22.7 dB against -20.8 to -21.3 dB for `X32`. `VE8R` at q = 32 has -24.2 to -25.1 dB against -20.9 to -22.5 dB for `XR`. No block was shrunk.
+
+### Predictions
+
+| | Prediction | Fails if |
+|---|---|---|
+| C1 | With the scale set this way the lattice gives a closer output at equal bits: `VE832` at q = 16 has a lower mean KL than `X32` at q = 16, and `VE8R` lower than `XR` at q = 32 and at q = 16. | any of the three goes the other way |
+| C2 | The gain is in proportion: in each of the three pairs the ratio of mean KL in dB is between 0.5 and 1.5 times the gain in mean weight error in dB. | any ratio is outside the range |

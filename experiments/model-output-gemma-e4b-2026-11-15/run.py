@@ -18,6 +18,8 @@ Variants:
                     group's largest entry, with no search and no clipping. G is a number of
                     consecutive weights in a row, R for a row or M for the matrix (X32:16 is Q4_0).
                     XG:Q~C multiplies the step by C, which clips entries above C times the largest
+  VE8G:Q            the E8 Voronoi code with one scale per group G, set so that no block of the
+                    group is shrunk (VE832:16 is the lattice form of Q4_0; VZ8G uses the cube)
   ARM:Q@KIND        the same on one kind of matrix only (attn_q, attn_k, attn_v, attn_output,
                     ffn_gate, ffn_up, ffn_down), the rest left alone
   close:TENSOR      zero the rows of a token table (per_layer_token_embd or token_embd)
@@ -328,6 +330,8 @@ def build_rounded(reader, arm, q, kind, row_power=None, shrink=1.0):
             Wh = W.astype(np.float16)
             W64 = W.astype(np.float64)
             info = {"rel_err": float(np.sum((W64 - Wh.astype(np.float64)) ** 2) / np.sum(W64 ** 2)), "bits": 16.0, "overload": 0.0}
+        elif arm.startswith("V"):
+            Wh, info = tq.maxscale_voronoi(W, q, arm[3:], name=arm[1:3])
         elif arm.startswith("X"):
             Wh, info = tq.maxscale_round(W, q, arm[1:], shrink=shrink)
         elif arm.startswith("P+"):
@@ -435,7 +439,7 @@ def main():
                 replace, stats = build_gauged(reader, m.group(2), int(m.group(3)), 0, full=bool(m.group(1)))
                 row.update({"arm": "G" + m.group(1) + "+" + m.group(2), "q": int(m.group(3)), "kind": "all"})
             else:
-                m = re.match(r"^(?:([DRCP]\+|B\d+\+)|R(\d*\.?\d+)\+)?(S|Z8|E8|X\d+|XR|XM):(\d+)(?:~(\d*\.?\d+))?(?:@(\w+))?$", v)
+                m = re.match(r"^(?:([DRCP]\+|B\d+\+)|R(\d*\.?\d+)\+)?(S|Z8|E8|X\d+|XR|XM|V(?:E8|Z8)(?:\d+|R)):(\d+)(?:~(\d*\.?\d+))?(?:@(\w+))?$", v)
                 if not m:
                     raise SystemExit(f"unknown variant {v}")
                 power = float(m.group(2)) if m.group(2) else None

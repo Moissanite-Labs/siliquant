@@ -184,6 +184,38 @@ def maxscale_round(W, q, group, shrink=1.0):
     return Wh, {"rel_err": rel, "scale": None, "overload": over, "bits": math.log2(q) + 16.0 / size}
 
 
+def maxscale_voronoi(W, q, group, name="E8", steps=14):
+    """A Voronoi code with one scale per group of weights and nothing shrunk: the lattice form of maxscale_round.
+
+    Each block of 8 has a smallest scale at which it lies inside the code's region (its nearest
+    lattice point decodes to itself). It is found by bisection between two bounds that hold for
+    any block: the region contains the ball of the lattice's packing radius times q and lies
+    inside the ball of its covering radius times q. A group takes the largest of its blocks'
+    scales, so no block of the group is shrunk. group is a number of consecutive weights in a row
+    (a multiple of 8) or "R" for a row. The scale is counted at 16 bits per group.
+    """
+    code = Code(name, q)
+    m, n = W.shape
+    Wt = torch.from_numpy(np.ascontiguousarray(W)).to(DEV)
+    size = n if group == "R" else int(group)
+    X = Wt.reshape(-1, 8)
+    norm = torch.clamp(torch.linalg.vector_norm(X, dim=1), min=1e-20)
+    rho, cover = {"E8": (0.5 ** 0.5, 1.0), "Z8": (0.5, 2.0 ** 0.5)}[name]
+    lo = norm / (cover * q) * 0.9        # too small: the block is outside
+    hi = norm / (rho * q) * 1.1          # large enough: the block is inside
+    for _ in range(steps):
+        mid = torch.sqrt(lo * hi)
+        ok = code.roundtrip(X / mid[:, None] + code.centre)[1]
+        hi = torch.where(ok, mid, hi)
+        lo = torch.where(ok, lo, mid)
+    t = hi.reshape(-1, size // 8).max(dim=1, keepdim=True).values.expand(-1, size // 8).reshape(-1)
+    R, over = code.quantize(X / t[:, None])
+    Wh = (R * t[:, None]).reshape(m, n).to(torch.float16).cpu().numpy()
+    W64 = W.astype(np.float64)
+    rel = float(np.sum((W64 - Wh.astype(np.float64)) ** 2) / np.sum(W64 ** 2))
+    return Wh, {"rel_err": rel, "scale": None, "overload": over, "bits": math.log2(q) + 16.0 / size}
+
+
 def path_scales(Wt, row_w, col_w, iters=4):
     """Row scales d and column scales e for rounding under a weighted error with weights row_w[i] * col_w[j].
 
