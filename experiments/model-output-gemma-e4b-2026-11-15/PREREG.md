@@ -66,7 +66,7 @@ Arm S at q = 16 on one kind of matrix at a time, for the seven kinds, to see whe
 
 ## Round 2, added while the first grid was running
 
-Written at 00:50 UTC on 2026-11-16, after these results were in and before any variant of this round was scored.
+Written at 00:46 UTC on 2026-11-16 (the time of the commit that added it), after these results were in and before any variant of this round was scored.
 
 | Variant | Bits | Weight error | Mean KL | Top token kept |
 |---|---|---|---|---|
