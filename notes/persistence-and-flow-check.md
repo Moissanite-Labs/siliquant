@@ -15,7 +15,7 @@ The note reads them the way the repository's rule asks: against the table of pro
 
 ## Result
 
-- **The persistence document restates the paper correctly in the main.** Three of its table cells are cut off mid-sentence. One of them held the meaning of the count in the paper's bound, and the document's own algorithm then reads that count the other way. On a random 650 by 650 layer the two readings give 0.37 and 0.02.
+- **The persistence document restates the paper correctly in the main.** Three of its table cells break off mid-sentence. One of them is the cell headed as being about the count in the paper's bound, and the document's own algorithm writes that count as a product, which is not the paper's reading. On a random 650 by 650 layer the two readings give 0.37 and 0.02.
 - **The score reads each unit's largest weight.** The largest link at every unit is in the tree when it is unique. On random matrices 72 to 85 percent of the tree is a row's or a column's largest entry, and those maxima alone give 97 to 98 percent of the score. The rule that did best in the gemma record, an exploratory one, sets a row's step from the same entry.
 - **It cannot be a measure of behaviour.** Flipping signs, or reordering one layer's rows alone, leaves it equal to six digits and changes the outputs by more than their own size. Rescaling ReLU units leaves the outputs equal to 1e-15 and moves it from 0.45 to 0.89.
 - **The paper's bound needs two things its main text leaves open.** It holds with each layer's own largest weight and fails with the network's, which the paper divides by: 9.4 against a cap of 1 on one layer of the check. Its own example meets it exactly under one way of counting the piece that never joins, falls short under a second and passes it under a third (row 4).
@@ -40,7 +40,7 @@ The score of a layer is the p-norm of one minus those sizes, the sizes having be
 |---|---|---|---|---|
 | 1 | The recorded levels are those of a maximum spanning tree, or of single-linkage clustering | Confirmed | Standard. The tree's sorted sizes are at least those of every other spanning tree, place by place, on 80 random cases with full enumeration | recomputed |
 | 2 | Weights are divided by the largest absolute weight of the whole network, which makes the score ignore scale | Confirmed as the paper's definition | Section 3.1 of the paper: the largest is taken over "the set of weights" of one training step. It ignores one scale for the whole network, and nothing finer. See rows 11 and 12 | reported, recomputed |
-| 3 | Theorem 1: the score of a layer is at most (largest - smallest) times (N - 1)^(1/p) | Confirmed, with the count misread | The paper says N is "the number of neurons in the layer". The document's cell that explains N is cut off, and its Algorithm 1, line 10, writes a product of the two layer sizes. With neurons a random 650 by 650 layer scores 0.3685. With weights it scores 0.0204 | reported, recomputed |
+| 3 | Theorem 1: the score of a layer is at most (largest - smallest) times (N - 1)^(1/p) | Confirmed, with the count misread | The paper says N is "the number of neurons in the layer". The document's cell on the count breaks off, and its Algorithm 1, line 10, writes a product of the two layer sizes. With neurons a random 650 by 650 layer scores 0.3685. With weights it scores 0.0204 | reported, recomputed |
 | 4 | The bound is reached when one weight is large and the rest are equal | True under one convention | A connected graph ends as one piece, which has no joining level. Counted with the layer's smallest weight, the example reaches the bound exactly. Left out, it falls short: 2.884 against 2.993. Counted with level 0, as the paper's Algorithm 3 does for convolutions, it passes the bound: 3.053 | recomputed, reported |
 | 5 | The bound normalises every layer to at most 1 | False with the network's largest weight | A 64 by 64 layer with weights ten times smaller than the network's largest scores 9.413. With its own largest weight it scores 0.422 | recomputed |
 | 6 | Theorem 2: the score lies between the norms built on the n largest and the n smallest weights | True, and it says little | Any n - 1 links lie between the n - 1 largest and the n - 1 smallest weights. It holds for every spanning tree | by inspection |
@@ -53,19 +53,29 @@ The score of a layer is the p-norm of one minus those sizes, the sizes having be
 | 13 | Not in the document: a published critique | Girrbach and others, TMLR 2023 | "variance of network weights and spatial concentration of large weights are the main factors". In later layers of deep networks they find no relevant spatial structure | reported |
 | 14 | "Production readiness" | Larger than the evidence | Fully connected networks on four data sets. The paper itself says convolutional layers need more work | reported |
 
-The document is not in this repository, so rows 3, 4 and 14 cannot be checked from here. The evidence for row 3 is two short quotations. The cell of its section 1.4 that explains the count ends in the middle of a formula:
+The document is not in this repository, so rows 3, 4 and 14 cannot be checked from here. What this note says of its cut-off cells rests on the quotations below, with the escape characters of the file removed.
+
+A cell of the table in its section 1.4 is headed as the one about the count, and breaks off in the middle of a formula:
 
 ```text
-While the bipartite layer graph $G_k = (V_k \sqcup V_{k+1}, E_k)$ contains $
+Cross-Product Space & Vertex Cardinality:  While the bipartite layer graph  $G_k = (V_k \sqcup V_{k+1}, E_k)$  contains $
 ```
 
-Line 10 of its Algorithm 1 then writes the count as a product:
+What the cell went on to say is not known. Line 10 of the document's Algorithm 1 writes the count as a product:
 
 ```text
 NP_k_plus <- (w_max_k - w_min_k) * (|V_k * V_{k+1}| - 1)^(1/p)
 ```
 
-The other two cut-off cells are the third row of the same table and the space cost of the union-find in section 2.4.
+Two more cells break off the same way, one in the same table and one in the table of section 2.4:
+
+```text
+The persistent span (distance to diagonal) is $\text{pers}(1, x) =
+```
+
+```text
+Incremental edge addition using a Disjoint-Set Union-Find data structure with path compression and union-by-rank.,$O(n \cdot \alpha(n))$,$O(
+```
 
 Rows 11 and 12 together close one path under the closure rule, by counterexample: a score that is constant on moves that break the function, and varies on moves that keep it, is not a measure of behaviour. It may still say where the large weights sit.
 
