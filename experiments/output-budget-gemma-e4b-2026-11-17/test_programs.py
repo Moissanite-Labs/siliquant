@@ -180,6 +180,59 @@ class VariantTest(unittest.TestCase):
         self.assertEqual(len(ob_run.PART_H), 36)
         self.assertFalse(set(ob_run.PART_H) & set(ob_run.PART_E))
 
+    def test_subset_clips(self):
+        import json
+        import tempfile
+        rng = np.random.default_rng(21)
+        W = (rng.standard_t(2, size=(12, 40)) * np.exp(rng.normal(size=(12, 1)))).astype(np.float32)
+        units, dims = list(rng.permutation(40)), list(rng.permutation(12))
+        d = tempfile.mkdtemp()
+        old = ob_run.LARGE_JSON
+        ob_run.LARGE_JSON = Path(d) / "x.json"
+        ob_run.LARGE_JSON.write_text(json.dumps({"layer10": {"units_ranked": [int(u) for u in units], "dims_ranked": [int(x) for x in dims]}}))
+        try:
+            full = np.clip(W, -1.0 * W.std(axis=1, keepdims=True), 1.0 * W.std(axis=1, keepdims=True))
+            c = 1.0
+            full_changed = full != W
+            self.assertTrue(full_changed.sum() > 20)
+            sets = {s: ob_run.subset_clip(W, c, s) for s in ("u1", "u10", "not10", "d10")}
+            cols = lambda us: np.isin(np.arange(40), us)[None, :] & np.ones((12, 1), dtype=bool)
+            # u1 and u10 change exactly the full clip's entries inside their columns, as the clip does, and no others
+            for s, mask in (("u1", cols(units[:1])), ("u10", cols(units[:10])), ("not10", ~cols(units[:10])),
+                            ("d10", np.isin(np.arange(12), dims[:10])[:, None] & np.ones((1, 40), dtype=bool))):
+                got = sets[s] != W
+                self.assertTrue(np.array_equal(got, full_changed & mask), s)
+                self.assertTrue(np.array_equal(sets[s][got], full[got]), s)
+            # variants 2 and 3 together change exactly what the full clip changes, with no overlap
+            a, b = sets["u10"] != W, sets["not10"] != W
+            self.assertTrue(np.array_equal(a | b, full_changed))
+            self.assertFalse((a & b).any())
+        finally:
+            ob_run.LARGE_JSON = old
+
+    def test_large_by_layer_helpers(self):
+        lb = load("large_by_layer")
+        share = np.array([0.0, 5.0, 1.0, 3.0, 1.0])
+        order, info = lb.ranked(share, top=2)
+        self.assertEqual(list(order[:3]), [1, 3, 2])
+        self.assertEqual(info["half"], 1)                       # 5 of 10 is half
+        self.assertEqual(info["nine_tenths"], 3)                # 5 + 3 + 1 = 9 of 10
+        self.assertAlmostEqual(info["top"][0]["share"], 0.5)
+        W = np.array([[10.0, 0.1, -0.1, 0.1, 0.1, 0.1, 0.1, -0.1], [1.0, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0, -1.0]])
+        E, sd = lb.clip_change(W, 2.0)
+        self.assertEqual(int(np.sum(E != 0)), 1)                # only the 10 is beyond two standard deviations of its row
+        self.assertAlmostEqual(float(E[0, 0]), 10.0 - 2.0 * float(sd[0, 0]))
+
+    def test_part_m_names(self):
+        self.assertEqual(len(ob_run.PART_M), 6)
+        for v in ob_run.PART_M:
+            ob_run.parse(v)
+        self.assertEqual(ob_run.parse(ob_run.PART_M[4])["other"], "XR")
+        self.assertEqual(ob_run.parse(ob_run.PART_M[1])["subset"], "u10")
+        for bad in ("R+S:32|ffn_down#10=R+S:32", "clip:5@ffn_down:u1"):
+            with self.assertRaises(SystemExit):
+                ob_run.parse(bad)
+
     def test_mixed_arm_uses_each_kinds_levels(self):
         rng = np.random.default_rng(8)
         W = rng.normal(size=(4, 64)).astype(np.float32)

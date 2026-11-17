@@ -66,7 +66,7 @@ MODEL_SHA256 = "f8854aa4480df62585a279e7ca0a881554fc18a41c59c4f62642d16a2ae47012
 MODEL_BYTES = 8192953472
 BLOCK_WEIGHTS = 3945267200
 LAYERS6 = (0, 8, 16, 24, 32, 40)
-GATED = ["experiments/output-budget-gemma-e4b-2026-11-17/" + f for f in ("PREREG.md", "run.py", "allocate.py", "measures.py", "summary.py")] + [
+GATED = ["experiments/output-budget-gemma-e4b-2026-11-17/" + f for f in ("PREREG.md", "run.py", "allocate.py", "measures.py", "summary.py", "large_by_layer.py")] + [
     "harness/tq.py", "harness/ggufedit.py", "harness/evalkl.py"]
 
 # ---------------------------------------------------------------------------
@@ -85,6 +85,13 @@ PART_H = [f"clip:5@ffn_down#{il}" for il in range(42) if il not in LAYERS6]
 JOINED = "X32s8mix:attn_q=32,attn_k=64,attn_v=64,attn_output=46,ffn_gate=16,ffn_up=16,ffn_down=16"
 PART_K = [JOINED + "+deadkv"]
 EXTENSION = "experiments/output-budget-gemma-e4b-2026-11-17/PREREG-extension-1.md"
+EXTENSION2 = "experiments/output-budget-gemma-e4b-2026-11-17/PREREG-extension-2.md"
+LARGE_JSON = HERE / "large_by_layer.json"
+LAYER10 = "blk.10.ffn_down.weight"
+# Part M, in the plan's order: the clip on the top unit, the top ten units, all but the top ten units, the top ten
+# stream dimensions of layer 10's ffn_down; then one rule on every matrix with the other on layer 10's ffn_down.
+PART_M = ["clip:5@ffn_down#10:u1", "clip:5@ffn_down#10:u10", "clip:5@ffn_down#10:not10", "clip:5@ffn_down#10:d10",
+          "R+S:32|ffn_down#10=XR:32", "XR:32|ffn_down#10=R+S:32"]
 
 
 def part_variants(part, allocate_out=None, joined_out=None):
@@ -102,6 +109,8 @@ def part_variants(part, allocate_out=None, joined_out=None):
         return PART_H
     if part == "K":
         return PART_K
+    if part == "M":
+        return PART_M
     if part in ("B", "G"):
         path = allocate_out if part == "B" else joined_out
         if path is None or not Path(path).exists():
@@ -124,7 +133,8 @@ def part_variants(part, allocate_out=None, joined_out=None):
 
 ARM = re.compile(r"^X(?P<g>\d+|R|M)(?P<mod>o|s\d+)?:(?P<q>\d+)(?:~(?P<c>\d*\.?\d+))?(?:@(?P<kind>\w+)(?:#(?P<layers>\d+(?:,\d+)*))?)?$")
 MIX = re.compile(r"^X32(?P<mod>s\d+)?mix:(?P<levels>.+)$")
-CLIP = re.compile(r"^clip:(?P<c>\d*\.?\d+)(?:@(?P<kind>\w+)(?:#(?P<layers>\d+(?:,\d+)*))?)?$")
+CLIP = re.compile(r"^clip:(?P<c>\d*\.?\d+)(?:@(?P<kind>\w+)(?:#(?P<layers>\d+(?:,\d+)*)(?::(?P<subset>u1|u10|not10|d10))?)?)?$")
+SWAP = re.compile(r"^(?P<base>R\+S|XR):32\|ffn_down#10=(?P<other>XR|R\+S):32$")
 
 
 def parse(v):
@@ -155,10 +165,14 @@ def parse_plain(v):
         if set(levels) != set(KINDS):
             raise SystemExit(f"a mixed variant names all seven kinds: {v}")
         return {"arm": "X", "group": "32", "mod": m.group("mod"), "levels": levels, "c": None, "kind": None, "layers": None, "mix": True}
+    m = SWAP.match(v)
+    if m and m.group("base") != m.group("other"):
+        return {"arm": "swap", "group": None, "mod": None, "levels": {k: 32 for k in KINDS}, "c": None, "kind": None, "layers": None,
+                "mix": False, "base": m.group("base"), "other": m.group("other")}
     m = CLIP.match(v)
     if m:
         return {"arm": "clip", "group": None, "mod": None, "levels": None, "c": float(m.group("c")), "kind": m.group("kind"),
-                "layers": _layers(m.group("layers")), "mix": False}
+                "layers": _layers(m.group("layers")), "mix": False, "subset": m.group("subset")}
     m = ARM.match(v)
     if not m:
         raise SystemExit(f"unknown variant {v}")
@@ -187,12 +201,47 @@ def selected(spec, name):
     return (spec["kind"] is None or spec["kind"] == kind) and (spec["layers"] is None or il in spec["layers"])
 
 
-def round_one(spec, W, kind):
+def large_ranks():
+    """The ranked hidden units (columns) and stream dimensions (rows) of layer 10's ffn_down, from Part L's committed json."""
+    d = json.loads(LARGE_JSON.read_text())["layer10"]
+    return d["units_ranked"], d["dims_ranked"]
+
+
+def subset_clip(W, c, subset):
+    """The clip at c standard deviations of each whole row, applied only to the entries of a subset (Part M).
+
+    u1: the entries of the top hidden unit; u10: of the top ten; not10: every entry except those of the top ten
+    hidden units; d10: the entries of the top ten dimensions of the stream (rows). Other entries are left as they are.
+    """
+    units, dims = large_ranks()
+    lim = c * W.std(axis=1, keepdims=True)
+    mask = np.zeros(W.shape, dtype=bool)
+    if subset == "u1":
+        mask[:, units[:1]] = True
+    elif subset == "u10":
+        mask[:, units[:10]] = True
+    elif subset == "not10":
+        mask[:] = True
+        mask[:, units[:10]] = False
+    elif subset == "d10":
+        mask[dims[:10], :] = True
+    return np.where(mask, np.clip(W, -lim, lim), W)
+
+
+def round_one(spec, W, kind, name=None):
     """One matrix changed as the variant says. Returns (float16 matrix, info dict with rel_err, bits, kept, overload)."""
     import tq
+    if spec["arm"] == "swap":
+        arm = spec["other"] if name == LAYER10 else spec["base"]
+        if arm == "XR":
+            Wh, info = tq.maxscale_round(W, 32, "R")
+        else:
+            Wh, info = tq.round_matrix(W, "R+S", 32, row_power=None)
+        info.setdefault("kept", 0)
+        return Wh, info
     if spec["arm"] == "clip":
         lim = spec["c"] * W.std(axis=1, keepdims=True)
-        Wh = np.clip(W, -lim, lim).astype(np.float16)
+        Wh = (subset_clip(W, spec["c"], spec["subset"]) if spec.get("subset") else np.clip(W, -lim, lim)).astype(np.float16)
         W64 = W.astype(np.float64)
         return Wh, {"rel_err": float(np.sum((W64 - Wh.astype(np.float64)) ** 2) / np.sum(W64 ** 2)), "bits": 16.0,
                     "overload": float(np.mean(np.abs(W) > lim)), "kept": 0}
@@ -207,6 +256,33 @@ def round_one(spec, W, kind):
         Wh, info = tq.maxscale_round(W, q, group, shrink=spec["c"] or 1.0)
     info.setdefault("kept", 0)
     return Wh, info
+
+
+def check_against_first_record(spec, per_kind, base_l10, l10_pos):
+    """The base arm, as built here, must give the first record's weight errors: refuse to go on if it does not.
+
+    The first record's results.jsonl has the mean weight error in dB of each kind for R+S:32 and XR:32 over
+    all 294 matrices. Here every kind but ffn_down is rounded by the base arm throughout, so its mean must
+    equal that record's. For ffn_down one matrix (layer 10) is rounded by the other arm: putting the base arm's
+    own error for that matrix back must give the first record's mean.
+    """
+    ref = None
+    for ln in (EARLIER / "results.jsonl").read_text().splitlines():
+        r = json.loads(ln)
+        if r["variant"] == f"{spec['base']}:32" and "weight_err_db_by_kind" in r:
+            ref = r["weight_err_db_by_kind"]
+    if ref is None:
+        raise SystemExit("the first record has no weight errors for " + spec["base"])
+    worst = {}
+    for k, vs in per_kind.items():
+        vals = list(vs)
+        if k == "ffn_down":
+            vals[l10_pos] = base_l10
+        mine = sum(db(x) for x in vals) / len(vals)
+        worst[k] = abs(mine - ref[k])
+    if max(worst.values()) > 0.005:
+        raise SystemExit(f"FAIL: {spec['base']}:32 as built here differs from the first record's weight errors: {worst}")
+    return {"max_abs_difference_db": max(worst.values()), "against": f"{spec['base']}:32 of the first record, by kind"}
 
 
 def bit_stats(items, weights_all, zeroed):
@@ -235,7 +311,10 @@ def build(reader, v):
             continue
         il, kind = BLOCK.match(t.name).groups()
         W = ggufedit.tensor_float(t)
-        Wh, info = round_one(spec, W, kind)
+        Wh, info = round_one(spec, W, kind, t.name)
+        if spec["arm"] == "swap" and t.name == LAYER10:
+            base_l10 = round_one(spec, W, kind, None)[1]["rel_err"]
+            l10_pos = len(per_kind.get(kind, []))
         replace[t.name] = Wh
         per_kind.setdefault(kind, []).append(info["rel_err"])
         kept_by_kind[kind] = kept_by_kind.get(kind, 0) + info["kept"]
@@ -266,6 +345,8 @@ def build(reader, v):
         "share_kept": kept / changed_w,
         "share_out_of_range": over / changed_w,
     }
+    if spec["arm"] == "swap":
+        stats["arm_check"] = check_against_first_record(spec, per_kind, base_l10)
     if dead_stats:
         stats["weights_zeroed"] = zeroed
         stats["tensors_zeroed"] = dead_stats["tensors"]
@@ -372,6 +453,9 @@ def main():
         raise SystemExit("FAIL: the first step has not passed; the plan stops the run")
     if set(variants) & set(PART_H + PART_K):
         gate["extension_1"] = committed_and_pushed(ROOT / EXTENSION)
+    if set(variants) & set(PART_M):
+        gate["extension_2"] = committed_and_pushed(ROOT / EXTENSION2)
+        gate["large_by_layer_json"] = committed_and_pushed(LARGE_JSON)
     if args.part == "B":
         gate["allocate_out"] = committed_and_pushed(args.allocate_out)
     if args.part == "G":

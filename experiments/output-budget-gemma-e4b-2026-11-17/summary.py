@@ -420,6 +420,52 @@ def main():
         verdict("K1", "Part K", "-", "not scored", None)
     print()
 
+    # ----- extension 2
+    print("Extension 2, Part L: the large entries of ffn_down by layer (weights only, large_by_layer.json)")
+    lj = HERE / "large_by_layer.json"
+    if lj.exists():
+        d = json.loads(lj.read_text())
+        print("   axes: " + d["layer10"]["axis_note"])
+        print("   layer | entries beyond 5 sd | largest entry, in sd of its row | clip's squared change over squared size of the matrix")
+        for r in d["layers"]:
+            print(f"   {r['layer']} | {r['n_beyond']} | {r['max_sd']:.2f} | {r['change_over_size']:.3e}")
+        l10 = d["layer10"]
+        for key, name in (("units", "hidden units (columns)"), ("dims", "dimensions of the stream (rows)")):
+            r = l10[key]
+            print(f"   layer 10, {name}: {l10[key + '_with_change']} have any change; {r['half']} hold half of the squared change, {r['nine_tenths']} hold nine tenths; "
+                  f"the top one holds {100 * r['top'][0]['share']:.1f} %, the top ten {100 * sum(x['share'] for x in r['top'][:10]):.1f} %")
+            print("   top 20: " + ", ".join(f"{x['index']} {100 * x['share']:.2f} %" for x in r["top"]))
+    else:
+        print("   not computed")
+    print()
+    print("Extension 2, Part M: parts of layer 10's ffn_down, and one matrix under the other rule")
+    table(PART_M0 := ["clip:5@ffn_down#10", "clip:5@ffn_down#10:u1", "clip:5@ffn_down#10:u10", "clip:5@ffn_down#10:not10", "clip:5@ffn_down#10:d10",
+                      "R+S:32|ffn_down#10=XR:32", "XR:32|ffn_down#10=R+S:32"])
+    for v in ("R+S:32", "XR:32"):
+        if v in OLD:
+            print(f"   {v} on all matrices (first record): KL {kl(v, OLD):.4f}, bits {OLD[v]['bits_per_weight']:.3f}")
+    for v in ("R+S:32|ffn_down#10=XR:32", "XR:32|ffn_down#10=R+S:32"):
+        if v in ROWS and "arm_check" in ROWS[v]:
+            print(f"   {v}: the base arm's weight errors match the first record's by kind, largest difference {ROWS[v]['arm_check']['max_abs_difference_db']:.6f} dB")
+    v10 = "clip:5@ffn_down#10"
+    mv = dict(zip(("m1", "m2", "m3", "m4", "m5", "m6"), PART_M0[1:]))
+    if "clip:5@ffn_down#10:d10" in ROWS and "clip:5@ffn_down#10:u10" in ROWS:
+        print(f"   variant 4 (no prediction) against variant 2: ten stream dimensions {kl(mv['m4']):.4f}, ten hidden units {kl(mv['m2']):.4f}")
+    mid = (kl("R+S:32", OLD) + kl("XR:32", OLD)) / 2 if "R+S:32" in OLD and "XR:32" in OLD else None
+    if v10 in ROWS and mid is not None:
+        print(f"   layer 10 alone {kl(v10):.6f}; 0.8 of it {0.8 * kl(v10):.4f}, 0.2 of it {0.2 * kl(v10):.4f}, 0.5 of it {0.5 * kl(v10):.4f}; midpoint of the two rules {mid:.4f}")
+    for name, var, pred, thr, ok_fn, fail in (
+            ("M1", mv["m2"], "ten hidden units carry it: variant 2 scores at least 0.1248 (0.8 of layer 10's KL)", "0.1248", lambda x: x >= 0.1248, "it scores less"),
+            ("M2", mv["m3"], "the rest carries little: variant 3 scores at most 0.0312 (0.2 of layer 10's KL)", "0.0312", lambda x: x <= 0.0312, "it scores more"),
+            ("M3", mv["m1"], "one hidden unit carries half: variant 1 scores at least 0.0780", "0.0780", lambda x: x >= 0.0780, "it scores less"),
+            ("M4", mv["m5"], "variant 5 (R+S:32 everywhere, XR:32 on layer 10) scores at most 0.2288, the midpoint of the two rules", "0.2288", lambda x: x <= 0.2288, "it scores more"),
+            ("M5", mv["m6"], "variant 6 (XR:32 everywhere, R+S:32 on layer 10) scores at least 0.2288", "0.2288", lambda x: x >= 0.2288, "it scores less")):
+        if var in ROWS:
+            verdict(name, pred, fail + " fails", f"{kl(var):.4f} (needs {thr})", ok_fn(kl(var)))
+        else:
+            verdict(name, pred, fail + " fails", "not scored", None)
+    print()
+
     # ----- verdict
     print("Verdicts")
     print("   id | prediction | fails if | measured | verdict")
