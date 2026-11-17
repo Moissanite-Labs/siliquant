@@ -1,0 +1,1256 @@
+{
+ "certificate": {
+  "stored": 440,
+  "free_vertices": 7,
+  "bars": 17,
+  "worst_bar_error": 4.440892098500626e-15,
+  "shortest_bar": 1.0003213062972425,
+  "longest_bar": 1.0152,
+  "claimed_real": 880,
+  "claimed_complex": 880
+ },
+ "covariance_eigenvalues": [
+  0.13856634785562155,
+  0.1394666369090663,
+  0.18233368003760805,
+  0.1901089165603742,
+  0.2250282217440101,
+  0.22943750066768823,
+  0.29263792121247506,
+  0.33185941412713604,
+  0.34821583249786303,
+  0.3827791494148194,
+  0.4157546316622344,
+  0.43901863058113433,
+  1.8008808767607047,
+  2.7435754366210756
+ ],
+ "rows": [
+  {
+   "matrix": "G/0",
+   "arm": "L880",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5735606234401099,
+   "scale": 0.7612115983742775,
+   "at_edge": false
+  },
+  {
+   "matrix": "G/0",
+   "arm": "L880w",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5254113528958468,
+   "scale": 0.687995681843283,
+   "at_edge": false
+  },
+  {
+   "matrix": "G/0",
+   "arm": "random",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.47457969549844004,
+   "scale": 0.752679827377633,
+   "at_edge": false
+  },
+  {
+   "matrix": "G/0",
+   "arm": "fitted",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.45561499814588863,
+   "scale": 0.9784717026135423,
+   "at_edge": false
+  },
+  {
+   "matrix": "G/0",
+   "arm": "S-mix",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5555515614186125,
+   "one_bit": 0.36386368333475183
+  },
+  {
+   "matrix": "G/1",
+   "arm": "L880",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5739822793523611,
+   "scale": 0.7614436375579346,
+   "at_edge": false
+  },
+  {
+   "matrix": "G/1",
+   "arm": "L880w",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5257890601656818,
+   "scale": 0.6882054027102739,
+   "at_edge": false
+  },
+  {
+   "matrix": "G/1",
+   "arm": "random",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.4738230989662767,
+   "scale": 0.75453176299555,
+   "at_edge": false
+  },
+  {
+   "matrix": "G/1",
+   "arm": "fitted",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.4560258238115653,
+   "scale": 0.9787699689242383,
+   "at_edge": false
+  },
+  {
+   "matrix": "G/1",
+   "arm": "S-mix",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5565373685366013,
+   "one_bit": 0.36527466299975286
+  },
+  {
+   "matrix": "G/2",
+   "arm": "L880",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5724124982617241,
+   "scale": 0.7615719748368628,
+   "at_edge": false
+  },
+  {
+   "matrix": "G/2",
+   "arm": "L880w",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5251897584046504,
+   "scale": 0.6859280992211064,
+   "at_edge": false
+  },
+  {
+   "matrix": "G/2",
+   "arm": "random",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.47522478594665624,
+   "scale": 0.7520349825143298,
+   "at_edge": false
+  },
+  {
+   "matrix": "G/2",
+   "arm": "fitted",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.4566317290188996,
+   "scale": 0.9734334535992836,
+   "at_edge": false
+  },
+  {
+   "matrix": "G/2",
+   "arm": "S-mix",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5556356451165549,
+   "one_bit": 0.3639840318144796
+  },
+  {
+   "matrix": "T/0",
+   "arm": "L880",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6128550480787058,
+   "scale": 1.0257645455362816,
+   "at_edge": false
+  },
+  {
+   "matrix": "T/0",
+   "arm": "L880w",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5771639719231698,
+   "scale": 0.9147406826595618,
+   "at_edge": false
+  },
+  {
+   "matrix": "T/0",
+   "arm": "random",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5020858874955256,
+   "scale": 1.0542130560530638,
+   "at_edge": false
+  },
+  {
+   "matrix": "T/0",
+   "arm": "fitted",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.4079985541694706,
+   "scale": 0.9813508370448234,
+   "at_edge": false
+  },
+  {
+   "matrix": "T/0",
+   "arm": "S-mix",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6490627218455346,
+   "one_bit": 0.49770563213525876
+  },
+  {
+   "matrix": "T/1",
+   "arm": "L880",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6159436033702471,
+   "scale": 1.0289358375046882,
+   "at_edge": false
+  },
+  {
+   "matrix": "T/1",
+   "arm": "L880w",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5825243523868107,
+   "scale": 0.9183235009005776,
+   "at_edge": false
+  },
+  {
+   "matrix": "T/1",
+   "arm": "random",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5064389733712759,
+   "scale": 1.062034854252762,
+   "at_edge": false
+  },
+  {
+   "matrix": "T/1",
+   "arm": "fitted",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.4078860263579303,
+   "scale": 0.9720575911433298,
+   "at_edge": false
+  },
+  {
+   "matrix": "T/1",
+   "arm": "S-mix",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6542867191362909,
+   "one_bit": 0.5051827073285433
+  },
+  {
+   "matrix": "T/2",
+   "arm": "L880",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6099493190206943,
+   "scale": 1.0286992320591786,
+   "at_edge": false
+  },
+  {
+   "matrix": "T/2",
+   "arm": "L880w",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5759426816331028,
+   "scale": 0.9193346114455906,
+   "at_edge": false
+  },
+  {
+   "matrix": "T/2",
+   "arm": "random",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5013514954997417,
+   "scale": 1.0609179499364902,
+   "at_edge": false
+  },
+  {
+   "matrix": "T/2",
+   "arm": "fitted",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.4089921400113411,
+   "scale": 0.9697442947147381,
+   "at_edge": false
+  },
+  {
+   "matrix": "T/2",
+   "arm": "S-mix",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6485754819710405,
+   "one_bit": 0.49700824869955057
+  },
+  {
+   "matrix": "real/decoder.blocks.0.attn.key.weight",
+   "arm": "L880",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6252905836709092,
+   "scale": 0.032012531130345835,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.0.attn.key.weight",
+   "arm": "L880w",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5977453747577768,
+   "scale": 0.02815267215609834,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.0.attn.key.weight",
+   "arm": "random",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5151332933033881,
+   "scale": 0.03384063633649015,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.0.attn.key.weight",
+   "arm": "S-mix",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6518627116738773,
+   "one_bit": 0.5017132403558825
+  },
+  {
+   "matrix": "real/decoder.blocks.0.attn.out.weight",
+   "arm": "L880",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6143650386960836,
+   "scale": 0.012929566391685413,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.0.attn.out.weight",
+   "arm": "L880w",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5841791379187725,
+   "scale": 0.011410278506962001,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.0.attn.out.weight",
+   "arm": "random",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5128111042431365,
+   "scale": 0.013409880337383483,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.0.attn.out.weight",
+   "arm": "S-mix",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.623114175714419,
+   "one_bit": 0.46056563764826397
+  },
+  {
+   "matrix": "real/decoder.blocks.0.attn.query.weight",
+   "arm": "L880",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6184437190554516,
+   "scale": 0.03219374682335052,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.0.attn.query.weight",
+   "arm": "L880w",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5878040720586288,
+   "scale": 0.028472047111119624,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.0.attn.query.weight",
+   "arm": "random",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5104421491246924,
+   "scale": 0.033533758769435595,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.0.attn.query.weight",
+   "arm": "S-mix",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6336085505607207,
+   "one_bit": 0.4755861718225748
+  },
+  {
+   "matrix": "real/decoder.blocks.0.attn.value.weight",
+   "arm": "L880",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5971272609379087,
+   "scale": 0.012895320042287627,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.0.attn.value.weight",
+   "arm": "L880w",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5615773094573565,
+   "scale": 0.011484303072268503,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.0.attn.value.weight",
+   "arm": "random",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.4947129753852076,
+   "scale": 0.013206877702191018,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.0.attn.value.weight",
+   "arm": "S-mix",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6032526933284306,
+   "one_bit": 0.43213802006260627
+  },
+  {
+   "matrix": "real/decoder.blocks.0.cross_attn.key.weight",
+   "arm": "L880",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6857324790189047,
+   "scale": 0.011561149129902238,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.0.cross_attn.key.weight",
+   "arm": "L880w",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.675526112665696,
+   "scale": 0.010042412346122076,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.0.cross_attn.key.weight",
+   "arm": "random",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5976915823827094,
+   "scale": 0.0126041305303466,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.0.cross_attn.key.weight",
+   "arm": "S-mix",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.7213909958398094,
+   "one_bit": 0.601228645865112
+  },
+  {
+   "matrix": "real/decoder.blocks.0.cross_attn.out.weight",
+   "arm": "L880",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6063477732844827,
+   "scale": 0.010002882798172786,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.0.cross_attn.out.weight",
+   "arm": "L880w",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5681271129639233,
+   "scale": 0.00895870550218961,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.0.cross_attn.out.weight",
+   "arm": "random",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5013620637061754,
+   "scale": 0.010280302326582386,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.0.cross_attn.out.weight",
+   "arm": "S-mix",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6152548878352072,
+   "one_bit": 0.44931668724346224
+  },
+  {
+   "matrix": "real/decoder.blocks.0.cross_attn.query.weight",
+   "arm": "L880",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6690254783395312,
+   "scale": 0.013541254641790169,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.0.cross_attn.query.weight",
+   "arm": "L880w",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.652380266469327,
+   "scale": 0.011870149450615458,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.0.cross_attn.query.weight",
+   "arm": "random",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5450339844253879,
+   "scale": 0.015119548587564835,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.0.cross_attn.query.weight",
+   "arm": "S-mix",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.7979990808347541,
+   "one_bit": 0.7108773267582466
+  },
+  {
+   "matrix": "real/decoder.blocks.0.cross_attn.value.weight",
+   "arm": "L880",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5942214703463214,
+   "scale": 0.011548388985253037,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.0.cross_attn.value.weight",
+   "arm": "L880w",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5626913966303838,
+   "scale": 0.010306917706762174,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.0.cross_attn.value.weight",
+   "arm": "random",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.500153115924899,
+   "scale": 0.011811679230932697,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.0.cross_attn.value.weight",
+   "arm": "S-mix",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6004825284458122,
+   "one_bit": 0.4281731001033665
+  },
+  {
+   "matrix": "real/decoder.blocks.0.mlp1.weight",
+   "arm": "L880",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6157415793225056,
+   "scale": 0.015558586222529685,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.0.mlp1.weight",
+   "arm": "L880w",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5935716515969974,
+   "scale": 0.013605740389468733,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.0.mlp1.weight",
+   "arm": "random",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5125417264364304,
+   "scale": 0.016080457388149606,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.0.mlp1.weight",
+   "arm": "S-mix",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6306053411143377,
+   "one_bit": 0.4712876966125051
+  },
+  {
+   "matrix": "real/decoder.blocks.0.mlp2.weight",
+   "arm": "L880",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5962905828201269,
+   "scale": 0.014703466233409332,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.0.mlp2.weight",
+   "arm": "L880w",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5655577853897287,
+   "scale": 0.013168606141278114,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.0.mlp2.weight",
+   "arm": "random",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.49282177640156705,
+   "scale": 0.015111251543980403,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.0.mlp2.weight",
+   "arm": "S-mix",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6424688204008924,
+   "one_bit": 0.48826782155179277
+  },
+  {
+   "matrix": "real/decoder.blocks.5.attn.key.weight",
+   "arm": "L880",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.584549781802608,
+   "scale": 0.018116230267077867,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.5.attn.key.weight",
+   "arm": "L880w",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5408892447498584,
+   "scale": 0.01631681811139451,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.5.attn.key.weight",
+   "arm": "random",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.4834908590468356,
+   "scale": 0.01821861642482729,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.5.attn.key.weight",
+   "arm": "S-mix",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5820551965396437,
+   "one_bit": 0.40179817327906747
+  },
+  {
+   "matrix": "real/decoder.blocks.5.attn.out.weight",
+   "arm": "L880",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6158514243694672,
+   "scale": 0.017738429453681252,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.5.attn.out.weight",
+   "arm": "L880w",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5797241102273549,
+   "scale": 0.01579747530143433,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.5.attn.out.weight",
+   "arm": "random",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5194538942862437,
+   "scale": 0.018103832418949365,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.5.attn.out.weight",
+   "arm": "S-mix",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6101735208028889,
+   "one_bit": 0.44204375786186584
+  },
+  {
+   "matrix": "real/decoder.blocks.5.attn.query.weight",
+   "arm": "L880",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.583616760880347,
+   "scale": 0.01833411225210034,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.5.attn.query.weight",
+   "arm": "L880w",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5360200430264075,
+   "scale": 0.01651305875676882,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.5.attn.query.weight",
+   "arm": "random",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.48072689736697805,
+   "scale": 0.01833411225210034,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.5.attn.query.weight",
+   "arm": "S-mix",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5731528958091825,
+   "one_bit": 0.3890563649950793
+  },
+  {
+   "matrix": "real/decoder.blocks.5.attn.value.weight",
+   "arm": "L880",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5878492067906324,
+   "scale": 0.017652429603417324,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.5.attn.value.weight",
+   "arm": "L880w",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.543667239493952,
+   "scale": 0.015899084898837252,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.5.attn.value.weight",
+   "arm": "random",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.4838597740141726,
+   "scale": 0.01785252329721999,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.5.attn.value.weight",
+   "arm": "S-mix",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5887575122171865,
+   "one_bit": 0.41139115648730784
+  },
+  {
+   "matrix": "real/decoder.blocks.5.cross_attn.key.weight",
+   "arm": "L880",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5914627880795019,
+   "scale": 0.018592038476642352,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.5.cross_attn.key.weight",
+   "arm": "L880w",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5551057142780108,
+   "scale": 0.016615453707194167,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.5.cross_attn.key.weight",
+   "arm": "random",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.48972180823815126,
+   "scale": 0.018827814913024554,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.5.cross_attn.key.weight",
+   "arm": "S-mix",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6013148466223788,
+   "one_bit": 0.42936439199050785
+  },
+  {
+   "matrix": "real/decoder.blocks.5.cross_attn.out.weight",
+   "arm": "L880",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6230261504746933,
+   "scale": 0.020569551015064975,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.5.cross_attn.out.weight",
+   "arm": "L880w",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5903529102688145,
+   "scale": 0.01819164537663334,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.5.cross_attn.out.weight",
+   "arm": "random",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5289422376814927,
+   "scale": 0.021231236504802697,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.5.cross_attn.out.weight",
+   "arm": "S-mix",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6204311585518434,
+   "one_bit": 0.4567254516847397
+  },
+  {
+   "matrix": "real/decoder.blocks.5.cross_attn.query.weight",
+   "arm": "L880",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5848063758531911,
+   "scale": 0.019786253254715332,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.5.cross_attn.query.weight",
+   "arm": "L880w",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5392212936346082,
+   "scale": 0.01778264337511412,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.5.cross_attn.query.weight",
+   "arm": "random",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.4817571334778899,
+   "scale": 0.019786253254715332,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.5.cross_attn.query.weight",
+   "arm": "S-mix",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5756593229096219,
+   "one_bit": 0.39264379868874394
+  },
+  {
+   "matrix": "real/decoder.blocks.5.cross_attn.value.weight",
+   "arm": "L880",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6111201302644893,
+   "scale": 0.02468055463359778,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.5.cross_attn.value.weight",
+   "arm": "L880w",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5826697022186179,
+   "scale": 0.02178046761542889,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.5.cross_attn.value.weight",
+   "arm": "random",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5025755232948456,
+   "scale": 0.025508397834166384,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.5.cross_attn.value.weight",
+   "arm": "S-mix",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.62741707941901,
+   "one_bit": 0.4667243572566412
+  },
+  {
+   "matrix": "real/decoder.blocks.5.mlp1.weight",
+   "arm": "L880",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5824789016831771,
+   "scale": 0.01815833933402418,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.5.mlp1.weight",
+   "arm": "L880w",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5393115224694619,
+   "scale": 0.01631957645059994,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.5.mlp1.weight",
+   "arm": "random",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.4837287716647877,
+   "scale": 0.01822169626083518,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.5.mlp1.weight",
+   "arm": "S-mix",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.574967795013583,
+   "one_bit": 0.3916540190642242
+  },
+  {
+   "matrix": "real/decoder.blocks.5.mlp2.weight",
+   "arm": "L880",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5973297868705257,
+   "scale": 0.019984185853634727,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.5.mlp2.weight",
+   "arm": "L880w",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5571598321287153,
+   "scale": 0.01793665376063938,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.5.mlp2.weight",
+   "arm": "random",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.49510192067666764,
+   "scale": 0.02021071045420974,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/decoder.blocks.5.mlp2.weight",
+   "arm": "S-mix",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6056540031593198,
+   "one_bit": 0.43557500005486305
+  },
+  {
+   "matrix": "real/encoder.blocks.0.attn.key.weight",
+   "arm": "L880",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6791406211382884,
+   "scale": 0.019001765911796135,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/encoder.blocks.0.attn.key.weight",
+   "arm": "L880w",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6850848013968825,
+   "scale": 0.016150942230746118,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/encoder.blocks.0.attn.key.weight",
+   "arm": "random",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5760457228577938,
+   "scale": 0.021578267067472266,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/encoder.blocks.0.attn.key.weight",
+   "arm": "S-mix",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.7651844712847029,
+   "one_bit": 0.6639099779278481
+  },
+  {
+   "matrix": "real/encoder.blocks.0.attn.out.weight",
+   "arm": "L880",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6775296410957795,
+   "scale": 0.016036581053570274,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/encoder.blocks.0.attn.out.weight",
+   "arm": "L880w",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6622052359599339,
+   "scale": 0.013755485368849471,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/encoder.blocks.0.attn.out.weight",
+   "arm": "random",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5780561596089657,
+   "scale": 0.017520986592891932,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/encoder.blocks.0.attn.out.weight",
+   "arm": "S-mix",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.7056996673854485,
+   "one_bit": 0.5787697439542353
+  },
+  {
+   "matrix": "real/encoder.blocks.0.attn.query.weight",
+   "arm": "L880",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6755152035635673,
+   "scale": 0.01800672829805507,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/encoder.blocks.0.attn.query.weight",
+   "arm": "L880w",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6757387108742251,
+   "scale": 0.015445392432297794,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/encoder.blocks.0.attn.query.weight",
+   "arm": "random",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5700657265052306,
+   "scale": 0.020404338849808863,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/encoder.blocks.0.attn.query.weight",
+   "arm": "S-mix",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.7521128302613349,
+   "one_bit": 0.645200618525176
+  },
+  {
+   "matrix": "real/encoder.blocks.0.attn.value.weight",
+   "arm": "L880",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6467436801367318,
+   "scale": 0.015746368681214984,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/encoder.blocks.0.attn.value.weight",
+   "arm": "L880w",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6347651972843701,
+   "scale": 0.013644958815232032,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/encoder.blocks.0.attn.value.weight",
+   "arm": "random",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5361704849300258,
+   "scale": 0.01716691688749748,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/encoder.blocks.0.attn.value.weight",
+   "arm": "S-mix",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.7091781135550399,
+   "one_bit": 0.583748422563401
+  },
+  {
+   "matrix": "real/encoder.blocks.0.mlp1.weight",
+   "arm": "L880",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6349007749332952,
+   "scale": 0.015889380481541357,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/encoder.blocks.0.mlp1.weight",
+   "arm": "L880w",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6109350426081942,
+   "scale": 0.013973544223633816,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/encoder.blocks.0.mlp1.weight",
+   "arm": "random",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5177100916753344,
+   "scale": 0.01689168724920912,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/encoder.blocks.0.mlp1.weight",
+   "arm": "S-mix",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6846634351137113,
+   "one_bit": 0.54866071408213
+  },
+  {
+   "matrix": "real/encoder.blocks.0.mlp2.weight",
+   "arm": "L880",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.6015542103236823,
+   "scale": 0.011157833017199463,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/encoder.blocks.0.mlp2.weight",
+   "arm": "L880w",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5842989257101717,
+   "scale": 0.00985984147996333,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/encoder.blocks.0.mlp2.weight",
+   "arm": "random",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5126265838954764,
+   "scale": 0.011507294806320954,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/encoder.blocks.0.mlp2.weight",
+   "arm": "S-mix",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.644145295936803,
+   "one_bit": 0.49066735067557055
+  },
+  {
+   "matrix": "real/encoder.blocks.5.attn.key.weight",
+   "arm": "L880",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5899698428196131,
+   "scale": 0.018376245981090736,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/encoder.blocks.5.attn.key.weight",
+   "arm": "L880w",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5482239846308947,
+   "scale": 0.01640076856851487,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/encoder.blocks.5.attn.key.weight",
+   "arm": "random",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.4905766971850169,
+   "scale": 0.018312351684148284,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/encoder.blocks.5.attn.key.weight",
+   "arm": "S-mix",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5913721139338945,
+   "one_bit": 0.41513341984393487
+  },
+  {
+   "matrix": "real/encoder.blocks.5.attn.out.weight",
+   "arm": "L880",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5930970596610893,
+   "scale": 0.020653391900021457,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/encoder.blocks.5.attn.out.weight",
+   "arm": "L880w",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5533207322692946,
+   "scale": 0.01847284028553538,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/encoder.blocks.5.attn.out.weight",
+   "arm": "random",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.4933229803073578,
+   "scale": 0.02081487613353518,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/encoder.blocks.5.attn.out.weight",
+   "arm": "S-mix",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5913413711573872,
+   "one_bit": 0.41508941789699627
+  },
+  {
+   "matrix": "real/encoder.blocks.5.attn.query.weight",
+   "arm": "L880",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5821702084253941,
+   "scale": 0.018730652300823967,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/encoder.blocks.5.attn.query.weight",
+   "arm": "L880w",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5371394047743451,
+   "scale": 0.016833935448058397,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/encoder.blocks.5.attn.query.weight",
+   "arm": "random",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.4800777982229581,
+   "scale": 0.018665525731378484,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/encoder.blocks.5.attn.query.weight",
+   "arm": "S-mix",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5771644124544943,
+   "one_bit": 0.3947980240976182
+  },
+  {
+   "matrix": "real/encoder.blocks.5.attn.value.weight",
+   "arm": "L880",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5833603942044409,
+   "scale": 0.021811640046324472,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/encoder.blocks.5.attn.value.weight",
+   "arm": "L880w",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5352068809552639,
+   "scale": 0.01971372243649506,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/encoder.blocks.5.attn.value.weight",
+   "arm": "random",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.4792701415691621,
+   "scale": 0.021811640046324472,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/encoder.blocks.5.attn.value.weight",
+   "arm": "S-mix",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5756000283238942,
+   "one_bit": 0.39255893071286957
+  },
+  {
+   "matrix": "real/encoder.blocks.5.mlp1.weight",
+   "arm": "L880",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5721168047884863,
+   "scale": 0.019409228115705182,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/encoder.blocks.5.mlp1.weight",
+   "arm": "L880w",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5477514475462684,
+   "scale": 0.01748138769366662,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/encoder.blocks.5.mlp1.weight",
+   "arm": "random",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.48950779319471105,
+   "scale": 0.019878165193065803,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/encoder.blocks.5.mlp1.weight",
+   "arm": "S-mix",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5899858085697234,
+   "one_bit": 0.4131492095023441
+  },
+  {
+   "matrix": "real/encoder.blocks.5.mlp2.weight",
+   "arm": "L880",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5804227770021126,
+   "scale": 0.022300196916992778,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/encoder.blocks.5.mlp2.weight",
+   "arm": "L880w",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.5486428420404426,
+   "scale": 0.019860090259580746,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/encoder.blocks.5.mlp2.weight",
+   "arm": "random",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.4875404410914097,
+   "scale": 0.022426229289386257,
+   "at_edge": false
+  },
+  {
+   "matrix": "real/encoder.blocks.5.mlp2.weight",
+   "arm": "S-mix",
+   "bits": 0.6986685509660472,
+   "rel_err": 0.594258116603967,
+   "one_bit": 0.4192641377159244
+  }
+ ]
+}
