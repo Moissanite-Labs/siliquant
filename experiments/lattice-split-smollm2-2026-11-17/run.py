@@ -28,6 +28,10 @@ Extension 2 (PREREG-extension-2.md): one part of the weights changed and the oth
   only(B)@small          the weights B rounds to zero are set to zero; every other weight is exact
   only(B)@big            B's error on the weights it does not round to zero; those it does are exact
   onlynoise(B)@small#s   Gaussian noise on the weights B rounds to zero, with their squared error in every group; the others exact
+Extension 3 (PREREG-extension-3.md): two more rounded arms, built by the build step and kept like the base arms.
+  ZBG128:b576s16         integer levels in one ball per group of 128 with 16 more bits for the point: 0.125 bits a weight more
+  fine0(ZBG128:b560s16)  the integer arm, with three levels where it has one at zero: a weight under half a step is rounded
+                         to the nearest of minus a third, zero and a third of a step
 """
 from __future__ import annotations
 
@@ -56,6 +60,7 @@ TEXT_SHA = "173c87a53759e0201f33e0ccf978e510c2042d7f2cb78229d9a50d79b9e7dd08"
 LENGTH, ALL, KEPT = 512, 40, 16
 GROUP = 128
 BASE = ("X32:16", "ZBG128:b560s16", "EBG128:b560s16")
+EXTRA = ("ZBG128:b576s16", "fine0(ZBG128:b560s16)")            # extension 3
 BALL = {"Z": "ZBG128:b560s16", "E": "EBG128:b560s16"}
 ATTN = ("attn_q", "attn_k", "attn_v", "attn_output")
 _model_path = None
@@ -103,7 +108,20 @@ def build_one(task):
             lattice = "Z8" if arm.startswith("Z") else "E8"
             Wh = LS.ball_round(W.astype(np.float64), lattice, LS._bounds[lattice])[0].astype(np.float16)
         np.save(out, Wh)
-    return name
+    zeros = 0
+    for arm in EXTRA:
+        out = folder(_work, arm) / f"{index}.npy"
+        if arm.startswith("fine0"):
+            Wh, T = LS.ball_round(W.astype(np.float64), "Z8", LS._bounds["Z8"])
+            small = Wh == 0
+            zeros = int(small.sum())
+            if not out.exists():
+                third = T[small] / 3.0
+                Wh[small] = np.rint(W.astype(np.float64)[small] / third) * third
+                np.save(out, Wh.astype(np.float16))
+        elif not out.exists():
+            np.save(out, LS.ball_round(W.astype(np.float64), "Z8", LS._bounds["Z8+16"])[0].astype(np.float16))
+    return name, zeros, W.size
 
 
 class Changed:
@@ -118,7 +136,7 @@ class Changed:
         only = re.match(r"^(only|onlynoise)\((.+)\)@(small|big)(?:#(\d+))?$", arm)
         s = re.match(r"^scale\((.+),([-+]?[\d.]+)\)$", arm)
         x = re.match(r"^mix\(attn=([ZE]),ffn=([ZE])\)$", arm)
-        if arm in BASE:
+        if arm in BASE + EXTRA:
             self.kind, self.base = "base", arm
         elif m:
             self.kind, self.base, self.seed = m.group(1), m.group(2), int(m.group(3))
@@ -132,7 +150,7 @@ class Changed:
             self.kind, self.attn, self.ffn = "mix", BALL[x.group(1)], BALL[x.group(2)]
         else:
             raise SystemExit(f"unknown arm {arm}")
-        if self.kind != "mix" and self.base not in BASE:
+        if self.kind != "mix" and self.base not in BASE + EXTRA:
             raise SystemExit(f"unknown base arm in {arm}")
 
     def __contains__(self, name):
@@ -213,12 +231,17 @@ def main():
     if args.step == "build":
         for lattice in ("Z8", "E8"):
             LS._bounds[lattice] = design.ball_bound(lattice, GROUP, 560)[0]
-        for arm in BASE:
+        LS._bounds["Z8+16"] = design.ball_bound("Z8", GROUP, 576)[0]
+        for arm in BASE + EXTRA:
             folder(args.work, arm).mkdir(parents=True, exist_ok=True)
         names = NF.Model(args.model).names()
         with get_context("fork").Pool(4) as pool:
-            pool.map(build_one, list(enumerate(names)), chunksize=1)
-        print(f"built {', '.join(BASE)} on {len(names)} matrices in {time.time() - t0:.0f} seconds")
+            done = pool.map(build_one, list(enumerate(names)), chunksize=1)
+        share = sum(z for _, z, _ in done) / sum(n for _, _, n in done)
+        print(f"built {', '.join(BASE + EXTRA)} on {len(names)} matrices in {time.time() - t0:.0f} seconds")
+        print(json.dumps({"step": "build", "weights_rounded_to_zero_by_the_integer_arm": share,
+                          "bits_of_fine0_if_the_choice_of_three_is_coded_at_its_entropy_bound": 4.5 + share * math.log2(3.0),
+                          "bits_of_ZBG128:b576s16": (576 + 16) / GROUP}))
         return
 
     model = NF.Model(args.model)

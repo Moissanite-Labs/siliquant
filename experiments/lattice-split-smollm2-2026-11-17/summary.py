@@ -13,6 +13,7 @@ HARNESS = HERE.parent / "model-output-smollm2-2026-11-17" / "results.jsonl"
 Z, E, X = "ZBG128:b560s16", "EBG128:b560s16", "X32:16"
 AGREE = 0.4
 SMALL, BIG = "noisepart(ZBG128:b560s16)@small#1", "noisepart(ZBG128:b560s16)@big#1"      # extension 1
+FINE, MORE = "fine0(ZBG128:b560s16)", "ZBG128:b576s16"                                    # extension 3
 PS, NS, PB = "only(ZBG128:b560s16)@small", "onlynoise(ZBG128:b560s16)@small#1", "only(ZBG128:b560s16)@big"   # extension 2
 
 
@@ -155,6 +156,20 @@ def main():
         P(f"F3 | KL per unit of weight error: noise on the small weights alone {c_of(rows[NS]):.1f}, noise on every weight {c_of(rows[N]):.1f}: {c_of(rows[NS]) / c_of(rows[N]):.2f} times "
           f"| {'holds' if c_of(rows[NS]) >= 2 * c_of(rows[N]) else 'FAILS'}")
         P(f"Per unit of weight error: the small weights set to zero {c_of(rows[PS]):.1f}, the integer arm's error on the other weights {c_of(rows[PB]):.1f}, the integer arm {c_of(rows[Z]):.1f}.")
+
+    if FINE in rows and MORE in rows:
+        P("")
+        P("Extension 3, by the statements of PREREG-extension-3.md")
+        d, se = diff(rows[FINE], rows[MORE])
+        m, mse = paired(rows[FINE], rows[MORE])
+        P(f"G1 | finer levels at zero {rows[FINE]['kl_mean']:.5f} at {rows[FINE]['weight_err_db_mean']:.3f} dB, the same bits everywhere {rows[MORE]['kl_mean']:.5f} at "
+          f"{rows[MORE]['weight_err_db_mean']:.3f} dB: {d:+.5f} (error {se:.5f}, {d / se:+.1f} errors; {m:+.2f} dB from the passages, error {mse:.2f}) | {'holds' if d / se <= -2.0 else 'FAILS'}")
+        P(f"G2 | finer levels at zero: {rows[FINE]['kl_mean']:.5f}, stated 0.043 to 0.045 | {'holds' if 0.043 <= rows[FINE]['kl_mean'] <= 0.045 else 'FAILS'}")
+        g3 = db(rows[MORE]["kl_mean"] / 0.0472)
+        P(f"G3 | the same bits everywhere: {rows[MORE]['kl_mean']:.5f}, {g3:+.2f} dB from 0.0472 | {'holds' if abs(g3) <= 0.2 else 'FAILS'}")
+        for v in (FINE, MORE):
+            m, mse = paired(rows[v], rows[Z])
+            P(f"{v} over the integer arm: {db(rows[v]['kl_mean'] / rows[Z]['kl_mean']):+.2f} dB of KL ({m:+.2f} from the passages, error {mse:.2f}) for {rows[v]['weight_err_db_mean'] - rows[Z]['weight_err_db_mean']:+.2f} dB of weight error")
 
 
 if __name__ == "__main__":
