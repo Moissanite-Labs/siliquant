@@ -12,6 +12,7 @@ HERE = Path(__file__).resolve().parent
 HARNESS = HERE.parent / "model-output-smollm2-2026-11-17" / "results.jsonl"
 Z, E, X = "ZBG128:b560s16", "EBG128:b560s16", "X32:16"
 AGREE = 0.4
+SMALL, BIG = "noisepart(ZBG128:b560s16)@small#1", "noisepart(ZBG128:b560s16)@big#1"      # extension 1
 
 
 def db(x):
@@ -80,7 +81,8 @@ def main():
     pairs = [("noise(EBG128:b560s16)#1", E), ("noise(ZBG128:b560s16)#1", Z), ("noise(EBG128:b560s16)#1", "noise(ZBG128:b560s16)#1"),
              ("noise(EBG128:b560s16)#2", "noise(EBG128:b560s16)#1"), ("shuffle(EBG128:b560s16)#1", E), ("shuffle(ZBG128:b560s16)#1", Z),
              ("shuffle(EBG128:b560s16)#1", "noise(EBG128:b560s16)#1"), ("shuffle(ZBG128:b560s16)#1", "noise(ZBG128:b560s16)#1"),
-             ("shuffle(EBG128:b560s16)#1", "shuffle(ZBG128:b560s16)#1"), ("scale(ZBG128:b560s16,-0.66)", Z), (E, Z), (X, Z)]
+             ("shuffle(EBG128:b560s16)#1", "shuffle(ZBG128:b560s16)#1"), ("scale(ZBG128:b560s16,-0.66)", Z), (E, Z), (X, Z),
+             (SMALL, Z), (SMALL, "noise(ZBG128:b560s16)#1"), (BIG, Z), (BIG, "noise(ZBG128:b560s16)#1")]
     got = {}
     for a, b in pairs:
         if a in rows and b in rows:
@@ -122,6 +124,21 @@ def main():
     if sc is not None and Z in rows:
         m = db(sc["kl_mean"] / rows[Z]["kl_mean"])
         P(f"L: the integer arm's error made 0.66 dB smaller has a KL {m:+.2f} dB from the integer arm's: {'holds' if abs(m + 0.66) <= 0.2 else 'FAILS'}.")
+
+    if (SMALL, Z) in got and (BIG, Z) in got:
+        N = "noise(ZBG128:b560s16)#1"
+        sz, sn, bz, bn = got[(SMALL, Z)], got[(SMALL, N)], got[(BIG, Z)], got[(BIG, N)]
+        P("")
+        P("Extension 1, by the rules of PREREG-extension-1.md")
+        if abs(bz) <= AGREE and abs(sn) <= AGREE:
+            P("E1: noise on the larger weights agrees with the integer arm, and noise on the weights rounded to zero agrees with the noise arm.")
+        elif abs(sz) <= AGREE and abs(bn) <= AGREE:
+            P("E2: noise on the weights rounded to zero agrees with the integer arm, and noise on the larger weights agrees with the noise arm.")
+        elif min(abs(sz), abs(sn)) > AGREE and min(abs(bz), abs(bn)) > AGREE:
+            P("E3: both lie between, more than 0.4 dB from each end.")
+        else:
+            P("None of E1, E2, E3 as written.")
+        P(f"Noise on the weights rounded to zero: {sz:+.2f} dB from the integer arm, {sn:+.2f} from the noise arm. Noise on the larger weights: {bz:+.2f} and {bn:+.2f}.")
 
 
 if __name__ == "__main__":
