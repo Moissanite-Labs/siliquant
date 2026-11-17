@@ -112,3 +112,40 @@ Reported without a prediction: K = 2 on T and on the real matrices, every candid
 - Anything about the report's other proposals: the fold as a training schedule, codebooks from realisations of a graph, the calibration loss, searched level tables, circuits for decoding, and interval certificates. `notes/pr6-proposal-check.md` reads those against the limits.
 - Anything about vortex equilibria that a downhill search does not reach. Those are the unstable ones.
 - Decoding speed. Nothing here is timed.
+
+## Extension 1: the 880 realisations of a graph as a codebook
+
+Written 2026-11-17 while the main run was in progress. No result of the main run had been read: `results.out` was empty. The program is `l880.py`.
+
+**Why it was added.** The plan above lists "codebooks from realisations of a graph" among the proposals this run cannot show, because the source check had reported that the report's own author could not open that repository. A read of Foundation-0/rigid-realizations at commit `298926c` found the table: `l880_certificate.json` holds 440 certified points, each the coordinates of the 7 free vertices of the 10-vertex graph L880. So the third experiment of PR #6 can be measured in part.
+
+**The proposal.** Take the 880 realisations (the 440 and their mirror images) as a codebook for blocks of 14 weights. That is log2(880)/14 = 0.6987 bits per weight. The report's milestone for it is to "match 2-bit" methods with a table of 12,320 bytes.
+
+**What is known before the run.**
+
+- For Gaussian weights no code at 0.6987 bits has a relative error under 2^(-2 x 0.6987) = -4.21 dB. The best scalar quantiser at 2 bits is at -9.30 dB (`bounds/bounds.out`). So on Gaussian weights the milestone is closed for weight error by Shannon's floor, whatever the codebook, by 5.1 dB. The run cannot change that. It asks only how good this codebook is at its own bits.
+- All 17 bars have a length between 1.003 and 1.015. So in every realisation each free vertex sits about one unit from its neighbours, and the 880 points cannot spread through 14 dimensions the way a good codebook does.
+- A scalar mix at the same bits, 69.87 percent of the weights at one bit and the rest set to zero, has an expected error on Gaussian data of 0.3013 + 0.6987 x 0.3634 = 0.5552, which is -2.56 dB. This uses the proved figure for the best 2 levels.
+- Seen: `l880.py --smoke`, which prints `ok` and no number, and the keys and first row of the certificate file. No arm has been scored on a matrix of the study.
+
+**Arms**, all at 0.6987 bits, each with one free scale per matrix and an exact search over the 880 points:
+
+| Arm | Codebook |
+|---|---|
+| L880 | the 880 realisations, moved to mean zero |
+| L880w | the same, mapped linearly so that the codebook's covariance is the identity. This gives the set its best linear fit to data with no preferred direction |
+| random | 880 independent Gaussian points, one fixed draw |
+| fitted | 880 points fitted by Lloyd's algorithm to a separate sample of the family. Synthetic families only |
+| S-mix | 2 levels on a share of the weights and zero on the rest, as a weighted mean of the two errors |
+
+**Data.** The matrices of the main run, in blocks of 14.
+
+**Predictions.**
+
+- E1. Every one of the 440 stored points meets the 17 bar lengths to within 1e-6. This checks that the file is read correctly. It does not check the certificate.
+- E2. On G, L880 and L880w each have a larger error than the random codebook on every one of the three matrices.
+- E3. On G, no arm is under Shannon's floor by more than 0.05 dB.
+
+Against the scalar mix nothing is predicted.
+
+**What it cannot show.** Anything about the 17 bar lengths as trained parameters, which the report also proposes: the run uses the lengths of the certificate. Anything about chaining three such blocks. As the report describes it, that is a product of three copies of one codebook, and a product has the error per weight of its factor.
