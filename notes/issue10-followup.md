@@ -114,6 +114,23 @@ Two readings fit one arm, and the next arms tell them apart. If the ball arms sh
 
 **The second arm is in, and it sides with the first reading.** `EB32@32:16` scored 0.1018 at 20:13 UTC, at a weight error of -23.539 dB, 0.028 dB from the closed form. Over `EBG128:b560s16` that is +2.24 dB of KL, where the closed form alone says +2.03: inside the mark of 0.4. The other reading said +1.44. So far the two ball arms share a constant, 22 to 23 of KL per unit of weight error, and the scalar rule has another, 16.4. Against the scalar rule's constant this arm too is off, by 1.49 dB. On Qwen2.5 the three constants were 7.1, 7.7 and 7.2.
 
+**The third arm is in, and it is the surprise.** `ZBG128:b560s16`, integer levels in the same ball with no lattice, scored 0.0560 at 20:20 UTC. That is under E8 in the same ball, 0.0609, although its weight error is 0.66 dB higher, as the closed form says to 0.02 dB. The closed form put it 0.65 dB above E8 in KL. It is 0.36 dB below: 1.0 dB from the prediction, 8.6 errors of the gap. Against each other the two arms are 2.9 errors apart, which the run's record would call near a tie. So O3 fails on this arm, and O6 fails: the arm with the smallest weight error does not have the lowest KL.
+
+What the three arms show together, on this model:
+
+| Arm | Lattice | Weight error | Mean KL | KL per unit of weight error |
+|---|---|---|---|---|
+| `X32:16` | integer levels | -21.17 dB | 0.1257 | 16.4 |
+| llama.cpp `Q4_0` | integer levels | -21.17 | 0.1271 | 16.6 |
+| `ZBG128:b560s16` | integer levels | -24.93 | 0.0560 | 17.4 |
+| `EBG128:b560s16` | E8 | -25.59 | 0.0609 | 22.0 |
+| `EB32@32:16` | E8 | -23.54 | 0.1018 | 23.0 |
+| llama.cpp `Q4_K_M` | its own | -24.56 | 0.0838 | 23.9 |
+
+The line on this model is not between the scalar rule and the ball. It is between integer levels and E8. The three arms on integer levels share a constant within 0.26 dB, the ball among them. The two on E8 share another, 1.2 to 1.5 dB higher. Within each lattice a decibel of weight error is a decibel of KL. Across them it is not: E8's cell, worth 0.65 dB of weight error, costs this model's output more than it gives. On Qwen2.5 the same arms had one constant, and E8 was 0.66 dB ahead.
+
+The formula cannot see this. It has the lattice as a cell constant and nothing else.
+
 **From the weights of this model, before its arms with one scale per row are scored** (`shape/row_spread.smollm2.out`, 19:58 UTC). The scalar rule per row has rows 1.30 times as uneven as an even spread at 16 levels and 1.39 at 32, and 1.2 percent of the rows have over four times the matrix's share. With groups of 32 the figure is 1.01. That is the regime of Qwen2.5, where the arms per row lay above the constant. The measured weight error of `X32:16`, -21.166 dB, is reproduced to the last digit shown, and that of `XR:16` comes out at -16.59 dB.
 
 ## Stage 4, under both limits
