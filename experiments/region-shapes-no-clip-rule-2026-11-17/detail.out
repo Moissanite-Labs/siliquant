@@ -1,0 +1,44 @@
+1. The share of the E8 Voronoi code's gain over the scalar rule that integer levels in a ball reach, in dB
+   family | group | q | VE8 over X | ZB over X | ZB over X as a share of VE8 over X
+      G | 32 | 16 | +1.36 | +0.80 | 0.59
+      G |  R | 16 | +2.29 | +1.83 | 0.80
+      G |  R | 32 | +2.32 | +1.88 | 0.81
+      T | 32 | 16 | +2.89 | +2.32 | 0.80
+      T |  R | 16 | +4.61 | +3.81 | 0.83
+      T |  R | 32 | +5.02 | +4.06 | 0.81
+   real | 32 | 16 | +1.77 | +1.35 | 0.76
+   real |  R | 16 | +2.71 | +2.40 | 0.89
+   real |  R | 32 | +2.92 | +2.53 | 0.87
+
+2. On the real matrices: the better of the two E8 regions on each matrix, against the E8 Voronoi code, in dB
+   One more bit per matrix would say which region it uses.
+   group | q | EB over VE8 | EC over VE8 | better of the two over VE8: mean (min, max) | ahead of VE8 on | EC is the better one on | matrices
+   32 | 16 | +0.13 | -0.02 | +0.25 (+0.04, +2.06) | 32 | 9 | 32
+    R | 16 | +0.20 | +0.40 | +0.59 (+0.05, +2.41) | 32 | 15 | 32
+    R | 32 | +0.17 | +0.49 | +0.64 (+0.09, +2.35) | 32 | 16 | 32
+
+3. Which real matrices the cross-polytope suits: EC over VE8 against the mean peak of a block of the matrix
+   peak = the largest entry of a block over its length, as in the record of the E8 gain: 0.650 for Gaussian blocks, 1 for a single weight
+   group | q | rank correlation of (EC over VE8) with the peak | mean peak where EC is ahead | where it is behind
+   32 | 16 | +0.91 | 0.702 | 0.663
+    R | 16 | +0.77 | 0.687 | 0.660
+    R | 32 | +0.77 | 0.685 | 0.660
+
+4. The real matrices in order of EC over VE8 with one group per row at q = 16, in dB
+   matrix | EC over VE8 | EB over VE8 | ZC over VE8 | mean peak of a block
+   decoder.blocks.5.cross_attn.out.weight     | -0.78 | +0.11 | -1.35 | 0.651
+   decoder.blocks.5.attn.out.weight           | -0.54 | +0.17 | -1.14 | 0.652
+   encoder.blocks.5.attn.value.weight         | -0.44 | +0.10 | -0.99 | 0.662
+   decoder.blocks.0.cross_attn.value.weight   | -0.38 | +0.10 | -0.95 | 0.659
+   encoder.blocks.5.attn.out.weight           | -0.36 | +0.27 | -0.92 | 0.657
+   encoder.blocks.0.mlp2.weight               | +1.29 | +0.12 | +0.91 | 0.690
+   encoder.blocks.0.attn.query.weight         | +1.80 | +0.36 | +1.74 | 0.708
+   decoder.blocks.0.cross_attn.key.weight     | +2.13 | +0.22 | +1.65 | 0.661
+   decoder.blocks.0.cross_attn.query.weight   | +2.19 | +1.04 | +3.18 | 0.769
+   encoder.blocks.0.attn.key.weight           | +2.41 | +0.56 | +2.42 | 0.717
+
+5. Blocks shrunk: runs where a block lay outside the codebook at its group's scale
+   ZB: 0 of 114 runs
+   ZC: 0 of 114 runs
+   EB: 0 of 114 runs
+   EC: 47 of 114 runs, largest share of blocks 1.5e-04
