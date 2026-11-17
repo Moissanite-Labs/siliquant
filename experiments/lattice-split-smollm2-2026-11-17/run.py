@@ -20,6 +20,10 @@ Made from a base arm B, whose error is (rounded - weights):
   shuffle(B)#s    B's error with the weights of each group of 128 trading errors at random
   scale(B,d)      B's error times a factor: d dB more squared error in every weight
   mix(attn=L,ffn=M)   the four attention matrices of a block from the ball arm on lattice L (Z or E), the three feed-forward ones from M
+Extension 1 of the plan (PREREG-extension-1.md):
+  noisepart(B)@small#s   Gaussian noise in place of B's error on the weights B rounds to zero, with their squared error in every
+                         group; the other weights keep B's error
+  noisepart(B)@big#s     the reverse: noise on the weights B does not round to zero, B's error on those it does
 """
 from __future__ import annotations
 
@@ -106,12 +110,15 @@ class Changed:
         self.index = {n: i for i, n in enumerate(model.names())}
         self.rel = {}
         m = re.match(r"^(noise|shuffle)\((.+)\)#(\d+)$", arm)
+        part = re.match(r"^noisepart\((.+)\)@(small|big)#(\d+)$", arm)
         s = re.match(r"^scale\((.+),([-+]?[\d.]+)\)$", arm)
         x = re.match(r"^mix\(attn=([ZE]),ffn=([ZE])\)$", arm)
         if arm in BASE:
             self.kind, self.base = "base", arm
         elif m:
             self.kind, self.base, self.seed = m.group(1), m.group(2), int(m.group(3))
+        elif part:
+            self.kind, self.base, self.part, self.seed = "noisepart", part.group(1), part.group(2), int(part.group(3))
         elif s:
             self.kind, self.base, self.factor = "scale", s.group(1), 10.0 ** (float(s.group(2)) / 20.0)
         elif x:
@@ -134,10 +141,20 @@ class Changed:
         elif self.kind == "mix":
             Wh = self.load(self.attn if name.split(".")[2] in ATTN else self.ffn, name)
         else:
-            E = self.load(self.base, name).astype(np.float64) - W
+            B = self.load(self.base, name)
+            E = B.astype(np.float64) - W
             rows, cols = E.shape
             if self.kind == "scale":
                 E = E * self.factor
+            elif self.kind == "noisepart":
+                rng = np.random.default_rng([self.seed, self.index[name], 1])
+                zero = (B == 0).reshape(-1, GROUP)                       # the weights the base arm rounds to zero
+                on = zero if self.part == "small" else ~zero
+                G = E.reshape(-1, GROUP)
+                n = rng.standard_normal(G.shape) * on
+                want, have = ((G * on) ** 2).sum(axis=1), (n ** 2).sum(axis=1)
+                n *= np.sqrt(want / np.where(have > 0, have, 1.0))[:, None]
+                E = np.where(on, n, G).reshape(rows, cols)
             else:
                 rng = np.random.default_rng([self.seed, self.index[name]])
                 G = E.reshape(-1, GROUP)
