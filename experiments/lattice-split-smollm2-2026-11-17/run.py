@@ -24,6 +24,10 @@ Extension 1 of the plan (PREREG-extension-1.md):
   noisepart(B)@small#s   Gaussian noise in place of B's error on the weights B rounds to zero, with their squared error in every
                          group; the other weights keep B's error
   noisepart(B)@big#s     the reverse: noise on the weights B does not round to zero, B's error on those it does
+Extension 2 (PREREG-extension-2.md): one part of the weights changed and the other left exact.
+  only(B)@small          the weights B rounds to zero are set to zero; every other weight is exact
+  only(B)@big            B's error on the weights it does not round to zero; those it does are exact
+  onlynoise(B)@small#s   Gaussian noise on the weights B rounds to zero, with their squared error in every group; the others exact
 """
 from __future__ import annotations
 
@@ -111,6 +115,7 @@ class Changed:
         self.rel = {}
         m = re.match(r"^(noise|shuffle)\((.+)\)#(\d+)$", arm)
         part = re.match(r"^noisepart\((.+)\)@(small|big)#(\d+)$", arm)
+        only = re.match(r"^(only|onlynoise)\((.+)\)@(small|big)(?:#(\d+))?$", arm)
         s = re.match(r"^scale\((.+),([-+]?[\d.]+)\)$", arm)
         x = re.match(r"^mix\(attn=([ZE]),ffn=([ZE])\)$", arm)
         if arm in BASE:
@@ -119,6 +124,8 @@ class Changed:
             self.kind, self.base, self.seed = m.group(1), m.group(2), int(m.group(3))
         elif part:
             self.kind, self.base, self.part, self.seed = "noisepart", part.group(1), part.group(2), int(part.group(3))
+        elif only:
+            self.kind, self.base, self.part, self.seed = only.group(1), only.group(2), only.group(3), int(only.group(4) or 0)
         elif s:
             self.kind, self.base, self.factor = "scale", s.group(1), 10.0 ** (float(s.group(2)) / 20.0)
         elif x:
@@ -146,6 +153,16 @@ class Changed:
             rows, cols = E.shape
             if self.kind == "scale":
                 E = E * self.factor
+            elif self.kind in ("only", "onlynoise"):
+                zero = (B == 0).reshape(-1, GROUP)
+                on = zero if self.part == "small" else ~zero
+                G = E.reshape(-1, GROUP) * on                             # the base arm's error on one part, nothing on the other
+                if self.kind == "onlynoise":
+                    rng = np.random.default_rng([self.seed, self.index[name], 2])
+                    n = rng.standard_normal(G.shape) * on
+                    have = (n ** 2).sum(axis=1)
+                    G = n * np.sqrt((G ** 2).sum(axis=1) / np.where(have > 0, have, 1.0))[:, None]
+                E = G.reshape(rows, cols)
             elif self.kind == "noisepart":
                 rng = np.random.default_rng([self.seed, self.index[name], 1])
                 zero = (B == 0).reshape(-1, GROUP)                       # the weights the base arm rounds to zero
