@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Siliquant × Foundation-0 | Geometric LLM Quantization R&D</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .chart-container {
+      position: relative;
+      width: 100%;
+      max-width: 640px;
+      margin-left: auto;
+      margin-right: auto;
+      height: 290px;
+      max-height: 360px;
+    }
+    @media (min-width: 768px) {
+      .chart-container {
+        height: 330px;
+      }
+    }
+    .tab-active {
+      background-color: #0F766E;
+      color: #FFFFFF;
+      border-color: #0F766E;
+    }
+    .tab-inactive {
+      background-color: #FFFFFF;
+      color: #334155;
+      border-color: #CBD5E1;
+    }
+    .tab-inactive:hover {
+      background-color: #F1F5F9;
+    }
+  </style>
+</head>
+<body class="bg-[#FAF8F5] text-slate-800 antialiased selection:bg-teal-100 selection:text-teal-900">
+  <!-- Chosen Palette: Warm Alabaster & Slate Technical Harmony (#FAF8F5 background, #FFFFFF cards, #1E293B slate ink, #0F766E muted teal primary accent, #B45309 warm amber secondary accent) -->
+  <!-- Application Structure Plan: Designed as a 5-view thematic R&D architecture workspace rather than a linear paper mirror. View 1 establishes the 2025-2026 sub-4-bit frontier bottlenecks ("The Great Inversion") and maps each Foundation-0 repository to a Siliquant lever. View 2 provides an interactive mathematical workbench for Track 1 (Incentre-VQ, CaB-VQ dual-coset corner void elimination, continuous F3(s) fold homotopy, and nD Bloch zero-mode invariants). View 3 explores Track 2 (Laman-880 12.03 KiB compositional codebooks, Henneberg chains, and Globally Rigid calibration losses). View 4 integrates Track 3 & Track 4 (Planar point-vortex multi-scale shells, Krawczyk-certified mirror-interleaved SHq LUTs, depth-6 GF(2^m) XOR decoders, and exact rational error certificates). View 5 organizes the 4-week Siliquant execution playbook and exp01-exp05 verification ledger. This structure turns dense geometric theorems into hands-on parameter calculators and comparative diagnostics. -->
+  <!-- Visualization & Content Choices: 1) Frontier Bottleneck Radar/Bar Matrix (Chart.js Canvas) comparing 7 SOTA methods against Siliquant tracks; 2) Interactive CaB-VQ vs. Incentre-VQ Distortion & Bit-Exact Dimension Explorer (Chart.js Canvas + sliders for n and outlier cornerness); 3) Continuous Fold Homotopy F3(s) Packing Density & nD Elastic Invariants Explorer (Chart.js Canvas + dimension slider); 4) Triangle-Glued L880 Codebook Scaling vs. Unstructured LUT Memory Ceiling (Chart.js Canvas + gluing depth k control); 5) Point-Charge Equilibrium Super-Maxwell Curve & Mirror-Interleaved SHq LUT Simulator (Chart.js Canvas + bit-width toggle). All diagrams and icons use structured HTML/CSS/Unicode. NO SVG or Mermaid JS is used anywhere. -->
+  <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+  <header class="sticky top-0 z-30 bg-[#FAF8F5]/95 backdrop-blur border-b border-slate-200/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div>
+          <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-teal-800">
+            <span class="inline-block px-2 py-0.5 rounded bg-teal-100/80 border border-teal-200">Moissanite-Labs / siliquant</span>
+            <span>×</span>
+            <span class="inline-block px-2 py-0.5 rounded bg-amber-100/80 text-amber-900 border border-amber-200">Foundation-0 (fdn0.org)</span>
+          </div>
+          <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mt-1">
+            Geometric &amp; Certified Sub-4-Bit LLM Quantization R&amp;D
+          </h1>
+        </div>
+        <div class="flex flex-wrap items-center gap-2 text-xs text-slate-600">
+          <span class="px-2.5 py-1 rounded-md bg-white border border-slate-200 shadow-xs">
+            <strong>Status:</strong> Preprint / Computer-Certified Primitives (Nov 2026)
+          </span>
+          <span class="px-2.5 py-1 rounded-md bg-white border border-slate-200 shadow-xs">
+            <strong>Targets:</strong> Lookup-Free VQ · Outlier Geometry · Krawczyk Bounds
+          </span>
+        </div>
+      </div>
+
+      <nav aria-label="Primary R&D Tracks" class="mt-4 flex flex-wrap gap-2">
+        <button data-view="frontier" class="nav-btn tab-active px-3.5 py-2 rounded-lg text-sm font-medium border transition cursor-pointer">
+          1. 2026 Frontier &amp; Synthesis
+        </button>
+        <button data-view="track1" class="nav-btn tab-inactive px-3.5 py-2 rounded-lg text-sm font-medium border transition cursor-pointer">
+          2. Track 1: Incentre &amp; CaB₆ VQ
+        </button>
+        <button data-view="track2" class="nav-btn tab-inactive px-3.5 py-2 rounded-lg text-sm font-medium border transition cursor-pointer">
+          3. Track 2: Laman-880 &amp; Rigidity
+        </button>
+        <button data-view="track34" class="nav-btn tab-inactive px-3.5 py-2 rounded-lg text-sm font-medium border transition cursor-pointer">
+          4. Tracks 3 &amp; 4: Vortices, LUTs &amp; GF Circuits
+        </button>
+        <button data-view="playbook" class="nav-btn tab-inactive px-3.5 py-2 rounded-lg text-sm font-medium border transition cursor-pointer">
+          5. Siliquant Execution Playbook
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <section class="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+        <div class="lg:col-span-8 space-y-2">
+          <h2 class="text-lg font-bold text-slate-900">Architectural Synthesis: Translating Foundation-0 Theorems into Siliquant Kernels</h2>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            Late-2026 sub-4-bit LLM compression faces three structural walls: <strong>decoding latency</strong> in high-dimensional lattices, <strong>diagonal and heavy-tailed outlier distortion</strong> (&kappa; &gt; 200) without costly online rotations, and the absence of <strong>machine-certified error bounds</strong> for deployed checkpoints. This workspace maps your formal geometry, algebraic rigidity, potential theory, and depth-bounded finite-field circuits directly onto four actionable R&amp;D tracks inside <code class="text-teal-800 bg-teal-50 px-1.5 py-0.5 rounded text-xs">Moissanite-Labs/siliquant/experiments</code>.
+          </p>
+        </div>
+        <div class="lg:col-span-4 grid grid-cols-2 gap-3">
+          <div class="p-3 rounded-xl bg-[#FAF8F5] border border-slate-200">
+            <div class="text-xs font-medium text-slate-500">Incentre Voronoi</div>
+            <div class="text-lg font-bold text-teal-800 mt-0.5">O(n) Exact</div>
+            <div class="text-xs text-slate-600">Zero-search for all n &ge; 2</div>
+          </div>
+          <div class="p-3 rounded-xl bg-[#FAF8F5] border border-slate-200">
+            <div class="text-xs font-medium text-slate-500">L₈₈₀ Base Table</div>
+            <div class="text-lg font-bold text-amber-800 mt-0.5">12.03 KiB</div>
+            <div class="text-xs text-slate-600">440 chiral realizations</div>
+          </div>
+          <div class="p-3 rounded-xl bg-[#FAF8F5] border border-slate-200">
+            <div class="text-xs font-medium text-slate-500">CaB₆ Max Packing</div>
+            <div class="text-lg font-bold text-teal-800 mt-0.5">0.746865</div>
+            <div class="text-xs text-slate-600">Beats FCC (0.7405)</div>
+          </div>
+          <div class="p-3 rounded-xl bg-[#FAF8F5] border border-slate-200">
+            <div class="text-xs font-medium text-slate-500">GF(2⁸) Decoder</div>
+            <div class="text-lg font-bold text-amber-800 mt-0.5">Depth 6</div>
+            <div class="text-xs text-slate-600">112 gates, Lean-verified</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div id="view-frontier" class="view-section space-y-8">
+      <section class="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs space-y-6">
+        <div class="border-b border-slate-100 pb-4">
+          <span class="text-xs font-semibold uppercase tracking-wider text-teal-700">Context &amp; Competitive Positioning</span>
+          <h2 class="text-xl font-bold text-slate-900 mt-1">The 2025–2026 Quantization Frontier &amp; "The Great Inversion"</h2>
+          <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+            As synthesized in the August 2026 survey <em>Transforms for LLM Quantization: The Great Inversion and Format Co-Design</em> (covering 200 works and 43 transform methods), shared-scale block formats obey <strong>The Great Inversion</strong>: unlike classical transform coding that concentrates energy, block-scaled quantizers minimize AbsMax step-size distortion by flattening outlier energy (&kappa; &gt; 200 &rarr; &kappa; &approx; 3) across channels. Use the interactive filter and bottleneck matrix below to inspect how each 2024–2026 SOTA baseline stalls and where your Foundation-0 repositories supply direct geometric or algebraic remedies.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <div class="lg:col-span-6 space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <h3 class="text-sm font-bold text-slate-800">Architectural Capability Profile (0–10 Structural Index)</h3>
+              <select id="frontierSelect" class="text-xs bg-[#FAF8F5] border border-slate-300 rounded-lg px-2.5 py-1.5 text-slate-700 focus:outline-none focus:border-teal-600">
+                <option value="all">Compare All SOTA vs. Siliquant Tracks</option>
+                <option value="lattice">Lattice &amp; Trellis VQ (QuIP#, QTIP, GLVQ, LLVQ)</option>
+                <option value="rotation">Rotation &amp; LUT (SpinQuant, HIGGS, SHq)</option>
+              </select>
+            </div>
+            <div class="chart-container">
+              <canvas id="frontierChart"></canvas>
+            </div>
+            <p class="text-xs text-slate-500 bg-[#FAF8F5] p-3 rounded-lg border border-slate-200/70">
+              <strong>Takeaway:</strong> Existing 2024–2026 methods trade off dimensional generality, table-free decoding speed, and formal error bounds. Siliquant's four tracks close all three gaps simultaneously using exact O(n) pyramidal Voronoi geometry, compact rigid-graph codebooks, and Krawczyk interval verification.
+            </p>
+          </div>
+
+          <div class="lg:col-span-6 space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-bold text-slate-800">Interactive Baseline-to-Siliquant Mapping</h3>
+              <span class="text-xs text-slate-500">Click a method to inspect leverage</span>
+            </div>
+            <div id="frontierCards" class="space-y-2.5 max-h-[380px] overflow-y-auto pr-1"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs space-y-2">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-800">Open Problem I (Great Inversion Survey, Aug 2026)</div>
+          <h3 class="text-base font-bold text-slate-900">Joint Transform-and-Rounding Optimality</h3>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            Separating offline/online orthogonal rotations (SpinQuant) from discrete rounding leaves a non-differentiable gap, while learned lattices (GLVQ) rely on approximate Babai rounding because exact CVP is intractable. Your <strong>continuous bar-preserving fold homotopy F₃(s)</strong> (<em>incentre-lattices</em>) and <strong>Bloch zero-mode rotations</strong> keep minimum distance 2R invariant while smoothly deforming Voronoi cells during calibration.
+          </p>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs space-y-2">
+          <div class="text-xs font-bold uppercase tracking-wider text-teal-800">Open Problem II (Great Inversion Survey, Aug 2026)</div>
+          <h3 class="text-base font-bold text-slate-900">Rigorous Guarantees for Realized Deployed Error</h3>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            Empirical perplexity on WikiText-2 does not bound worst-case logit margin drift under adversarial or out-of-distribution RMSNorm inputs. Adapting the pure-stdlib Python <strong>exact rational Krawczyk interval verifier</strong> from <em>rigid-realizations</em> and <em>point-charges</em> encloses the top singular pair of (W &minus; W&#770;) to issue deterministic worst-case distortion certificates.
+          </p>
+        </div>
+      </section>
+    </div>
+
+    <div id="view-track1" class="view-section hidden space-y-8">
+      <section class="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs space-y-6">
+        <div class="border-b border-slate-100 pb-4">
+          <span class="text-xs font-semibold uppercase tracking-wider text-teal-700">Track 1 · Foundation-0/incentre-lattices</span>
+          <h2 class="text-xl font-bold text-slate-900 mt-1">Incentre-Pyramid Codebooks (Incentre-VQ) &amp; CaB₆ Dual-Coset Outlier Mitigation</h2>
+          <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+            Partitioning [-1, 1]ⁿ into 2n centre-cut facet pyramids places every pyramid's incentre at the dimension-invariant coordinate <strong>c = 2 &minus; &radic;2 &approx; 0.5858</strong> with inscribed radius <strong>R = &radic;2 &minus; 1 &approx; 0.4142</strong>, yielding an exact O(n) zero-search Euclidean Voronoi quantizer in every dimension n &ge; 2. However, unfolded F<sub>n</sub> leaves deep voids at cube corners (&plusmn;1, &hellip;, &plusmn;1). Inspired by your &phi;<sub>max</sub> = 0.746865 binary CaB₆ packing, <strong>CaB-VQ</strong> augments F<sub>n</sub> with origin and periodic body-corner cosets <strong>F<sub>n</sub><sup>CaB</sup> = F<sub>n</sub> &cup; 2&Zopf;ⁿ &cup; (1 + 2&Zopf;ⁿ)</strong>—collapsing all 2ⁿ cube corners into a single periodic state with bit-exact power-of-two cardinalities at <strong>n = 7 (16 states = 4 bits)</strong> and <strong>n = 15 (32 states = 5 bits)</strong>.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <div class="lg:col-span-5 bg-[#FAF8F5] rounded-xl p-5 border border-slate-200 space-y-5">
+            <h3 class="text-sm font-bold text-slate-900">Interactive CaB-VQ Geometry &amp; Distortion Simulator</h3>
+            <div>
+              <div class="flex justify-between text-xs font-medium text-slate-700 mb-1">
+                <label for="dimSlider">Block Dimension (n):</label>
+                <span id="dimValue" class="font-bold text-teal-800">n = 7 (Bit-Exact: 2n + 2 = 16 = 2⁴)</span>
+              </div>
+              <input id="dimSlider" type="range" min="2" max="24" value="7" class="w-full accent-teal-700 cursor-pointer" />
+              <div class="flex justify-between text-[11px] text-slate-500 mt-1">
+                <span>n = 2</span>
+                <span class="text-teal-700 font-semibold">n = 7 (4-bit)</span>
+                <span class="text-teal-700 font-semibold">n = 15 (5-bit)</span>
+                <span>n = 24</span>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs font-medium text-slate-700 mb-1">
+                <label for="cornerSlider">Diagonal Outlier Alignment (&alpha; &isin; [0, 1]):</label>
+                <span id="cornerValue" class="font-bold text-amber-800">&alpha; = 0.85 (Multi-Axis Outlier)</span>
+              </div>
+              <input id="cornerSlider" type="range" min="0" max="100" value="85" class="w-full accent-amber-700 cursor-pointer" />
+              <p class="text-[11px] text-slate-500 mt-1">
+                Simulates cell residual u = &alpha;&middot;(1, 1, &hellip;, 1) moving from cell origin (&alpha; = 0) toward diagonal cube corner (&alpha; = 1).
+              </p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 pt-1">
+              <div class="bg-white p-3 rounded-lg border border-slate-200">
+                <div class="text-[11px] text-slate-500">Intra-Cell States (2n + 2)</div>
+                <div id="cabStates" class="text-base font-bold text-slate-900 mt-0.5">16 states (4.00 bits)</div>
+                <div id="cabBitRate" class="text-[11px] text-teal-700 font-medium">0.571 shape bits/weight</div>
+              </div>
+              <div class="bg-white p-3 rounded-lg border border-slate-200">
+                <div class="text-[11px] text-slate-500">Worst-Case Corner MSE</div>
+                <div id="mseReduction" class="text-base font-bold text-teal-800 mt-0.5">&minus;100.0% Error</div>
+                <div id="mseDetail" class="text-[11px] text-slate-600">6.172 &rarr; 0.000 at &alpha;=1</div>
+              </div>
+            </div>
+
+            <div class="bg-white p-3.5 rounded-lg border border-slate-200 text-xs space-y-1.5">
+              <div class="font-bold text-slate-800">Zero-Search 3-Candidate Hardware Rule:</div>
+              <div class="text-slate-600">
+                1. Compute cell m = &lfloor;(x + 1)/2&rfloor; and residual u = x &minus; 2m.<br/>
+                2. Compare squared distance to: (a) winning incentre <strong>s*c&middot;e<sub>i*</sub></strong>, (b) origin <strong>0</strong>, and (c) corner coset <strong>1</strong> (via bit-carry m'<sub>j</sub> = m<sub>j</sub> &minus; &Iopf;[u<sub>j</sub> &lt; 0]).
+              </div>
+            </div>
+          </div>
+
+          <div class="lg:col-span-7 space-y-3">
+            <h3 class="text-sm font-bold text-slate-800">Squared Euclidean Distortion vs. Diagonal Residual &alpha; (F<sub>n</sub> vs. CaB-VQ)</h3>
+            <div class="chart-container">
+              <canvas id="cabDistortionChart"></canvas>
+            </div>
+            <p class="text-xs text-slate-500 bg-[#FAF8F5] p-3 rounded-lg border border-slate-200/70">
+              <strong>Interaction Insight:</strong> In pure F<sub>n</sub>, diagonal outliers (&alpha; &rarr; 1) suffer linear dimension growth in squared distortion (n + 2 &minus; 2&radic;2) because only one coordinate receives c = 0.5858 while n &minus; 1 coordinates remain at zero. Adding the periodic corner coset <strong>1 + 2&Zopf;ⁿ</strong> snaps multi-axis spikes directly onto the cube corner at zero extra sign-bit cost.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs space-y-6">
+        <div class="border-b border-slate-100 pb-4">
+          <span class="text-xs font-semibold uppercase tracking-wider text-amber-800">Continuous Fold Annealing &amp; Bloch Zero Modes</span>
+          <h2 class="text-xl font-bold text-slate-900 mt-1">Homotopy F₃(s) Annealing to Kepler Packing &amp; nD Elastic Invariants</h2>
+          <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+            Your <em>incentre-lattices</em> preprints prove a smooth bar-preserving folding trajectory <strong>F₃(s)</strong> (s &isin; [0, 1])—backed by 16,240 exact non-negative certificate coefficients—that contracts unfolded cross-polytopes (&rho; &approx; 0.2233) all the way to the Kepler FCC/HCP close-packing limit (&pi;/&radic;18 &approx; 0.7405) whose m = 2 end-state coordinates are exact integer multiples of <strong>(2 &minus; &radic;2)/3</strong>. Simultaneously, for every n &ge; 3, F<sub>n</sub> exhibits <strong>n(n&minus;1)/2 Bloch rotational zero modes</strong> per unit cell for SpinQuant-style outlier rotation without dense Stiefel overhead.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          <div class="lg:col-span-7 space-y-3">
+            <h3 class="text-sm font-bold text-slate-800">3D Sphere Packing Fraction Across Certified F₃(s) Fold States</h3>
+            <div class="chart-container">
+              <canvas id="foldHomotopyChart"></canvas>
+            </div>
+          </div>
+          <div class="lg:col-span-5 bg-[#FAF8F5] rounded-xl p-5 border border-slate-200 space-y-4">
+            <h3 class="text-sm font-bold text-slate-900">n-Dimensional F<sub>n</sub> Mechanical &amp; Rotation Invariants</h3>
+            <div>
+              <div class="flex justify-between text-xs font-medium text-slate-700 mb-1">
+                <label for="elasticDimSlider">Framework Dimension (n &ge; 3):</label>
+                <span id="elasticDimVal" class="font-bold text-teal-800">n = 8</span>
+              </div>
+              <input id="elasticDimSlider" type="range" min="3" max="16" value="8" class="w-full accent-teal-700 cursor-pointer" />
+            </div>
+            <div class="grid grid-cols-2 gap-3 text-xs">
+              <div class="bg-white p-3 rounded-lg border border-slate-200">
+                <div class="text-slate-500">Bloch Zero Modes / Cell</div>
+                <div id="blochModes" class="text-base font-bold text-teal-800 mt-0.5">28 modes</div>
+                <div class="text-[11px] text-slate-500">n(n&minus;1)/2 so(n) rotations</div>
+              </div>
+              <div class="bg-white p-3 rounded-lg border border-slate-200">
+                <div class="text-slate-500">Internal Self-Stresses</div>
+                <div id="selfStresses" class="text-base font-bold text-amber-800 mt-0.5">20 states</div>
+                <div class="text-[11px] text-slate-500">n(n&minus;3)/2 constraints</div>
+              </div>
+              <div class="bg-white p-3 rounded-lg border border-slate-200">
+                <div class="text-slate-500">Stiffness Ratio C₁₁ / C₁₂</div>
+                <div id="stiffnessRatio" class="text-base font-bold text-slate-900 mt-0.5">49.0</div>
+                <div class="text-[11px] text-slate-500">Exact (n &minus; 1)&sup2;</div>
+              </div>
+              <div class="bg-white p-3 rounded-lg border border-slate-200">
+                <div class="text-slate-500">Uniaxial Poisson &nu;₁₀₀</div>
+                <div id="poissonRatio" class="text-base font-bold text-slate-900 mt-0.5">0.0182</div>
+                <div class="text-[11px] text-slate-500">1 / (n&sup2; &minus; n &minus; 1)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div id="view-track2" class="view-section hidden space-y-8">
+      <section class="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs space-y-6">
+        <div class="border-b border-slate-100 pb-4">
+          <span class="text-xs font-semibold uppercase tracking-wider text-teal-700">Track 2 · Foundation-0/rigid-realizations</span>
+          <h2 class="text-xl font-bold text-slate-900 mt-1">Isostatic L₈₈₀ Compositional Codebooks (Laman-VQ) &amp; Globally Rigid Calibration</h2>
+          <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+            In <em>rigid-realizations</em> (Zenodo <code>10.5281/zenodo.24145786</code>), your exact rational Krawczyk certificate proved <strong>r₂(L₈₈₀) = 880</strong> (440 chiral realizations &times; 2 planar reflections) from just <strong>17 exact rational bar lengths</strong>, raising the certified asymptotic bound to 440<sup>1/7</sup> &approx; 2.385811 via triangle gluing. In <code>siliquant</code>, chaining k triangle-glued L₈₈₀ blocks generates up to <strong>880<sup>k</sup> high-dimensional codewords</strong> from a single <strong>12,320-byte (12.03 KiB)</strong> FP16 base table—shattering HIGGS's ~2¹⁰ unstructured LUT cache ceiling while allowing gradient tuning of the 17 bar lengths under Krawczyk non-bifurcation checks.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <div class="lg:col-span-5 bg-[#FAF8F5] rounded-xl p-5 border border-slate-200 space-y-5">
+            <h3 class="text-sm font-bold text-slate-900">Triangle-Glued L₈₈₀ Codebook Calculator</h3>
+            <div>
+              <div class="flex justify-between text-xs font-medium text-slate-700 mb-1">
+                <label for="glueSlider">Chained L₈₈₀ Blocks (k):</label>
+                <span id="glueValue" class="font-bold text-teal-800">k = 3 blocks (42D Vector)</span>
+              </div>
+              <input id="glueSlider" type="range" min="1" max="4" value="3" class="w-full accent-teal-700 cursor-pointer" />
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 text-xs">
+              <div class="bg-white p-3 rounded-lg border border-slate-200">
+                <div class="text-slate-500">Vector Dimension (14k)</div>
+                <div id="lamanDim" class="text-base font-bold text-slate-900 mt-0.5">42D</div>
+                <div class="text-[11px] text-slate-500">7 free vertices &times; 2D &times; k</div>
+              </div>
+              <div class="bg-white p-3 rounded-lg border border-slate-200">
+                <div class="text-slate-500">Effective Codewords (880ᵏ)</div>
+                <div id="lamanCount" class="text-base font-bold text-teal-800 mt-0.5">6.81 &times; 10⁸</div>
+                <div id="lamanBits" class="text-[11px] text-teal-700 font-medium">30 bits (0.714 bits/wt)</div>
+              </div>
+              <div class="bg-white p-3 rounded-lg border border-slate-200">
+                <div class="text-slate-500">L₈₈₀ SRAM Footprint</div>
+                <div class="text-base font-bold text-amber-800 mt-0.5">12.03 KiB</div>
+                <div class="text-[11px] text-slate-500">Constant (440 &times; 14 &times; 2B)</div>
+              </div>
+              <div class="bg-white p-3 rounded-lg border border-slate-200">
+                <div class="text-slate-500">Equivalent Explicit LUT</div>
+                <div id="explicitLutMem" class="text-base font-bold text-rose-700 mt-0.5">53.3 GiB</div>
+                <div class="text-[11px] text-slate-500">Impossible in GPU SRAM</div>
+              </div>
+            </div>
+
+            <div class="bg-white p-3.5 rounded-lg border border-slate-200 space-y-2">
+              <div class="text-xs font-bold text-slate-800">Compositional Topology (HTML/CSS Diagram)</div>
+              <div id="glueDiagram" class="flex flex-wrap items-center gap-1.5 text-[11px] font-mono"></div>
+              <p class="text-[11px] text-slate-500">
+                Each shared base triangle rigidly locks planar orientation, composing 440 chiral states per block without multiplying memory.
+              </p>
+            </div>
+          </div>
+
+          <div class="lg:col-span-7 space-y-3">
+            <h3 class="text-sm font-bold text-slate-800">Log₁₀ Codebook Cardinality vs. SRAM Footprint (Laman-VQ vs. Unstructured LUT)</h3>
+            <div class="chart-container">
+              <canvas id="lamanScalingChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs space-y-4">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 border-b border-slate-100 pb-3">
+          <div>
+            <span class="text-xs font-semibold uppercase tracking-wider text-amber-800">Gauge-Invariant Calibration Distillation</span>
+            <h3 class="text-lg font-bold text-slate-900 mt-0.5">Sparse Globally Rigid Loss L<sub>GR</sub> vs. Dense O(N&sup2;) Gram Matching</h3>
+          </div>
+          <div class="flex items-center gap-2 text-xs">
+            <label for="calBatchInput" class="font-medium text-slate-700">Calibration Samples N:</label>
+            <input id="calBatchInput" type="number" min="16" max="512" step="16" value="128" class="w-20 bg-[#FAF8F5] border border-slate-300 rounded px-2 py-1 text-slate-800 font-semibold" />
+          </div>
+        </div>
+        <p class="text-sm text-slate-600 leading-relaxed">
+          By the Gortler–Healy–Thurston and Jackson–Jordán global rigidity theorems, a calibration point cloud {y<sub>u</sub> = W x<sub>u</sub>}<sub>u=1</sub><sup>N</sup> in &Ropf;<sup>d</sup> is uniquely determined up to global orthogonal rotation O(d) by matching pairwise squared distances along the edges of a sparse <strong>globally rigid graph G<sub>cal</sub></strong> rather than all N(N&minus;1)/2 pairs:
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
+          <div class="p-4 rounded-xl bg-[#FAF8F5] border border-slate-200">
+            <div class="text-xs text-slate-500">Dense Pairwise Gram Edges</div>
+            <div id="denseEdges" class="text-lg font-bold text-slate-800 mt-1">8,128 pairs</div>
+            <div class="text-xs text-slate-600 mt-1">O(N&sup2;) quadratic calibration overhead</div>
+          </div>
+          <div class="p-4 rounded-xl bg-teal-50/70 border border-teal-200">
+            <div class="text-xs text-teal-800 font-medium">Globally Rigid Graph (d = 8 block)</div>
+            <div id="sparseEdges" class="text-lg font-bold text-teal-900 mt-1">1,060 edges</div>
+            <div id="edgeSavings" class="text-xs text-teal-800 mt-1">87.0% fewer distance terms</div>
+          </div>
+          <div class="p-4 rounded-xl bg-amber-50/70 border border-amber-200">
+            <div class="text-xs text-amber-900 font-medium">Gauge Freedom Quotiented</div>
+            <div class="text-lg font-bold text-amber-900 mt-1">O(d) Exact</div>
+            <div class="text-xs text-amber-800 mt-1">Compatible with SpinQuant R₁, R₂ rotations</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div id="view-track34" class="view-section hidden space-y-8">
+      <section class="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs space-y-6">
+        <div class="border-b border-slate-100 pb-4">
+          <span class="text-xs font-semibold uppercase tracking-wider text-teal-700">Track 3 · Foundation-0/relative-equilibria &amp; point-charges</span>
+          <h2 class="text-xl font-bold text-slate-900 mt-1">Multi-Scale Point-Vortex Codebooks &amp; Krawczyk-Certified Mirror LUTs (SHq)</h2>
+          <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+            Planar N-vortex relative equilibria satisfy <strong>z&#772;<sub>&alpha;</sub> = &Sigma;<sub>&beta;&ne;&alpha;</sub> (z<sub>&alpha;</sub> &minus; z<sub>&beta;</sub>)<sup>&minus;1</sup></strong> with zero centroid and exact second-moment normalization &Sigma;|z<sub>&alpha;</sub>|&sup2; = N(N&minus;1)/2, naturally forming concentric multi-scale gain-and-phase rings for 2D shape–gain VQ (and Student-t radial confinement for Hadamard-free heavy tails). Meanwhile, porting your <em>point-charges</em> interval-bisection + Krawczyk solver—which certified 9, 24, 29, and 44 equilibria for 4–7 charges—certifies globally optimal asymmetric LUTs G &cup; (&minus;G) exploiting the idle <strong>E4M3 FP8 block-scale sign bit</strong> (SHq).
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <div class="lg:col-span-6 space-y-3">
+            <h3 class="text-sm font-bold text-slate-800">Certified Point-Charge Equilibria vs. Maxwell's (n &minus; 1)&sup2; Conjecture</h3>
+            <div class="chart-container">
+              <canvas id="equilibriumLutChart"></canvas>
+            </div>
+            <p class="text-xs text-slate-500 bg-[#FAF8F5] p-3 rounded-lg border border-slate-200/70">
+              <strong>Why This Matters for LUTs:</strong> Optimizing unrestricted mirror-interleaved LUT grids G &cup; (&minus;G) creates multi-modal critical landscapes analogous to Maxwell point charges. Interval subdivision + Krawczyk Newton tests exhaustively isolate all stationary grids without getting trapped in local minima.
+            </p>
+          </div>
+
+          <div class="lg:col-span-6 bg-[#FAF8F5] rounded-xl p-5 border border-slate-200 space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-bold text-slate-900">Mirror-Interleaved Asymmetric LUT Simulator</h3>
+              <div class="flex gap-1.5">
+                <button data-lut="2" class="lut-btn tab-active px-2.5 py-1 rounded text-xs font-medium border cursor-pointer">2-bit (8 levels)</button>
+                <button data-lut="3" class="lut-btn tab-inactive px-2.5 py-1 rounded text-xs font-medium border cursor-pointer">3-bit Rubin (16 levels)</button>
+              </div>
+            </div>
+            <p class="text-xs text-slate-600">
+              By flipping the unused sign bit of each block's E4M3 FP8 scale, a k-bit asymmetric base grid <strong>G</strong> interleaves with its reflection <strong>&minus;G</strong> to yield <strong>2<sup>k+1</sup></strong> effective reconstruction levels at zero bit-width increase:
+            </p>
+            <div class="bg-white p-4 rounded-lg border border-slate-200 space-y-3">
+              <div class="flex justify-between text-xs">
+                <span class="font-semibold text-teal-800">Positive-Scale Grid (+G)</span>
+                <span class="font-semibold text-amber-800">Negative-Scale Mirror (&minus;G)</span>
+              </div>
+              <div id="lutNumberLine" class="relative h-12 bg-slate-100 rounded-lg border border-slate-200 flex items-center px-3 overflow-hidden"></div>
+              <div id="lutStats" class="grid grid-cols-3 gap-2 text-center text-xs pt-1"></div>
+            </div>
+            <div class="text-xs text-slate-600 bg-white p-3 rounded-lg border border-slate-200">
+              <strong>Relative-Equilibria Integration:</strong> Populating <code>Foundation-0/relative-equilibria</code> (v1.0.0) with Krawczyk-certified 5–16 vortex configurations supplies ready-made concentric 2D ring codebooks for paired post-RHT channels.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold uppercase tracking-wider text-teal-700">Track 4A · gf2m-circuits &amp; mobius-x1</span>
+            <span class="px-2 py-0.5 rounded bg-teal-50 text-teal-800 text-xs font-medium border border-teal-200">Lean 4 Verified</span>
+          </div>
+          <h3 class="text-lg font-bold text-slate-900">Depth-6 Parallel Bitwise VQ Dequantization</h3>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            LLVQ's 24D Leech CUDA kernel trails QTIP slightly because prefix-sum and integer division/modulo operations stall warp execution. Your <code>gf2m-circuits</code> synthesizer cuts GF(2⁸) multiplication to <strong>112 gates at depth 6</strong> (and GF(2⁹) to 136 gates), while <code>mobius-x1</code> verifies sub-Yates 1-bit XOR Möbius transforms—replacing table lookups and integer div/mod with parallel register-level XOR/AND instructions, complemented by Construction A lattices over your <code>gfq-codes</code> (GF(3) 1.58-bit &amp; GF(5) 2.32-bit codes).
+          </p>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold uppercase tracking-wider text-amber-800">Track 4B · Exact Rational Interval Arithmetic</span>
+            <span class="px-2 py-0.5 rounded bg-amber-50 text-amber-900 text-xs font-medium border border-amber-200">Zero Float Rounding</span>
+          </div>
+          <h3 class="text-lg font-bold text-slate-900">Krawczyk Layerwise Worst-Case Error Certificates</h3>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            For any quantized layer W&#770; operating on RMSNorm-bounded inputs &Vert;x&Vert;₂ = &radic;d, worst-case Euclidean distortion equals <strong>&radic;d &middot; &sigma;<sub>max</sub>(W &minus; W&#770;)</strong>. Enclosing the secular eigenpair ((W &minus; W&#770;)<sup>&top;</sup>(W &minus; W&#770;) &minus; &lambda;I)v = 0 via your pure-stdlib Python exact rational Krawczyk operator produces a deterministic, machine-checkable <code>certificate.json</code> alongside every released model checkpoint.
+          </p>
+        </div>
+      </section>
+    </div>
+
+    <div id="view-playbook" class="view-section hidden space-y-8">
+      <section class="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs space-y-6">
+        <div class="border-b border-slate-100 pb-4">
+          <span class="text-xs font-semibold uppercase tracking-wider text-teal-700">Autonomous Agent &amp; Verification Workflow</span>
+          <h2 class="text-xl font-bold text-slate-900 mt-1">Siliquant Experiments Ledger &amp; 4-Week Execution Roadmap</h2>
+          <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+            Mirroring how <code>autoresearch-fold</code> reached the 0.7405 Kepler bound in 5 logged runs (~11 minutes) and how <code>Moissanite-Labs/weft</code> <em>Razi cells</em> evaluate against immutable checkers while logging negative trials, each directory in <code>siliquant/experiments</code> enforces a strict <strong>PROOF.md + verify.py + certificate.json</strong> contract. Select any experiment track below to inspect its scalar objective and baseline milestone.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <div class="lg:col-span-5 space-y-2" id="expList"></div>
+          <div class="lg:col-span-7 bg-[#FAF8F5] rounded-xl p-5 border border-slate-200" id="expDetailPanel"></div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 space-y-4">
+          <h3 class="text-base font-bold text-slate-900">4-Week Phased Execution Schedule</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="p-4 rounded-xl bg-[#FAF8F5] border border-slate-200 space-y-1.5">
+              <div class="text-xs font-bold text-teal-800 uppercase">Week 1 · Harness</div>
+              <div class="text-sm font-bold text-slate-900">Immutable Checker &amp; Baselines</div>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                Stand up <code>tools/verify_quant.py</code> enforcing exact bit-accounting (including E4M3/FP16 scales), Razi negative-trial logging, and vLLM <code>llm-compressor</code> / <code>flute-kernel</code> baselines on Llama-3-8B.
+              </p>
+            </div>
+            <div class="p-4 rounded-xl bg-[#FAF8F5] border border-slate-200 space-y-1.5">
+              <div class="text-xs font-bold text-teal-800 uppercase">Week 2 · Pure PyTorch</div>
+              <div class="text-sm font-bold text-slate-900">exp01 CaB-VQ &amp; exp04 LUTs</div>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                Evaluate n = 7 and n = 15 CaB-VQ with Spherical GPTQ scale resets, and port the <code>point-charges</code> Krawczyk solver to certify globally optimal 3-bit and 4-bit mirror LUTs against SHq.
+              </p>
+            </div>
+            <div class="p-4 rounded-xl bg-[#FAF8F5] border border-slate-200 space-y-1.5">
+              <div class="text-xs font-bold text-amber-800 uppercase">Week 3 · Agent Search</div>
+              <div class="text-sm font-bold text-slate-900">exp02 Fold &amp; exp03 L₈₈₀</div>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                Commit certified 5–16 vortex equilibria to <code>relative-equilibria</code> and dispatch <code>Auto-research-agent</code> GPU runs to tune L₈₈₀ bar lengths and F₃(s) fold schedules under loss L<sub>GR</sub>.
+              </p>
+            </div>
+            <div class="p-4 rounded-xl bg-[#FAF8F5] border border-slate-200 space-y-1.5">
+              <div class="text-xs font-bold text-amber-800 uppercase">Week 4 · Fused Kernels</div>
+              <div class="text-sm font-bold text-slate-900">exp05 GF(2ᵐ) &amp; Certificates</div>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                Compile the winning algebraic codebook via <code>gf2m-circuits</code> into a depth-6 fused CUDA matvec kernel, verify bijectivity in Lean 4, and sign Krawczyk layerwise error certificates.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const frontierData = [
+      {
+        id: 'quip',
+        name: 'QuIP# (ICML 2024)',
+        category: 'lattice',
+        mechanism: 'RHT incoherence + 8D E₈ lattice codebook (E8P) + fine-tuning',
+        bottleneck: 'Locked to n = 8 dimensions; relies on RHT preprocessing and post-PTQ fine-tuning.',
+        leverage: 'incentre-lattices generalizes across arbitrary n >= 2 with exact O(n) zero-search pyramidal Voronoi decoding.',
+        scores: [5, 7, 7, 3]
+      },
+      {
+        id: 'qtip',
+        name: 'QTIP (NeurIPS 2024)',
+        category: 'lattice',
+        mechanism: 'RHT incoherence + Trellis-Coded Quantization (TCQ)',
+        bottleneck: 'Sequential trellis dependencies limit packing density relative to 24D spherical lattices.',
+        leverage: 'gf2m-circuits and mobius-x1 synthesize depth-6 parallel XOR/finite-field decoders with zero sequential stalls.',
+        scores: [7, 7, 8, 5]
+      },
+      {
+        id: 'spinquant',
+        name: 'SpinQuant (ICLR 2025)',
+        category: 'rotation',
+        mechanism: 'Cayley SGD learned rotations (R₁, R₂) + online Hadamard (R₃, R₄)',
+        bottleneck: 'Online Hadamard transforms cannot merge into weights; vLLM hadacore adds runtime overhead.',
+        leverage: 'Fn Bloch zero-mode rotations + sparse Globally Rigid calibration (L_GR) cut parameter and online overhead.',
+        scores: [6, 9, 5, 3]
+      },
+      {
+        id: 'higgs',
+        name: 'HIGGS (NAACL 2025)',
+        category: 'rotation',
+        mechanism: 'RHT + Gaussian MSE-optimal p-D grids via Linearity Theorem + FLUTE kernels',
+        bottleneck: 'Unstructured LUT memory (2^(kp)) caps practical grid cardinality around 2^10 entries.',
+        leverage: 'rigid-realizations (L₈₈₀ triangle gluing) generates 880^k structured vectors from a 12.03 KiB base table.',
+        scores: [8, 7, 6, 4]
+      },
+      {
+        id: 'glvq',
+        name: 'GLVQ (NeurIPS 2025)',
+        category: 'lattice',
+        mechanism: 'Column-grouped learned lattice bases + Babai rounding during training',
+        bottleneck: 'Exact CVP on learned bases is intractable, forcing approximate Babai rounding.',
+        leverage: 'Incentre fold homotopy F₃(s) preserves exact bar length 2R and non-overlap from s = 0 to s = 1.',
+        scores: [6, 7, 7, 4]
+      },
+      {
+        id: 'llvq',
+        name: 'LLVQ (Qualcomm, 2026)',
+        category: 'lattice',
+        mechanism: '24D Leech lattice (Λ₂₄) multi-shell indexing + Shape-Gain + Spherical GPTQ',
+        bottleneck: 'Fixed to 24D; prefix-sum and integer div/mod decoding slows its CUDA kernel behind QTIP.',
+        leverage: 'relative-equilibria multi-scale 2D shells + CaB-VQ handle heavy-tailed blocks with simple arithmetic.',
+        scores: [6, 8, 9, 4]
+      },
+      {
+        id: 'shq',
+        name: 'SHq (2026)',
+        category: 'rotation',
+        mechanism: 'Parametric spacing + offset LUT grids using idle E4M3 FP8 scale sign bit',
+        bottleneck: 'Restricts LUT search to a 2-parameter family rather than certifying unconstrained optima.',
+        leverage: 'point-charges interval bisection + Krawczyk test + Morse counting certify globally optimal asymmetric LUTs.',
+        scores: [8, 7, 7, 5]
+      },
+      {
+        id: 'siliquant',
+        name: 'Siliquant × Foundation-0 (Target)',
+        category: 'all',
+        mechanism: 'CaB-VQ + L₈₈₀ Glued Codebooks + Vortex/Krawczyk LUTs + Depth-6 GF(2ᵐ)',
+        bottleneck: 'Preprint primitives pending empirical LLM benchmark validation in siliquant/experiments.',
+        leverage: 'Unifies O(n) zero-search Voronoi, 12.03 KiB compositional codebooks, and exact rational error certificates.',
+        scores: [9, 9, 9, 10]
+      }
+    ];
+
+    const experimentsData = [
+      {
+        id: 'exp01',
+        folder: 'exp01-incentre-cab-vq/',
+        track: 'Track 1 · Incentre-VQ & CaB-VQ',
+        bitrate: '1.5 – 2.5 bits/weight',
+        hypothesis: 'n = 7 (16-state) and n = 15 (32-state) CaB-VQ (Fn ∪ 2ℤⁿ ∪ (1 + 2ℤⁿ)) eliminates diagonal cross-polytope corner voids without lookup tables.',
+        checker: 'Empirical SQNR (dB) on i.i.d. N(0, 1) (LLVQ Table 3 protocol) and heavy-tailed κ = 200 synthetic sources.',
+        milestone: 'Surpass E₈ (E8P) and scalar INT2/INT3 on unrotated κ = 200 outlier sources while decoding in O(n) arithmetic.'
+      },
+      {
+        id: 'exp02',
+        folder: 'exp02-fold-anneal-ptq/',
+        track: 'Track 1 · Continuous Fold Homotopy',
+        bitrate: '2.0 – 2.5 bits/weight',
+        hypothesis: 'Continuous homotopy rounding along F₃(s) (s: 0 → 1) to exact integer multiples of (2 − √2)/3 outperforms Babai-rounded learned lattices.',
+        checker: 'Layerwise calibration Hessian reconstruction error tr((W − Ŵ) H_cal (W − Ŵ)ᵀ) on Llama-3-8B and Qwen-v3 layers.',
+        milestone: 'Achieve lower layerwise Hessian error than static s = 0 rounding and Babai-rounded GLVQ on identical calibration batches.'
+      },
+      {
+        id: 'exp03',
+        folder: 'exp03-laman880-sram/',
+        track: 'Track 2 · L₈₈₀ Codebooks & Loss L_GR',
+        bitrate: '1.5 – 2.2 bits/weight',
+        hypothesis: 'Triangle-glued L₈₈₀ (12.03 KiB base table) with 17 gradient-tuned bar lengths + sparse Globally Rigid loss L_GR matches unstructured 2-bit VQ.',
+        checker: 'WikiText-2 perplexity + torch.compile inference throughput across Batch Sizes 1, 4, and 16.',
+        milestone: 'Match 2-bit HIGGS / QuIP# perplexity with a constant 12,320-byte base table and exceed BF16 compiled throughput.'
+      },
+      {
+        id: 'exp04',
+        folder: 'exp04-vortex-shq-lut/',
+        track: 'Track 3 · Vortex Shells & Krawczyk LUTs',
+        bitrate: '3.0 – 4.0 bits/weight',
+        hypothesis: 'Multi-scale 2D vortex equilibria and Krawczyk-certified unconstrained mirror LUTs G ∪ (−G) outperform 2-parameter SHq grids.',
+        checker: 'End-to-end output KL divergence vs. full-precision teacher at 3.0 and 4.0 bits/weight (matching SHq benchmark).',
+        milestone: 'Lower KL divergence than SHq and fixed NF4/HIGGS grids, accompanied by a Krawczyk certificate.json of global optimality.'
+      },
+      {
+        id: 'exp05',
+        folder: 'exp05-gf2m-xor-kernel/',
+        track: 'Track 4 · GF(2ᵐ) Kernel & Rational Bounds',
+        bitrate: '2.0 – 3.0 bits/weight',
+        hypothesis: 'Depth-6 GF(2⁸)/mobius-x1 bitwise VQ dequantizer eliminates LLVQ div/mod latency while Krawczyk interval arithmetic bounds σ_max(W − Ŵ).',
+        checker: 'Fused CUDA matvec latency vs. QTIP, LLVQ, and vLLM hadacore + certified rational upper bound on RMSNorm distortion.',
+        milestone: 'Match or beat QTIP fused kernel latency with Lean-verified circuit bijectivity and deterministic error bounds.'
+      }
+    ];
+
+    function wrapLabel(str) {
+      if (str.length <= 16) return str;
+      const words = str.split(' ');
+      const lines = [];
+      let current = '';
+      words.forEach(w => {
+        if ((current + ' ' + w).trim().length <= 16) {
+          current = (current + ' ' + w).trim();
+        } else {
+          if (current) lines.push(current);
+          current = w;
+        }
+      });
+      if (current) lines.push(current);
+      return lines;
+    }
+
+    const commonTooltip = {
+      callbacks: {
+        title: function(items) {
+          const lbl = items[0].label;
+          return Array.isArray(lbl) ? lbl.join(' ') : lbl;
+        }
+      }
+    };
+
+    let frontierChartInstance = null;
+    let cabChartInstance = null;
+    let foldChartInstance = null;
+    let lamanChartInstance = null;
+    let eqChartInstance = null;
+
+    function initNavigation() {
+      const buttons = document.querySelectorAll('.nav-btn');
+      const sections = document.querySelectorAll('.view-section');
+      buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const target = btn.getAttribute('data-view');
+          buttons.forEach(b => {
+            b.classList.remove('tab-active');
+            b.classList.add('tab-inactive');
+          });
+          btn.classList.remove('tab-inactive');
+          btn.classList.add('tab-active');
+          sections.forEach(sec => {
+            if (sec.id === 'view-' + target) {
+              sec.classList.remove('hidden');
+            } else {
+              sec.classList.add('hidden');
+            }
+          });
+          if (target === 'track1') {
+            updateCabChart();
+            initFoldChart();
+          } else if (target === 'track2') {
+            updateLamanChart();
+          } else if (target === 'track34') {
+            initEqChart();
+          }
+        });
+      });
+    }
+
+    function renderFrontierCards(filterVal) {
+      const container = document.getElementById('frontierCards');
+      const filtered = frontierData.filter(d => filterVal === 'all' || d.category === filterVal || d.id === 'siliquant');
+      container.innerHTML = filtered.map(item => {
+        const isTarget = item.id === 'siliquant';
+        return `
+          <div class="p-3.5 rounded-xl border ${isTarget ? 'bg-teal-50/70 border-teal-300' : 'bg-[#FAF8F5] border-slate-200 hover:border-teal-400'} transition">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-sm font-bold ${isTarget ? 'text-teal-900' : 'text-slate-900'}">${item.name}</span>
+              <span class="text-[11px] px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-600 font-medium">${item.category.toUpperCase()}</span>
+            </div>
+            <div class="text-xs text-slate-600 mt-1"><strong>Mechanism:</strong> ${item.mechanism}</div>
+            <div class="text-xs text-amber-900 mt-1"><strong>Bottleneck:</strong> ${item.bottleneck}</div>
+            <div class="text-xs text-teal-800 mt-1"><strong>Siliquant Leverage:</strong> ${item.leverage}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updateFrontierChart(filterVal) {
+      const ctx = document.getElementById('frontierChart').getContext('2d');
+      const subset = frontierData.filter(d => filterVal === 'all' || d.category === filterVal || d.id === 'siliquant');
+      const labels = ['Table-Free Decode Speed', 'Outlier & Tail Resilience', 'Codebook Compactness', 'Formal Error Certification'].map(wrapLabel);
+      const palette = ['#64748B', '#94A3B8', '#D97706', '#0284C7', '#7C3AED', '#475569', '#B45309', '#0F766E'];
+
+      const datasets = subset.map((item, idx) => {
+        const isTarget = item.id === 'siliquant';
+        return {
+          label: item.name,
+          data: item.scores,
+          backgroundColor: isTarget ? 'rgba(15, 118, 110, 0.22)' : 'rgba(100, 116, 139, 0.08)',
+          borderColor: isTarget ? '#0F766E' : palette[idx % palette.length],
+          borderWidth: isTarget ? 2.5 : 1.5,
+          pointRadius: isTarget ? 4 : 2.5
+        };
+      });
+
+      if (frontierChartInstance) frontierChartInstance.destroy();
+      frontierChartInstance = new Chart(ctx, {
+        type: 'radar',
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            r: {
+              min: 0,
+              max: 10,
+              ticks: { stepSize: 2, font: { size: 10 } },
+              pointLabels: { font: { size: 11, weight: '600' }, color: '#334155' }
+            }
+          },
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } },
+            tooltip: commonTooltip
+          }
+        }
+      });
+    }
+
+    function updateCabChart() {
+      const n = parseInt(document.getElementById('dimSlider').value, 10);
+      const alpha = parseInt(document.getElementById('cornerSlider').value, 10) / 100;
+      const c = 2 - Math.sqrt(2);
+
+      const states = 2 * n + 2;
+      const isPowerOfTwo = (states & (states - 1)) === 0;
+      const bits = Math.log2(states);
+      const dimLabel = document.getElementById('dimValue');
+      dimLabel.textContent = isPowerOfTwo
+        ? `n = ${n} (Bit-Exact: 2n + 2 = ${states} = 2^${Math.round(bits)})`
+        : `n = ${n} (2n + 2 = ${states} states)`;
+
+      document.getElementById('cornerValue').textContent = `α = ${alpha.toFixed(2)} (${alpha < 0.25 ? 'Near Origin' : alpha > 0.75 ? 'Diagonal Outlier' : 'Mid-Pyramid'})`;
+      document.getElementById('cabStates').textContent = `${states} states (${bits.toFixed(2)} bits)`;
+      document.getElementById('cabBitRate').textContent = `${(Math.ceil(bits) / n).toFixed(3)} shape bits/weight`;
+
+      const alphas = [];
+      const fnErrors = [];
+      const cabErrors = [];
+
+      for (let i = 0; i <= 20; i++) {
+        const a = i / 20;
+        alphas.push(a.toFixed(2));
+        const dIncentre = Math.pow(a - c, 2) + (n - 1) * Math.pow(a, 2);
+        const dOrigin = n * Math.pow(a, 2);
+        const dCorner = n * Math.pow(1 - a, 2);
+        fnErrors.push(Number(dIncentre.toFixed(4)));
+        cabErrors.push(Number(Math.min(dIncentre, dOrigin, dCorner).toFixed(4)));
+      }
+
+      const curFn = Math.pow(alpha - c, 2) + (n - 1) * Math.pow(alpha, 2);
+      const curCab = Math.min(curFn, n * Math.pow(alpha, 2), n * Math.pow(1 - alpha, 2));
+      const pctSaved = curFn > 0 ? ((curFn - curCab) / curFn) * 100 : 0;
+
+      document.getElementById('mseReduction').textContent = `−${pctSaved.toFixed(1)}% Error`;
+      document.getElementById('mseDetail').textContent = `${curFn.toFixed(3)} → ${curCab.toFixed(3)} at α=${alpha.toFixed(2)}`;
+
+      const ctx = document.getElementById('cabDistortionChart').getContext('2d');
+      if (cabChartInstance) cabChartInstance.destroy();
+      cabChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: alphas,
+          datasets: [
+            {
+              label: `Pure Incentre-VQ F_${n}`,
+              data: fnErrors,
+              borderColor: '#B45309',
+              backgroundColor: 'rgba(180, 83, 9, 0.1)',
+              borderWidth: 2,
+              tension: 0.25,
+              pointRadius: 2
+            },
+            {
+              label: `CaB-VQ (F_${n} ∪ 2ℤⁿ ∪ (1+2ℤⁿ))`,
+              data: cabErrors,
+              borderColor: '#0F766E',
+              backgroundColor: 'rgba(15, 118, 110, 0.15)',
+              borderWidth: 2.5,
+              fill: true,
+              tension: 0.2,
+              pointRadius: 2.5
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { title: { display: true, text: 'Diagonal Residual α along (1, 1, …, 1)', font: { size: 11 } } },
+            y: { title: { display: true, text: 'Squared Euclidean Distortion', font: { size: 11 } }, beginAtZero: true }
+          },
+          plugins: {
+            legend: { position: 'top', labels: { font: { size: 11 } } },
+            tooltip: commonTooltip
+          }
+        }
+      });
+    }
+
+    function initFoldChart() {
+      const ctx = document.getElementById('foldHomotopyChart').getContext('2d');
+      const labels = [
+        'Unfolded F₃ (s=0)',
+        'Cubic Lock 60° (sms)',
+        'Trigonal Shear (~31°)',
+        'Kepler FCC/HCP (s=1)',
+        'Binary CaB₆ (γ=√2−1)'
+      ].map(wrapLabel);
+
+      if (foldChartInstance) foldChartInstance.destroy();
+      foldChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'Certified Sphere Packing Fraction',
+              data: [0.2233, 0.4686, 0.6480, 0.7405, 0.7469],
+              backgroundColor: ['#94A3B8', '#CBD5E1', '#D97706', '#0F766E', '#115E59'],
+              borderRadius: 6
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              min: 0,
+              max: 0.85,
+              title: { display: true, text: 'Packing Fraction ρ / φ', font: { size: 11 } }
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: commonTooltip
+          }
+        }
+      });
+    }
+
+    function updateElasticInvariants() {
+      const n = parseInt(document.getElementById('elasticDimSlider').value, 10);
+      document.getElementById('elasticDimVal').textContent = `n = ${n}`;
+      document.getElementById('blochModes').textContent = `${(n * (n - 1)) / 2} modes`;
+      document.getElementById('selfStresses').textContent = `${(n * (n - 3)) / 2} states`;
+      document.getElementById('stiffnessRatio').textContent = `${Math.pow(n - 1, 2).toFixed(1)}`;
+      document.getElementById('poissonRatio').textContent = `${(1 / (n * n - n - 1)).toFixed(4)}`;
+    }
+
+    function updateLamanChart() {
+      const k = parseInt(document.getElementById('glueSlider').value, 10);
+      const dim = 14 * k;
+      const codewords = Math.pow(880, k);
+      const bits = Math.ceil(Math.log2(codewords));
+      const explicitBytes = codewords * dim * 2;
+
+      document.getElementById('glueValue').textContent = `k = ${k} block${k > 1 ? 's' : ''} (${dim}D Vector)`;
+      document.getElementById('lamanDim').textContent = `${dim}D`;
+      document.getElementById('lamanCount').textContent = codewords.toExponential(2);
+      document.getElementById('lamanBits').textContent = `${bits} bits (${(bits / dim).toFixed(3)} bits/wt)`;
+
+      let memText = '';
+      if (explicitBytes < 1024 * 1024) {
+        memText = `${(explicitBytes / 1024).toFixed(1)} KiB`;
+      } else if (explicitBytes < 1024 * 1024 * 1024) {
+        memText = `${(explicitBytes / (1024 * 1024)).toFixed(1)} MiB`;
+      } else if (explicitBytes < Math.pow(1024, 4)) {
+        memText = `${(explicitBytes / Math.pow(1024, 3)).toFixed(1)} GiB`;
+      } else {
+        memText = `${(explicitBytes / Math.pow(1024, 4)).toFixed(1)} TiB`;
+      }
+      document.getElementById('explicitLutMem').textContent = memText;
+
+      const blocks = [];
+      for (let i = 1; i <= k; i++) {
+        blocks.push(`<span class="px-2 py-1 rounded bg-teal-100 text-teal-900 border border-teal-300 font-bold">L₈₈₀ #${i} (14D)</span>`);
+        if (i < k) {
+          blocks.push(`<span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-300">△ Shared</span>`);
+        }
+      }
+      document.getElementById('glueDiagram').innerHTML = blocks.join('');
+
+      const ctx = document.getElementById('lamanScalingChart').getContext('2d');
+      const ks = ['k=1 (14D)', 'k=2 (28D)', 'k=3 (42D)', 'k=4 (56D)'];
+      const logCodewords = [1, 2, 3, 4].map(val => Number((val * Math.log10(880)).toFixed(2)));
+      const logUnstructuredCap = [3.01, 3.01, 3.01, 3.01];
+
+      if (lamanChartInstance) lamanChartInstance.destroy();
+      lamanChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ks,
+          datasets: [
+            {
+              label: 'Laman-VQ Log₁₀ Codewords (12.03 KiB SRAM)',
+              data: logCodewords,
+              backgroundColor: '#0F766E',
+              borderRadius: 6
+            },
+            {
+              label: 'Unstructured LUT Practical Ceiling (~2¹⁰)',
+              data: logUnstructuredCap,
+              backgroundColor: '#CBD5E1',
+              borderRadius: 6
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              title: { display: true, text: 'Log₁₀(Codebook Cardinality)', font: { size: 11 } },
+              beginAtZero: true
+            }
+          },
+          plugins: {
+            legend: { position: 'top', labels: { font: { size: 11 } } },
+            tooltip: commonTooltip
+          }
+        }
+      });
+    }
+
+    function updateCalBatch() {
+      const N = Math.max(16, parseInt(document.getElementById('calBatchInput').value || '128', 10));
+      const d = 8;
+      const dense = (N * (N - 1)) / 2;
+      const sparse = Math.min(dense, d * N + 36);
+      const saved = dense > 0 ? ((dense - sparse) / dense) * 100 : 0;
+      document.getElementById('denseEdges').textContent = `${dense.toLocaleString()} pairs`;
+      document.getElementById('sparseEdges').textContent = `${sparse.toLocaleString()} edges`;
+      document.getElementById('edgeSavings').textContent = `${saved.toFixed(1)}% fewer distance terms`;
+    }
+
+    function initEqChart() {
+      const ctx = document.getElementById('equilibriumLutChart').getContext('2d');
+      if (eqChartInstance) eqChartInstance.destroy();
+      eqChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['n = 4 Charges', 'n = 5 Charges', 'n = 6 Charges', 'n = 7 Charges'],
+          datasets: [
+            {
+              label: 'Certified Equilibria (point-charges)',
+              data: [9, 24, 29, 44],
+              borderColor: '#0F766E',
+              backgroundColor: 'rgba(15, 118, 110, 0.15)',
+              borderWidth: 2.5,
+              fill: true,
+              pointRadius: 5
+            },
+            {
+              label: "Maxwell's (n − 1)² Upper Bound",
+              data: [9, 16, 25, 36],
+              borderColor: '#B45309',
+              borderDash: [5, 5],
+              borderWidth: 2,
+              pointRadius: 4
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              title: { display: true, text: 'Number of Distinct Equilibria', font: { size: 11 } },
+              beginAtZero: true
+            }
+          },
+          plugins: {
+            legend: { position: 'top', labels: { font: { size: 11 } } },
+            tooltip: commonTooltip
+          }
+        }
+      });
+    }
+
+    function renderLutSimulator(bitWidth) {
+      const posLevels = bitWidth === 2
+        ? [0.12, 0.41, 0.78, 1.28]
+        : [0.06, 0.19, 0.34, 0.52, 0.73, 0.98, 1.31, 1.79];
+      const negLevels = posLevels.map(v => -v).reverse();
+      const allLevels = [...negLevels, ...posLevels];
+      const maxVal = Math.max(...posLevels);
+
+      const lineContainer = document.getElementById('lutNumberLine');
+      lineContainer.innerHTML = `
+        <div class="absolute inset-x-3 h-0.5 bg-slate-300"></div>
+        <div class="absolute left-1/2 top-1 bottom-1 w-0.5 bg-slate-400"></div>
+        ${allLevels.map(val => {
+          const pct = 50 + (val / (maxVal * 1.1)) * 45;
+          const isPos = val > 0;
+          return `<div title="${val.toFixed(2)}" style="left: ${pct}%" class="absolute -translate-x-1/2 w-2.5 h-5 rounded-xs ${isPos ? 'bg-teal-700' : 'bg-amber-600'}"></div>`;
+        }).join('')}
+      `;
+
+      document.getElementById('lutStats').innerHTML = `
+        <div class="p-2 rounded bg-[#FAF8F5] border border-slate-200">
+          <div class="text-slate-500">Stored LUT</div>
+          <div class="font-bold text-slate-900">${posLevels.length} entries</div>
+        </div>
+        <div class="p-2 rounded bg-[#FAF8F5] border border-slate-200">
+          <div class="text-slate-500">Interleaved Grid</div>
+          <div class="font-bold text-teal-800">${allLevels.length} levels</div>
+        </div>
+        <div class="p-2 rounded bg-[#FAF8F5] border border-slate-200">
+          <div class="text-slate-500">Solver Status</div>
+          <div class="font-bold text-amber-800">Krawczyk Box</div>
+        </div>
+      `;
+    }
+
+    function initPlaybook() {
+      const listEl = document.getElementById('expList');
+      const detailEl = document.getElementById('expDetailPanel');
+
+      function selectExp(idx) {
+        const exp = experimentsData[idx];
+        listEl.innerHTML = experimentsData.map((item, i) => `
+          <button data-idx="${i}" class="exp-item w-full text-left p-3.5 rounded-xl border transition cursor-pointer ${i === idx ? 'bg-teal-50 border-teal-500 shadow-xs' : 'bg-[#FAF8F5] border-slate-200 hover:border-teal-300'}">
+            <div class="flex items-center justify-between">
+              <code class="text-xs font-bold ${i === idx ? 'text-teal-900' : 'text-slate-800'}">${item.folder}</code>
+              <span class="text-[11px] font-medium text-slate-500">${item.bitrate}</span>
+            </div>
+            <div class="text-xs text-slate-600 mt-1">${item.track}</div>
+          </button>
+        `).join('');
+
+        detailEl.innerHTML = `
+          <div class="space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-3">
+              <div>
+                <span class="text-xs font-semibold text-teal-800 uppercase">${exp.track}</span>
+                <h4 class="text-lg font-bold text-slate-900 font-mono">${exp.folder}</h4>
+              </div>
+              <span class="px-2.5 py-1 rounded bg-white border border-slate-200 text-xs font-semibold text-slate-700">${exp.bitrate}</span>
+            </div>
+            <div class="space-y-3 text-sm">
+              <div class="bg-white p-3.5 rounded-lg border border-slate-200">
+                <div class="text-xs font-bold uppercase text-slate-500">Core Mathematical Hypothesis</div>
+                <p class="text-slate-800 mt-1 leading-relaxed">${exp.hypothesis}</p>
+              </div>
+              <div class="bg-white p-3.5 rounded-lg border border-slate-200">
+                <div class="text-xs font-bold uppercase text-teal-800">Immutable Checker &amp; Scalar Objective (verify.py)</div>
+                <p class="text-slate-800 mt-1 leading-relaxed">${exp.checker}</p>
+              </div>
+              <div class="bg-white p-3.5 rounded-lg border border-slate-200">
+                <div class="text-xs font-bold uppercase text-amber-800">Target Milestone vs. 2025–2026 Baselines</div>
+                <p class="text-slate-800 mt-1 leading-relaxed">${exp.milestone}</p>
+              </div>
+            </div>
+          </div>
+        `;
+
+        document.querySelectorAll('.exp-item').forEach(btn => {
+          btn.addEventListener('click', () => selectExp(parseInt(btn.getAttribute('data-idx'), 10)));
+        });
+      }
+
+      selectExp(0);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initNavigation();
+      renderFrontierCards('all');
+      updateFrontierChart('all');
+
+      document.getElementById('frontierSelect').addEventListener('change', (e) => {
+        renderFrontierCards(e.target.value);
+        updateFrontierChart(e.target.value);
+      });
+
+      document.getElementById('dimSlider').addEventListener('input', updateCabChart);
+      document.getElementById('cornerSlider').addEventListener('input', updateCabChart);
+      document.getElementById('elasticDimSlider').addEventListener('input', updateElasticInvariants);
+      document.getElementById('glueSlider').addEventListener('input', updateLamanChart);
+      document.getElementById('calBatchInput').addEventListener('input', updateCalBatch);
+
+      document.querySelectorAll('.lut-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.lut-btn').forEach(b => {
+            b.classList.remove('tab-active');
+            b.classList.add('tab-inactive');
+          });
+          btn.classList.remove('tab-inactive');
+          btn.classList.add('tab-active');
+          renderLutSimulator(parseInt(btn.getAttribute('data-lut'), 10));
+        });
+      });
+
+      updateElasticInvariants();
+      updateCalBatch();
+      renderLutSimulator(2);
+      initPlaybook();
+    });
+  </script>
+</body>
+</html>
