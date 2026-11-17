@@ -27,7 +27,7 @@ Three findings of the records bear on it.
 
 - **Weight error does not say what the output does** (second record). Stage 4 minimises weight error. Its loop compares "the measured error against the formula's prediction", which is a check of the formula and not of the output.
 - **The output followed how the scale is set, and finer groups helped it by more than their weight error said** (second record). The formula's size knob is settled on weight error: groups of 128 at 4.5 bits. That is the knob most likely to be set wrongly for an output.
-- **The scale has a cost on the wall and a block at zero has its own error** (the record of the E8 gain). The proposal says the split left "nothing over". It left 0.3 dB with groups of 32 and up to 0.5 dB on real matrices. Both are terms of the formula now.
+- **The scale has a cost on the wall and a block at zero has its own error** (the record of the E8 gain). The comment under the proposal says the split was measured with "nothing left over". It left 0.3 dB with groups of 32 and up to 0.5 dB in the mean on real matrices. Both causes are terms of the formula now.
 
 ## Claims
 
