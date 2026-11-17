@@ -1,0 +1,9 @@
+File: SmolLM2-1.7B-Instruct-f16.gguf. Block matrices: 168. Weights: 1610612736. Seconds: 47.
+Mean over the matrices, in dB. For B128@R the figures are relative: only 'rows over matrix' means anything.
+uneven = root mean square of the rows' shares over their mean: 1 when every row has the same share of error.
+arm | matrix | rows | columns | rows over matrix | columns over matrix | uneven: mean (largest matrix) | worst row over the matrix's share: mean (largest) | rows over four times the matrix's share: mean | uneven by kind: attn_q, attn_k, attn_v, attn_output, ffn_gate, ffn_up, ffn_down
+X32:16 | -21.166 | -21.167 | -21.025 | -0.00 | +0.14 | 1.006 (1.05) | 2.3 (3) | 0.0000 | 1.01, 1.01, 1.00, 1.00, 1.01, 1.00, 1.00
+X128:16 | -19.408 | -19.403 | -19.253 | +0.00 | +0.15 | 1.027 (1.13) | 4.2 (7) | 0.0008 | 1.05, 1.04, 1.01, 1.01, 1.02, 1.02, 1.02
+XR:16 | -16.585 | -16.502 | -16.427 | +0.08 | +0.16 | 1.298 (2.26) | 16.2 (31) | 0.0121 | 1.53, 1.41, 1.11, 1.12, 1.23, 1.19, 1.49
+XR:32 | -22.574 | -22.487 | -22.393 | +0.09 | +0.18 | 1.386 (2.83) | 24.8 (67) | 0.0119 | 1.65, 1.45, 1.11, 1.18, 1.30, 1.25, 1.77
+B128@R | 1.165 | 1.154 | nan | -0.01 | +nan | 1.014 (1.13) | 4.2 (22) | 0.0004 | 1.03, 1.01, 1.00, 1.03, 1.00, 1.00, 1.02

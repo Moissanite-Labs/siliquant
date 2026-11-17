@@ -1,7 +1,7 @@
 # Issue #10 after the model-output runs
 
 Date: 2026-11-17
-Status: one test is still running. Six predictions for a third model were committed before its ball arms were scored. Their verdicts are in the last section but one, and are filled in as the rows land.
+Status: one test is still running. Six predictions for a third model were committed before its ball arms were scored. The first arm is in and goes against one of them. The verdicts are under "The third model" and are filled in as the rows land.
 
 [issue10-proposal-check.md](issue10-proposal-check.md) read the proposal of issue #10 when nothing of its family had been scored on a model. It left the proposal's claim about a model's output untested, and its second hard limit, decode cost, unreadable. Five things have landed since: a run on `Qwen2.5-1.5B-Instruct` with 27 scored variants, a study of balls over more than 8 weights, a way to number the points of a ball-cut codebook, the fold study of issue #9, and the first half of an importance-matrix baseline. This note reads the open rows of the check against them and carries out stage 4 of the proposal with what they give.
 
@@ -12,7 +12,7 @@ Status: one test is still running. Six predictions for a third model were commit
 - **For the arm that wins, the proposal's first two stages are not needed.** With one ball over a whole group the region part of the formula reads no weight. The formula is a closed form: the cell, the group's size, the bits, and what the scale adds. On `Qwen2.5-1.5B-Instruct` it gives the measured weight error of all eight arms it covers to 0.02 dB, on 196 matrices and 1.31 billion weights.
 - **On that model the output follows it.** One scored arm gives the model's KL per unit of weight error. With it the closed form gives the mean KL of the eight arms within 0.27 dB. Four more arms with one scale per group of 32 or 128 and a codeword at zero follow the same constant within 0.18 dB at their measured weight error. Every one of those rows had been seen, so this is a fit and not a test.
 - **It does not follow it with one scale per row, or without a codeword at zero.** Those arms have 0.8 to 4.3 dB and 1.2 to 15.5 dB more KL than the constant gives. The formula does not see either.
-- **A test before the data is under way.** Six predictions for `SmolLM2-1.7B-Instruct` were committed and pushed at `49f7a73`, when only its scalar rule and one of llama.cpp's files had a score.
+- **A test before the data is under way, and its first verdict goes against the constant.** Six predictions for `SmolLM2-1.7B-Instruct` were committed and pushed at `49f7a73`, when only its scalar rule and one of llama.cpp's files had a score. The first ball arm has the weight error the closed form gives, to 0.01 dB, and a mean KL 1.28 dB above what the scalar rule's constant gives. On this model a decibel of weight error is not a decibel of KL between the scalar rule and a ball arm.
 - **Stage 4 can now be carried out under both of its limits.** `shape/design.out` lists 36 settings of the knobs with the error by the formula, the KL it implies on two models, the size of the table that numbers the codebook's points, and the look-ups to read a group back. 30 of the 36 have not been scored on any model.
 - **The shape knob is closed in practice for the language model.** Once a region spans the group, the best p-norm region is worth 0.05 dB over the ball in the mean on 21 matrices, by the formula. On the output a cross-polytope and a ball over 32 weights score the same: 0.0341 and 0.0339.
 - **By the formula little is left inside this family.** The scored arm at 4.5 bits is 0.25 dB from the same group with a shorter scale, 0.6 dB from what E8 reaches with any group, and 1.5 dB from Shannon's floor for Gaussian weights. No lattice can add more than 0.88 dB to E8.
@@ -72,7 +72,22 @@ The same file, for the arms the closed form does not cover, at their measured we
 | `XR:32`, `XR:16` | the scalar rule, one scale per row | +3.26, +4.31 |
 | `VE8R:16`, `VE8R:32` | no codeword at zero, one scale per row | +14.9, +15.5 |
 
-[Reading] One line divides the table: whether the error is the same share of every part of a matrix. With one scale per group of up to 128 weights it nearly is, and the constant holds whatever the lattice, the region and the bits. With one scale per row a row with one large weight takes a coarse scale for all of its weights, and the error gathers in such rows. The record of the check measured that gathering on weight error alone, as a spectral ratio that rose from 1.4 to 1.9 with the group. Here it shows as KL. This is one model and one text, and the line was drawn after the rows were read.
+One line divides the table: whether a scale serves a group of up to 128 weights or a whole row.
+
+**What the weights say of that line** (`shape/row_spread.qwen25.out`, written after the rows were read, the scalar rule rounded on all 196 matrices). A row of a matrix is one output. For each rule, take every row's squared error over its own squared weights.
+
+| Rule | Weight error of the matrix | Mean of the rows' shares | Root mean square of the rows' shares over their mean | Worst row over the matrix's share | Rows over four times the matrix's share |
+|---|---|---|---|---|---|
+| `X32:16` | -20.67 dB | -20.70 | 1.02 | 2.4 | none |
+| `X128:16` | -18.73 | -18.76 | 1.08 | 4.4 | 0.2 % |
+| `XR:16` | -14.91 | -14.86 | 1.35 | 10 | 1.8 % |
+| `XR:32` | -20.75 | -20.74 | 1.46 | 15 | 1.7 % |
+
+- **The excess is not in the mean.** The mean of the rows' shares is the matrix's share to 0.05 dB under every rule. A guess made before this was run, that the output follows the mean over the rows and not the matrix, is wrong.
+- **It goes with the spread.** With one scale per row the rows' shares are 1.35 to 1.46 times as uneven as an even spread, against 1.02 to 1.08 with groups. `ffn_down` is the most uneven kind, 1.8 to 2.3. With one ball per group every row has the same share by construction.
+- **The spread sorts the scalar rule onto the two sides of the line and does not size the excess.** `XR:32` is more uneven than `XR:16` and has the smaller excess, 3.3 against 4.3 dB. And a ball over 128 weights with one scale per row has 1.05 by the formula, less than `X128:16`, with an excess of 0.8 dB against 0.14.
+
+So nothing computed from the weights here predicts how far an arm with one scale per row lies above the constant. This is one model and one text, and the line was drawn after the rows were read.
 
 The record of the Qwen run says the same of nine arms: their gain in KL is 0.91 to 1.08 times their gain in weight error. What is added here is the constant, the arms outside the nine, and that for eight of them the weight error itself needs no run.
 
@@ -91,7 +106,13 @@ The anchor: `X32:16` of `SmolLM2-1.7B-Instruct`, mean KL 0.1257 at -21.17 dB. Th
 | O5 | `XR:16` and `VE8ZR:16`, one scale per row, are at least 1.5 dB above it | pending |
 | O6 | `EBG128:b560s16` has the lowest mean KL of the twelve variants | pending |
 
-`shape/output_law.py` prints the verdicts from that run's rows. When this note was committed none of the four ball arms had a score.
+`shape/output_law.py` prints the verdicts from that run's rows, and `shape/output_law.smollm2.out` holds its last output.
+
+**The first arm is in, and it goes against O2.** `EBG128:b560s16` scored a mean KL of 0.0609 at 19:57 UTC. Its weight error is -25.585 dB, 0.013 dB from the closed form. The anchor gives 0.0453. It is 1.28 dB above that, outside the mark of 0.5. Its gain in KL over the scalar rule is 3.15 dB for a gain of 4.42 dB in weight error: 0.71 of it, where Qwen2.5 had 1.02. So on this model a decibel of weight error is not a decibel of KL between the scalar rule and a ball arm. llama.cpp's `Q4_K_M` is 1.63 dB above the same constant. The arm is still the lowest of the four variants scored, 11 errors of the gap under `Q4_K_M` at 4.82 bits.
+
+Two readings fit one arm, and the next two arms tell them apart. If the ball arms share a constant of their own, O3 holds: their KL ratios are the closed form's. If the KL of this model grows more slowly than the weight error, O3 fails for the two arms furthest from this one, by 0.6 and 0.8 dB.
+
+**From the weights of this model, before its arms with one scale per row are scored** (`shape/row_spread.smollm2.out`, 19:58 UTC). The scalar rule per row has rows 1.30 times as uneven as an even spread at 16 levels and 1.39 at 32, and 1.2 percent of the rows have over four times the matrix's share. With groups of 32 the figure is 1.01. That is the regime of Qwen2.5, where the arms per row lay above the constant. The measured weight error of `X32:16`, -21.166 dB, is reproduced to the last digit shown, and that of `XR:16` comes out at -16.59 dB.
 
 ## Stage 4, under both limits
 
@@ -137,7 +158,7 @@ A table's size is one cost and not the only one. A group's number is as long as 
 
 Three figures its two workstreams can use, all by the formula and none scored:
 
-- **The arm it calls cheapest, integer levels over 32 weights with an 8-bit scale**: -24.49 dB, so a mean KL of 0.0258 on Qwen2.5 and 0.0584 on SmolLM2 if the constant holds. That would be under `Q4_K_M` with an importance matrix on Qwen2.5, 0.0282 at 4.81 bits, by 0.4 dB.
+- **The arm it calls cheapest, integer levels over 32 weights with an 8-bit scale**: -24.49 dB, so a mean KL of 0.0258 on Qwen2.5 if the constant holds there. That would be under `Q4_K_M` with an importance matrix on Qwen2.5, 0.0282 at 4.81 bits, by 0.4 dB. On SmolLM2 the scalar rule's constant has already failed for a ball arm, so `shape/design.out`'s figures for that model are low by about 1.3 dB.
 - **Dropping E8 costs 0.65 dB of KL**, whatever else is chosen. Scored once: 0.66 dB.
 - **"Right at the Shannon boundary"**: the scored arm is 1.5 dB above Shannon's floor for Gaussian weights, and 0.6 dB above what E8 can reach with any group and any split of the bits.
 
