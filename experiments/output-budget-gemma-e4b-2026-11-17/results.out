@@ -1,5 +1,5 @@
 Run started 2026-11-17T10:16:32Z, plan commit ec636b164b54ef68b4dc810271b9f812f9837740, programs at c5ef5668b43ac4f258caaf5c9c88c4a2735208a8 (on the remote: True), model SHA-256 f8854aa4480df62585a279e7ca0a881554fc18a41c59c4f62642d16a2ae47012
-   7 invocation(s) of run.py recorded in results.start
+   9 invocation(s) of run.py recorded in results.start
 
 First step: the harness repeats itself
    unchanged: recorded 0.000000, now 0.000000, difference +0.000000, passes if under 0.00001: PASS
@@ -174,6 +174,60 @@ The arm that joins the parts
    X32s8mix:attn_q=32,attn_k=64,attn_v=64,attn_output=46,ffn_gate=16,ffn_up=16,ffn_down=16 | 4.484 | 4.484 | -26.53 | 0.062882 +- 0.002235 | 0.002524 | 92.02 | 7.691 | 0
    not predicted: against VE832:16 (0.0747) 0.0747; against llama.cpp Q4_K_M 0.0689
 
+Extension 1, Part H: the clip at 5 standard deviations on ffn_down, one layer at a time (PREREG-extension-1.md)
+   layer | weight error of the clip, dB | KL | standard error | KL over five standard errors
+   0 | -38.52 | 0.000284 | 0.000030 | yes
+   1 | -34.53 | 0.000307 | 0.000083 | NO
+   2 | -32.41 | 0.001030 | 0.000598 | NO
+   3 | -31.16 | 0.000402 | 0.000081 | NO
+   4 | -32.97 | 0.000724 | 0.000210 | NO
+   5 | -33.72 | 0.001225 | 0.000292 | NO
+   6 | -35.84 | 0.000113 | 0.000015 | yes
+   7 | -35.20 | 0.000174 | 0.000023 | yes
+   8 | -30.87 | 0.000312 | 0.000076 | NO
+   9 | -28.51 | 0.001003 | 0.000089 | yes
+   10 | -27.41 | 0.155993 | 0.004671 | yes
+   11 | -28.92 | 0.001076 | 0.000126 | yes
+   12 | -33.60 | 0.000397 | 0.000042 | yes
+   13 | -35.67 | 0.000165 | 0.000019 | yes
+   14 | -32.77 | 0.001001 | 0.000365 | NO
+   15 | -30.20 | 0.000666 | 0.000062 | yes
+   16 | -26.81 | 0.000602 | 0.000036 | yes
+   17 | -30.46 | 0.000189 | 0.000008 | yes
+   18 | -33.22 | 0.000125 | 0.000005 | yes
+   19 | -27.80 | 0.000633 | 0.000033 | yes
+   20 | -25.86 | 0.000312 | 0.000012 | yes
+   21 | -26.24 | 0.001990 | 0.000099 | yes
+   22 | -31.16 | 0.000172 | 0.000006 | yes
+   23 | -32.96 | 0.000724 | 0.000031 | yes
+   24 | -35.71 | 0.000257 | 0.000013 | yes
+   25 | -38.18 | 0.000063 | 0.000003 | yes
+   26 | -38.22 | 0.000051 | 0.000002 | yes
+   27 | -36.80 | 0.000061 | 0.000003 | yes
+   28 | -35.06 | 0.000347 | 0.000017 | yes
+   29 | -31.09 | 0.001035 | 0.000048 | yes
+   30 | -35.25 | 0.000057 | 0.000002 | yes
+   31 | -33.51 | 0.000130 | 0.000006 | yes
+   32 | -39.35 | 0.000028 | 0.000001 | yes
+   33 | -40.27 | 0.000021 | 0.000001 | yes
+   34 | -39.34 | 0.000172 | 0.000017 | yes
+   35 | -37.33 | 0.000043 | 0.000002 | yes
+   36 | -40.14 | 0.000043 | 0.000002 | yes
+   37 | -41.21 | 0.000070 | 0.000003 | yes
+   38 | -38.84 | 0.000297 | 0.000009 | yes
+   39 | -40.78 | 0.000113 | 0.000004 | yes
+   40 | -36.32 | 0.000190 | 0.000007 | yes
+   41 | -32.15 | 0.001559 | 0.000051 | yes
+   sum of the 42 single-layer KLs 0.174156; the clip on all layers at once (first record) 0.163763; ratio 1.063
+   four largest layers: 10, 21, 41, 5, 0.160767 = 92.3 % of the sum
+   layers with a KL under five times its standard error: 1, 2, 3, 4, 5, 8, 14; together 2.87 % of the sum
+
+Extension 1, Part K: the joined arm with the unread keys and values zeroed and counted at 0 bits
+   variant | bits per weight (changed) | bits per weight (all block weights) | weight error, mean dB | mean KL +- se | median KL | top token kept, % | perplexity | kept entries
+   X32s8mix:attn_q=32,attn_k=64,attn_v=64,attn_output=46,ffn_gate=16,ffn_up=16,ffn_down=16 | 4.484 | 4.484 | -26.53 | 0.062882 +- 0.002235 | 0.002524 | 92.02 | 7.691 | 0
+   X32s8mix:attn_q=32,attn_k=64,attn_v=64,attn_output=46,ffn_gate=16,ffn_up=16,ffn_down=16+deadkv | 4.459 | 4.397 | -25.43 | 0.062882 +- 0.002235 | 0.002524 | 92.02 | 7.691 | 0
+   weights zeroed 55050240 in 36 tensors
+
 Verdicts
    id | prediction | fails if | measured | verdict
    A1 | ffn_down has the largest KL of the seven kinds at each Q | another kind is larger at any Q fails | largest at Q = 8, 16, 32: attn_v, attn_output, attn_v | FAILS
@@ -203,4 +257,8 @@ Verdicts
    F7 | over the seven kinds the rank correlation between mean persistence and KL per weight at Q = 16 is between -0.75 and 0.75 | it is outside fails | -0.750 | HOLDS
    F8 | the two kinds that write into the stream have a larger spread of rows than each of the five that read from it, in the mean over layers | any reading kind has a larger one fails | smaller writer 0.1196, largest reader 0.2614 (attn_q) | FAILS
    G1 | the joined arm, at 4.5 bits or under, has a KL of 0.085 or less | it is above 0.085 fails | 0.0629 at 4.4844 bits | HOLDS
-   20 of 27 predictions hold; 5 fail; 2 not decided or not run
+   H1 | the sum of the 42 single-layer KLs is 0.75 to 1.25 times the KL of the clip on all layers at once | the ratio is outside that range fails | ratio 1.063; layers 1, 2, 3, 4, 5, 8, 14 are under 5 x their standard error and hold 2.9 % of the sum | HOLDS
+   H2 | a few layers carry it: the four largest single-layer KLs make more than half of the sum | they make half or less fails | 92.3 % of the sum; layers 1, 2, 3, 4, 5, 8, 14 under 5 x their standard error hold 2.9 % | HOLDS
+   H3 | over the 42 layers, the rank correlation between a layer's KL and the weight error of its clip (dB, nearer zero is a larger change) is at least 0.5 | it is under 0.5 fails | +0.753 | HOLDS
+   K1 | the KL equals that of the joined arm to four decimals, and the bits fall from 4.484 to under 4.41 | the KL differs in the fourth decimal, or the bits are 4.41 or more fails | KL 0.062882 against 0.062882; bits 4.3971 against 4.4844; weights zeroed 55050240 | HOLDS
+   24 of 31 predictions hold; 5 fail; 2 not decided or not run

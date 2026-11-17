@@ -49,3 +49,11 @@ The gate lists the plan, `run.py`, `allocate.py`, `measures.py`, `summary.py`, `
 ## Machine
 
 M1 Max, torch on MPS, llama.cpp at 427291b. A scored variant took about three minutes.
+
+## Extension 1 (PREREG-extension-1.md)
+
+- Programs were committed and pushed (e4c70eb) before any Part H or Part K variant was scored. `run.py` refuses to score either part unless the extension plan is committed and pushed, and records its commit in `results.start`.
+- The weight error of a Part H clip is the mean over its one matrix, so it equals the pooled value.
+- Part K zeroes the tensors that the first record's `build_dead_kv` returns, and counts them at 0 bits. Their weight error is left out of the weight error of the line, since the change to them is total by design. The weights not touched count 16 bits each, as in the main plan.
+- `+deadkv` is a suffix on the name of the joined arm. The joined arm itself was not scored again, and the Part K line is compared with its earlier line.
+- Part H and Part K ran with nothing else on the GPU. No earlier line of `results.jsonl` was changed. The verdicts of the main plan in `results.out` are the same as before.
