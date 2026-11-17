@@ -18,6 +18,9 @@ noise(EBG128:b560s16)#2 | 0.06424 | 0.00243 | 0.03371 | -25.585 | 23.24 | +1.24 
 scale(ZBG128:b560s16,-0.66) | 0.04810 | 0.00143 | 0.02767 | -25.588 | 17.41 | -0.01 | -1.22 | 11.757
 noisepart(ZBG128:b560s16)@small#1 | 0.07059 | 0.00213 | 0.03828 | -24.928 | 21.95 | +0.99 | -0.22 | 12.006
 noisepart(ZBG128:b560s16)@big#1 | 0.05691 | 0.00180 | 0.03152 | -24.928 | 17.70 | +0.06 | -1.15 | 11.900
+only(ZBG128:b560s16)@small | 0.01517 | 0.00043 | 0.00816 | -36.010 | 60.54 | +5.40 | +4.19 | 11.367
+onlynoise(ZBG128:b560s16)@small#1 | 0.03191 | 0.00125 | 0.01577 | -36.010 | 127.32 | +8.63 | +7.42 | 11.405
+only(ZBG128:b560s16)@big | 0.04166 | 0.00129 | 0.02363 | -25.280 | 14.05 | -0.94 | -2.15 | 11.659
 
 Pairs: the first arm's KL per unit of weight error over the second's, in dB, from the means | from the 16 passages' ratios | its standard error | agree (within 0.4 dB)
 noise(EBG128:b560s16)#1 over EBG128:b560s16 | -0.11 | -0.05 | 0.19 | yes
@@ -53,3 +56,9 @@ L: the integer arm's error made 0.66 dB smaller has a KL -0.67 dB from the integ
 Extension 1, by the rules of PREREG-extension-1.md
 E1: noise on the larger weights agrees with the integer arm, and noise on the weights rounded to zero agrees with the noise arm.
 Noise on the weights rounded to zero: +0.99 dB from the integer arm, -0.14 from the noise arm. Noise on the larger weights: +0.06 and -1.08.
+
+Extension 2, by the statements of PREREG-extension-2.md
+F1 | the small weights set to zero, 0.01517, over noise of that size on them, 0.03191: 0.475 (-3.18 dB from the passages, error 0.15) | FAILS
+F2 | the two parts together, 0.01517 + 0.04166 = 0.05683, over the integer arm's 0.05616: 1.012 | holds
+F3 | KL per unit of weight error: noise on the small weights alone 127.3, noise on every weight 22.7: 5.61 times | holds
+Per unit of weight error: the small weights set to zero 60.5, the integer arm's error on the other weights 14.1, the integer arm 17.5.
