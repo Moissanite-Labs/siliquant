@@ -122,3 +122,47 @@ J2 is the one that matters. My confidence in it is modest. If the matrix helps t
 
 - Anything about a better use of the matrix, or of second-order statistics (GPTQ). This is the plainest use.
 - Anything about a matrix from other text. The calibration text is still the training half of the test text's source.
+
+## Extension 2: the strength chosen on text that is not the test text
+
+Written 2026-11-17 with every row of the plan and of extension 1 scored, and before anything is scored on the validation text. `run.py` of the record model-output-qwen25-2026-11-17 gains one arm, a weighting of any strength, at the commit that adds this section.
+
+### Why
+
+Extension 1 tried two strengths of the weighting and scored both on the test text. The half strength won on both models, against all four predictions. A choice between two made on the test text is a finding. This extension makes the choice on other text and then reads the test text once.
+
+### What is run
+
+**Validation text.** `wiki.valid.raw` of the same archive, SHA-256 `4cd0f6876d07a413aa911261ff6d363c72d757d47f0fdd6015702014c89cb9c7`. It has not been read by any run of this repository. 40 passages of 512 tokens with the second half scored, as for the test text. Each model's reference outputs on it are saved first.
+
+**Arms on the validation text**, on both models:
+
+| Variant | Strength: the power of the column weights |
+|---|---|
+| `wZBG128:b560s16p0` | 0, no weighting |
+| `wZBG128:b560s16p15` | 0.15 |
+| `wZBG128:b560s16p25` | 0.25, the half strength of extension 1 |
+| `wZBG128:b560s16p35` | 0.35 |
+| `wZBG128:b560s16p50` | 0.50, the full strength of extension 1 |
+| `Q4_K_M` with the matrix | llama.cpp's file, as a yardstick on this text |
+
+The matrix is the one already computed from the training text. Rows go to `validation.jsonl`.
+
+**The choice.** One strength for both models: of the five, the one with the lowest product of the two models' mean KL on the validation text.
+
+**The test.** The chosen strength's mean KL on the test text, on both models, against `Q4_K_M` with the matrix. If the chosen strength is 0, 0.25 or 0.50 those rows exist already, and they were scored before the choice was made. If it is 0.15 or 0.35 the arm is scored on the test text once on each model.
+
+### Predictions
+
+| | Prediction | It fails if |
+|---|---|---|
+| K1 | The chosen strength is 0.15, 0.25 or 0.35 | it is 0 or 0.50 |
+| K2 | On each model the three strengths that were scored on the test text come in the same order on the validation text | the order differs on either model |
+| K3 | At the chosen strength the ball arm is under `Q4_K_M` with the matrix on the test text, by at least 2 errors, on both models | it is not, on either model |
+
+K3 is the test. It is still the test text of the same source as the calibration text, and still two models.
+
+### What it would mean
+
+- If K3 holds, the third line of the record's answer stands on a choice made away from the test text.
+- If the chosen strength differs between what validation and test would pick, the gain depends on tuning to the text, and the record says so.

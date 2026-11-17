@@ -65,7 +65,7 @@ CUT = {"ZB": ("Z8", "ball"), "EB": ("E8", "ball"), "ZC": ("Z8", "cross"), "EC": 
 VARIANT = re.compile(r"^(?:(X)(\d+|R)|(VE8)(\d+|R)|(ZB|EB|ZC|EC|PaB)(\d+)@(\d+|R)|(SEB)(8)@(\d+|R)):(\d+)$")
 GROUP_BALL = re.compile(r"^(ZBG|EBG)(\d+):b(\d+)s(\d+)$")       # extension 1 of PREREG-arms.md: one ball per group, bits chosen freely
 ZERO_CENTRE = re.compile(r"^VE8Z(\d+|R):(\d+)$")                # extension 1: the E8 Voronoi code with a codeword at zero
-WEIGHTED_BALL = re.compile(r"^([ih])(ZBG|EBG)(\d+):b(\d+)s(\d+)$")    # the record imatrix-baseline-2026-11-17, extension 1: a ball arm given an importance matrix
+WEIGHTED_BALL = re.compile(r"^([ihw])(ZBG|EBG)(\d+):b(\d+)s(\d+)(?:p(\d+))?$")    # the record imatrix-baseline-2026-11-17, extensions 1 and 2: a ball arm given an importance matrix
 _imatrix_path = None
 _imatrix = None
 SCALE_STEPS = {16: None, 8: 16, 6: 8}                            # bits of a scale -> steps of its grid per factor of two (None: not rounded)
@@ -274,8 +274,11 @@ def round_one(task):
         Wh, info = group_ball_round(W, "Z8" if g.group(1) == "ZBG" else "E8", int(g.group(2)), int(g.group(3)), int(g.group(4)))
     elif WEIGHTED_BALL.match(variant):
         g = WEIGHTED_BALL.match(variant)
+        if (g.group(1) == "w") != (g.group(6) is not None):
+            raise SystemExit(f"{variant}: an arm that begins with w ends with p and a power in hundredths, and no other arm does")
+        power = {"i": 0.5, "h": 0.25}.get(g.group(1)) or int(g.group(6)) / 100.0
         Wh, info = group_ball_round(W, "Z8" if g.group(2) == "ZBG" else "E8", int(g.group(3)), int(g.group(4)), int(g.group(5)),
-                                    colscale=column_weights(name, W.shape[1], 0.5 if g.group(1) == "i" else 0.25))
+                                    colscale=column_weights(name, W.shape[1], power))
     else:
         m = VARIANT.match(variant)
         q = int(m.group(11))
