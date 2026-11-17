@@ -57,3 +57,12 @@ M1 Max, torch on MPS, llama.cpp at 427291b. A scored variant took about three mi
 - Part K zeroes the tensors that the first record's `build_dead_kv` returns, and counts them at 0 bits. Their weight error is left out of the weight error of the line, since the change to them is total by design. The weights not touched count 16 bits each, as in the main plan.
 - `+deadkv` is a suffix on the name of the joined arm. The joined arm itself was not scored again, and the Part K line is compared with its earlier line.
 - Part H and Part K ran with nothing else on the GPU. No earlier line of `results.jsonl` was changed. The verdicts of the main plan in `results.out` are the same as before.
+
+## Extension 2 (PREREG-extension-2.md)
+
+- Programs were committed and pushed (566fbbe) before Part L was computed. Part L was committed and pushed (d07881a) before any Part M variant was scored. Part M refuses to score unless the plan and `large_by_layer.json` are committed and pushed, and records both commits in `results.start`.
+- Axes: the stored tensor of `ffn_down` has shape 2560 by 10240. A row is a dimension of the stream, and the clip limit is per row. A column is a hidden unit. `large_by_layer.out` says so.
+- The change of the clip in Part L is the matrix minus its clip in 64-bit floats, before the 16-bit rounding of the written file.
+- The first launch of Part M scored variants 1 to 4, then stopped on a missing argument in the arm check, before variant 5 was built. A fix was committed and pushed (commit after d07881a), and Part M was started again. Variants 1 to 4 were skipped as already scored. Variants 5 and 6 were scored once.
+- The arm check compares, by kind, the weight errors of the base arm as built here with the first record's. The largest difference was 0.000012 dB. For `ffn_down` the base arm's own error for layer 10 is put back before the comparison.
+- Part M ran with nothing else on the GPU. No earlier line of `results.jsonl` changed, and the verdicts of the earlier plans in `results.out` are the same.
