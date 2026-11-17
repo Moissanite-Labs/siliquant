@@ -64,3 +64,12 @@
    real | 32 | +1.64 | +1.78 | +1.86 | 32
    real |  R | +2.48 | +2.63 | +3.10 | 32
    Reach along a weight axis at volume 1: cube 0.5, ball 0.839, E8 cell 1.0, cross-polytope 1.882. Along the diagonal: cube 1.414, ball 0.839, E8 cell 0.707, cross-polytope 0.665.
+
+7. The scale term if the region were a ball, for blocks of 8, 16 and 24 weights, one group per row at q = 16, in dB. Not a run of any codebook.
+   Rows are cut to 2,016 or 480 weights, which blocks of 8, 16 and 24 all tile. The radius of the ball of volume 1 is used in each dimension.
+   The last columns add what the best lattice known in that dimension is worth by its cell (bounds/bounds.out): 0.65, 0.86 and 1.03 dB.
+   family | ball, blocks of 8 | of 16 | of 24 | with the cell: 8 (E8) | 16 (Barnes-Wall) | 24 (Leech) | matrices
+      G | +1.90 | +2.62 | +3.02 | +2.55 | +3.48 | +4.05 | 3
+      T | +4.15 | +6.10 | +7.25 | +4.80 | +6.96 | +8.28 | 3
+   real | +2.63 | +3.66 | +4.23 | +3.28 | +4.52 | +5.26 | 32
+   A lattice's own region is not a ball. For E8 with one group per row the measured scale term is 0.15 to 0.26 dB under the ball's on G and on the real matrices (table 6).

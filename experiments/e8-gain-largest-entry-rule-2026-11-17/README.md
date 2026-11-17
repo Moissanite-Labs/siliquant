@@ -138,11 +138,25 @@ This table was not planned. It holds no run of a codebook. For each matrix it as
 
 At q = 16, in dB. A cross-polytope is the set of blocks whose entries' sizes add up to at most a bound. At volume 1 it reaches 1.882 along a weight axis, where the E8 cell reaches 1.0, the ball 0.839 and the cube 0.5.
 
-[Reading] On the real matrices a cross-polytope region would give a larger scale term than the E8 region, by 0.22 dB with groups of 32 and by 0.62 dB per row. If that held in a run, the E8 lattice cut by a cross-polytope would beat the E8 Voronoi code on these weights, and integer levels cut by a cross-polytope would come within 0.03 dB of it per row with no lattice at all (3.10 against 0.65 + 2.48). No such codebook has been run. The count of its codewords, the rule for its scale and the cost of the block on the wall all have to be done first.
+[Reading] On the real matrices a cross-polytope region would give a larger scale term than the E8 region, by 0.22 dB with groups of 32 and by 0.62 dB per row. If that held in a run, the E8 lattice cut by a cross-polytope would beat the E8 Voronoi code on these weights, and integer levels cut by a cross-polytope would come within 0.03 dB of it per row with no lattice at all (3.10 against 0.65 + 2.48). When this record was written no such codebook had been run. The record [region-shapes-no-clip-rule-2026-11-17](../region-shapes-no-clip-rule-2026-11-17/README.md) then ran four.
+
+### More dimensions, computed and not run
+
+This table was not planned either, and it too holds no run of a codebook. It gives the scale term a ball would have for blocks of 8, 16 and 24 weights, with one group per row at q = 16, and then adds what the best lattice known in that dimension is worth by its cell (`bounds/bounds.out`, section 8).
+
+| Data | Ball, blocks of 8 | Blocks of 16 | Blocks of 24 | With the cell: E8 | Barnes-Wall, 16 | Leech, 24 |
+|---|---|---|---|---|---|---|
+| G | +1.90 | +2.62 | +3.02 | +2.55 | +3.48 | +4.05 |
+| T | +4.15 | +6.10 | +7.25 | +4.80 | +6.96 | +8.28 |
+| Real | +2.63 | +3.66 | +4.23 | +3.28 | +4.52 | +5.26 |
+
+In dB over the scalar rule. Rows are cut to 2,016 or 480 weights so that all three block sizes tile them.
+
+[Reading] Under this rule the dimension is worth more than the choice of lattice in 8 dimensions. Going from 8 to 24 adds 1.1 dB of scale on Gaussian data and 1.6 dB on the real matrices, and 0.37 dB of cell. No cell in 8 dimensions can add more than 0.08 dB to E8. A lattice's own region is not a ball: for E8 per row the measured scale term is 0.15 to 0.26 dB under the ball's. A code on the Leech lattice for weights is published (arXiv 2603.11021). It is not in this repository and was not run.
 
 ## Deviations from the plan
 
-- **`detail.py` was written after the run.** None of its six tables was planned. Tables 1 and 2 put the per-matrix figures for predictions 2, 3 and 5 on record. Tables 3, 4 and 6 were written after reading `results.out`.
+- **`detail.py` was written after the run.** None of its seven tables was planned. Tables 1 and 2 put the per-matrix figures for predictions 2, 3 and 5 on record. Tables 3, 4, 6 and 7 were written after reading `results.out`.
 - **The run shared the machine with the first study of this date** and took 1,699 seconds. The other study's workers were stopped for 79 seconds near the end so that this run could finish inside the session's limit for a background command, and then resumed. Both programs are deterministic, so this changes no number.
 - **The outcome of prediction 3 depends on the reading of "within 0.3 dB".** It is read on each matrix. In the mean over three matrices VZ8 is 0.30 dB behind X at q = 16 and 0.35 at q = 32.
 
@@ -153,7 +167,7 @@ At q = 16, in dB. A cross-polytope is the set of blocks whose entries' sizes add
 - **One real model**, a small speech transformer, and 32 of its matrices.
 - **The split is exact only with fine cells.** Table 2 of `results.out` shows how far each arm is from its formula. On Student t data and on the real matrices the scalar rule is up to 0.6 dB under its formula, because many weights are small against the step and round to zero.
 - **Three seeds** per synthetic family. The ranges over seeds are under 0.05 dB on G and under 0.2 dB on T.
-- **The table of other regions is arithmetic on the data.** It is not evidence that a codebook with such a region works.
+- **The tables of other regions and of more dimensions are arithmetic on the data.** They are not evidence that a codebook with such a region works. The first was then tested: see [region-shapes-no-clip-rule-2026-11-17](../region-shapes-no-clip-rule-2026-11-17/README.md), where it was a fair guide to the sign and high by up to 0.3 dB.
 - **A scalar rule with a searched scale or an offset per group was not tried**, as in the second record.
 
 ## Read against the closure rule

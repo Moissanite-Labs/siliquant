@@ -126,6 +126,31 @@ def main():
                 print(f"   {fam:>4} | {group:>2} | {np.mean(acc['e8']):+.2f} | {np.mean(acc['ball']):+.2f} | {np.mean(acc['cross']):+.2f} | {len(acc['e8'])}")
     print(f"   Reach along a weight axis at volume 1: cube 0.5, ball {r_ball:.3f}, E8 cell 1.0, cross-polytope {r_cross:.3f}. Along the diagonal: cube 1.414, ball {r_ball:.3f}, E8 cell 0.707, cross-polytope {r_cross / math.sqrt(8.0):.3f}.")
 
+    print()
+    print("7. The scale term if the region were a ball, for blocks of 8, 16 and 24 weights, one group per row at q = 16, in dB. Not a run of any codebook.")
+    print("   Rows are cut to 2,016 or 480 weights, which blocks of 8, 16 and 24 all tile. The radius of the ball of volume 1 is used in each dimension.")
+    print("   The last columns add what the best lattice known in that dimension is worth by its cell (bounds/bounds.out): 0.65, 0.86 and 1.03 dB.")
+    print("   family | ball, blocks of 8 | of 16 | of 24 | with the cell: 8 (E8) | 16 (Barnes-Wall) | 24 (Leech) | matrices")
+    cell_db = {8: db((1.0 / 12.0) / (929.0 / 12960.0)), 16: db((1.0 / 12.0) / 0.06830), 24: db((1.0 / 12.0) / 0.06577)}
+    for fam in ("G", "T", "real"):
+        acc = {8: [], 16: [], 24: []}
+        for name, W in mats.items():
+            if name.split("/")[0] != fam:
+                continue
+            W = np.asarray(W, dtype=np.float64)
+            keep = W.shape[1] // 48 * 48
+            W = W[:, :keep]
+            d = np.abs(W).max(axis=1) / (q / 2.0)
+            for nd in (8, 16, 24):
+                r_n = math.exp(math.lgamma(nd / 2.0 + 1.0) / nd) / math.sqrt(math.pi)
+                b = W.reshape(W.shape[0], keep // nd, nd)
+                t = np.sqrt((b ** 2).sum(axis=2)).max(axis=1) / (r_n * q)
+                acc[nd].append(db(float(np.sum(d ** 2)) / float(np.sum(t ** 2))))
+        if acc[8]:
+            print(f"   {fam:>4} | {np.mean(acc[8]):+.2f} | {np.mean(acc[16]):+.2f} | {np.mean(acc[24]):+.2f} | "
+                  + " | ".join(f"{np.mean(acc[nd]) + cell_db[nd]:+.2f}" for nd in (8, 16, 24)) + f" | {len(acc[8])}")
+    print("   A lattice's own region is not a ball. For E8 with one group per row the measured scale term is 0.15 to 0.26 dB under the ball's on G and on the real matrices (table 6).")
+
 
 if __name__ == "__main__":
     main()
