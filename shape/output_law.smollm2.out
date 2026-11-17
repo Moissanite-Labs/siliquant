@@ -1,4 +1,4 @@
-File: experiments/model-output-smollm2-2026-11-17/results.jsonl. Variants: 9.
+File: experiments/model-output-smollm2-2026-11-17/results.jsonl. Variants: 11.
 Anchor X32:16: mean KL 0.12568 at a mean weight error of -21.166 dB. KL per unit of weight error: 16.44.
 
 variant | bits | weight error by the closed form, dB | measured, dB | measured minus formula | KL by the anchor | measured KL | its standard error | measured over predicted, dB
@@ -10,11 +10,13 @@ EB32@32:16 | 4.4985 | -23.567 | -23.539 | +0.028 | 0.0723 | 0.1018 | 0.0020 | +1
 ZBG128:b560s16 | 4.4998 | -24.943 | -24.928 | +0.016 | 0.0527 | 0.0560 | 0.0011 | +0.26
 VE832:16 | 4.5000 | - | -22.638 | - | 0.0896 | 0.1166 | 0.0019 | +1.14
 XR:16 | 4.0063 | - | -16.585 | - | 0.3609 | 0.4934 | 0.0064 | +1.36
+VE8R:16 | 4.0063 | - | -19.273 | - | 0.1943 | 0.3290 | 0.0054 | +2.29
+VE8ZR:16 | 4.0063 | - | -19.236 | - | 0.1960 | 0.3376 | 0.0052 | +2.36
 
 The predictions
    O1 | not scored yet | closed form against measured weight error, mark 0.05 dB: EBG128:b560s16 +0.013, EB32@32:16 +0.028, ZBG128:b560s16 +0.016
    O2 | not scored yet | KL by the anchor and the closed form, mark 0.5 dB: EBG128:b560s16 +1.28, EB32@32:16 +1.49, ZBG128:b560s16 +0.26
    O3 | not scored yet | KL over that of EBG128:b560s16 in dB, measured against the closed form, mark 0.4 dB: EB32@32:16 +2.24 against +2.03, ZBG128:b560s16 -0.36 against +0.65
    O4 | not scored yet | VE8Z32:16 by the anchor and its measured weight error, mark 0.5 dB: -
-   O5 | not scored yet | one scale per row is outside the law: KL at least 1.5 dB above the anchor's: XR:16 +1.36
-   O6 | not scored yet | the arm with the smallest predicted error at 4.5 bits or fewer, EBG128:b560s16, has the lowest mean KL of all 8 scored variants: the lowest is ZBG128:b560s16 at 0.0560
+   O5 | FAILS | one scale per row is outside the law: KL at least 1.5 dB above the anchor's: XR:16 +1.36, VE8ZR:16 +2.36
+   O6 | not scored yet | the arm with the smallest predicted error at 4.5 bits or fewer, EBG128:b560s16, has the lowest mean KL of all 10 scored variants: the lowest is ZBG128:b560s16 at 0.0560
