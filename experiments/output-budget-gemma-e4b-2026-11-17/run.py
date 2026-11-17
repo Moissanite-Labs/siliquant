@@ -267,6 +267,34 @@ def plan_gate():
             "sha256": {f: sha256_of(ROOT / f) for f in GATED}}
 
 
+def committed_and_pushed(path):
+    """The commit that last changed `path`, if the file is tracked, unchanged since, and that commit is on the remote."""
+    rel = str(Path(path).resolve().relative_to(ROOT))
+    if rel not in git("ls-files", "--", rel).splitlines():
+        raise SystemExit(f"FAIL: {rel} is not committed")
+    if git("status", "--porcelain", "--", rel):
+        raise SystemExit(f"FAIL: {rel} changed since its last commit")
+    commit = git("log", "-1", "--format=%H", "--", rel)
+    if not git("branch", "-r", "--contains", commit):
+        raise SystemExit(f"FAIL: the commit of {rel} is not on the remote")
+    return {"file": rel, "commit": commit, "commit_time": git("log", "-1", "--format=%cI", commit)}
+
+
+def first_step_passed(out):
+    """The plan stops the run unless unchanged, X32:16 and XR:16 are inside their limits."""
+    rows = {}
+    if os.path.exists(out):
+        for ln in open(out).read().splitlines():
+            r = json.loads(ln)
+            if "kl_mean" in r and r["variant"] not in rows:
+                rows[r["variant"]] = r
+    try:
+        return (rows["unchanged"]["kl_mean"] < 0.00001 and abs(rows["X32:16"]["kl_mean"] - 0.117297) <= 0.002
+                and abs(rows["XR:16"]["kl_mean"] - 0.448262) <= 0.006)
+    except KeyError:
+        return False
+
+
 def done_variants(out):
     if not os.path.exists(out):
         return set()
@@ -294,6 +322,12 @@ def main():
         if v != "unchanged":
             parse(v)                       # a bad name stops the run before anything is built
     gate = plan_gate()
+    if not set(variants) <= set(FIRST) and not first_step_passed(args.out):
+        raise SystemExit("FAIL: the first step has not passed; the plan stops the run")
+    if args.part == "B":
+        gate["allocate_out"] = committed_and_pushed(args.allocate_out)
+    if args.part == "G":
+        gate["joined_out"] = committed_and_pushed(args.joined_out)
     if os.path.getsize(args.model) != MODEL_BYTES:
         raise SystemExit("FAIL: the model file has the wrong size")
     gate["model_sha256"] = sha256_of(args.model)

@@ -155,10 +155,13 @@ def main():
         if args.scale_bits == 16:
             ridx, rs, rmean, window = reversed_choice(kl, w, bits, LEVELS, idx, budget)
             rlevels = {k: LEVELS[i] for k, i in zip(KINDS, ridx)}
+            if tuple(ridx) == tuple(idx):
+                print("   NOTE: the reversed arm is the same as the best arm")
             note = "" if abs(window - 0.05) < 1e-9 else f" (the window had to be widened to {window:.2f})"
             print(f"   reversed arm: " + " ".join(f"{k}={rlevels[k]}" for k in KINDS) + f" | mean bits {rmean:.4f} | predicted KL {rs:.6f}{note}")
             print("JSON " + json.dumps({"budget": budget, "role": "reversed", "variant": variant_name(rlevels, 16), "levels": rlevels,
-                                        "mean_bits": rmean, "predicted_kl": rs, "window": window, "scale_bits": 16, "score": True}))
+                                        "mean_bits": rmean, "predicted_kl": rs, "window": window, "scale_bits": 16, "score": True,
+                                        "same_as_best": tuple(ridx) == tuple(idx)}))
 
 
 if __name__ == "__main__":
