@@ -6,7 +6,9 @@ constants of lattices (those of A_4* and A_8* from a closed form that
 section 3 checks). A proposal is read against them before anything is
 run: a gain that would have to exceed a ceiling is closed, and a gain inside
 the limits has a known largest size. Section 3 checks one constant. Sections
-4 to 6 hold covering thickness, codebook counts and a packing figure.
+4 to 6 hold covering thickness, codebook counts and a packing figure. Section
+7 holds the cells of the point set F_n that PR #6 proposes as a codebook, and
+section 8 the best lattices known in more than 8 dimensions, from a source.
 
 Needs NumPy. Usage, from the root of a checkout:
   python3 bounds/bounds.py > bounds/bounds.out
@@ -94,6 +96,29 @@ def thickness_cubic(n):
     return ball_volume(n) * (math.sqrt(n) / 2.0) ** n
 
 
+def g_pyramid(n, t):
+    """Normalised second moment of F_n: the cube [-1, 1]^n cut into the 2n pyramids over its facets,
+    with the reproduction point of each pyramid on its axis at distance t from the centre.
+
+    Along the axis the height h has density n h^(n-1) on [0, 1]. Every other coordinate is uniform
+    on [-h, h]. The volume per point is 2^n / 2n.
+    """
+    block = n / (n + 2.0) - 2.0 * t * n / (n + 1.0) + t * t + n * (n - 1.0) / (3.0 * (n + 2.0))
+    return block / (n * (2.0 ** n / (2.0 * n)) ** (2.0 / n))
+
+
+def g_pyramid_measured(n, t, points, seed):
+    """The same by Monte Carlo: uniform points of the cube, each sent to the point of the pyramid it lies in."""
+    import numpy as np
+    rng = np.random.default_rng(seed)
+    x = rng.uniform(-1.0, 1.0, size=(points, n))
+    i = np.argmax(np.abs(x), axis=1)
+    rows = np.arange(points)
+    e = (x ** 2).sum(axis=1) - x[rows, i] ** 2 + (np.abs(x[rows, i]) - t) ** 2
+    scale = n * (2.0 ** n / (2.0 * n)) ** (2.0 / n)
+    return float(e.mean()) / scale, float(e.std()) / math.sqrt(points) / scale
+
+
 def main():
     print("1. Independent Gaussian weights, relative squared error at R bits per weight")
     print("   levels | bits | floor for any code, 2^(-2R) | best scalar quantiser (Lloyd-Max) | best evenly spaced levels | its step in standard deviations")
@@ -148,6 +173,26 @@ def main():
     print()
     print("6. Packing ternary weights")
     print(f"   5 ternary weights fit in one byte: 243 of 256 states, {math.log2(243) / 8 * 100:.2f} percent of the byte's 8 bits, {8 / 5:.2f} bits stored per weight against log2(3) = {math.log2(3):.4f}")
+    print()
+    print("7. The point set F_n of Foundation-0/incentre-lattices as a codebook (proposed in PR #6): what its cells are worth")
+    print("   The cube [-1, 1]^n is cut into the 2n pyramids over its facets, with one point on the axis of each at distance t from the centre.")
+    print("   The cell of each point is its pyramid for any 0 < t < 1 (proof in experiments/incentre-vortex-codebooks-2026-11-17/README.md).")
+    print("   G = [n/(n+2) - 2t n/(n+1) + t^2 + n(n-1)/(3(n+2))] / (n (2^n / 2n)^(2/n)). A negative gain means worse than the cube.")
+    print("   n | G at t = 2 - sqrt 2 (the incentre) | gain in dB | G at t = n/(n+1) (the centroid, the best t) | gain in dB | measured at the centroid")
+    c = 2.0 - math.sqrt(2.0)
+    for n in (2, 3, 4, 8, 16, 24):
+        gi, gc = g_pyramid(n, c), g_pyramid(n, n / (n + 1.0))
+        est, se = g_pyramid_measured(n, n / (n + 1.0), 2_000_000, 20261117 + n)
+        print(f"   {n:>2} | {gi:.6f} | {db((1.0 / 12.0) / gi):+.3f} | {gc:.6f} | {db((1.0 / 12.0) / gc):+.3f} | {est:.6f} +- {se:.6f} ({(est - gc) / se:+.1f} standard errors)")
+    print("   F_n is behind the cube in every dimension. Its G tends to 1/12 from above as n grows.")
+    print()
+    print("8. Lattices in more than 8 dimensions: the best known, from a source and not recomputed here")
+    print("   lattice | dimension | G | gain in dB against the cube | gain in dB against E_8")
+    e8 = 929.0 / 12960.0
+    for name, n, g, digits in (("K_12 (Coxeter-Todd)", 12, 0.070095600, 9), ("Lambda_16 (Barnes-Wall)", 16, 0.06830, 5), ("Lambda_24 (Leech)", 24, 0.06577, 5)):
+        print(f"   {name:<24} | {n} | {g:.{digits}f} | {db((1.0 / 12.0) / g):.2f} | {db(e8 / g):.2f}")
+    print("   Source: Agrell and Allen, arXiv 2202.09605, table I, with the digits it prints. K_12 is exact there and the other two are numerical.")
+    print("   These are records and not ceilings. The ceilings are the ball rows of section 2.")
 
 
 if __name__ == "__main__":

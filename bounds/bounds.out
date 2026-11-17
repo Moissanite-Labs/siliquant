@@ -53,3 +53,24 @@
 
 6. Packing ternary weights
    5 ternary weights fit in one byte: 243 of 256 states, 99.06 percent of the byte's 8 bits, 1.60 bits stored per weight against log2(3) = 1.5850
+
+7. The point set F_n of Foundation-0/incentre-lattices as a codebook (proposed in PR #6): what its cells are worth
+   The cube [-1, 1]^n is cut into the 2n pyramids over its facets, with one point on the axis of each at distance t from the centre.
+   The cell of each point is its pyramid for any 0 < t < 1 (proof in experiments/incentre-vortex-codebooks-2026-11-17/README.md).
+   G = [n/(n+2) - 2t n/(n+1) + t^2 + n(n-1)/(3(n+2))] / (n (2^n / 2n)^(2/n)). A negative gain means worse than the cube.
+   n | G at t = 2 - sqrt 2 (the incentre) | gain in dB | G at t = n/(n+1) (the centroid, the best t) | gain in dB | measured at the centroid
+    2 | 0.114382 | -1.375 | 0.111111 | -1.249 | 0.111128 +- 0.000070 (+0.2 standard errors)
+    3 | 0.127803 | -1.857 | 0.120383 | -1.597 | 0.120376 +- 0.000062 (-0.1 standard errors)
+    4 | 0.130677 | -1.954 | 0.122565 | -1.675 | 0.122494 +- 0.000053 (-1.3 standard errors)
+    8 | 0.123026 | -1.692 | 0.117284 | -1.484 | 0.117232 +- 0.000033 (-1.6 standard errors)
+   16 | 0.110216 | -1.214 | 0.107172 | -1.093 | 0.107153 +- 0.000019 (-1.0 standard errors)
+   24 | 0.103819 | -0.955 | 0.101805 | -0.869 | 0.101793 +- 0.000015 (-0.8 standard errors)
+   F_n is behind the cube in every dimension. Its G tends to 1/12 from above as n grows.
+
+8. Lattices in more than 8 dimensions: the best known, from a source and not recomputed here
+   lattice | dimension | G | gain in dB against the cube | gain in dB against E_8
+   K_12 (Coxeter-Todd)      | 12 | 0.070095600 | 0.75 | 0.10
+   Lambda_16 (Barnes-Wall)  | 16 | 0.06830 | 0.86 | 0.21
+   Lambda_24 (Leech)        | 24 | 0.06577 | 1.03 | 0.37
+   Source: Agrell and Allen, arXiv 2202.09605, table I, with the digits it prints. K_12 is exact there and the other two are numerical.
+   These are records and not ceilings. The ceilings are the ball rows of section 2.
