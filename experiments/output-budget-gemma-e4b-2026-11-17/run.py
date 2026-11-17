@@ -81,6 +81,12 @@ PART_E = ([f"{a}@ffn_down#{il}" for a in ("clip:5", "X32:16") for il in LAYERS6]
           + [f"{a}@ffn_down#" + ",".join(str(i) for i in LAYERS6) for a in ("clip:5", "X32:16")])
 
 
+PART_H = [f"clip:5@ffn_down#{il}" for il in range(42) if il not in LAYERS6]
+JOINED = "X32s8mix:attn_q=32,attn_k=64,attn_v=64,attn_output=46,ffn_gate=16,ffn_up=16,ffn_down=16"
+PART_K = [JOINED + "+deadkv"]
+EXTENSION = "experiments/output-budget-gemma-e4b-2026-11-17/PREREG-extension-1.md"
+
+
 def part_variants(part, allocate_out=None, joined_out=None):
     if part == "first":
         return FIRST
@@ -92,6 +98,10 @@ def part_variants(part, allocate_out=None, joined_out=None):
         return PART_D
     if part == "E":
         return PART_E
+    if part == "H":
+        return PART_H
+    if part == "K":
+        return PART_K
     if part in ("B", "G"):
         path = allocate_out if part == "B" else joined_out
         if path is None or not Path(path).exists():
@@ -118,7 +128,22 @@ CLIP = re.compile(r"^clip:(?P<c>\d*\.?\d+)(?:@(?P<kind>\w+)(?:#(?P<layers>\d+(?:
 
 
 def parse(v):
-    """A variant string as a dict: arm, group, mod (None, "o" or "sB"), levels (kind -> Q), c, kind, layers."""
+    """A variant string as a dict: arm, group, mod (None, "o" or "sB"), levels (kind -> Q), c, kind, layers, deadkv.
+
+    A name ending in +deadkv also zeroes the keys and values that no layer reads (Part K).
+    """
+    if v.endswith("+deadkv"):
+        spec = parse(v[:-len("+deadkv")])
+        if not spec["mix"]:
+            raise SystemExit(f"{v}: +deadkv is for the mixed arms")
+        spec["deadkv"] = True
+        return spec
+    spec = parse_plain(v)
+    spec["deadkv"] = False
+    return spec
+
+
+def parse_plain(v):
     m = MIX.match(v)
     if m:
         levels = {}
@@ -184,6 +209,17 @@ def round_one(spec, W, kind):
     return Wh, info
 
 
+def bit_stats(items, weights_all, zeroed):
+    """Bits per weight from items = [(weights, bits per weight)] of the matrices rounded.
+
+    Over the weights rounded, and over all block weights: the weights not touched count 16 bits each,
+    the `zeroed` weights (which no path reads) count 0 bits.
+    """
+    changed = sum(n for n, _ in items)
+    total = sum(n * b for n, b in items)
+    return total / changed, (total + 16.0 * (weights_all - changed - zeroed)) / weights_all
+
+
 def build(reader, v):
     """The changed tensors of variant v and the statistics of the change."""
     spec = parse(v)
@@ -191,8 +227,11 @@ def build(reader, v):
     everything = targets(reader)
     weights_all = sum(int(np.prod(t.shape)) for t in everything)
     changed_w, rows, bits_sum, energy, energy_err, kept, over, clipped = 0, 0, 0.0, 0.0, 0.0, 0, 0.0, 0.0
+    dead, dead_stats, items = {}, None, []
+    if spec["deadkv"]:
+        dead, dead_stats = earlier.build_dead_kv(reader)         # the first record's closure, not re-derived
     for t in everything:
-        if not selected(spec, t.name):
+        if not selected(spec, t.name) or t.name in dead:
             continue
         il, kind = BLOCK.match(t.name).groups()
         W = ggufedit.tensor_float(t)
@@ -206,16 +245,20 @@ def build(reader, v):
         changed_w += W.size
         rows += W.shape[0]
         bits_sum += info["bits"] * W.size
+        items.append((W.size, info["bits"]))
         kept += info["kept"]
         over += info["overload"] * W.size
     if not replace:
         raise SystemExit(f"{v} changes no matrix")
     every = [x for vs in per_kind.values() for x in vs]
+    zeroed = dead_stats["weights_zeroed"] if dead_stats else 0
+    bits_changed, bits_all = bit_stats(items, weights_all, zeroed)
+    replace.update(dead)
     stats = {
         "matrices": len(every), "weights": weights_all, "weights_changed": changed_w, "rows_changed": rows,
-        "bits_per_weight_changed": bits_sum / changed_w,
-        "bits_per_weight_all": (bits_sum + 16.0 * (weights_all - changed_w)) / weights_all,
-        "bits_per_weight": bits_sum / changed_w,
+        "bits_per_weight_changed": bits_changed,
+        "bits_per_weight_all": bits_all,
+        "bits_per_weight": bits_changed,
         "weight_err_db_mean": sum(db(x) for x in every) / len(every),
         "weight_err_db_pooled": db(energy_err / energy),
         "weight_err_db_by_kind": {k: sum(db(x) for x in vs) / len(vs) for k, vs in sorted(per_kind.items())},
@@ -223,6 +266,9 @@ def build(reader, v):
         "share_kept": kept / changed_w,
         "share_out_of_range": over / changed_w,
     }
+    if dead_stats:
+        stats["weights_zeroed"] = zeroed
+        stats["tensors_zeroed"] = dead_stats["tensors"]
     return replace, stats
 
 
@@ -324,6 +370,8 @@ def main():
     gate = plan_gate()
     if not set(variants) <= set(FIRST) and not first_step_passed(args.out):
         raise SystemExit("FAIL: the first step has not passed; the plan stops the run")
+    if set(variants) & set(PART_H + PART_K):
+        gate["extension_1"] = committed_and_pushed(ROOT / EXTENSION)
     if args.part == "B":
         gate["allocate_out"] = committed_and_pushed(args.allocate_out)
     if args.part == "G":

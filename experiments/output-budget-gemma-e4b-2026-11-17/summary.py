@@ -372,6 +372,54 @@ def main():
         verdict("G1", "the joined arm at 4.5 bits or under, KL 0.085 or less", "above 0.085 fails", "not scored", None)
     print()
 
+    # ----- extension 1
+    print("Extension 1, Part H: the clip at 5 standard deviations on ffn_down, one layer at a time (PREREG-extension-1.md)")
+    h_names = [f"clip:5@ffn_down#{il}" for il in range(42)]
+    if all(v in ROWS for v in h_names):
+        print("   layer | weight error of the clip, dB | KL | standard error | KL over five standard errors")
+        for il, v in enumerate(h_names):
+            r = ROWS[v]
+            print(f"   {il} | {r['weight_err_db_mean']:.2f} | {r['kl_mean']:.6f} | {r['kl_mean_se']:.6f} | {'yes' if r['kl_mean'] >= 5 * r['kl_mean_se'] else 'NO'}")
+        kls = [kl(v) for v in h_names]
+        total = sum(kls)
+        joint = OLD["clip:5@ffn_down"]["kl_mean"] if "clip:5@ffn_down" in OLD else None
+        weak = [il for il, v in enumerate(h_names) if kl(v) < 5 * ROWS[v]["kl_mean_se"]]
+        weak_share = sum(kls[il] for il in weak) / total
+        small = weak_share < 0.1
+        print(f"   sum of the 42 single-layer KLs {total:.6f}; the clip on all layers at once (first record) {joint:.6f}; ratio {total / joint:.3f}")
+        top4 = sum(sorted(kls, reverse=True)[:4])
+        print(f"   four largest layers: {', '.join(str(il) for il in sorted(range(42), key=lambda i: -kls[i])[:4])}, {top4:.6f} = {100 * top4 / total:.1f} % of the sum")
+        print(f"   layers with a KL under five times its standard error: {', '.join(map(str, weak)) or 'none'}; together {100 * weak_share:.2f} % of the sum")
+        ratio = total / joint
+        not_dec = bool(weak) and not small
+        verdict("H1", "the sum of the 42 single-layer KLs is 0.75 to 1.25 times the KL of the clip on all layers at once", "the ratio is outside that range fails",
+                f"ratio {ratio:.3f}" + (f"; layers {', '.join(map(str, weak))} are under 5 x their standard error and hold {100 * weak_share:.1f} % of the sum" if weak else ""),
+                None if not_dec else 0.75 <= ratio <= 1.25, "not decided" if not_dec else "")
+        verdict("H2", "a few layers carry it: the four largest single-layer KLs make more than half of the sum", "they make half or less fails",
+                f"{100 * top4 / total:.1f} % of the sum" + (f"; layers {', '.join(map(str, weak))} under 5 x their standard error hold {100 * weak_share:.1f} %" if weak else ""),
+                None if not_dec else top4 > 0.5 * total, "not decided" if not_dec else "")
+        rho = spearman(kls, [ROWS[v]["weight_err_db_mean"] for v in h_names])
+        verdict("H3", "over the 42 layers, the rank correlation between a layer's KL and the weight error of its clip (dB, nearer zero is a larger change) is at least 0.5",
+                "it is under 0.5 fails", f"{rho:+.3f}", rho >= 0.5)
+    else:
+        print(f"   {sum(v in ROWS for v in h_names)} of 42 layers scored")
+        for n in ("H1", "H2", "H3"):
+            verdict(n, "Part H", "-", "not scored", None)
+    print()
+    print("Extension 1, Part K: the joined arm with the unread keys and values zeroed and counted at 0 bits")
+    kv = PART_K0 = "X32s8mix:attn_q=32,attn_k=64,attn_v=64,attn_output=46,ffn_gate=16,ffn_up=16,ffn_down=16"
+    if kv + "+deadkv" in ROWS and kv in ROWS:
+        table([kv, kv + "+deadkv"])
+        r = ROWS[kv + "+deadkv"]
+        print(f"   weights zeroed {r['weights_zeroed']} in {r['tensors_zeroed']} tensors")
+        same = round(r["kl_mean"], 4) == round(kl(kv), 4)
+        verdict("K1", "the KL equals that of the joined arm to four decimals, and the bits fall from 4.484 to under 4.41", "the KL differs in the fourth decimal, or the bits are 4.41 or more fails",
+                f"KL {r['kl_mean']:.6f} against {kl(kv):.6f}; bits {r['bits_per_weight_all']:.4f} against {ROWS[kv]['bits_per_weight_all']:.4f}; weights zeroed {r['weights_zeroed']}",
+                same and r["bits_per_weight_all"] < 4.41 and r["weights_zeroed"] == 55050240)
+    else:
+        verdict("K1", "Part K", "-", "not scored", None)
+    print()
+
     # ----- verdict
     print("Verdicts")
     print("   id | prediction | fails if | measured | verdict")

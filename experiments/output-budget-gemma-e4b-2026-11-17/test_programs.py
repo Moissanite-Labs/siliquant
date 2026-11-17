@@ -154,6 +154,32 @@ class VariantTest(unittest.TestCase):
         for v in ob_run.PART_A + ob_run.PART_C + ob_run.PART_D + ob_run.PART_E + ob_run.FIRST[1:]:
             ob_run.parse(v)
 
+    def test_part_k_bit_count(self):
+        # Three matrices rounded: 100 weights at 5 bits and 300 at 4 bits. 1000 block weights in all,
+        # 200 of them zeroed (counted at 0 bits), the other 400 not touched (16 bits each).
+        changed, everything = ob_run.bit_stats([(100, 5.0), (300, 4.0)], 1000, 200)
+        self.assertAlmostEqual(changed, (500 + 1200) / 400)
+        self.assertAlmostEqual(everything, (500 + 1200 + 16 * 400) / 1000)
+        # With nothing zeroed it is the count of the main plan.
+        self.assertAlmostEqual(ob_run.bit_stats([(100, 5.0)], 1000, 0)[1], (500 + 16 * 900) / 1000)
+
+    def test_dead_kv_tensors_are_the_closures(self):
+        import os
+        model = os.environ.get("OB_MODEL")
+        if not model:
+            self.skipTest("set OB_MODEL to the model file")
+        reader = ob_run.ggufedit.open_model(model)
+        dead, stats = ob_run.earlier.build_dead_kv(reader)
+        live = ob_run.earlier.live_kv_layers(reader)
+        by = {t.name: t for t in reader.tensors}
+        expect = {f"blk.{il}.{k}.weight" for il in range(live, 42) for k in ("attn_k", "attn_v")}
+        self.assertEqual(set(dead), expect)
+        self.assertEqual(stats["weights_zeroed"], 55050240)
+        self.assertEqual(sum(int(np.prod(by[n].shape)) for n in expect), 55050240)
+        self.assertEqual(ob_run.parse(ob_run.PART_K[0])["deadkv"], True)
+        self.assertEqual(len(ob_run.PART_H), 36)
+        self.assertFalse(set(ob_run.PART_H) & set(ob_run.PART_E))
+
     def test_mixed_arm_uses_each_kinds_levels(self):
         rng = np.random.default_rng(8)
         W = rng.normal(size=(4, 64)).astype(np.float32)
