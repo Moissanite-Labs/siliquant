@@ -12,9 +12,10 @@ The repository follows one rule from weft-loom: a path is closed only on a proof
 | `perm/` | Exact counting of matchings that avoid forbidden pairs: derangements, rook and hit polynomials, permanents, bounds on permanents, and the closure of a set of forbidden cells. Counts are tested against full enumeration on small cases, and bounds against exact values. `perm/demo.out` holds the figures the notes quote. |
 | `lattice/` | Nearest-point decoders for the lattices Z^n, D_n, E_8, A_n and A_n\*, Voronoi codes, scalar reference quantisers, and row and column balancing. Tested against brute force and against known constants. |
 | `shape/` | The process of issue #10 as code, for weight error. Codebooks cut from the integers or E8 by the ball of a p-norm, counted exactly. The region part of the error, computed from the weights with nothing rounded, and a formula for the error with no fitted constant. A receipt in whole numbers. For five arms the pick in exact arithmetic with a certificate, and a checker that shares no code with it. A closed-form scale with a proved bound on the error. |
+| `persist/` | The score called neural persistence: the maximum spanning tree of a layer read as a graph, the score built on it, the paper's bound under both readings of its count, and a distance between two layers' sorted tree sizes. Tested against full enumeration on small graphs. `persist/demo.out` holds the figures the note quotes. |
 | `harness/` | Tools for experiments on real model files: read weights out of a GGUF file and write a changed copy, round on a GPU, and score a changed model against the original with llama.cpp's own tool. `harness/test_tq.py` checks the GPU code against `lattice/`. |
 | `experiments/` | One folder per study, each with its plan, program, output and limits. Index in [experiments/README.md](experiments/README.md). |
-| `notes/` | [concept-map.md](notes/concept-map.md): the combinatorics the project owner listed, mapped to code, to the closure rule and to rounding. [brief-check.md](notes/brief-check.md): a source check of the two briefs the repository started from. [pr6-proposal-check.md](notes/pr6-proposal-check.md): a check of the research report in PR #6, claim by claim, and what follows from it. [issue10-proposal-check.md](notes/issue10-proposal-check.md): the same for the proposal of issue #10 and the published work it cites, with what PR #5 has that bears on it. |
+| `notes/` | [concept-map.md](notes/concept-map.md): the combinatorics the project owner listed, mapped to code, to the closure rule and to rounding. [brief-check.md](notes/brief-check.md): a source check of the two briefs the repository started from. [pr6-proposal-check.md](notes/pr6-proposal-check.md): a check of the research report in PR #6, claim by claim, and what follows from it. [issue10-proposal-check.md](notes/issue10-proposal-check.md): the same for the proposal of issue #10 and the published work it cites, with what PR #5 has that bears on it. [persistence-and-flow-check.md](notes/persistence-and-flow-check.md): a check of a document on neural persistence and of two replies that map drag reduction onto models, with the bit budget that is left and its arithmetic in `notes/budget.out`. |
 
 ## How to check it
 
@@ -30,6 +31,10 @@ python3 -m unittest lattice/test_lattices.py
 
 ```bash
 python3 -m unittest shape/test_shapelib.py shape/test_certified.py
+```
+
+```bash
+python3 -m unittest persist/test_persist.py
 ```
 
 ```bash

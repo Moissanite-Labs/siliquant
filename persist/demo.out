@@ -1,0 +1,47 @@
+seed 20261117, numpy 2.0.2
+
+1. Share of the tree's links that are a row's or a column's largest entry
+     64 x   64  gauss       0.756
+     64 x   64  student-t3  0.717
+    256 x  256  gauss       0.765
+    256 x  256  student-t3  0.736
+    128 x  512  gauss       0.854
+    128 x  512  student-t3  0.834
+    256 x 1024  gauss       0.837
+    256 x 1024  student-t3  0.835
+
+2. Persistence from the maxima alone against the true value, 256 x 1024
+   gauss       true 13.3071  maxima only 12.9274  ratio 0.9715
+   student-t3  true 31.3880  maxima only 30.8617  ratio 0.9832
+
+3. The count in the bound of Theorem 1, 650 x 650, gauss
+   persistence 13.281
+   divided by the bound with N = neurons (1300):  0.3685
+   divided by the bound with N = weights (422500): 0.0204
+
+4. The largest weight of a network, on a layer whose own is 10 times smaller, 64 x 64
+   own largest weight:      score 0.422
+   the network's:           score 9.413  (the bound allows at most 1)
+
+5. The piece that never joins: is the bound of Theorem 1 reached by its own example?
+   essential=none   persistence 2.884441  bound 2.993326
+   essential=min    persistence 2.993326  bound 2.993326
+   essential=zero   persistence 3.052868  bound 2.993326
+
+6. Rescaling ReLU units: the same function, another score. 64 -> 256 -> 10
+   spread 0.00  move over size  0.00  largest output gap 0.0e+00  layer scores 0.3734 0.5170  mean 0.4452
+   spread 0.25  move over size  0.26  largest output gap 1.8e-15  layer scores 0.4647 0.6488  mean 0.5567
+   spread 0.50  move over size  0.56  largest output gap 1.8e-15  layer scores 0.6979 0.8765  mean 0.7872
+   spread 1.00  move over size  1.90  largest output gap 1.8e-15  layer scores 0.8712 0.8996  mean 0.8854
+
+7. Moves that leave the score as it is and change the function
+   unchanged                   6.668998 8.415128
+   sign of layer 1 flipped     6.668998 8.415128   output change over output size 1.54
+   rows of layer 1 reordered   6.668998 8.415128   output change over output size 1.26
+
+8. Sorted tree sizes against the size of the change, 2,000 random pairs, 7 x 11
+   largest ratio, largest gap of sorted sizes over largest entry change: 1.0000
+   largest ratio, 2-norm of sorted sizes over Frobenius change:          0.6205
+
+9. Time for one tree, 2560 x 10240
+   0.5 s
