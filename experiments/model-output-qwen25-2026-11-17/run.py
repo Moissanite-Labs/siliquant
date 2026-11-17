@@ -65,6 +65,9 @@ CUT = {"ZB": ("Z8", "ball"), "EB": ("E8", "ball"), "ZC": ("Z8", "cross"), "EC": 
 VARIANT = re.compile(r"^(?:(X)(\d+|R)|(VE8)(\d+|R)|(ZB|EB|ZC|EC|PaB)(\d+)@(\d+|R)|(SEB)(8)@(\d+|R)):(\d+)$")
 GROUP_BALL = re.compile(r"^(ZBG|EBG)(\d+):b(\d+)s(\d+)$")       # extension 1 of PREREG-arms.md: one ball per group, bits chosen freely
 ZERO_CENTRE = re.compile(r"^VE8Z(\d+|R):(\d+)$")                # extension 1: the E8 Voronoi code with a codeword at zero
+WEIGHTED_BALL = re.compile(r"^([ih])(ZBG|EBG)(\d+):b(\d+)s(\d+)$")    # the record imatrix-baseline-2026-11-17, extension 1: a ball arm given an importance matrix
+_imatrix_path = None
+_imatrix = None
 SCALE_STEPS = {16: None, 8: 16, 6: 8}                            # bits of a scale -> steps of its grid per factor of two (None: not rounded)
 _bounds = {}
 _reader = None
@@ -160,8 +163,30 @@ def ball_bound(lattice, n, bits):
     return _bounds[key]
 
 
-def group_ball_round(W, lattice, n, block_bits, scale_bits):
+def column_weights(name, cols, power):
+    """Each input's mean squared size from llama.cpp's importance matrix, over its mean, raised to a power and floored at 0.01.
+
+    With power 1/2 (arms that begin with i) rounding then minimises the squared error weighted by that size,
+    which is what llama.cpp's own quantisers do with the matrix. With power 1/4 (arms that begin with h) it goes half way.
+    """
+    global _imatrix
+    if _imatrix is None:
+        import gguf
+        rd = gguf.GGUFReader(_imatrix_path)
+        _imatrix = {t.name: np.asarray(t.data, dtype=np.float64).ravel() for t in rd.tensors if t.name.endswith((".in_sum2", ".counts"))}
+    imp = _imatrix[name + ".in_sum2"] / float(_imatrix[name + ".counts"][0])
+    if len(imp) != cols:
+        raise SystemExit(f"the importance matrix has {len(imp)} inputs for {name}, the matrix has {cols}")
+    s = (imp / imp.mean()) ** power
+    return np.maximum(s, 0.01)
+
+
+def group_ball_round(W, lattice, n, block_bits, scale_bits, colscale=None):
     """One ball per group of n weights, with block_bits for the point and scale_bits for the scale.
+
+    With colscale, every column is multiplied by its entry before rounding and divided by it after,
+    so that the rounding error of a weight is smaller where its input is larger. The entries are
+    stored at 16 bits each and counted.
 
     With 16 bits the scale is the smallest at which the group rounds into the ball, as in cut_round.
     With 8 or 6 bits it is rounded up to a grid: the largest scale of the matrix divided by whole
@@ -174,16 +199,19 @@ def group_ball_round(W, lattice, n, block_bits, scale_bits):
         raise SystemExit(f"a group of {n} does not tile a row of {cols}")
     bound, points = ball_bound(lattice, n, block_bits)
     W64 = W.astype(np.float64)
+    extra = 0.0
+    if colscale is not None:
+        W64 = W64 * colscale[None, :]
+        extra += 16.0 / rows
     X = W64.reshape(-1, n)
     t = bd.block_scales(X, lattice, "ball", bound)
     steps = SCALE_STEPS[scale_bits]
-    extra = 0.0
     if steps is not None:
         top = float(t.max())
         k = np.floor(np.log2(top / np.maximum(t, 1e-300)) * steps + 1e-9)
         k = np.clip(k, 0, (1 << scale_bits) - 1)
         t = top * 2.0 ** (-k / steps)
-        extra = 16.0 / W.size
+        extra += 16.0 / W.size
     Y = bd.closest(lattice, X / t[:, None])
     out = bd.size_of("ball", Y) > bound + 1e-9
     if np.any(out):
@@ -195,7 +223,10 @@ def group_ball_round(W, lattice, n, block_bits, scale_bits):
             lo = np.where(good, mid, lo)
             hi = np.where(good, hi, mid)
         Y[out] = bd.closest(lattice, xo * lo[:, None])
-    return finish(W, (Y * t[:, None]).reshape(rows, cols), (math.log2(points) + scale_bits) / n + extra, float(np.mean(out)))
+    Wh = (Y * t[:, None]).reshape(rows, cols)
+    if colscale is not None:
+        Wh = Wh / colscale[None, :]
+    return finish(W, Wh, (math.log2(points) + scale_bits) / n + extra, float(np.mean(out)))
 
 
 def shapelib_round(W, kind, q, group):
@@ -241,6 +272,10 @@ def round_one(task):
     elif GROUP_BALL.match(variant):
         g = GROUP_BALL.match(variant)
         Wh, info = group_ball_round(W, "Z8" if g.group(1) == "ZBG" else "E8", int(g.group(2)), int(g.group(3)), int(g.group(4)))
+    elif WEIGHTED_BALL.match(variant):
+        g = WEIGHTED_BALL.match(variant)
+        Wh, info = group_ball_round(W, "Z8" if g.group(2) == "ZBG" else "E8", int(g.group(3)), int(g.group(4)), int(g.group(5)),
+                                    colscale=column_weights(name, W.shape[1], 0.5 if g.group(1) == "i" else 0.25))
     else:
         m = VARIANT.match(variant)
         q = int(m.group(11))
@@ -302,13 +337,14 @@ def sha256_of(path):
 
 
 def main():
-    global _model_path
+    global _model_path, _imatrix_path
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", required=True)
     ap.add_argument("--kld", required=True)
     ap.add_argument("--work", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--bin", default="llama-perplexity")
+    ap.add_argument("--imatrix", help="llama.cpp's importance matrix file, for the arms whose name begins with i")
     ap.add_argument("--threads", type=int, default=4)
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--only", type=int, default=0, help="round only the first N block matrices and do not score (a smoke test)")
@@ -316,6 +352,7 @@ def main():
     ap.add_argument("variants", nargs="+")
     args = ap.parse_args()
     _model_path = args.model
+    _imatrix_path = args.imatrix
     digest = sha256_of(args.model)
     if digest not in MODELS:
         raise SystemExit("FAIL: the model file is not one the plan names")
@@ -341,8 +378,10 @@ def main():
             row.update(compare_file(path))
             row["file_sha256"] = sha256_of(path)
         else:
-            if v != "identity" and not VARIANT.match(v) and not GROUP_BALL.match(v) and not ZERO_CENTRE.match(v):
+            if v != "identity" and not VARIANT.match(v) and not GROUP_BALL.match(v) and not ZERO_CENTRE.match(v) and not WEIGHTED_BALL.match(v):
                 raise SystemExit(f"unknown variant {v}")
+            if WEIGHTED_BALL.match(v) and not args.imatrix:
+                raise SystemExit(f"{v} needs --imatrix")
             path, made = os.path.join(args.work, re.sub(r"[^A-Za-z0-9_.+-]", "_", v) + ".gguf"), True
             replace, infos = {}, {}
             with Pool(args.workers) as pool:
