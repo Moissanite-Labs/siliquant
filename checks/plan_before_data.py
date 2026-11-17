@@ -11,7 +11,8 @@ of notes/cross-org-grafts.md). For every folder under experiments/ it finds
 
 and reports, for each record: whether any data was committed before the first plan, whether
 the first data after the plan descends from it, each later change to a plan with whether new
-data followed it, and whether the record's README names each such change by its commit.
+data followed it (a new file of data, or rows added to one), and whether the record's README
+names each such change by its commit.
 
 Data committed in the same commit as the first plan is counted apart: it is what the plan was
 written with, a pilot for instance, and the plan has to say so.
@@ -76,6 +77,7 @@ def main():
         plans = [x for x in plans if x[3]]
         data_adds = [(h, d, s, [p for st, p in files if st == "A" and DATA.search(p)]) for h, d, s, files in hist]
         data_adds = [x for x in data_adds if x[3]]
+        data_changes = [h for h, d, s, files in hist if any(st in "AM" and DATA.search(p) for st, p in files)]      # rows appended to a file count too
         if not plans:
             print(f"{folder.name} | none | - | {data_adds[0][0][:7] if data_adds else 'none'} | no plan file | - | - | - | - | -")
             notes.append(f"{folder.name}: no PREREG file. The record has to say it was not preregistered.")
@@ -90,7 +92,7 @@ def main():
             bad += 1
         early = [x for x in plans[1:] if first_data is None or (x[0] != first_data and not is_ancestor(first_data, x[0]))]
         later = [x for x in plans[1:] if first_data and (x[0] == first_data or is_ancestor(first_data, x[0]))]
-        followed = [x for x in later if any(is_ancestor(x[0], d[0]) for d in data_adds)]
+        followed = [x for x in later if any(is_ancestor(x[0], h) for h in data_changes)]
         readme = (folder / "README.md").read_text() if (folder / "README.md").exists() else ""
         named = [x for x in later if x[0][:7] in readme]
         prog = []
@@ -104,7 +106,7 @@ def main():
         for h, d, s, files in early:
             notes.append(f"{folder.name}: plan changed at {h[:7]} ({d[:16]}), before the first data was committed. {s[:90]}")
         for h, d, s, files in later:
-            tag = "new data followed" if any(x[0] == h for x in followed) else "no data added after it"
+            tag = "new data followed" if any(x[0] == h for x in followed) else "no data added or changed after it"
             said = "named in the README" if h[:7] in readme else "not named in the README by its commit"
             notes.append(f"{folder.name}: plan changed at {h[:7]} ({d[:16]}), {tag}, {said}. {s[:90]}")
         for h, p in prog:

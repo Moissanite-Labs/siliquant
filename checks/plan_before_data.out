@@ -1,14 +1,14 @@
 Plans and data in the order git has them, for every record under experiments/
-head 8e2cafa
+head 76904f3
 
 record | first plan | data files committed with it | first data after it | plan before data | plan changed before first data | plan changed after first data | of those, followed by new data | named in the README | programs changed after first data
 ball-dimension-no-clip-rule-2026-11-17 | 5398096 | 0 | 801a4c6 | yes | 0 | 0 | 0 | 0 of 0 | 0
 e8-gain-largest-entry-rule-2026-11-17 | 61c552b | 0 | affbdfd | yes | 0 | 0 | 0 | 0 of 0 | 1
 fold-path-codebooks-2026-11-17 | cae753e | 0 | cda52eb | yes | 0 | 1 | 1 | 1 of 1 | 0
-imatrix-baseline-2026-11-17 | 86a18b5 | 0 | ee48f57 | yes | 0 | 1 | 0 | 1 of 1 | 0
+imatrix-baseline-2026-11-17 | 86a18b5 | 0 | ee48f57 | yes | 0 | 1 | 1 | 1 of 1 | 1
 incentre-vortex-codebooks-2026-11-17 | 61c552b | 0 | 8d709ad | yes | 2 | 0 | 0 | 0 of 0 | 0
 lattice-vs-scalar-rounding-2026-11-15 | 195f06e | 0 | 1c3d4c9 | yes | 0 | 0 | 0 | 0 of 0 | 1
-model-output-gemma-e4b-2026-11-15 | 60ec5aa | 0 | eac9d89 | yes | 6 | 2 | 1 | 2 of 2 | 5
+model-output-gemma-e4b-2026-11-15 | 60ec5aa | 0 | eac9d89 | yes | 6 | 2 | 2 | 2 of 2 | 5
 model-output-qwen25-2026-11-17 | 81b83d2 | 0 | 8de998d | yes | 0 | 1 | 1 | 1 of 1 | 7
 model-output-smollm2-2026-11-17 | 14726fd | 0 | acc5c55 | yes | 0 | 0 | 0 | 0 of 0 | 0
 region-shapes-no-clip-rule-2026-11-17 | 6964d05 | 0 | dfe9da0 | yes | 0 | 0 | 0 | 0 of 0 | 0
@@ -17,7 +17,8 @@ shape-formula-held-out-2026-11-17 | 41e4480 | 3 | 997a182 | yes | 0 | 1 | 1 | 1 
 Data committed with a plan, each change to a plan, and each program changed after the first data
   e8-gain-largest-entry-rule-2026-11-17: program detail.py changed at 3bc2de2 after the first data
   fold-path-codebooks-2026-11-17: plan changed at cda52eb (2026-11-17T10:27), new data followed, named in the README. Fold study: amendment 1 of the plan, before any matrix is rounded
-  imatrix-baseline-2026-11-17: plan changed at 79fb0cc (2026-11-17T22:16), no data added after it, named in the README. Importance-matrix baseline: extension 1, the ball arm given the same matrix
+  imatrix-baseline-2026-11-17: plan changed at 79fb0cc (2026-11-17T22:16), new data followed, named in the README. Importance-matrix baseline: extension 1, the ball arm given the same matrix
+  imatrix-baseline-2026-11-17: program summary.py changed at 76904f3 after the first data
   incentre-vortex-codebooks-2026-11-17: plan changed at fb54260 (2026-11-17T04:16), before the first data was committed. Codebook study: extension 1 of the plan, before it is scored
   incentre-vortex-codebooks-2026-11-17: plan changed at b56c08e (2026-11-17T04:46), before the first data was committed. Codebook study: amendment 1 of the plan, a smaller run, before any result
   lattice-vs-scalar-rounding-2026-11-15: program detail.py changed at 7815d19 after the first data
@@ -28,7 +29,7 @@ Data committed with a plan, each change to a plan, and each program changed afte
   model-output-gemma-e4b-2026-11-15: plan changed at aab5b32 (2026-11-15T19:32), before the first data was committed. Model output run: round 5 plan
   model-output-gemma-e4b-2026-11-15: plan changed at 90df081 (2026-11-15T19:32), before the first data was committed. Plan: split one long paragraph of round 5 (wording only)
   model-output-gemma-e4b-2026-11-15: plan changed at e2ff142 (2026-11-15T19:56), new data followed, named in the README. Model output run: round 6 plan, before the measure is computed
-  model-output-gemma-e4b-2026-11-15: plan changed at 7961368 (2026-11-15T20:19), no data added after it, named in the README. Model output run: fixes after a second read, and round 6 folded in
+  model-output-gemma-e4b-2026-11-15: plan changed at 7961368 (2026-11-15T20:19), new data followed, named in the README. Model output run: fixes after a second read, and round 6 folded in
   model-output-gemma-e4b-2026-11-15: program summary.py changed at 5420a66 after the first data
   model-output-gemma-e4b-2026-11-15: program large_entries.py changed at 7961368 after the first data
   model-output-gemma-e4b-2026-11-15: program run.py changed at 7961368 after the first data
