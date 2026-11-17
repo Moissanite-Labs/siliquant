@@ -9,7 +9,10 @@ the limits has a known largest size. Section 3 checks one constant. Sections
 4 to 6 hold covering thickness, codebook counts and a packing figure. Section
 7 holds the cells of the point set F_n that PR #6 proposes as a codebook,
 section 8 the best lattices known in more than 8 dimensions, from a source,
-and section 9 what cells in 3 dimensions can be worth.
+and section 9 what cells in 3 dimensions can be worth. Section 10 holds what
+the shape of a code's region is worth on Gaussian weights when one scale
+serves a group and nothing is clipped, and the ceiling for round clouds that
+issue #10 is read against.
 
 Needs NumPy. Usage, from the root of a checkout:
   python3 bounds/bounds.py > bounds/bounds.out
@@ -120,6 +123,51 @@ def g_pyramid_measured(n, t, points, seed):
     return float(e.mean()) / scale, float(e.std()) / math.sqrt(points) / scale
 
 
+def _mean_of_largest(cdf_values, t, count):
+    """Mean of the largest of `count` independent draws, from their distribution on the grid t: the integral of 1 - F^count."""
+    f = 1.0 - cdf_values ** count
+    return float(((f[1:] + f[:-1]) * 0.5 * (t[1:] - t[:-1])).sum())
+
+
+def gaussian_top_square_entry(g):
+    """E of the largest squared entry among g independent standard normal weights."""
+    import numpy as np
+    t = np.linspace(0.0, 120.0, 600001)
+    cdf = np.array([math.erf(math.sqrt(x / 2.0)) for x in t])
+    return _mean_of_largest(cdf, t, g)
+
+
+def gaussian_top_square_length(n, blocks):
+    """E of the largest squared length among `blocks` independent Gaussian blocks of n weights, n even."""
+    import numpy as np
+    t = np.linspace(0.0, 240.0, 1200001)
+    h = t / 2.0
+    term, total = np.ones_like(h), np.ones_like(h)
+    for k in range(1, n // 2):
+        term = term * h / k
+        total = total + term
+    return _mean_of_largest(1.0 - np.exp(-h) * total, t, blocks)
+
+
+def gaussian_top_square_sum(n, blocks):
+    """E of the largest squared sum of sizes among `blocks` independent Gaussian blocks of n weights, n a power of two.
+
+    The density of the sum of n sizes is the density of one size folded with itself, on a grid.
+    """
+    import numpy as np
+    dx = 1e-3
+    x = np.arange(0.0, 64.0, dx)
+    f = 2.0 * np.exp(-x * x / 2.0) / math.sqrt(2.0 * math.pi)
+    k = 1
+    while k < n:
+        f = np.fft.irfft(np.fft.rfft(f, 2 * len(x)) ** 2)[: len(x)] * dx
+        k *= 2
+    cdf = np.cumsum(f) * dx
+    cdf = cdf / cdf[-1]
+    t = np.linspace(0.0, 1600.0, 800001)
+    return _mean_of_largest(np.interp(np.sqrt(t), x, cdf), t, blocks)
+
+
 def main():
     print("1. Independent Gaussian weights, relative squared error at R bits per weight")
     print("   levels | bits | floor for any code, 2^(-2R) | best scalar quantiser (Lloyd-Max) | best evenly spaced levels | its step in standard deviations")
@@ -201,6 +249,53 @@ def main():
     b3 = L.sphere_bound_G(3)
     print(f"   ball in 3 dimensions (no tiling reaches it): G = {b3:.6f}, {db((1.0 / 12.0) / b3):.3f} dB against the cube")
     print(f"   E_8 is worth {db((1.0 / 12.0) / (929.0 / 12960.0)):.3f} dB. So no cells in 3 dimensions are worth what the E_8 cell is worth.")
+    print()
+    print("10. The region of a code when one scale serves a group and nothing is clipped (issue #10): Gaussian weights, from integrals")
+    print("   With fine cells: error / variance = G * Phi * codewords^(-2/n). G is the cell (section 2). Phi is the region:")
+    print("   Phi = volume(K)^(2/n) * E[square of the largest K-norm of a block in a group of g weights] / variance, for a region of shape K.")
+    print("   Region gain = 10 log10 of the cube's Phi over the region's: what the region is worth against the scalar largest-entry rule.")
+    print("   g | Phi of the cube | ball in 8 dimensions: Phi | its gain in dB | cross-polytope in 8 dimensions: Phi | its gain in dB | ceiling in 8 dimensions: ball region and ball cell, in dB")
+    v_ball = ball_volume(8) ** 0.25
+    v_cross = (2.0 ** 8 / math.factorial(8)) ** 0.25
+    g_ball = L.sphere_bound_G(8)
+    g_e8 = 929.0 / 12960.0
+    table = {}
+    for g in (8, 32, 128, 512, 2048):
+        cube = 4.0 * gaussian_top_square_entry(g)
+        ball = v_ball * gaussian_top_square_length(8, g // 8)
+        cross = v_cross * gaussian_top_square_sum(8, g // 8)
+        table[g] = (cube, ball)
+        print(f"   {g:>4} | {cube:.3f} | {ball:.3f} | {db(cube / ball):+.3f} | {cross:.3f} | {db(cube / cross):+.3f} | {db(cube / ball) + db((1.0 / 12.0) / g_ball):+.3f}")
+    print("   Measured on three Gaussian matrices in the record e8-gain-largest-entry-rule-2026-11-17: ball +0.85, +1.15, +1.44 and +1.90 dB")
+    print("   at g = 8, 32, 128 and 2048, and cross-polytope +0.70 and +1.24 dB at g = 32 and 2048.")
+    print("   The ball column is a ceiling for round clouds. If the blocks are spread evenly over all directions, no region has a smaller Phi")
+    print("   than the ball (proof in experiments/shape-formula-held-out-2026-11-17/PREREG.md). So by this formula no code in 8 dimensions with one scale per group gains")
+    print("   more over the scalar rule on Gaussian weights than the last column.")
+    print()
+    print("   For any weights whatever, not only Gaussian ones. For a block of 8 weights,")
+    print("   (largest entry)^2 <= squared length <= (sum of sizes)^2 <= 8 * squared length, and squared length <= 8 * (largest entry)^2.")
+    print("   The largest over a group and the mean over groups keep these. So the gain of one region over another lies between two fixed numbers:")
+    for name, hi, span in (("ball over cube", db(4.0 / v_ball), 8.0), ("cross-polytope over cube", db(4.0 / v_cross), 64.0), ("cross-polytope over ball", db(v_ball / v_cross), 8.0)):
+        print(f"   {name:<26} | {hi - db(span):+.3f} dB to {hi:+.3f} dB")
+    print("   The upper end is 2.5 log10 of the ratio of the two volumes at equal reach along a weight axis. It is reached when every block")
+    print("   that sets a scale holds one weight and seven zeros. The lower end is reached when such a block has eight equal weights.")
+    print("   shape/check_certificate.py checks the identities behind the three inequalities.")
+    print()
+    print("   The same against Shannon's floor 2^(-2B) at B bits per weight in total, with 16 bits per scale: 10 log10(G Phi) + 6.02 * 16 / g, in dB above the floor")
+    print("   g | scalar rule | E_8 in a ball | ball cell in a ball (the ceiling in 8 dimensions)")
+    for g in (8, 32, 128, 512, 2048):
+        cube, ball = table[g]
+        tax = 20.0 * math.log10(2.0) * 16.0 / g
+        print(f"   {g:>4} | {db(cube / 12.0) + tax:.2f} | {db(g_e8 * ball) + tax:.2f} | {db(g_ball * ball) + tax:.2f}")
+    print("   A small group pays for its scale and a large one for its largest block. Of these five, groups of 128 give the smallest error at equal bits.")
+    print()
+    print("   More dimensions, one group per row of 2016 weights: the gain of a ball region over the scalar rule, in dB")
+    cube = 4.0 * gaussian_top_square_entry(2016)
+    line = []
+    for n in (8, 16, 24):
+        ball = ball_volume(n) ** (2.0 / n) * gaussian_top_square_length(n, 2016 // n)
+        line.append(f"n = {n}: {db(cube / ball):+.3f}")
+    print("   " + ", ".join(line) + ". Measured in that record on Gaussian matrices: +1.90, +2.62 and +3.02.")
 
 
 if __name__ == "__main__":
