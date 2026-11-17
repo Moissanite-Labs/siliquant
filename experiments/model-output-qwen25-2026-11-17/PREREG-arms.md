@@ -79,3 +79,63 @@ Reported without a prediction: `EB128@128:16` against `VE832:16`, which have 0.3
 - The cost of numbering the points of these codebooks. A block of 128 weights at 4 bits has up to 2^512 points.
 - Anything below 4 bits.
 - The order of near ties. The standard errors treat positions as independent and are understated.
+
+## Extension 1: a codeword at zero, and bits taken from the scale
+
+Written 2026-11-17 with 14 of the 25 variants scored, and before any arm below is scored. It adds seven arms and changes the order of the eleven that are left. `run.py` gains the code for the new arms at the commit that adds this section. The code of the arms already planned is not changed.
+
+### What was seen before this extension
+
+The rows of `results.jsonl` at that commit: all eleven variants of the first plan, and `EB32@32:16`, `ZB32@32:16` and `EC32@32:16` of this one.
+
+- **With groups of 32 the E8 Voronoi code is ahead of the scalar rule by less than on gemma**: mean KL 0.0551 against 0.0620.
+- **With one scale per row it is far behind**: 3.658 against 0.632 at 16 levels and 1.041 against 0.129 at 32 levels. Its weight error is 3 dB lower than the scalar rule's on every kind of matrix.
+- **One ball per group of 32 is well ahead of both**: 0.0339 for E8 and 0.0367 for integer levels, at 4.5 bits. llama.cpp's `Q4_K_M` scores 0.0333 at 4.81 bits.
+
+**A look at single rows, not planned** (`rows.py`, committed with this section; its output `rows.out` is committed when it finishes). The harness's E8 Voronoi code subtracts the mean of its codewords from every codeword. That vector is 0.82 steps long. So no codeword is zero, and a block of small weights is rebuilt as a point 0.82 steps from zero or further. In a row where one weight is tens of times the rest, the scale is set by that weight, the scalar rule sends the rest to zero, and the Voronoi code puts noise in their place that is larger than they are. Seen before this section was written, on five rows of the last layer's `ffn_down`: row 1421 has a relative error of +1.9 dB under the Voronoi code and -8.0 dB under the scalar rule. `rows.out` will have the same for 21 matrices, and for the Voronoi code with the centre left out. It was running when this section was committed: its numbers were not seen when the predictions below were written.
+
+**Arithmetic, not data.** The error of a code with one ball per group does not depend on the weights: it is G (n + 2) over the bound of the codebook. So the weight error of every new ball arm is known before it is run. A smoke test of the new code on eight matrices of `Qwen2.5-0.5B` gave these to 0.05 dB for the arms with a 16-bit scale. With a scale rounded up to a grid the error came out 0.05 to 0.5 dB lower than the formula, because the block then lies inside the ball and not on its surface.
+
+### The new arms
+
+| Variant | What | Bits | Weight error, dB |
+|---|---|---|---|
+| `VE8ZR:16` | the E8 Voronoi code with a codeword at zero, one scale per row, 16 levels | 4.008 | as `VE8R:16` in the mean |
+| `VE8ZR:32` | the same, 32 levels | 5.008 | as `VE8R:32` in the mean |
+| `VE8Z32:16` | the same, groups of 32, 16 levels | 4.5 | as `VE832:16` |
+| `EBG128:b560s16` | E8 in one ball per group of 128: 560 bits for the point, 16 for the scale | 4.500 | -25.6 |
+| `EBG32:b136s8` | E8 in one ball per group of 32: 136 bits for the point, 8 for the scale | 4.500 | -25.1 |
+| `EBG128:b504s8` | E8 in one ball per group of 128: 504 bits for the point, 8 for the scale | 4.000 | -22.8 |
+| `ZBG128:b560s16` | integer levels in one ball per group of 128, 560 and 16 bits | 4.500 | -24.9 |
+
+**A codeword at zero.** `VE8Z` is `tq.maxscale_voronoi` with the centre of the code set to zero. Nothing else differs from `VE8`.
+
+**An 8-bit scale.** The scale of a group is rounded up to the largest scale of its matrix divided by a whole power of the 16th root of two. That is 256 steps over 16 factors of two. A scale under the lowest step takes the lowest step. The matrix's largest scale is stored once at 16 bits, and those bits are counted.
+
+**Bits for the point.** The codebook is every point of E8 repeated, or of the integers, whose squared length is at most a bound: the largest bound with no more than 2^560, 2^504 or 2^136 points.
+
+### The order
+
+The plan said the arms are scored in the order of its table. That is changed here, before any of the arms concerned is scored, so that the arms that decide the most come first if the run is cut short. `EB128@128:16` was being built when this was written and stays next. Then:
+
+`VE8ZR:16`, `EBG128:b560s16`, `EBG32:b136s8`, `X128:16`, `VE8128:16`, `ZB128@128:16`, `EB128@R:16`, `ZB128@R:16`, `VE8ZR:32`, `VE8Z32:16`, `EBG128:b504s8`, `ZBG128:b560s16`, `EC128@R:16`, `EB128@R:32`, `EB8@32:16`, `PaB8@32:16`, `SEB8@32:16`.
+
+### Predictions
+
+| | Prediction | It fails if |
+|---|---|---|
+| B1 | With a codeword at zero the E8 Voronoi code per row is no longer broken: `VE8ZR:16` has less than a third of the mean KL of `VE8R:16`, and `VE8ZR:32` less than a third of `VE8R:32` | either is not so |
+| B2 | And E8's lead over the scalar rule returns: `VE8ZR:16` has a lower mean KL than `XR:16`, and `VE8ZR:32` than `XR:32`, each by at least 2 errors of the gap | either is not lower by that much |
+| B3 | With groups of 32 the centre does little: the mean KL of `VE8Z32:16` is within 15 percent of `VE832:16` | it is outside |
+| B4 | More bits for the point carry to the output: `EBG128:b560s16` has a lower mean KL than `EB32@32:16`, by at least 2 errors | it is not |
+| B5 | So do bits taken from the scale: `EBG32:b136s8` has a lower mean KL than `EB32@32:16`, by at least 2 errors | it is not |
+| B6 | At 4.0 bits `EBG128:b504s8` has a lower mean KL than the E8 Voronoi code of the gemma record at 4.5 bits, `VE832:16`, and than llama.cpp's `Q4_0` at 4.5 bits | it is not lower than both |
+| B7 | `ZBG128:b560s16` has a lower mean KL than `ZB32@32:16`, by at least 2 errors | it is not |
+
+Reported without a prediction: the two best arms at 4.5 bits against llama.cpp's `Q4_K_M` at 4.81 bits. `EBG128:b560s16` against `EBG32:b136s8`, which have the same bits and differ in the size of the group. For each new ball arm the ratio of its KL gain over `X32:16` to its gain in weight error.
+
+### What it would mean
+
+- If B1 and B2 hold, the verdict on issue #3 has two parts: the E8 Voronoi code as the gemma record ran it fails on this model per row, and the cause is the centre of that code, not E8. The gemma record's E8 arms all carry that centre.
+- If B1 fails, the rows are not the cause, and the reversal per row is not explained.
+- If B4 and B5 hold, the best code found so far at 4.5 bits is not the one with 16 levels and a 16-bit scale, and the arithmetic of the bound says where to look next.

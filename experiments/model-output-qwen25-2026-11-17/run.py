@@ -63,6 +63,10 @@ MODELS = {
 }
 CUT = {"ZB": ("Z8", "ball"), "EB": ("E8", "ball"), "ZC": ("Z8", "cross"), "EC": ("E8", "cross")}
 VARIANT = re.compile(r"^(?:(X)(\d+|R)|(VE8)(\d+|R)|(ZB|EB|ZC|EC|PaB)(\d+)@(\d+|R)|(SEB)(8)@(\d+|R)):(\d+)$")
+GROUP_BALL = re.compile(r"^(ZBG|EBG)(\d+):b(\d+)s(\d+)$")       # extension 1 of PREREG-arms.md: one ball per group, bits chosen freely
+ZERO_CENTRE = re.compile(r"^VE8Z(\d+|R):(\d+)$")                # extension 1: the E8 Voronoi code with a codeword at zero
+SCALE_STEPS = {16: None, 8: 16, 6: 8}                            # bits of a scale -> steps of its grid per factor of two (None: not rounded)
+_bounds = {}
 _reader = None
 _model_path = None
 _bd = None
@@ -131,6 +135,69 @@ def cut_round(W, lattice, shape, n, q, group):
     return finish(W, (Y * t[:, None]).reshape(rows, cols), math.log2(points) / n + 16.0 / size, float(np.mean(out)))
 
 
+def ball_bound(lattice, n, bits):
+    """The largest bound at which the ball over n weights holds no more than 2^bits points: (bound, number of points)."""
+    key = (lattice, n, bits)
+    if key not in _bounds:
+        bd = ball_module()
+        cap = 1 << bits
+        r_unit = math.exp(math.lgamma(n / 2.0 + 1.0) / n) / math.sqrt(math.pi)
+        limit = int(1.08 * (r_unit * 2.0 ** (bits / n)) ** 2) + 2 * n
+        step = 2 if lattice == "E8" else 1
+        while True:
+            total = bd.poly_pow(bd.shells8(lattice, "ball", limit), n // 8, limit)
+            run, best = 0, None
+            for r, c in enumerate(total):
+                run += c
+                if run > cap:
+                    break
+                if r % step == 0:
+                    best = (r, run)
+            if run > cap:
+                break
+            limit = int(limit * 1.3) + 8
+        _bounds[key] = best
+    return _bounds[key]
+
+
+def group_ball_round(W, lattice, n, block_bits, scale_bits):
+    """One ball per group of n weights, with block_bits for the point and scale_bits for the scale.
+
+    With 16 bits the scale is the smallest at which the group rounds into the ball, as in cut_round.
+    With 8 or 6 bits it is rounded up to a grid: the largest scale of the matrix divided by whole
+    powers of the 16th or the 8th root of two. A scale under the grid's lowest step takes that step.
+    The matrix's largest scale is stored once, and its 16 bits are counted.
+    """
+    bd = ball_module()
+    rows, cols = W.shape
+    if cols % n:
+        raise SystemExit(f"a group of {n} does not tile a row of {cols}")
+    bound, points = ball_bound(lattice, n, block_bits)
+    W64 = W.astype(np.float64)
+    X = W64.reshape(-1, n)
+    t = bd.block_scales(X, lattice, "ball", bound)
+    steps = SCALE_STEPS[scale_bits]
+    extra = 0.0
+    if steps is not None:
+        top = float(t.max())
+        k = np.floor(np.log2(top / np.maximum(t, 1e-300)) * steps + 1e-9)
+        k = np.clip(k, 0, (1 << scale_bits) - 1)
+        t = top * 2.0 ** (-k / steps)
+        extra = 16.0 / W.size
+    Y = bd.closest(lattice, X / t[:, None])
+    out = bd.size_of("ball", Y) > bound + 1e-9
+    if np.any(out):
+        xo = X[out] / t[out, None]
+        lo, hi = np.zeros(len(xo)), np.ones(len(xo))
+        for _ in range(bd.SHRINK_STEPS):
+            mid = 0.5 * (lo + hi)
+            good = bd.size_of("ball", bd.closest(lattice, xo * mid[:, None])) <= bound + 1e-9
+            lo = np.where(good, mid, lo)
+            hi = np.where(good, hi, mid)
+        Y[out] = bd.closest(lattice, xo * lo[:, None])
+    return finish(W, (Y * t[:, None]).reshape(rows, cols), (math.log2(points) + scale_bits) / n + extra, float(np.mean(out)))
+
+
 def shapelib_round(W, kind, q, group):
     """E8 cut by the ball of a p-norm (p = 3/2), or by a ball at the safe scale, with the toolkit of issue #10."""
     from fractions import Fraction
@@ -162,6 +229,18 @@ def round_one(task):
     W = matrix_of(t)
     if variant == "identity":
         Wh, info = finish(W, W, 16.0, 0.0)
+    elif ZERO_CENTRE.match(variant):
+        z = ZERO_CENTRE.match(variant)
+        code = tq.Code("E8", int(z.group(2)))
+        kept = code.centre
+        code.centre = torch.zeros_like(kept)           # the harness subtracts the mean of its codewords: here it does not
+        try:
+            Wh, info = tq.maxscale_voronoi(W, int(z.group(2)), z.group(1) if z.group(1) == "R" else int(z.group(1)), name="E8")
+        finally:
+            code.centre = kept
+    elif GROUP_BALL.match(variant):
+        g = GROUP_BALL.match(variant)
+        Wh, info = group_ball_round(W, "Z8" if g.group(1) == "ZBG" else "E8", int(g.group(2)), int(g.group(3)), int(g.group(4)))
     else:
         m = VARIANT.match(variant)
         q = int(m.group(11))
@@ -262,7 +341,7 @@ def main():
             row.update(compare_file(path))
             row["file_sha256"] = sha256_of(path)
         else:
-            if v != "identity" and not VARIANT.match(v):
+            if v != "identity" and not VARIANT.match(v) and not GROUP_BALL.match(v) and not ZERO_CENTRE.match(v):
                 raise SystemExit(f"unknown variant {v}")
             path, made = os.path.join(args.work, re.sub(r"[^A-Za-z0-9_.+-]", "_", v) + ".gguf"), True
             replace, infos = {}, {}
