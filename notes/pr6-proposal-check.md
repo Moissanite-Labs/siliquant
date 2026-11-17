@@ -127,10 +127,25 @@ Not recommended as they stand: the second, third and fifth experiments, the rigi
 
 On the pull request itself: the report is a source for this note and not a record. If it is kept, the plain text is enough.
 
+## A second summary, read later the same day
+
+While this note was being finished the owner gave the session a second document: a summary of the same five ideas, in the same order, with the proof of the decoding claim written out and more detail on the fold. It is not in the repository. It proposes nothing that the tables above do not cover. Six of its statements are worth a line.
+
+| Statement in the second summary | Verdict | What was found | Basis |
+|---|---|---|---|
+| No point of a neighbouring cell is nearer than a cell's own incentre, so decoding F_n needs no search | True | Row 2 above. The proof in the record of the first study is shorter and covers any position of the points on the axes | proved, and recomputed |
+| CaB-VQ "completely removes" the error at the corners, with no wasted bit patterns | The bit counts are right. The codebook loses | Rows 5 and 7. As proposed, CaB_7 and CaB_15 are behind a scalar mix and an E8 mix at equal bits on every family | recomputed |
+| At the end of the fold the coordinates are whole multiples of (2 - sqrt 2)/2 | Wrong factor | `results/fold-end-exact/PROOF.md` of incentre-lattices: whole multiples of (2 - sqrt 2)/3 at the hexagonal end state and of 2 - sqrt 2 at the face-centred cubic one. The report in PR #6 has the 3 | source, checked |
+| The fold is certified free of collisions by 16,240 coefficients over 3,248 pair tests | Two results joined | That certificate is for another path, an explicit motion to the face-centred cubic packing in `results/fold-continuous-fcc/PROOF.md`. The paths in the cell of 2 by 2 by 2, where the end states above live, are labelled in that repository as checked by sampling and not proved | source, checked |
+| As the fold advances, the cells contract around the regions where the weights are dense | No basis | The fold is one fixed family of periodic point sets. At every stage its points are spread evenly through space, wherever the weights are. Nothing in it moves toward the data | derived |
+| Activations of a transformer are unchanged by rotations, so a loss can ignore them | Wrong as stated | Row 15. A rotation of the stream is a symmetry only when every matrix that reads from it or writes to it is changed with it | derived |
+
+Where its five sections stand is the table of the five experiments above: the first, third and fourth were measured in part and do not meet their targets, the end point of the second is closed by a ceiling, and the fifth was not evaluated.
+
 ## Sources
 
 - The report: `04_gemini_novel_quantization/page_full_text.txt` on the branch of PR #6, commit `6ecc87d`.
-- Foundation-0/incentre-lattices at commit `2d374ff`: `results/rigidity-nd/PROOF.md`, `results/cab6-packing/PROOF.md`, `results/fold-close-packing/PROOF.md`. **Checked.**
+- Foundation-0/incentre-lattices at commit `2d374ff`: `results/rigidity-nd/PROOF.md`, `results/cab6-packing/PROOF.md`, `results/fold-close-packing/PROOF.md`, `results/fold-end-exact/PROOF.md`, `results/fold-continuous-fcc/PROOF.md`. **Checked.**
 - Foundation-0/rigid-realizations at commit `298926c`: `l880_certificate.json`, SHA-256 `583fec3591b377a883afe17104aa25c0835115e47eda2a3c861b8e17721cf92d`. **Checked.**
 - Foundation-0/point-charges, relative-equilibria and gfq-codes: their READMEs. **Reported**, with the lines quoted in the tables **checked**.
 - Lattice constants: Agrell and Allen, arXiv 2202.09605, table I. **Checked** in the text of the paper.

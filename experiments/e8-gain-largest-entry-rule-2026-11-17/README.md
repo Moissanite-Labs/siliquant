@@ -166,7 +166,7 @@ In dB over the scalar rule. Rows are cut to 2,016 or 480 weights so that all thr
 - **Not run on gemma.** This shows what the rule and the lattice do on other weights. `run.py` reads any float matrix, so whoever holds the gemma file can run the split on it.
 - **One real model**, a small speech transformer, and 32 of its matrices.
 - **The split is exact only with fine cells.** Table 2 of `results.out` shows how far each arm is from its formula. On Student t data and on the real matrices the scalar rule is up to 0.6 dB under its formula, because many weights are small against the step and round to zero.
-- **Three seeds** per synthetic family. The ranges over seeds are under 0.05 dB on G and under 0.2 dB on T.
+- **Three seeds** per synthetic family. The gain of VE8 over X varies over the seeds by under 0.05 dB on G and under 0.2 dB on T. For F_8 against X on T it varies by up to 0.5 dB.
 - **The tables of other regions and of more dimensions are arithmetic on the data.** They are not evidence that a codebook with such a region works. The first was then tested: see [region-shapes-no-clip-rule-2026-11-17](../region-shapes-no-clip-rule-2026-11-17/README.md), where it was a fair guide to the sign and high by up to 0.3 dB.
 - **A scalar rule with a searched scale or an offset per group was not tried**, as in the second record.
 
