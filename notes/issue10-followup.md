@@ -141,6 +141,29 @@ The formula cannot see this. It has the lattice as a cell constant and nothing e
 
 If `VE8Z32:16` lands within 0.5 dB of the scalar rule's law, the lattice reading is wrong and the split is something else about the ball arms on E8.
 
+**The fourth row, and the first of the three statements.** `VE832:16` scored 0.1166 at 20:43 UTC, at a weight error of -22.638 dB. That is 21.4 of KL per unit of weight error, 1.14 dB above the scalar rule's law. The statement was at least 0.9. It holds. Three arms on E8 now have 21.4, 22.0 and 23.0, from two ways of cutting a codebook out of the lattice. Three on integer levels have 16.4, 16.6 and 17.4. On Qwen2.5 this arm lay 1.2 dB above its twin with a codeword at zero. Here it is at the constant of the E8 arms that have one, so the missing zero may cost nothing on this model. `VE8Z32:16` will say.
+
+**What the weights alone say of the two lattices** (`shape/lattice_spread.smollm2.out`: all 168 block matrices rounded in full with each lattice in one ball per group of 128. Written after the rows were seen). Nothing that tells them apart.
+
+| Measured on the weights, mean over 168 matrices | Integer levels | E8 | E8 less integer levels |
+|---|---|---|---|
+| Error of the matrix | -24.928 dB | -25.585 | -0.66 dB |
+| Mean over the columns of a column's error over its weight | -24.765 | -25.417 | -0.65 |
+| The same in the tenth of the columns with the least weight | | | -0.65 |
+| In the hundredth with the least | | | -0.64 |
+| In the one column with the least | | | -0.58 |
+| Mean over the rows of a row's error over its weight | -24.928 | -25.585 | -0.66 |
+| The rounded matrix along the matrix | 0.99836 | 0.99824 | |
+| Rounded weights that are zero | 7.9 percent | 3.95 percent | |
+| Error on a weight under a quarter of a step, in squared steps | 0.0208 | 0.0720 | |
+| Those weights' part of the error (they are 3.95 percent of the weights) | 1.0 percent | 3.9 percent | |
+
+A column of a matrix is one of its inputs. llama.cpp's importance matrix, and any measure that counts each input by how large it is, weights the columns. E8's lead is the same 0.6 to 0.7 dB in the columns with the least weight as in the whole matrix. So no weighting of the columns turns a lead of 0.66 dB into a deficit of 0.36. The columns of this model are also even: the root mean square of their squared weights over the mean is 1.00 to 1.05 by kind of matrix.
+
+The one difference is at zero. Integer levels send a weight under half a step to zero, and E8 sends half of those elsewhere. That moves 3 percent of the error. For it to carry the split, the output would have to count an error on those weights about ten times as heavily as on the rest.
+
+What the weights cannot show is how the errors of the eight weights of a block go together against inputs that go together. E8 rounds eight weights jointly and integer levels round each alone. That needs the model's activations.
+
 **From the weights of this model, before its arms with one scale per row are scored** (`shape/row_spread.smollm2.out`, 19:58 UTC). The scalar rule per row has rows 1.30 times as uneven as an even spread at 16 levels and 1.39 at 32, and 1.2 percent of the rows have over four times the matrix's share. With groups of 32 the figure is 1.01. That is the regime of Qwen2.5, where the arms per row lay above the constant. The measured weight error of `X32:16`, -21.166 dB, is reproduced to the last digit shown, and that of `XR:16` comes out at -16.59 dB.
 
 ## Stage 4, under both limits
