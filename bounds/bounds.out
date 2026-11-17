@@ -74,3 +74,8 @@
    Lambda_24 (Leech)        | 24 | 0.06577 | 1.03 | 0.37
    Source: Agrell and Allen, arXiv 2202.09605, table I, with the digits it prints. K_12 is exact there and the other two are numerical.
    These are records and not ceilings. The ceilings are the ball rows of section 2.
+
+9. Three dimensions: the end point of the fold that PR #6 proposes as a training schedule is the face-centred cubic lattice D_3
+   D_3, measured with the nearest-point decoder: G = 0.078724 +- 0.000018, 0.247 dB against the cube
+   ball in 3 dimensions (no tiling reaches it): G = 0.076967, 0.345 dB against the cube
+   E_8 is worth 0.654 dB. So no cells in 3 dimensions are worth what the E_8 cell is worth.

@@ -7,8 +7,9 @@ section 3 checks). A proposal is read against them before anything is
 run: a gain that would have to exceed a ceiling is closed, and a gain inside
 the limits has a known largest size. Section 3 checks one constant. Sections
 4 to 6 hold covering thickness, codebook counts and a packing figure. Section
-7 holds the cells of the point set F_n that PR #6 proposes as a codebook, and
-section 8 the best lattices known in more than 8 dimensions, from a source.
+7 holds the cells of the point set F_n that PR #6 proposes as a codebook,
+section 8 the best lattices known in more than 8 dimensions, from a source,
+and section 9 what cells in 3 dimensions can be worth.
 
 Needs NumPy. Usage, from the root of a checkout:
   python3 bounds/bounds.py > bounds/bounds.out
@@ -193,6 +194,13 @@ def main():
         print(f"   {name:<24} | {n} | {g:.{digits}f} | {db((1.0 / 12.0) / g):.2f} | {db(e8 / g):.2f}")
     print("   Source: Agrell and Allen, arXiv 2202.09605, table I, with the digits it prints. K_12 is exact there and the other two are numerical.")
     print("   These are records and not ceilings. The ceilings are the ball rows of section 2.")
+    print()
+    print("9. Three dimensions: the end point of the fold that PR #6 proposes as a training schedule is the face-centred cubic lattice D_3")
+    est, se = L.mc_normalised_second_moment(L.Dn(3), n_points=4_000_000, seed=20261117)
+    print(f"   D_3, measured with the nearest-point decoder: G = {est:.6f} +- {se:.6f}, {db((1.0 / 12.0) / est):.3f} dB against the cube")
+    b3 = L.sphere_bound_G(3)
+    print(f"   ball in 3 dimensions (no tiling reaches it): G = {b3:.6f}, {db((1.0 / 12.0) / b3):.3f} dB against the cube")
+    print(f"   E_8 is worth {db((1.0 / 12.0) / (929.0 / 12960.0)):.3f} dB. So no cells in 3 dimensions are worth what the E_8 cell is worth.")
 
 
 if __name__ == "__main__":
