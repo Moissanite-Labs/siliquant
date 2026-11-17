@@ -149,3 +149,30 @@ Written 2026-11-17 while the main run was in progress. No result of the main run
 Against the scalar mix nothing is predicted.
 
 **What it cannot show.** Anything about the 17 bar lengths as trained parameters, which the report also proposes: the run uses the lengths of the certificate. Anything about chaining three such blocks. As the report describes it, that is a product of three copies of one codebook, and a product has the error per weight of its factor.
+
+## Amendment 1: a smaller run
+
+Written 2026-11-17 after the first attempt at the main run was stopped. No result existed: the program wrote its output only at the end, `results.out` was empty, and nothing had been read. Extension 1 had not been run either.
+
+**Why.** The first attempt ran for 40 minutes on 4 cores. A timing made then put the whole run at about 19 CPU-hours, more than the session allows a background command. The time had been estimated wrongly before the plan was committed.
+
+**What changes.**
+
+| | In the plan above | In the run |
+|---|---|---|
+| Synthetic matrices | 512 by 1680 | 128 by 1680, 215,040 weights each, from the same seeds |
+| Real matrices | all of each, in rows of 1680 | the first 131,040 weights of each: 78 rows of 1680 |
+| K on the real matrices | 2, 3, 4, 8, 16 | 4 and 16 |
+| Levels of the reference arms | every q from 2 to 24 | the q the mixes need at the candidates' bits, and 4 and 8 for the codebooks in the plane: 16 values on the synthetic families, 10 on the real matrices |
+| Values of t searched | 0.30 to 1.20 in steps of 0.05, and the incentre | 0.4 to 1.0 in steps of 0.1, and the incentre |
+
+The arms, the scale search, the mixes, the measure, the vortex search and the checks are as planned. The program now writes each finished task to a file, so a run that is stopped can be taken up again.
+
+**The predictions** stand as written, with two changes that follow from the table:
+
+- Prediction 6 is about K = 4 and K = 16 on the real matrices, not every K of 3 and more.
+- "Reported without a prediction" loses K = 2 on the real matrices, which is no longer run.
+
+Extension 1 uses the matrices of the run, so it too runs on the smaller ones.
+
+**What this costs.** A synthetic matrix of this run has 0.82 of the weights of a matrix of the first record, where the error of a scalar arm varied by 0.010 dB between matrices. The real matrices are a part of each matrix and not the whole.

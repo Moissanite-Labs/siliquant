@@ -51,9 +51,14 @@ SHRINK_STEPS = first.SHRINK_STEPS
 
 C_IN = 2.0 - math.sqrt(2.0)          # the incentre coordinate of the proposal
 WIDTH = 1680                          # divisible by 2, 7, 8, 15 and 16, so every block size tiles a row
-Q_REF = tuple(range(2, 25))           # levels per weight of the two reference arms
-K_CELLS = (2, 3, 4, 8, 16)            # cells per axis of the candidates
-T_GRID = tuple(round(0.30 + 0.05 * i, 2) for i in range(19))   # 0.30 .. 1.20, for the arms with t searched
+# Amendment 1 of the plan made the run smaller. The first design is in the plan above the amendment.
+K_FOR = {"G": (2, 3, 4, 8, 16), "T": (2, 3, 4, 8, 16), "real": (4, 16)}       # cells per axis of the candidates
+Q_FOR = {"G": (2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 19, 20, 21, 22, 23, 24),      # levels of the two reference arms:
+         "T": (2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 19, 20, 21, 22, 23, 24),      # those the mixes at the candidates' bits need,
+         "real": (4, 5, 6, 8, 19, 20, 21, 22, 23, 24)}                        # and 4 and 8 for the codebooks in the plane
+T_GRID = (0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0)                                  # for the arms with t searched
+SYNTH_ROWS = 128                      # a synthetic matrix is 128 by 1680
+REAL_ROWS = 78                        # a real matrix is cut to its first 78 rows of 1680 weights
 FAMILIES = (("F8", 8, False), ("F16", 16, False), ("CaB7", 7, True), ("CaB15", 15, True))
 UNBOUNDED = 2 ** 20 + 1               # so many cells per axis that none is ever clipped
 VORTEX_STARTS = {16: 200, 64: 100}
@@ -72,16 +77,16 @@ def db(x):
 
 def matrix(name):
     """A matrix of the study as an array of rows of 1680 weights."""
-    if name == "smoke":
-        return np.random.default_rng(7).uniform(-1, 1, size=(48, WIDTH))
     kind, rest = name.split("/", 1)
+    if rest == "smoke":
+        return np.random.default_rng(7).uniform(-1, 1, size=(48, WIDTH))
     if kind == "G":
-        return np.random.default_rng(4000 + int(rest)).normal(size=(512, WIDTH))
+        return np.random.default_rng(4000 + int(rest)).normal(size=(SYNTH_ROWS, WIDTH))
     if kind == "T":
-        return np.random.default_rng(5000 + int(rest)).standard_t(4, size=(512, WIDTH))
+        return np.random.default_rng(5000 + int(rest)).standard_t(4, size=(SYNTH_ROWS, WIDTH))
     z = np.load(_weights_path)
     w = z[rest].astype(np.float64).reshape(-1)
-    return w[: len(w) // WIDTH * WIDTH].reshape(-1, WIDTH)
+    return w[: REAL_ROWS * WIDTH].reshape(REAL_ROWS, WIDTH)
 
 
 def real_names():
@@ -417,15 +422,15 @@ def task_reference(args):
 
 
 def task_candidates(args):
-    """The four families on the incentre lattice, as proposed (t = 2 - sqrt 2) and with t searched, on one matrix."""
-    name, = args
+    """One family on the incentre lattice, as proposed (t = 2 - sqrt 2) and with t searched, on one matrix."""
+    name, which = args
     W = matrix(name)
     total = float(np.sum(W ** 2))
     sigma = float(W.std())
     rows = []
-    for fam, n, cab in FAMILIES:
+    for fam, n, cab in [f for f in FAMILIES if f[0] == which]:
         X = W.reshape(-1, n)
-        for K in K_CELLS:
+        for K in K_FOR[name.split("/")[0]]:
             t0 = 2.0 * sigma / K
             best = None
             for t in (C_IN,) + T_GRID:
@@ -497,6 +502,10 @@ def run_task(task):
     return {"reference": task_reference, "candidates": task_candidates, "plane": task_plane, "mix": task_mix_control}[kind](args)
 
 
+def run_keyed(task):
+    return task, run_task(task)
+
+
 # ---------------------------------------------------------------------------
 # Summary
 # ---------------------------------------------------------------------------
@@ -519,7 +528,7 @@ def summarise(rows, checks, cells, claim, out):
     fams = [f for f in ("G", "T", "real") if any(m.split("/")[0] == f for m in mats)]
 
     def curve(m, arm):
-        return {q: by[(m, arm, q)]["rel_err"] for q in Q_REF}
+        return {q: by[(m, arm, q)]["rel_err"] for q in Q_FOR[m.split("/")[0]]}
 
     out.append("0. Checks of the code, on no matrix of the study")
     for ok, text in checks:
@@ -536,13 +545,16 @@ def summarise(rows, checks, cells, claim, out):
     for n, points, gap in claim:
         out.append(f"   n = {n}: {points} points of the cube, the point named by the pyramid rule is farther than the nearest point found by at most {gap:.1e}")
     out.append("")
-    out.append("3. The two reference arms, relative squared error in dB, mean over the matrices of a family")
+    out.append("3. The two reference arms, relative squared error in dB, mean over the matrices of a family. A dash: not run on that family.")
     out.append("   q | bits | " + " | ".join(f"S on {f} | E8 on {f}" for f in fams))
-    for q in Q_REF:
+    for q in sorted({q for f in fams for q in Q_FOR[f]}):
         cellsq = []
         for f in fams:
             ms = [m for m in mats if m.split("/")[0] == f]
-            cellsq.append(f"{np.mean([db(by[(m, 'S', q)]['rel_err']) for m in ms]):.2f} | {np.mean([db(by[(m, 'E8', q)]['rel_err']) for m in ms]):.2f}")
+            if q in Q_FOR[f]:
+                cellsq.append(f"{np.mean([db(by[(m, 'S', q)]['rel_err']) for m in ms]):.2f} | {np.mean([db(by[(m, 'E8', q)]['rel_err']) for m in ms]):.2f}")
+            else:
+                cellsq.append("- | -")
         out.append(f"   {q:>2} | {math.log2(q):.3f} | " + " | ".join(cellsq))
     out.append("")
     out.append("4. The candidates at equal bits. A reference at the candidate's bits is the mix of two neighbouring level counts.")
@@ -552,7 +564,7 @@ def summarise(rows, checks, cells, claim, out):
         ms = [m for m in mats if m.split("/")[0] == f]
         for fam, n, cab in FAMILIES:
             for arm in (fam, fam + "t"):
-                for K in K_CELLS:
+                for K in K_FOR[f]:
                     if (ms[0], arm, K) not in by:
                         continue
                     bits = f_bits(n, K, cab)
@@ -611,14 +623,15 @@ def main():
     t_start = time.time()
     checks = selftest()
     if args.smoke:
-        global Q_REF, K_CELLS, VORTEX_STARTS
-        Q_REF, K_CELLS, VORTEX_STARTS = (2, 3, 4, 5, 6, 8), (2, 3), {16: 6, 64: 2}
-        tasks = [("reference", ("smoke", q)) for q in Q_REF] + [("candidates", ("smoke",)), ("plane", ("smoke", False)), ("mix", ("smoke", 2.5))]
+        global VORTEX_STARTS
+        VORTEX_STARTS = {16: 6, 64: 2}
+        K_FOR["G"], Q_FOR["G"] = (2, 3), (2, 3, 4, 5, 6, 8)
+        tasks = [("reference", ("G/smoke", q)) for q in Q_FOR["G"]] + [("candidates", ("G/smoke", f[0])) for f in FAMILIES] + [("plane", ("G/smoke", False)), ("mix", ("G/smoke", 2.5))]
         rows = [r for t in tasks for r in run_task(t)]
         cells = [{"name": "F3", "t_name": "incentre", "points": 6, "closed": g_closed_form(3, C_IN), **dict(zip(("measured", "se"), g_measured(3, C_IN, False, 200_000, 1)))}]
         out = []
         summarise(rows, checks, cells, [(3, 2000, voronoi_claim(3, 2000, 5))], out)
-        ok = all(c[0] for c in checks) and all(0.0 < r["rel_err"] < 1.5 for r in rows)
+        ok = all(c[0] for c in checks) and all(0.0 < r["rel_err"] < 1.5 for r in rows) and len(out) > 30
         print("ok" if ok else "FAIL", f"({len(rows)} rows, {len(out)} lines, {time.time() - t_start:.0f} s)")
         sys.exit(0 if ok else 1)
     if not all(c[0] for c in checks):
@@ -632,12 +645,27 @@ def main():
     for kind in ("G", "T"):
         for N in (16, 64):
             lloyd_codebook(N, kind)
-    tasks = [("reference", (m, q)) for m in names for q in Q_REF]
-    tasks += [("candidates", (m,)) for m in names]
+    tasks = [("candidates", (m, f[0])) for m in names for f in FAMILIES]
     tasks += [("plane", (m, m in ("G/0", "T/0"))) for m in names]
     tasks += [("mix", (m, 2.5)) for m in ("G/0", "T/0")]
-    with Pool(args.workers) as pool:
-        rows = [r for part in pool.imap(run_task, tasks, chunksize=1) for r in part]
+    tasks += [("reference", (m, q)) for m in names for q in Q_FOR[m.split("/")[0]]]
+    # Every finished task is written to a file at once, so that a run that is stopped can be taken up again.
+    partial = HERE / "results.partial.jsonl"
+    done = {}
+    if partial.exists():
+        for line in partial.read_text().splitlines():
+            rec = json.loads(line)
+            done[rec["task"]] = rec["rows"]
+    todo = [t for t in tasks if json.dumps(t) not in done]
+    print(f"{len(tasks)} tasks, {len(done)} already done", file=sys.stderr, flush=True)
+    with Pool(args.workers) as pool, partial.open("a") as fh:
+        for k, (task, part) in enumerate(pool.imap_unordered(run_keyed, todo, chunksize=1)):
+            done[json.dumps(task)] = part
+            fh.write(json.dumps({"task": json.dumps(task), "rows": part}) + "\n")
+            fh.flush()
+            if (k + 1) % 20 == 0 or k + 1 == len(todo):
+                print(f"{k + 1} of {len(todo)} tasks, {time.time() - t_start:.0f} s", file=sys.stderr, flush=True)
+    rows = [r for t in tasks for r in done[json.dumps(t)]]
     cells = []
     for n in (2, 3, 4, 7, 8, 15, 16):
         for t_name, t in (("incentre, 2 - sqrt 2", C_IN), ("centroid, n / (n + 1)", n / (n + 1.0))):
