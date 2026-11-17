@@ -1,4 +1,4 @@
-File: experiments/model-output-smollm2-2026-11-17/results.jsonl. Variants: 5.
+File: experiments/model-output-smollm2-2026-11-17/results.jsonl. Variants: 6.
 Anchor X32:16: mean KL 0.12568 at a mean weight error of -21.166 dB. KL per unit of weight error: 16.44.
 
 variant | bits | weight error by the closed form, dB | measured, dB | measured minus formula | KL by the anchor | measured KL | its standard error | measured over predicted, dB
@@ -6,11 +6,12 @@ X32:16 | 4.5000 | - | -21.166 | - | 0.1257 | 0.1257 | 0.0024 | +0.00
 file:smollm2-Q4_0.gguf | 4.5000 | - | -21.166 | - | 0.1257 | 0.1271 | 0.0024 | +0.05
 file:smollm2-Q4_K_M.gguf | 4.8223 | - | -24.557 | - | 0.0576 | 0.0838 | 0.0016 | +1.63
 EBG128:b560s16 | 4.4999 | -25.597 | -25.585 | +0.013 | 0.0453 | 0.0609 | 0.0014 | +1.28
+EB32@32:16 | 4.4985 | -23.567 | -23.539 | +0.028 | 0.0723 | 0.1018 | 0.0020 | +1.49
 
 The predictions
-   O1 | not scored yet | closed form against measured weight error, mark 0.05 dB: EBG128:b560s16 +0.013
-   O2 | not scored yet | KL by the anchor and the closed form, mark 0.5 dB: EBG128:b560s16 +1.28
-   O3 | not scored yet | KL over that of EBG128:b560s16 in dB, measured against the closed form, mark 0.4 dB: 
+   O1 | not scored yet | closed form against measured weight error, mark 0.05 dB: EBG128:b560s16 +0.013, EB32@32:16 +0.028
+   O2 | not scored yet | KL by the anchor and the closed form, mark 0.5 dB: EBG128:b560s16 +1.28, EB32@32:16 +1.49
+   O3 | not scored yet | KL over that of EBG128:b560s16 in dB, measured against the closed form, mark 0.4 dB: EB32@32:16 +2.24 against +2.03
    O4 | not scored yet | VE8Z32:16 by the anchor and its measured weight error, mark 0.5 dB: -
    O5 | not scored yet | one scale per row is outside the law: KL at least 1.5 dB above the anchor's: 
-   O6 | not scored yet | the arm with the smallest predicted error at 4.5 bits or fewer, EBG128:b560s16, has the lowest mean KL of all 4 scored variants: the lowest is EBG128:b560s16 at 0.0609
+   O6 | not scored yet | the arm with the smallest predicted error at 4.5 bits or fewer, EBG128:b560s16, has the lowest mean KL of all 5 scored variants: the lowest is EBG128:b560s16 at 0.0609
