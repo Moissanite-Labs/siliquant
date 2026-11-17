@@ -1,0 +1,17 @@
+Set: held. The pick among 5 arms at 3 group sizes, 4.5 bits per weight with the scales, in exact arithmetic at level 2.
+certificates written: 109. Confirmed by shape/check_certificate.py: 109. Identities for any 8 numbers: hold. Bounds on pi: hold.
+the exact value of the pick against the 64-bit floats of shapelib at level 2: largest relative difference 6.7e-16
+
+family | matrices | the pick: arm@group and count | same as the float pick at level 2 | at level 3 | the pick is the measured best of the 15 | regret among the 15: mean, max | regret among all 39 arms: mean, max | measured over the exact formula for the pick: mean (min, max)
+      G | 3 | E8:p2@128 3 | 3 | 3 | 3 | 0.000, 0.00 | 0.000, 0.00 | +0.02 (+0.01, +0.02)
+      L | 3 | E8:p1@128 3 | 3 | 3 | 3 | 0.000, 0.00 | 0.000, 0.00 | +0.02 (+0.02, +0.02)
+     T3 | 3 | E8:p1@128 2, E8:p1@32 1 | 3 | 3 | 2 | 0.002, 0.01 | 0.610, 0.66 | +0.01 (-0.01, +0.02)
+      U | 3 | X@R 3 | 3 | 3 | 3 | 0.000, 0.00 | 0.000, 0.00 | +0.56 (+0.55, +0.56)
+     RS | 3 | E8:p2@128 3 | 3 | 3 | 3 | 0.000, 0.00 | 0.000, 0.00 | +0.02 (+0.01, +0.02)
+     BS | 3 | E8:p1@128 3 | 3 | 0 | 3 | 0.000, 0.00 | 0.019, 0.06 | -0.05 (-0.06, -0.04)
+      C | 3 | X@32 3 | 3 | 3 | 2 | 0.005, 0.01 | 0.479, 0.49 | +0.05 (+0.05, +0.06)
+      K | 3 | E8:p2@128 3 | 3 | 3 | 3 | 0.000, 0.00 | 0.000, 0.00 | +0.02 (+0.02, +0.02)
+whisper | 64 | E8:p2@128 43, E8:p1@128 18, E8:p1@32 3 | 64 | 60 | 59 | 0.090, 1.81 | 0.254, 3.56 | -0.07 (-1.54, +0.04)
+   qwen | 21 | E8:p2@128 15, E8:p1@128 6 | 21 | 21 | 21 | 0.000, 0.00 | 0.084, 0.22 | +0.02 (-0.00, +0.03)
+    all | 109 | E8:p2@128 67, E8:p1@128 32, E8:p1@32 4, X@R 3, X@32 3 | 109 | 102 | 102 | 0.053, 1.81 | 0.196, 3.56 | -0.02 (-1.54, +0.56)
+identities: hold. bounds on pi: hold. certificates checked: 109; failed: 0; control (a pick moved to the next candidate): caught

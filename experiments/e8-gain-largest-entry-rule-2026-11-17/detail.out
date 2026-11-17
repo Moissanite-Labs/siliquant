@@ -1,0 +1,75 @@
+1. Predictions 2 and 3 on the Gaussian family, matrix by matrix, in dB
+   matrix | group | q | gain of E8 over X | scale term | gain minus shape minus scale | Z8 over X
+   G/0 | 32 | 16 | +1.3639 | +1.0032 | -0.2933 | -0.2953
+   G/1 | 32 | 16 | +1.3751 | +1.0205 | -0.2995 | -0.3046
+   G/2 | 32 | 16 | +1.3550 | +0.9996 | -0.2986 | -0.2968
+   G/0 |  R | 16 | +2.2731 | +1.6219 | -0.0029 | -0.0040
+   G/1 |  R | 16 | +2.3067 | +1.6573 | -0.0047 | -0.0038
+   G/2 |  R | 16 | +2.3031 | +1.6448 | +0.0042 | -0.0047
+   G/0 | 32 | 32 | +1.3202 | +1.0214 | -0.3553 | -0.3629
+   G/1 | 32 | 32 | +1.3435 | +1.0368 | -0.3474 | -0.3444
+   G/2 | 32 | 32 | +1.3250 | +1.0181 | -0.3472 | -0.3498
+   G/0 |  R | 32 | +2.3095 | +1.6592 | -0.0037 | -0.0020
+   G/1 |  R | 32 | +2.3267 | +1.6772 | -0.0046 | -0.0013
+   G/2 |  R | 32 | +2.3202 | +1.6752 | -0.0092 | -0.0041
+
+2. Prediction 5 on the real matrices: how many have shape plus scale within a margin of the measured gain
+   group | q | mean gain | within 0.5 dB | within 0.3 dB | matrices
+   32 | 16 | +1.775 | 25 | 2 | 32
+    R | 16 | +2.706 | 25 | 23 | 32
+
+3. The block on the wall. If one block of each group has (1 + e) times the mean error of a block and the rest have the mean,
+   measured error over formula is 1 + e over the number of blocks in a group. The table gives e.
+   For the scalar rule: if one weight of each group has no error, measured over formula is 1 - f over the group size. The table gives f.
+   family | group | blocks in a group | e for Z8 | e for E8 | f for X
+      G |   8 | 1 | +0.249 | +0.249 | +0.65
+      G |  32 | 4 | +0.250 | +0.249 | +0.26
+      G | 128 | 16 | +0.254 | +0.242 | -0.20
+      G |   R | 256 | +0.320 | +0.166 | -0.80
+      T |   8 | 1 | +0.258 | +0.250 | +0.91
+      T |  32 | 4 | +0.312 | +0.249 | +1.20
+      T | 128 | 16 | +0.733 | +0.252 | +4.19
+      T |   R | 256 | +28.254 | +0.215 | +205.38
+   real |   8 | 1 | +0.297 | +0.250 | +0.97
+   real |  32 | 4 | +0.489 | +0.252 | +1.66
+   real | 128 | 16 | +1.562 | +0.262 | +7.25
+   real |   R | 64/256 | +8.427 | +0.335 | +47.59
+   A point on the surface of a cell in n dimensions is, in the mean, (n + 2) / n times as far in squared distance as a point inside it: e = 2/8 = 0.25.
+
+4. The real matrices in order of their gain with groups of 32 at q = 16, lowest first, in dB
+   matrix | gain | scale term | X over its formula | E8 over its formula | Z8 over its formula | columns with a standard deviation under a tenth of the median | entries under 1/16 of their group's largest
+   decoder.blocks.0.cross_attn.query.weight   | +0.07 | +2.17 | -2.46 | +0.29 | +2.73 | 41.6 % | 48.8 %
+   decoder.blocks.5.cross_attn.out.weight     | +1.27 | +0.94 | -0.06 | +0.27 | +0.28 | 0.0 % | 11.7 %
+   decoder.blocks.5.attn.out.weight           | +1.39 | +1.03 | -0.03 | +0.27 | +0.28 | 0.0 % | 11.8 %
+   encoder.blocks.5.attn.out.weight           | +1.48 | +1.17 | -0.08 | +0.26 | +0.31 | 0.0 % | 12.7 %
+   decoder.blocks.0.attn.key.weight           | +2.27 | +1.97 | -0.09 | +0.27 | +0.29 | 0.0 % | 16.3 %
+   encoder.blocks.0.mlp1.weight               | +2.37 | +2.16 | -0.18 | +0.27 | +0.36 | 1.4 % | 22.2 %
+   For Gaussian groups of 32 the last column would be 11.7 %.
+
+5. The gains of the second record on gemma beside those of this run, in dB
+   cell | gemma (second record) | Gaussian | Student t | whisper
+   groups of 32, q = 16       | 1.51 | 1.36 | 2.89 | 1.77
+   one group per row, q = 16  | 2.52 | 2.29 | 4.61 | 2.71
+   one group per row, q = 32  | 2.55 | 2.32 | 5.02 | 2.92
+   Rows are 2,048 long on the synthetic families and 512 or 2,048 on whisper. The second record does not list the row lengths of gemma.
+
+6. The scale term for regions of other shapes with the volume of the E8 code's region, in dB. Not a run of any codebook:
+   each line is 10 log10 of (sum of squared scalar steps over sum of squared scales), with the scale the smallest at which the region holds every block of the group.
+   ball: the scale is set by the longest block. cross-polytope: by the block with the largest sum of sizes of its entries. The cube is the scalar rule, 0 by definition.
+   family | group | E8 region (measured in the run) | ball | cross-polytope | matrices
+      G | 32 | +1.01 | +1.15 | +0.70 | 3
+      G |  R | +1.64 | +1.90 | +1.24 | 3
+      T | 32 | +2.66 | +2.78 | +3.68 | 3
+      T |  R | +4.42 | +4.15 | +7.48 | 3
+   real | 32 | +1.64 | +1.78 | +1.86 | 32
+   real |  R | +2.48 | +2.63 | +3.10 | 32
+   Reach along a weight axis at volume 1: cube 0.5, ball 0.839, E8 cell 1.0, cross-polytope 1.882. Along the diagonal: cube 1.414, ball 0.839, E8 cell 0.707, cross-polytope 0.665.
+
+7. The scale term if the region were a ball, for blocks of 8, 16 and 24 weights, one group per row at q = 16, in dB. Not a run of any codebook.
+   Rows are cut to 2,016 or 480 weights, which blocks of 8, 16 and 24 all tile. The radius of the ball of volume 1 is used in each dimension.
+   The last columns add what the best lattice known in that dimension is worth by its cell (bounds/bounds.out): 0.65, 0.86 and 1.03 dB.
+   family | ball, blocks of 8 | of 16 | of 24 | with the cell: 8 (E8) | 16 (Barnes-Wall) | 24 (Leech) | matrices
+      G | +1.90 | +2.62 | +3.02 | +2.55 | +3.48 | +4.05 | 3
+      T | +4.15 | +6.10 | +7.25 | +4.80 | +6.96 | +8.28 | 3
+   real | +2.63 | +3.66 | +4.23 | +3.28 | +4.52 | +5.26 | 32
+   A lattice's own region is not a ball. For E8 with one group per row the measured scale term is 0.15 to 0.26 dB under the ball's on G and on the real matrices (table 6).

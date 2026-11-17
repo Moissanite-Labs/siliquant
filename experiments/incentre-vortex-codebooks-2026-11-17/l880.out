@@ -1,0 +1,19 @@
+1. The file
+   440 stored points, 7 free vertices, 17 bars of length 1.0003 to 1.0152.
+   The file states 880 real realisations of 880 complex ones. That claim is not checked here.
+   Largest difference between a bar of a stored point and its stated length: 4.4e-15
+   Codebook: 880 points in 14 dimensions, 0.6987 bits per weight. Shannon's floor for Gaussian weights at those bits: -4.21 dB.
+   Variances of the centred codebook along its principal axes, largest over smallest: 19.8. Smallest over the mean: 0.2468.
+
+2. Relative squared error in dB at equal bits, mean over the matrices of a family (min, max)
+   L880 = the realisations, moved to mean zero, one free scale. L880w = the same, mapped linearly to unit covariance.
+   random = 880 independent Gaussian points. fitted = 880 points fitted to a separate sample of the family.
+   S-mix = a share of the weights rounded to 2 levels and the rest set to zero, so that the mean bits are equal.
+   family | L880 | L880w | random | fitted | S-mix | L880 minus random: mean (min, max) | L880w minus random: mean (min, max) | L880w minus S-mix: mean (min, max) | matrices
+      G | -2.42 (-2.42, -2.41) | -2.79 (-2.80, -2.79) | -3.24 (-3.24, -3.23) | -3.41 (-3.41, -3.40) | -2.55 (-2.55, -2.55) | +0.82 (+0.81, +0.83) | +0.44 (+0.43, +0.45) | -0.24 (-0.25, -0.24) | 3
+      T | -2.13 (-2.15, -2.10) | -2.38 (-2.40, -2.35) | -2.98 (-3.00, -2.95) | -3.89 (-3.89, -3.88) | -1.87 (-1.88, -1.84) | +0.86 (+0.85, +0.87) | +0.61 (+0.60, +0.61) | -0.51 (-0.52, -0.50) | 3
+   real | -2.13 (-2.43, -1.64) | -2.36 (-2.71, -1.64) | -2.93 (-3.19, -2.24) | - | -2.00 (-2.42, -0.98) | +0.79 (+0.60, +0.89) | +0.57 (+0.47, +0.78) | -0.36 (-0.88, -0.22) | 32
+
+3. Rows on the Gaussian family under Shannon's floor by more than 0.05 dB: 0
+   scale searches that ended at an edge of their range: 0
+   rows: 158; matrices: 38; seconds: 384

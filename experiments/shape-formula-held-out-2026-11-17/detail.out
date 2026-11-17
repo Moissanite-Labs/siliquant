@@ -1,0 +1,105 @@
+1. The rank arms that are ahead of the best full arm at 4.5 bits, on real matrices
+   matrix | kept | levels | bits | dropped, dB | rank arm dB | by the formula dB | best full arm dB | ahead by | top eighth of the directions' share of the squared weights | Shannon's gain from the directions at 4 bits | zero lump
+   whisper/decoder.blocks.1.attn.key.weight | 1/4 | 485 | 4.500 | -30.96 | -30.67 | -30.68 | -28.69 | 1.99 | 0.9926 | 42.57 | 0.668
+   whisper/decoder.blocks.1.attn.query.weight | 1/4 | 485 | 4.500 | -30.85 | -30.57 | -30.58 | -28.51 | 2.06 | 0.9942 | 38.91 | 0.667
+   The five real matrices where a rank arm comes nearest without being ahead:
+   qwen/model.layers.0.self_attn.k_proj.weight | 1/2 | behind by 3.15 dB | top eighth 0.8624
+   qwen/model.layers.0.self_attn.q_proj.weight | 1/4 | behind by 4.24 dB | top eighth 0.9585
+   whisper/decoder.blocks.1.cross_attn.query.weight | 1/4 | behind by 5.13 dB | top eighth 0.9004
+   whisper/decoder.blocks.1.cross_attn.key.weight | 1/4 | behind by 6.04 dB | top eighth 0.8507
+   whisper/decoder.blocks.1.attn.query.weight | 1/8 | behind by 6.15 dB | top eighth 0.9942
+
+2. By model: the three ways of choosing, from 4 bits up, and the best shape in the budget
+   model | group | rate | formula: mean regret | shuffled | round | matrices
+   whisper |  32 |  4 | 0.001 | 0.038 | 0.464 | 64
+   whisper | 128 |  4 | 0.000 | 0.059 | 0.549 | 64
+   whisper |   R |  4 | 0.000 | 0.099 | 0.754 | 64
+   whisper | 128 | 4+ | 0.000 | 0.065 | 0.538 | 64
+   whisper |   R | 4+ | 0.000 | 0.101 | 0.765 | 64
+      qwen |  32 |  4 | 0.000 | 0.250 | 0.093 | 21
+      qwen | 128 |  4 | 0.001 | 0.298 | 0.146 | 21
+      qwen |   R |  4 | 0.000 | 0.414 | 0.313 | 21
+      qwen | 128 | 4+ | 0.000 | 0.322 | 0.127 | 21
+      qwen |   R | 4+ | 0.000 | 0.410 | 0.300 | 21
+   model | group of the budget | best arm has p = 5/4 or 3/2 on | ahead of the better of E8 in a ball and E8 in a cross-polytope: mean (max) | ahead of E8 in a ball: mean | matrices
+   whisper |  32 | 57 of 64 | 0.286 (3.67) | 0.464 | 64
+   whisper | 128 | 49 of 64 | 0.249 (3.29) | 0.538 | 64
+   whisper |   R | 50 of 64 | 0.316 (3.55) | 0.765 | 64
+      qwen |  32 | 18 of 21 | 0.085 (0.26) | 0.093 | 21
+      qwen | 128 | 15 of 21 | 0.084 (0.22) | 0.127 | 21
+      qwen |   R | 20 of 21 | 0.157 (0.40) | 0.300 | 21
+
+3. Where the formula is furthest off from 4 bits up: the ten rows of real matrices with the largest residual, and the matrix's lump at zero
+   matrix | arm | group | rate | measured over formula, dB | share of the entries under a tenth of the root mean square | Shannon's gain from the columns at 4 bits
+   whisper/decoder.blocks.1.attn.key.weight | E8:p5/4 | R | 4+ | -1.62 | 0.668 | 23.11
+   whisper/decoder.blocks.1.attn.key.weight | E8:p2/3 | R | 4+ | -1.61 | 0.668 | 23.11
+   whisper/decoder.blocks.1.attn.value.weight | E8:p2/3 | R | 4 | -1.60 | 0.662 | 21.09
+   whisper/decoder.blocks.1.attn.value.weight | E8:p2/3 | R | 4+ | -1.57 | 0.662 | 21.09
+   whisper/decoder.blocks.1.attn.key.weight | E8:p2/3 | R | 4 | -1.57 | 0.668 | 23.11
+   whisper/decoder.blocks.1.attn.query.weight | E8:p2/3 | R | 4+ | -1.57 | 0.667 | 19.60
+   whisper/decoder.blocks.1.attn.key.weight | E8:p3/2 | R | 4+ | -1.56 | 0.668 | 23.11
+   whisper/decoder.blocks.1.attn.key.weight | E8:p5/4 | R | 4 | -1.54 | 0.668 | 23.11
+   whisper/decoder.blocks.1.attn.value.weight | E8:p5/4 | R | 4 | -1.54 | 0.662 | 21.09
+   whisper/decoder.blocks.1.attn.value.weight | E8:p2 | R | 4 | -1.54 | 0.662 | 21.09
+   real matrices with any row over 0.3 dB: 63 of 85. The same with the star p = 2/3 left out: 4
+
+4. A gate on the formula (crossing X5 of the note in PR #5): the share of runs a gate would pass if it refused a rounding whose error is more than a mark over the formula's
+   set | rate | mark 0.1 dB | 0.2 | 0.3 | 0.5 | runs
+        real |  2 | 0.034 | 0.075 | 0.128 | 0.465 | 3315
+        real |  4 | 0.824 | 0.923 | 0.980 | 1.000 | 3315
+        real | 4+ | 0.900 | 0.987 | 1.000 | 1.000 | 2210
+   synthetic |  2 | 0.132 | 0.169 | 0.221 | 0.466 | 936
+   synthetic |  4 | 0.796 | 0.915 | 0.957 | 0.990 | 936
+   synthetic | 4+ | 0.854 | 0.941 | 0.986 | 0.990 | 624
+
+5. The safe rule: the matrices where the arm with the smallest bound is furthest from the measured best of the 12
+   matrix | arm with the smallest bound | measured best | regret, dB | zero lump
+   whisper/decoder.blocks.1.attn.value.weight | E8:p1@128 | Z8:p1@128 | 1.48 | 0.662
+   whisper/decoder.blocks.1.attn.key.weight | E8:p1@32 | Z8:p1@128 | 1.16 | 0.668
+   whisper/decoder.blocks.1.attn.query.weight | E8:p1@32 | Z8:p1@128 | 1.12 | 0.667
+   whisper/decoder.blocks.1.cross_attn.query.weight | E8:p1@128 | Z8:p1@128 | 0.68 | 0.485
+   whisper/decoder.blocks.4.cross_attn.key.weight | E8:p1@128 | E8:p2@128 | 0.03 | 0.099
+   regret is 0 on 79 of 85, under 0.05 dB on 81, and its mean without the largest one is 0.0359 dB
+
+6. The scalar rule on uniform weights: the rule clips on the side opposite to the largest entry
+   The largest entry goes to level -q/2 and the levels stop at q/2 - 1. A weight within half a step of the far end is pulled back a whole level.
+   Its squared error is 7/12 of a squared step in the mean, not 1/12. A uniform weight is there with chance 1 / (2 q). So the error is 1 + 3/q times the formula's.
+   group | rate | levels q | measured over formula, dB | 10 log10(1 + 3/q)
+    32 |  4 | 16 | +0.75 | +0.75
+   128 |  4 | 16 | +0.75 | +0.75
+     R |  4 | 16 | +0.75 | +0.75
+   128 | 4+ | 20 | +0.61 | +0.61
+     R | 4+ | 22 | +0.56 | +0.56
+    32 |  2 | 4 | +2.43 | +2.43
+     R |  2 | 4 | +2.43 | +2.43
+
+7. Figures the record quotes that no other table shows
+   Real matrices with a run more than 0.3 dB off from 4 bits up, the star p = 2/3 left out: matrix | largest residual | zero lump
+   whisper/decoder.blocks.1.attn.key.weight | 1.62 | 0.668
+   whisper/decoder.blocks.1.attn.value.weight | 1.54 | 0.662
+   whisper/decoder.blocks.1.attn.query.weight | 1.49 | 0.667
+   whisper/decoder.blocks.1.cross_attn.query.weight | 0.93 | 0.485
+   The five arms with an exact formula, at the three group sizes of the budget: where the pick of level 2 is not the pick of level 3, and where it is not the measured best
+   T3/2 | level 2: E8:p1@32 | level 3: E8:p1@32 | measured best: E8:p1@128 | level 2's pick over the measured best: 0.006 dB | zero lump 0.128
+   BS/0 | level 2: E8:p1@128 | level 3: Z8:p1@128 | measured best: E8:p1@128 | level 2's pick over the measured best: 0.000 dB | zero lump 0.388
+   BS/1 | level 2: E8:p1@128 | level 3: Z8:p1@128 | measured best: E8:p1@128 | level 2's pick over the measured best: 0.000 dB | zero lump 0.388
+   BS/2 | level 2: E8:p1@128 | level 3: Z8:p1@128 | measured best: E8:p1@128 | level 2's pick over the measured best: 0.000 dB | zero lump 0.388
+   C/1 | level 2: X@32 | level 3: X@32 | measured best: X@128 | level 2's pick over the measured best: 0.014 dB | zero lump 0.080
+   whisper/decoder.blocks.1.attn.key.weight | level 2: E8:p1@128 | level 3: Z8:p1@128 | measured best: Z8:p1@128 | level 2's pick over the measured best: 1.552 dB | zero lump 0.668
+   whisper/decoder.blocks.1.attn.out.weight | level 2: E8:p1@32 | level 3: E8:p1@32 | measured best: E8:p1@128 | level 2's pick over the measured best: 0.006 dB | zero lump 0.190
+   whisper/decoder.blocks.1.attn.query.weight | level 2: E8:p1@32 | level 3: Z8:p1@128 | measured best: Z8:p1@128 | level 2's pick over the measured best: 1.810 dB | zero lump 0.667
+   whisper/decoder.blocks.1.attn.value.weight | level 2: E8:p1@128 | level 3: Z8:p1@128 | measured best: Z8:p1@128 | level 2's pick over the measured best: 1.539 dB | zero lump 0.662
+   whisper/decoder.blocks.1.cross_attn.query.weight | level 2: E8:p1@128 | level 3: Z8:p1@128 | measured best: Z8:p1@128 | level 2's pick over the measured best: 0.866 dB | zero lump 0.485
+   Runs of a cut arm in which a block was shrunk, by rate: rate | runs with one | runs | largest share of blocks
+    2 | 797 | 3924 | 0.0250
+    4 | 827 | 3924 | 0.0054
+   4+ | 457 | 2616 | 0.0018
+   The best rank arm of a real matrix against its best full arm at 4.5 bits: ahead on 2 of 85, by 2.06 and 1.99 dB. Behind on the rest by 3.15 to 18.65 dB
+   The largest residual at 2 bits on a real matrix: +3.33 dB. Over every family: +5.16 dB
+   The safe scale at 2 bits, not run: 20 log10(r_eff / (r - m)) for a codebook of at most 2^16 points
+   E8 in a ball: 3.67 dB
+   the integers in a ball: 5.33 dB
+   E8 in a cross-polytope: 4.86 dB
+   the integers in a cross-polytope: 10.98 dB
+   Gaussian weights, from the limits table: what the step from groups of 8 to groups of 2048 costs in the region part
+   cube 5.83 dB | ball 4.78 dB | cross-polytope 5.10 dB

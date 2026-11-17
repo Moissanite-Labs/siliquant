@@ -1,0 +1,3792 @@
+{
+ "regrets": {
+  "G|32|2": [
+   {
+    "matrix": "G/0",
+    "formula": 0.016157543028520856,
+    "shuffled": 0.016157543028520856,
+    "level1": 0.016157543028520856,
+    "round": 0.07074665906447825,
+    "two": 0.07074665906447825,
+    "hit": false
+   },
+   {
+    "matrix": "G/1",
+    "formula": 0.00490930557859443,
+    "shuffled": 0.00490930557859443,
+    "level1": 0.00490930557859443,
+    "round": 0.06459139587236888,
+    "two": 0.06459139587236888,
+    "hit": false
+   },
+   {
+    "matrix": "G/2",
+    "formula": 0.012630624916186212,
+    "shuffled": 0.012630624916186212,
+    "level1": 0.012630624916186212,
+    "round": 0.07323993917109412,
+    "two": 0.07323993917109412,
+    "hit": false
+   }
+  ],
+  "G|128|2": [
+   {
+    "matrix": "G/0",
+    "formula": 0.014099369487305452,
+    "shuffled": 0.014099369487305452,
+    "level1": 0.014099369487305452,
+    "round": 0.05917627874080489,
+    "two": 0.05917627874080489,
+    "hit": false
+   },
+   {
+    "matrix": "G/1",
+    "formula": 0.0032041803409868443,
+    "shuffled": 0.0032041803409868443,
+    "level1": 0.0032041803409868443,
+    "round": 0.05179391130742,
+    "two": 0.05179391130742,
+    "hit": false
+   },
+   {
+    "matrix": "G/2",
+    "formula": 0.012297759887478542,
+    "shuffled": 0.012297759887478542,
+    "level1": 0.012297759887478542,
+    "round": 0.06415091563097,
+    "two": 0.06415091563097,
+    "hit": false
+   }
+  ],
+  "G|R|2": [
+   {
+    "matrix": "G/0",
+    "formula": 0.046043601706595196,
+    "shuffled": 0.046043601706595196,
+    "level1": 0.046043601706595196,
+    "round": 0.046043601706595196,
+    "two": 0.046043601706595196,
+    "hit": false
+   },
+   {
+    "matrix": "G/1",
+    "formula": 0.037960064197107304,
+    "shuffled": 0.037960064197107304,
+    "level1": 0.037960064197107304,
+    "round": 0.037960064197107304,
+    "two": 0.037960064197107304,
+    "hit": false
+   },
+   {
+    "matrix": "G/2",
+    "formula": 0.043926961710379596,
+    "shuffled": 0.043926961710379596,
+    "level1": 0.043926961710379596,
+    "round": 0.043926961710379596,
+    "two": 0.043926961710379596,
+    "hit": false
+   }
+  ],
+  "G|32|4": [
+   {
+    "matrix": "G/0",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.0,
+    "two": 0.0,
+    "hit": true
+   },
+   {
+    "matrix": "G/1",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.0,
+    "two": 0.0,
+    "hit": true
+   },
+   {
+    "matrix": "G/2",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.0,
+    "two": 0.0,
+    "hit": true
+   }
+  ],
+  "G|128|4": [
+   {
+    "matrix": "G/0",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.0,
+    "two": 0.0,
+    "hit": true
+   },
+   {
+    "matrix": "G/1",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.0,
+    "two": 0.0,
+    "hit": true
+   },
+   {
+    "matrix": "G/2",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.0,
+    "two": 0.0,
+    "hit": true
+   }
+  ],
+  "G|R|4": [
+   {
+    "matrix": "G/0",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.0,
+    "two": 0.0,
+    "hit": true
+   },
+   {
+    "matrix": "G/1",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.0,
+    "two": 0.0,
+    "hit": true
+   },
+   {
+    "matrix": "G/2",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.0,
+    "two": 0.0,
+    "hit": true
+   }
+  ],
+  "G|128|4+": [
+   {
+    "matrix": "G/0",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.0,
+    "two": 0.0,
+    "hit": true
+   },
+   {
+    "matrix": "G/1",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.0,
+    "two": 0.0,
+    "hit": true
+   },
+   {
+    "matrix": "G/2",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.0,
+    "two": 0.0,
+    "hit": true
+   }
+  ],
+  "G|R|4+": [
+   {
+    "matrix": "G/0",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.0,
+    "two": 0.0,
+    "hit": true
+   },
+   {
+    "matrix": "G/1",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.0,
+    "two": 0.0,
+    "hit": true
+   },
+   {
+    "matrix": "G/2",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.0,
+    "two": 0.0,
+    "hit": true
+   }
+  ],
+  "T|32|2": [
+   {
+    "matrix": "T/0",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.6402847446605768,
+    "two": 0.04063319497481357,
+    "hit": true
+   },
+   {
+    "matrix": "T/1",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.632993258206124,
+    "two": 0.05038980172868426,
+    "hit": true
+   },
+   {
+    "matrix": "T/2",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.6304017431400487,
+    "two": 0.04874195076233669,
+    "hit": true
+   }
+  ],
+  "T|128|2": [
+   {
+    "matrix": "T/0",
+    "formula": 2.4435897557003674,
+    "shuffled": 2.4435897557003674,
+    "level1": 2.4435897557003674,
+    "round": 0.978274224069301,
+    "two": 0.0,
+    "hit": false
+   },
+   {
+    "matrix": "T/1",
+    "formula": 2.456787179830874,
+    "shuffled": 2.456787179830874,
+    "level1": 2.456787179830874,
+    "round": 0.9587185899183726,
+    "two": 0.0,
+    "hit": false
+   },
+   {
+    "matrix": "T/2",
+    "formula": 2.404092677898015,
+    "shuffled": 2.404092677898015,
+    "level1": 2.404092677898015,
+    "round": 0.9447886582942789,
+    "two": 0.0,
+    "hit": false
+   }
+  ],
+  "T|R|2": [
+   {
+    "matrix": "T/0",
+    "formula": 0.14470786232722646,
+    "shuffled": 0.14470786232722646,
+    "level1": 2.045451739202883,
+    "round": 1.655918236064414,
+    "two": 0.0,
+    "hit": false
+   },
+   {
+    "matrix": "T/1",
+    "formula": 0.1592205983352324,
+    "shuffled": 0.1592205983352324,
+    "level1": 2.0753582275509066,
+    "round": 1.6579354999705687,
+    "two": 0.0,
+    "hit": false
+   },
+   {
+    "matrix": "T/2",
+    "formula": 0.08584338766554936,
+    "shuffled": 0.08584338766554936,
+    "level1": 2.052785410684401,
+    "round": 1.5669856082494806,
+    "two": 0.0,
+    "hit": false
+   }
+  ],
+  "T|32|4": [
+   {
+    "matrix": "T/0",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.8091234157684196,
+    "two": 0.10732587363736651,
+    "hit": true
+   },
+   {
+    "matrix": "T/1",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.7802067443126542,
+    "two": 0.11470619911220925,
+    "hit": true
+   },
+   {
+    "matrix": "T/2",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.8008831198033295,
+    "two": 0.11714547209261642,
+    "hit": true
+   }
+  ],
+  "T|128|4": [
+   {
+    "matrix": "T/0",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 1.4756813828725828,
+    "two": 0.11243448486603896,
+    "hit": true
+   },
+   {
+    "matrix": "T/1",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 1.36981077675217,
+    "two": 0.09693222194336591,
+    "hit": true
+   },
+   {
+    "matrix": "T/2",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 1.449849874965814,
+    "two": 0.1268410525527002,
+    "hit": true
+   }
+  ],
+  "T|R|4": [
+   {
+    "matrix": "T/0",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 4.0494253657421195,
+    "two": 0.8260236150330956,
+    "hit": true
+   },
+   {
+    "matrix": "T/1",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 3.664985845789506,
+    "two": 0.7464359174029302,
+    "hit": true
+   },
+   {
+    "matrix": "T/2",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 3.8580569330545664,
+    "two": 0.8350099157823655,
+    "hit": true
+   }
+  ],
+  "T|128|4+": [
+   {
+    "matrix": "T/0",
+    "formula": 0.0178125337333894,
+    "shuffled": 0.0178125337333894,
+    "level1": 0.0178125337333894,
+    "round": 1.5104067337608522,
+    "two": 0.0,
+    "hit": false
+   },
+   {
+    "matrix": "T/1",
+    "formula": 0.052895464187005956,
+    "shuffled": 0.052895464187005956,
+    "level1": 0.052895464187005956,
+    "round": 1.4347033199906387,
+    "two": 0.0,
+    "hit": false
+   },
+   {
+    "matrix": "T/2",
+    "formula": 0.028309747968731543,
+    "shuffled": 0.028309747968731543,
+    "level1": 0.028309747968731543,
+    "round": 1.4907878045368732,
+    "two": 0.0,
+    "hit": false
+   }
+  ],
+  "T|R|4+": [
+   {
+    "matrix": "T/0",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 4.11385268554613,
+    "two": 0.871399365867122,
+    "hit": true
+   },
+   {
+    "matrix": "T/1",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 3.73222218581527,
+    "two": 0.7589937398868734,
+    "hit": true
+   },
+   {
+    "matrix": "T/2",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 3.931253828200134,
+    "two": 0.8500345331645616,
+    "hit": true
+   }
+  ],
+  "whisper|32|2": [
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.key.weight",
+    "formula": 0.026561391520999088,
+    "shuffled": 0.026561391520999088,
+    "level1": 0.026561391520999088,
+    "round": 0.299196847836169,
+    "two": 0.19660723361089755,
+    "hit": false
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.1937069296896371,
+    "level1": 0.0,
+    "round": 0.11715922866622529,
+    "two": 0.11715922866622529,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.query.weight",
+    "formula": 0.0,
+    "shuffled": 0.0685504723388046,
+    "level1": 0.0,
+    "round": 0.23268700287159338,
+    "two": 0.23268700287159338,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.14418879859060843,
+    "two": 0.14418879859060843,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.key.weight",
+    "formula": 0.0,
+    "shuffled": 0.17376333599886273,
+    "level1": 0.17376333599886273,
+    "round": 0.3513308629345563,
+    "two": 0.3496990340957576,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.11014138075975609,
+    "level1": 0.0,
+    "round": 0.22090474020331805,
+    "two": 0.22090474020331805,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.query.weight",
+    "formula": 0.20676262379728003,
+    "shuffled": 0.20676262379728003,
+    "level1": 0.931863460820185,
+    "round": 1.4154571483878386,
+    "two": 0.33591530800326797,
+    "hit": false
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.09473863966225458,
+    "two": 0.09473863966225458,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.mlp1.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.10109433355781305,
+    "two": 0.10109433355781305,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.mlp2.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.34928116757664884,
+    "two": 0.14000772192755317,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.key.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.13387071205659234,
+    "two": 0.13387071205659234,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.06370056484758678,
+    "two": 0.06370056484758678,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.query.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.11675992477905667,
+    "two": 0.11675992477905667,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.15967992217374466,
+    "two": 0.15967992217374466,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.key.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.23240825723348602,
+    "two": 0.23240825723348602,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.2927798772179653,
+    "level1": 0.0,
+    "round": 0.0815230829421095,
+    "two": 0.0815230829421095,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.query.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.12792893715552328,
+    "two": 0.12792893715552328,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.12474628442562075,
+    "two": 0.12474628442562075,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.mlp1.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.1091231948116849,
+    "two": 0.1091231948116849,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.mlp2.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.26752233078886234,
+    "two": 0.26752233078886234,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.key.weight",
+    "formula": 1.7006297286288192,
+    "shuffled": 0.8603398283279422,
+    "level1": 1.7006297286288192,
+    "round": 0.7724786291297097,
+    "two": 0.0,
+    "hit": false
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 2.478467301766723,
+    "level1": 0.0,
+    "round": 0.19007077698122823,
+    "two": 0.19007077698122823,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.query.weight",
+    "formula": 1.8321627463801282,
+    "shuffled": 1.2200772972126062,
+    "level1": 1.8321627463801282,
+    "round": 0.6215041495206098,
+    "two": 0.041850727045850515,
+    "hit": false
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 1.4812252305034848,
+    "level1": 0.0,
+    "round": 0.3301280223327094,
+    "two": 0.13744520572198296,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.mlp1.weight",
+    "formula": 0.0,
+    "shuffled": 2.1774319564645372,
+    "level1": 0.0,
+    "round": 0.4308878955005384,
+    "two": 0.12008472740210044,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.mlp2.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.36127993586574136,
+    "two": 0.13446654637063254,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.key.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.2379671909316602,
+    "two": 0.2379671909316602,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.08749383274235473,
+    "two": 0.08749383274235473,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.query.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.14519172940676678,
+    "two": 0.14519172940676678,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.10208376483642366,
+    "two": 0.10208376483642366,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.mlp1.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.1132955612775602,
+    "two": 0.1132955612775602,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.mlp2.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.15926201478490487,
+    "two": 0.15926201478490487,
+    "hit": true
+   }
+  ],
+  "whisper|128|2": [
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.key.weight",
+    "formula": 0.0,
+    "shuffled": 2.0117988905713027,
+    "level1": 0.0,
+    "round": 0.346010107098071,
+    "two": 0.1473458502671706,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.1841884886598692,
+    "level1": 0.0,
+    "round": 0.12012415149020608,
+    "two": 0.12012415149020608,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.query.weight",
+    "formula": 0.049521211322900216,
+    "shuffled": 0.049521211322900216,
+    "level1": 0.049521211322900216,
+    "round": 0.2931690770624101,
+    "two": 0.23578256420593702,
+    "hit": false
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.17446103993436862,
+    "two": 0.17446103993436862,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.key.weight",
+    "formula": 0.1481970938987637,
+    "shuffled": 2.6826173589546687,
+    "level1": 2.6826173589546687,
+    "round": 0.3823805891627275,
+    "two": 0.291102481137115,
+    "hit": false
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.07509917273396749,
+    "level1": 0.0,
+    "round": 0.2632498033859827,
+    "two": 0.22869546640881794,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.query.weight",
+    "formula": 0.5476715570455831,
+    "shuffled": 0.5476715570455831,
+    "level1": 1.6385159470938968,
+    "round": 1.4886454251732988,
+    "two": 0.5206858916160125,
+    "hit": false
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.24379163486023428,
+    "level1": 0.0,
+    "round": 0.10533825222101707,
+    "two": 0.10533825222101707,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.mlp1.weight",
+    "formula": 0.0,
+    "shuffled": 0.9178853393436482,
+    "level1": 0.0,
+    "round": 0.11481816768686677,
+    "two": 0.11481816768686677,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.mlp2.weight",
+    "formula": 0.21499988878525347,
+    "shuffled": 0.21499988878525347,
+    "level1": 0.0,
+    "round": 0.40491181200477744,
+    "two": 0.13931133839260554,
+    "hit": false
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.key.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.18667814102207503,
+    "two": 0.18667814102207503,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.2795190761376832,
+    "level1": 0.0,
+    "round": 0.05009359556090103,
+    "two": 0.05009359556090103,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.query.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.14687292876815627,
+    "two": 0.14687292876815627,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.19214658139431354,
+    "two": 0.19214658139431354,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.key.weight",
+    "formula": 0.0,
+    "shuffled": 0.13682504043797467,
+    "level1": 0.13682504043797467,
+    "round": 0.2898053509763634,
+    "two": 0.2898053509763634,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.3043314275706248,
+    "level1": 0.0,
+    "round": 0.06547840819610717,
+    "two": 0.06547840819610717,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.query.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.17019894837226396,
+    "two": 0.17019894837226396,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.11629826726885036,
+    "two": 0.11629826726885036,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.mlp1.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.13994355624778487,
+    "two": 0.13994355624778487,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.mlp2.weight",
+    "formula": 0.046690617742896026,
+    "shuffled": 0.046690617742896026,
+    "level1": 0.046690617742896026,
+    "round": 0.3740768109962639,
+    "two": 0.21169102046770738,
+    "hit": false
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.key.weight",
+    "formula": 0.5646205296269033,
+    "shuffled": 0.5646205296269033,
+    "level1": 1.6291277808469449,
+    "round": 0.734351432843155,
+    "two": 0.0,
+    "hit": false
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 1.963374784964656,
+    "level1": 0.0,
+    "round": 0.17621572936897853,
+    "two": 0.17621572936897853,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.query.weight",
+    "formula": 0.9368284204598096,
+    "shuffled": 0.9368284204598096,
+    "level1": 1.8349072901276546,
+    "round": 0.5439005885360575,
+    "two": 0.03004544936323949,
+    "hit": false
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.value.weight",
+    "formula": 0.10243073333859763,
+    "shuffled": 1.263033005715477,
+    "level1": 0.0,
+    "round": 0.2594309407097729,
+    "two": 0.14812100313240784,
+    "hit": false
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.mlp1.weight",
+    "formula": 0.0,
+    "shuffled": 1.3189438264260664,
+    "level1": 0.0,
+    "round": 0.45659438444206474,
+    "two": 0.10422012412528842,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.mlp2.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.5478929697884892,
+    "two": 0.10738860023635219,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.key.weight",
+    "formula": 0.0,
+    "shuffled": 0.13567138372532736,
+    "level1": 0.13567138372532736,
+    "round": 0.32063762873682616,
+    "two": 0.29847726530745,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.07288190448061747,
+    "two": 0.07288190448061747,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.query.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.194798973305082,
+    "two": 0.194798973305082,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.11112353110481232,
+    "two": 0.11112353110481232,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.mlp1.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.1293828309281337,
+    "two": 0.1293828309281337,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.mlp2.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.18265317748113374,
+    "two": 0.18265317748113374,
+    "hit": true
+   }
+  ],
+  "whisper|R|2": [
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.key.weight",
+    "formula": 0.0,
+    "shuffled": 1.9857472828030684,
+    "level1": 0.0,
+    "round": 0.36502825162298463,
+    "two": 0.1477295578616573,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.16506740264325162,
+    "level1": 0.0,
+    "round": 0.13013212592354503,
+    "two": 0.13013212592354503,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.query.weight",
+    "formula": 0.003978244645778332,
+    "shuffled": 2.43496749315797,
+    "level1": 0.003978244645778332,
+    "round": 0.3155045393516764,
+    "two": 0.17622034866099545,
+    "hit": false
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.1630822721399232,
+    "level1": 0.0,
+    "round": 0.21018590623520492,
+    "two": 0.21018590623520492,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.key.weight",
+    "formula": 0.1441472928760706,
+    "shuffled": 2.438472432931394,
+    "level1": 2.609085232180668,
+    "round": 0.44355094488869107,
+    "two": 0.19753817182408182,
+    "hit": false
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.07912122854108442,
+    "level1": 0.07912122854108442,
+    "round": 0.2604777201121324,
+    "two": 0.21041504394191823,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.query.weight",
+    "formula": 0.7876718296268652,
+    "shuffled": 0.7876718296268652,
+    "level1": 2.1311835110925896,
+    "round": 1.4078421989568084,
+    "two": 0.5737199601774357,
+    "hit": false
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.26828213749162744,
+    "level1": 0.0,
+    "round": 0.11974695041444731,
+    "two": 0.11974695041444731,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.mlp1.weight",
+    "formula": 0.0,
+    "shuffled": 0.9697869734342328,
+    "level1": 0.0,
+    "round": 0.14307105611813167,
+    "two": 0.14307105611813167,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.mlp2.weight",
+    "formula": 0.1633851916029483,
+    "shuffled": 1.7863708398416107,
+    "level1": 0.0,
+    "round": 0.5305596854554524,
+    "two": 0.12560099038720743,
+    "hit": false
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.key.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.28427896085154214,
+    "two": 0.28427896085154214,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.out.weight",
+    "formula": 0.0010164536340932764,
+    "shuffled": 0.3123914203003835,
+    "level1": 0.0010164536340932764,
+    "round": 0.04883262348934398,
+    "two": 0.04883262348934398,
+    "hit": false
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.query.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.19885210061336484,
+    "two": 0.19885210061336484,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.15619962013885755,
+    "level1": 0.0,
+    "round": 0.24038603213429083,
+    "two": 0.24038603213429083,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.key.weight",
+    "formula": 0.11874271981443237,
+    "shuffled": 0.11874271981443237,
+    "level1": 0.11874271981443237,
+    "round": 0.31334971227690495,
+    "two": 0.2885876274484053,
+    "hit": false
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.7454293297371986,
+    "level1": 0.0,
+    "round": 0.0843020649563967,
+    "two": 0.0843020649563967,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.query.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.23048604833394074,
+    "two": 0.23048604833394074,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.7544057694604184,
+    "level1": 0.0,
+    "round": 0.10347542721648986,
+    "two": 0.10347542721648986,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.mlp1.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.18292178837354758,
+    "two": 0.18292178837354758,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.mlp2.weight",
+    "formula": 0.0,
+    "shuffled": 2.72624314645906,
+    "level1": 0.0,
+    "round": 0.6492556518349961,
+    "two": 0.060958175720651965,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.key.weight",
+    "formula": 0.2892320514846831,
+    "shuffled": 0.2892320514846831,
+    "level1": 1.4558487720839364,
+    "round": 0.8691547011485097,
+    "two": 0.0,
+    "hit": false
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.out.weight",
+    "formula": 0.22642110949925673,
+    "shuffled": 1.4816347151923686,
+    "level1": 0.0,
+    "round": 0.11256477445338649,
+    "two": 0.11256477445338649,
+    "hit": false
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.query.weight",
+    "formula": 0.6974241404199449,
+    "shuffled": 0.6974241404199449,
+    "level1": 1.671550422899318,
+    "round": 0.6499214110038483,
+    "two": 0.0,
+    "hit": false
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.value.weight",
+    "formula": 0.021048479352653252,
+    "shuffled": 1.1578624910201172,
+    "level1": 0.0,
+    "round": 0.26446210653495467,
+    "two": 0.1421581279796172,
+    "hit": false
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.mlp1.weight",
+    "formula": 0.22892944643601165,
+    "shuffled": 1.260331908271305,
+    "level1": 0.0,
+    "round": 0.5157703290019537,
+    "two": 0.09289161640320996,
+    "hit": false
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.mlp2.weight",
+    "formula": 0.046640196795404,
+    "shuffled": 1.605379521425261,
+    "level1": 0.046640196795404,
+    "round": 0.8401243193551764,
+    "two": 0.046640196795404,
+    "hit": false
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.key.weight",
+    "formula": 0.06323269759491222,
+    "shuffled": 2.6010842626776576,
+    "level1": 0.18738787240385013,
+    "round": 0.39418884790882897,
+    "two": 0.18738787240385013,
+    "hit": false
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.3203096721340589,
+    "level1": 0.0,
+    "round": 0.06341138211349558,
+    "two": 0.06341138211349558,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.query.weight",
+    "formula": 0.0,
+    "shuffled": 0.178310112194564,
+    "level1": 0.178310112194564,
+    "round": 0.24510622981760333,
+    "two": 0.24510622981760333,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.09899350327929249,
+    "two": 0.09899350327929249,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.mlp1.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.15281190825526011,
+    "two": 0.15281190825526011,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.mlp2.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.24635966901608125,
+    "two": 0.24635966901608125,
+    "hit": true
+   }
+  ],
+  "whisper|32|4": [
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.key.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.35780298671457983,
+    "two": 0.2823421274214098,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.0870868568267481,
+    "level1": 0.0,
+    "round": 0.052805336967536455,
+    "two": 0.052805336967536455,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.query.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.22347904975729,
+    "two": 0.22347904975729,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.06484908219904618,
+    "level1": 0.0,
+    "round": 0.09012639891272184,
+    "two": 0.09012639891272184,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.key.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.4675932278149104,
+    "two": 0.252526458856723,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.19517831946818678,
+    "two": 0.19517831946818678,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.query.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.610678234505369,
+    "round": 2.736017566216419,
+    "two": 1.6061738737742943,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.09907150618056279,
+    "level1": 0.0,
+    "round": 0.015127779456936793,
+    "two": 0.015127779456936793,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.mlp1.weight",
+    "formula": 0.0,
+    "shuffled": 0.10508087061447058,
+    "level1": 0.0,
+    "round": 0.018066213981164533,
+    "two": 0.018066213981164533,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.mlp2.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.39068447102150894,
+    "two": 0.24397365151792774,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.key.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.07817865494337833,
+    "two": 0.07817865494337833,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.15861105410965043,
+    "level1": 0.0,
+    "round": 0.0,
+    "two": 0.0,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.query.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.040165130419068676,
+    "two": 0.040165130419068676,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.10722082887528378,
+    "two": 0.10722082887528378,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.key.weight",
+    "formula": 0.010311006850623273,
+    "shuffled": 0.010311006850623273,
+    "level1": 0.010311006850623273,
+    "round": 0.1935802471119381,
+    "two": 0.1935802471119381,
+    "hit": false
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.1998582954234036,
+    "level1": 0.0,
+    "round": 0.0,
+    "two": 0.0,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.query.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.04868705033149756,
+    "two": 0.04868705033149756,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.04962902998686596,
+    "level1": 0.0,
+    "round": 0.09375297588159004,
+    "two": 0.09375297588159004,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.mlp1.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.026789434473762745,
+    "two": 0.026789434473762745,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.mlp2.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.26698612921443005,
+    "two": 0.26698612921443005,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.key.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 1.3358328436792424,
+    "two": 0.31201139369447123,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.6789357697540617,
+    "level1": 0.0022926112933053583,
+    "round": 0.1753922516430086,
+    "two": 0.1753922516430086,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.query.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.8654184100263069,
+    "two": 0.12732102747849838,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.3906614461420988,
+    "level1": 0.0,
+    "round": 0.37334481694133825,
+    "two": 0.25019606285078644,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.mlp1.weight",
+    "formula": 0.0,
+    "shuffled": 0.32572186995039243,
+    "level1": 0.0,
+    "round": 0.5378613719071439,
+    "two": 0.20442998480795713,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.mlp2.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.44166350389069936,
+    "two": 0.2518774266187996,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.key.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.23923533131015806,
+    "two": 0.23923533131015806,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.016296673295570843,
+    "two": 0.016296673295570843,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.query.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.09434859187577427,
+    "two": 0.09434859187577427,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.03447359276159956,
+    "two": 0.03447359276159956,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.mlp1.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.050283710597764736,
+    "two": 0.050283710597764736,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.mlp2.weight",
+    "formula": 0.0,
+    "shuffled": 0.03697566770310611,
+    "level1": 0.0,
+    "round": 0.12014122917971448,
+    "two": 0.12014122917971448,
+    "hit": true
+   }
+  ],
+  "whisper|128|4": [
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.key.weight",
+    "formula": 0.0,
+    "shuffled": 0.5044546987953057,
+    "level1": 0.0,
+    "round": 0.5316068448532368,
+    "two": 0.24746512304197077,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.0889141773093568,
+    "level1": 0.0,
+    "round": 0.05689332739354013,
+    "two": 0.05689332739354013,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.query.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.38175858585800226,
+    "two": 0.3198220763019932,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.056355830652579174,
+    "level1": 0.0,
+    "round": 0.1481065831641879,
+    "two": 0.1481065831641879,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.key.weight",
+    "formula": 0.0,
+    "shuffled": 0.07856124052681719,
+    "level1": 0.07856124052681719,
+    "round": 0.9312872890662114,
+    "two": 0.022411626885755816,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.3175088355612199,
+    "two": 0.3175088355612199,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.query.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.7283093856807914,
+    "round": 2.5310568370157975,
+    "two": 1.4590256908545052,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.11626051334885265,
+    "level1": 0.0,
+    "round": 0.03599914652204284,
+    "two": 0.03599914652204284,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.mlp1.weight",
+    "formula": 0.0,
+    "shuffled": 0.11528347018077421,
+    "level1": 0.0,
+    "round": 0.034065272159560574,
+    "two": 0.034065272159560574,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.mlp2.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.4896980953607194,
+    "two": 0.2387155381225671,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.key.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.1553590111038022,
+    "two": 0.1553590111038022,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.18653251273144922,
+    "level1": 0.0,
+    "round": 0.0,
+    "two": 0.0,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.query.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.09224442377153823,
+    "two": 0.09224442377153823,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.040877105787690146,
+    "level1": 0.0,
+    "round": 0.14784826019943115,
+    "two": 0.14784826019943115,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.key.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.46343964183249825,
+    "two": 0.25929951932866335,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.26307519675005114,
+    "level1": 0.0,
+    "round": 0.0,
+    "two": 0.0,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.query.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.12238052992157382,
+    "two": 0.12238052992157382,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.03143234438947821,
+    "level1": 0.0,
+    "round": 0.1630609443403114,
+    "two": 0.1630609443403114,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.mlp1.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.06295042878797338,
+    "two": 0.06295042878797338,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.mlp2.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.5130813163868913,
+    "two": 0.26725065435082823,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.key.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 1.7214401333727636,
+    "two": 0.4217856587969012,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.7294196731696705,
+    "level1": 0.015271602595611484,
+    "round": 0.18943862279552715,
+    "two": 0.18943862279552715,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.query.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 1.032162712396715,
+    "two": 0.11915027936687932,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.5013026240922532,
+    "level1": 0.0,
+    "round": 0.3745314079810007,
+    "two": 0.28092798504851013,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.mlp1.weight",
+    "formula": 0.0,
+    "shuffled": 0.3366369640160284,
+    "level1": 0.0,
+    "round": 0.6440149246445742,
+    "two": 0.18655328582208613,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.mlp2.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.6896876026764286,
+    "two": 0.1984005010761457,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.key.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.5693840812983216,
+    "two": 0.2415127158788061,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.14334189773428196,
+    "level1": 0.005008309434993324,
+    "round": 0.0,
+    "two": 0.0,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.query.weight",
+    "formula": 0.0,
+    "shuffled": 0.01585689078788017,
+    "level1": 0.0,
+    "round": 0.20244878020043333,
+    "two": 0.20244878020043333,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.04796322508567849,
+    "two": 0.04796322508567849,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.mlp1.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.09527157473831309,
+    "two": 0.09527157473831309,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.mlp2.weight",
+    "formula": 0.0,
+    "shuffled": 0.04538581644253638,
+    "level1": 0.0,
+    "round": 0.15522417992828744,
+    "two": 0.15522417992828744,
+    "hit": true
+   }
+  ],
+  "whisper|R|4": [
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.key.weight",
+    "formula": 0.0,
+    "shuffled": 0.48413305726056166,
+    "level1": 0.0,
+    "round": 0.6484308360452068,
+    "two": 0.23362097243762314,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.11049060383711908,
+    "level1": 0.0,
+    "round": 0.09052904415389572,
+    "two": 0.09052904415389572,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.query.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.46334594366864706,
+    "two": 0.32184260879035537,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.06529579418356404,
+    "level1": 0.0,
+    "round": 0.19971139000089397,
+    "two": 0.19971139000089397,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.key.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 2.378355239557142,
+    "two": 0.4655640313881082,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.3793530534565253,
+    "two": 0.2913715731580317,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.query.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.7700872245746224,
+    "round": 2.453255724580853,
+    "two": 1.3041186136361889,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.11591467959581983,
+    "level1": 0.0,
+    "round": 0.09974451810421399,
+    "two": 0.09974451810421399,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.mlp1.weight",
+    "formula": 0.0,
+    "shuffled": 0.10055492394442479,
+    "level1": 0.0,
+    "round": 0.10978835279295054,
+    "two": 0.10978835279295054,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.mlp2.weight",
+    "formula": 0.0,
+    "shuffled": 0.4825247249004411,
+    "level1": 0.0,
+    "round": 0.745757277728524,
+    "two": 0.20959050681516067,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.key.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.2888042308110956,
+    "two": 0.2888042308110956,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.18107286027644282,
+    "level1": 0.0,
+    "round": 0.0,
+    "two": 0.0,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.query.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.1890231684134719,
+    "two": 0.1890231684134719,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.0407615899522348,
+    "level1": 0.0,
+    "round": 0.19398510774320638,
+    "two": 0.19398510774320638,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.key.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.8064115196738975,
+    "two": 0.12154659108474067,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.35697192269090294,
+    "level1": 0.0,
+    "round": 0.0,
+    "two": 0.0,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.query.weight",
+    "formula": 0.014218434124121071,
+    "shuffled": 0.014218434124121071,
+    "level1": 0.014218434124121071,
+    "round": 0.2673896386934773,
+    "two": 0.2673896386934773,
+    "hit": false
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.3455446396864625,
+    "two": 0.3455446396864625,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.mlp1.weight",
+    "formula": 0.0,
+    "shuffled": 0.08672441799029659,
+    "level1": 0.0,
+    "round": 0.13679707728928378,
+    "two": 0.13679707728928378,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.mlp2.weight",
+    "formula": 0.0,
+    "shuffled": 0.2608940832660989,
+    "level1": 0.0,
+    "round": 1.1402704570674473,
+    "two": 0.10648546967929133,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.key.weight",
+    "formula": 0.2067071073292972,
+    "shuffled": 0.2067071073292972,
+    "level1": 0.0,
+    "round": 2.416790079990205,
+    "two": 0.5702381122582635,
+    "hit": false
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.6652536533648954,
+    "level1": 0.0,
+    "round": 0.19732989713106802,
+    "two": 0.19732989713106802,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.query.weight",
+    "formula": 0.25092822016632976,
+    "shuffled": 0.25092822016632976,
+    "level1": 0.0,
+    "round": 1.6043347989818666,
+    "two": 0.16340064304800503,
+    "hit": false
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.5476422940645816,
+    "level1": 0.0,
+    "round": 0.4246177017981304,
+    "two": 0.27877288966913294,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.mlp1.weight",
+    "formula": 0.0,
+    "shuffled": 0.2738569615954612,
+    "level1": 0.0,
+    "round": 0.8782480892812745,
+    "two": 0.12620732502660204,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.mlp2.weight",
+    "formula": 0.0,
+    "shuffled": 0.14769667031246478,
+    "level1": 0.0,
+    "round": 1.22569266712942,
+    "two": 0.04925968991367997,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.key.weight",
+    "formula": 0.0,
+    "shuffled": 0.19128546701246874,
+    "level1": 0.0,
+    "round": 1.0336478140131184,
+    "two": 0.03507127892637822,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.16792860889521694,
+    "level1": 0.0032377211852132144,
+    "round": 0.0,
+    "two": 0.0,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.query.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.4441684814640962,
+    "two": 0.289509874780919,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.07341050404989827,
+    "two": 0.07341050404989827,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.mlp1.weight",
+    "formula": 0.0,
+    "shuffled": 0.057722670386612426,
+    "level1": 0.0,
+    "round": 0.18478214065826104,
+    "two": 0.18478214065826104,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.mlp2.weight",
+    "formula": 0.0,
+    "shuffled": 0.012755650787272636,
+    "level1": 0.012755650787272636,
+    "round": 0.3015152661645804,
+    "two": 0.3015152661645804,
+    "hit": true
+   }
+  ],
+  "whisper|128|4+": [
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.key.weight",
+    "formula": 0.0,
+    "shuffled": 0.06498709927617856,
+    "level1": 0.0,
+    "round": 0.5153054165714801,
+    "two": 0.06498709927617856,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.082341279696516,
+    "level1": 0.0,
+    "round": 0.023516249890348534,
+    "two": 0.023516249890348534,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.query.weight",
+    "formula": 0.0,
+    "shuffled": 0.13763465354522336,
+    "level1": 0.0,
+    "round": 0.3544374079163759,
+    "two": 0.13763465354522336,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.05230153131612726,
+    "level1": 0.0,
+    "round": 0.10922314319966261,
+    "two": 0.10922314319966261,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.key.weight",
+    "formula": 0.0,
+    "shuffled": 0.18025090042698425,
+    "level1": 0.0,
+    "round": 1.2010621134461106,
+    "two": 0.0,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.30306703373041016,
+    "two": 0.1366069505222228,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.query.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.7582870147492758,
+    "round": 2.550497358368659,
+    "two": 1.2393222495334142,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.09660361987844847,
+    "level1": 0.0,
+    "round": 0.003118919878850187,
+    "two": 0.003118919878850187,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.mlp1.weight",
+    "formula": 0.0,
+    "shuffled": 0.10476883417410726,
+    "level1": 0.0,
+    "round": 0.01022243533185229,
+    "two": 0.01022243533185229,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.mlp2.weight",
+    "formula": 0.0,
+    "shuffled": 0.06512867541619888,
+    "level1": 0.0,
+    "round": 0.472715110190595,
+    "two": 0.06512867541619888,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.key.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.12261567055140682,
+    "two": 0.12261567055140682,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.1881794868242576,
+    "level1": 0.0,
+    "round": 0.0,
+    "two": 0.0,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.query.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.054047618963884124,
+    "two": 0.054047618963884124,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.045287385682038356,
+    "level1": 0.0,
+    "round": 0.12156597854960854,
+    "two": 0.12156597854960854,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.key.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.4703179298935565,
+    "two": 0.10307386513175404,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.3044144468409752,
+    "level1": 0.0,
+    "round": 0.0,
+    "two": 0.0,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.query.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.08689942763306469,
+    "two": 0.08689942763306469,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.03553778962022441,
+    "level1": 0.0,
+    "round": 0.14129188428489262,
+    "two": 0.14129188428489262,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.mlp1.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.04478269216688178,
+    "two": 0.04478269216688178,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.mlp2.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.49002853861383844,
+    "two": 0.0882943099063948,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.key.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 1.823048225451624,
+    "two": 0.2716486373481365,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.out.weight",
+    "formula": 0.008681593363922761,
+    "shuffled": 0.67082543749167,
+    "level1": 0.008681593363922761,
+    "round": 0.1586580470783006,
+    "two": 0.1586580470783006,
+    "hit": false
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.query.weight",
+    "formula": 0.026568876640496935,
+    "shuffled": 0.026568876640496935,
+    "level1": 0.026568876640496935,
+    "round": 1.1176318846443112,
+    "two": 0.0,
+    "hit": false
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.4723833578389805,
+    "level1": 0.0,
+    "round": 0.334047044066576,
+    "two": 0.09300295020291546,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.mlp1.weight",
+    "formula": 0.0,
+    "shuffled": 0.3103354246756926,
+    "level1": 0.0,
+    "round": 0.6297083390816514,
+    "two": 0.011388880567025677,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.mlp2.weight",
+    "formula": 0.0,
+    "shuffled": 0.01284581555131585,
+    "level1": 0.0,
+    "round": 0.6588625160126876,
+    "two": 0.01284581555131585,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.key.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.5581451196091877,
+    "two": 0.06369035496184214,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.15179659276975846,
+    "level1": 0.0,
+    "round": 0.0,
+    "two": 0.0,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.query.weight",
+    "formula": 0.0,
+    "shuffled": 0.006358089331504353,
+    "level1": 0.0,
+    "round": 0.19289446819732747,
+    "two": 0.19289446819732747,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.015510906273790799,
+    "two": 0.015510906273790799,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.mlp1.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.06744633695900894,
+    "two": 0.06744633695900894,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.mlp2.weight",
+    "formula": 0.0,
+    "shuffled": 0.03219057898960228,
+    "level1": 0.0,
+    "round": 0.13356513525559577,
+    "two": 0.13356513525559577,
+    "hit": true
+   }
+  ],
+  "whisper|R|4+": [
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.key.weight",
+    "formula": 0.0,
+    "shuffled": 0.06834397869945617,
+    "level1": 0.0,
+    "round": 0.6195575272036093,
+    "two": 0.06834397869945617,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.08940616235481336,
+    "level1": 0.0,
+    "round": 0.0715942715989464,
+    "two": 0.0715942715989464,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.query.weight",
+    "formula": 0.0,
+    "shuffled": 0.16527205169934445,
+    "level1": 0.0,
+    "round": 0.4084710482694083,
+    "two": 0.16527205169934445,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.06248734690383873,
+    "level1": 0.0,
+    "round": 0.16176979910008726,
+    "two": 0.16176979910008726,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.key.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 2.8725602632624363,
+    "two": 0.4177670701160334,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.12875214922108663,
+    "level1": 0.0,
+    "round": 0.3893904734867738,
+    "two": 0.12875214922108663,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.query.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.8444639297103012,
+    "round": 2.531533155407523,
+    "two": 1.212518093945221,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.10160775570426284,
+    "level1": 0.0,
+    "round": 0.06258031275176659,
+    "two": 0.06258031275176659,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.mlp1.weight",
+    "formula": 0.0,
+    "shuffled": 0.08632489840978158,
+    "level1": 0.0,
+    "round": 0.07404130479210408,
+    "two": 0.07404130479210408,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.mlp2.weight",
+    "formula": 0.0,
+    "shuffled": 0.43449069164980675,
+    "level1": 0.0,
+    "round": 0.7577398287197354,
+    "two": 0.18197678099321718,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.key.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.2784028363245281,
+    "two": 0.2259964423109896,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.569395829945998,
+    "level1": 0.0,
+    "round": 0.0,
+    "two": 0.0,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.query.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.14948999627996412,
+    "two": 0.14948999627996412,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.0537798253723521,
+    "level1": 0.0,
+    "round": 0.15986679461707848,
+    "two": 0.15986679461707848,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.key.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.9440028632011477,
+    "two": 0.0,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.7797779715595137,
+    "level1": 0.0,
+    "round": 0.0,
+    "two": 0.0,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.query.weight",
+    "formula": 0.004049726055755232,
+    "shuffled": 0.004049726055755232,
+    "level1": 0.004049726055755232,
+    "round": 0.2253522559178954,
+    "two": 0.2253522559178954,
+    "hit": false
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.3138214489406773,
+    "two": 0.16141724485023506,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.mlp1.weight",
+    "formula": 0.0,
+    "shuffled": 0.07368661073929013,
+    "level1": 0.0,
+    "round": 0.09714529340404487,
+    "two": 0.09714529340404487,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.mlp2.weight",
+    "formula": 0.0,
+    "shuffled": 0.253071067087126,
+    "level1": 0.0,
+    "round": 1.1701013342806736,
+    "two": 0.08156836214293804,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.key.weight",
+    "formula": 0.2347435514339536,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 2.538487958616255,
+    "two": 0.45863292010762724,
+    "hit": false
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.5872740986816506,
+    "level1": 0.0,
+    "round": 0.21118910436225452,
+    "two": 0.1728015447169942,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.query.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 1.7328883656703598,
+    "two": 0.0814359600890799,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.5183680197776624,
+    "level1": 0.0,
+    "round": 0.398401747249402,
+    "two": 0.12558381637148178,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.mlp1.weight",
+    "formula": 0.0,
+    "shuffled": 0.273876264320279,
+    "level1": 0.0,
+    "round": 0.8972763965750536,
+    "two": 0.0,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.mlp2.weight",
+    "formula": 0.0,
+    "shuffled": 0.1313026640768037,
+    "level1": 0.0,
+    "round": 1.2008162831844038,
+    "two": 0.03163667210165548,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.key.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 1.1659130561182083,
+    "two": 0.0,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.out.weight",
+    "formula": 0.0,
+    "shuffled": 0.17859955489888416,
+    "level1": 0.0,
+    "round": 0.0,
+    "two": 0.0,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.query.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.4159334718650662,
+    "two": 0.1563194287244009,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.value.weight",
+    "formula": 0.0,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.03204917815233856,
+    "two": 0.03204917815233856,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.mlp1.weight",
+    "formula": 0.0,
+    "shuffled": 0.04976064824008798,
+    "level1": 0.0,
+    "round": 0.14567175163667145,
+    "two": 0.14567175163667145,
+    "hit": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.mlp2.weight",
+    "formula": 0.003936363355004098,
+    "shuffled": 0.0,
+    "level1": 0.0,
+    "round": 0.30245009443682536,
+    "two": 0.30245009443682536,
+    "hit": false
+   }
+  ]
+ },
+ "budget": {
+  "G": [
+   {
+    "matrix": "G/0",
+    "regret": 0.0,
+    "same_group": true
+   },
+   {
+    "matrix": "G/1",
+    "regret": 0.0,
+    "same_group": true
+   },
+   {
+    "matrix": "G/2",
+    "regret": 0.0,
+    "same_group": true
+   }
+  ],
+  "T": [
+   {
+    "matrix": "T/0",
+    "regret": 0.0178125337333894,
+    "same_group": true
+   },
+   {
+    "matrix": "T/1",
+    "regret": 0.052895464187005956,
+    "same_group": true
+   },
+   {
+    "matrix": "T/2",
+    "regret": 0.028309747968731543,
+    "same_group": true
+   }
+  ],
+  "whisper": [
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.key.weight",
+    "regret": 0.0,
+    "same_group": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.out.weight",
+    "regret": 0.0,
+    "same_group": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.query.weight",
+    "regret": 0.0,
+    "same_group": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.value.weight",
+    "regret": 0.0,
+    "same_group": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.key.weight",
+    "regret": 0.0,
+    "same_group": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.out.weight",
+    "regret": 0.0,
+    "same_group": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.query.weight",
+    "regret": 0.0,
+    "same_group": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.value.weight",
+    "regret": 0.0,
+    "same_group": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.mlp1.weight",
+    "regret": 0.0,
+    "same_group": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.mlp2.weight",
+    "regret": 0.0,
+    "same_group": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.key.weight",
+    "regret": 0.0,
+    "same_group": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.out.weight",
+    "regret": 0.0,
+    "same_group": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.query.weight",
+    "regret": 0.0,
+    "same_group": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.value.weight",
+    "regret": 0.0,
+    "same_group": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.key.weight",
+    "regret": 0.0,
+    "same_group": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.out.weight",
+    "regret": 0.0,
+    "same_group": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.query.weight",
+    "regret": 0.0,
+    "same_group": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.value.weight",
+    "regret": 0.0,
+    "same_group": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.mlp1.weight",
+    "regret": 0.0,
+    "same_group": true
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.mlp2.weight",
+    "regret": 0.0,
+    "same_group": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.key.weight",
+    "regret": 0.0,
+    "same_group": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.out.weight",
+    "regret": 0.008681593363922761,
+    "same_group": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.query.weight",
+    "regret": 0.0,
+    "same_group": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.value.weight",
+    "regret": 0.0,
+    "same_group": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.mlp1.weight",
+    "regret": 0.0,
+    "same_group": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.mlp2.weight",
+    "regret": 0.0,
+    "same_group": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.key.weight",
+    "regret": 0.0,
+    "same_group": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.out.weight",
+    "regret": 0.0,
+    "same_group": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.query.weight",
+    "regret": 0.0,
+    "same_group": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.value.weight",
+    "regret": 0.0,
+    "same_group": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.mlp1.weight",
+    "regret": 0.0,
+    "same_group": true
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.mlp2.weight",
+    "regret": 0.0,
+    "same_group": true
+   }
+  ]
+ },
+ "rank": {
+  "G": [
+   {
+    "matrix": "G/0",
+    "share": "1/8",
+    "behind": 22.81889042732716,
+    "behind_formula": 22.834435598714204,
+    "residual": 2.57549026298261e-07
+   },
+   {
+    "matrix": "G/1",
+    "share": "1/8",
+    "behind": 22.814835354943476,
+    "behind_formula": 22.83236182296382,
+    "residual": 1.158545068240137e-06
+   },
+   {
+    "matrix": "G/2",
+    "share": "1/8",
+    "behind": 22.828496200879286,
+    "behind_formula": 22.83801903678097,
+    "residual": 6.034130736356642e-07
+   },
+   {
+    "matrix": "G/0",
+    "share": "1/4",
+    "behind": 21.578573975305304,
+    "behind_formula": 21.594117912204634,
+    "residual": 1.4920367421254423e-06
+   },
+   {
+    "matrix": "G/1",
+    "share": "1/4",
+    "behind": 21.575897532615453,
+    "behind_formula": 21.593422657522222,
+    "residual": 2.501658642407733e-06
+   },
+   {
+    "matrix": "G/2",
+    "share": "1/4",
+    "behind": 21.58850299687237,
+    "behind_formula": 21.59802584918589,
+    "residual": 5.87001235912362e-07
+   },
+   {
+    "matrix": "G/0",
+    "share": "1/2",
+    "behind": 18.635621794741045,
+    "behind_formula": 18.65113918913479,
+    "residual": 2.803454232594571e-05
+   },
+   {
+    "matrix": "G/1",
+    "share": "1/2",
+    "behind": 18.646306827120654,
+    "behind_formula": 18.663819735284584,
+    "residual": 1.4718401484344218e-05
+   },
+   {
+    "matrix": "G/2",
+    "share": "1/2",
+    "behind": 18.648240758511427,
+    "behind_formula": 18.657732457292358,
+    "residual": 3.174053382810666e-05
+   }
+  ],
+  "T": [
+   {
+    "matrix": "T/0",
+    "share": "1/8",
+    "behind": 21.798771325339096,
+    "behind_formula": 21.852188774126617,
+    "residual": -2.114857108270582e-06
+   },
+   {
+    "matrix": "T/1",
+    "share": "1/8",
+    "behind": 21.817795039712678,
+    "behind_formula": 21.84227348095337,
+    "residual": 1.2003415425778547e-06
+   },
+   {
+    "matrix": "T/2",
+    "share": "1/8",
+    "behind": 21.782949254096277,
+    "behind_formula": 21.832019977498305,
+    "residual": -2.9203577443669847e-06
+   },
+   {
+    "matrix": "T/0",
+    "share": "1/4",
+    "behind": 20.555465161896088,
+    "behind_formula": 20.608877304445038,
+    "residual": 3.191381466631022e-06
+   },
+   {
+    "matrix": "T/1",
+    "share": "1/4",
+    "behind": 20.57240422407602,
+    "behind_formula": 20.596886371286356,
+    "residual": -2.5056281013456665e-06
+   },
+   {
+    "matrix": "T/2",
+    "share": "1/4",
+    "behind": 20.537258299053942,
+    "behind_formula": 20.58632661957514,
+    "residual": -5.174769132659198e-07
+   },
+   {
+    "matrix": "T/0",
+    "share": "1/2",
+    "behind": 17.611919782767927,
+    "behind_formula": 17.665057079806886,
+    "residual": 0.00027803689145206853
+   },
+   {
+    "matrix": "T/1",
+    "share": "1/2",
+    "behind": 17.627310056529733,
+    "behind_formula": 17.65166247644011,
+    "residual": 0.00012722167185606282
+   },
+   {
+    "matrix": "T/2",
+    "share": "1/2",
+    "behind": 17.593150803469225,
+    "behind_formula": 17.641733162631322,
+    "residual": 0.00048544388218436485
+   }
+  ],
+  "whisper": [
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.key.weight",
+    "share": "1/8",
+    "behind": 19.649570496076688,
+    "behind_formula": 19.66868905401519,
+    "residual": -6.783312116487768e-06
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.out.weight",
+    "share": "1/8",
+    "behind": 20.668613057076442,
+    "behind_formula": 20.689516294245884,
+    "residual": -6.247337189755072e-07
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.query.weight",
+    "share": "1/8",
+    "behind": 19.827436677832587,
+    "behind_formula": 19.847909239481375,
+    "residual": 2.574845040798944e-06
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.value.weight",
+    "share": "1/8",
+    "behind": 21.020952762817515,
+    "behind_formula": 21.036290457611354,
+    "residual": -2.5338370432819417e-06
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.key.weight",
+    "share": "1/8",
+    "behind": 14.449935123995438,
+    "behind_formula": 14.48949207745205,
+    "residual": -2.013941163932269e-06
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.out.weight",
+    "share": "1/8",
+    "behind": 19.946083390275483,
+    "behind_formula": 19.963680013247888,
+    "residual": -3.1258098300363916e-06
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.query.weight",
+    "share": "1/8",
+    "behind": 13.168336489673852,
+    "behind_formula": 13.342447655171924,
+    "residual": -1.4478186353882518e-05
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.value.weight",
+    "share": "1/8",
+    "behind": 20.218882690060084,
+    "behind_formula": 20.243910144171085,
+    "residual": 8.15897754591183e-06
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.mlp1.weight",
+    "share": "1/8",
+    "behind": 20.91038105696132,
+    "behind_formula": 20.92666643314209,
+    "residual": -9.317037045789926e-08
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.mlp2.weight",
+    "share": "1/8",
+    "behind": 20.954393768004685,
+    "behind_formula": 20.954110318714537,
+    "residual": -2.500343443955747e-06
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.key.weight",
+    "share": "1/8",
+    "behind": 20.683361193702623,
+    "behind_formula": 20.703092632798715,
+    "residual": 6.974821643640964e-07
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.out.weight",
+    "share": "1/8",
+    "behind": 20.920521183790225,
+    "behind_formula": 20.932263205265357,
+    "residual": 5.066836785079679e-06
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.query.weight",
+    "share": "1/8",
+    "behind": 20.827746683984813,
+    "behind_formula": 20.843849123701776,
+    "residual": -1.0832060488702344e-06
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.value.weight",
+    "share": "1/8",
+    "behind": 21.43060636343349,
+    "behind_formula": 21.45209834891262,
+    "residual": -6.2259304254877365e-06
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.key.weight",
+    "share": "1/8",
+    "behind": 20.032047084539006,
+    "behind_formula": 20.05219786929768,
+    "residual": -4.201130096886294e-06
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.out.weight",
+    "share": "1/8",
+    "behind": 20.932382596857853,
+    "behind_formula": 20.93382626023164,
+    "residual": 1.4518483468608225e-06
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.query.weight",
+    "share": "1/8",
+    "behind": 20.028122714549855,
+    "behind_formula": 20.04721887847998,
+    "residual": -7.717965501440757e-07
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.value.weight",
+    "share": "1/8",
+    "behind": 20.86273588545702,
+    "behind_formula": 20.87613814036232,
+    "residual": -6.719140347876319e-06
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.mlp1.weight",
+    "share": "1/8",
+    "behind": 21.67867657050231,
+    "behind_formula": 21.69262388883648,
+    "residual": 1.6389379892032483e-06
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.mlp2.weight",
+    "share": "1/8",
+    "behind": 21.820236673584333,
+    "behind_formula": 21.838935181772907,
+    "residual": 4.6107641003915574e-07
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.key.weight",
+    "share": "1/8",
+    "behind": 12.988374311681397,
+    "behind_formula": 12.974897664564702,
+    "residual": -7.226350341435734e-06
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.out.weight",
+    "share": "1/8",
+    "behind": 18.999830590695264,
+    "behind_formula": 19.01400269070767,
+    "residual": -4.636245859697641e-06
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.query.weight",
+    "share": "1/8",
+    "behind": 12.44841197808864,
+    "behind_formula": 12.456152304582718,
+    "residual": -3.1589703692580936e-05
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.value.weight",
+    "share": "1/8",
+    "behind": 17.870537888334052,
+    "behind_formula": 17.823948728362872,
+    "residual": -8.636794369854324e-06
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.mlp1.weight",
+    "share": "1/8",
+    "behind": 19.28408025608277,
+    "behind_formula": 19.301371522370477,
+    "residual": 1.4752833035501938e-06
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.mlp2.weight",
+    "share": "1/8",
+    "behind": 19.971311288544026,
+    "behind_formula": 19.989067137131975,
+    "residual": -4.7389293026368e-07
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.key.weight",
+    "share": "1/8",
+    "behind": 20.287094903610278,
+    "behind_formula": 20.309709296802872,
+    "residual": 6.0162371237523094e-06
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.out.weight",
+    "share": "1/8",
+    "behind": 20.91290513597329,
+    "behind_formula": 20.92478457619013,
+    "residual": -4.4094000923483165e-06
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.query.weight",
+    "share": "1/8",
+    "behind": 20.59979653209463,
+    "behind_formula": 20.607855710459706,
+    "residual": -4.281542838205036e-06
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.value.weight",
+    "share": "1/8",
+    "behind": 20.692408581215325,
+    "behind_formula": 20.705675933759096,
+    "residual": 1.2864148957775593e-06
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.mlp1.weight",
+    "share": "1/8",
+    "behind": 21.47536753904967,
+    "behind_formula": 21.492630186894853,
+    "residual": -5.729402983640349e-07
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.mlp2.weight",
+    "share": "1/8",
+    "behind": 21.30730791175022,
+    "behind_formula": 21.326942181165403,
+    "residual": 1.9486293880053687e-06
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.key.weight",
+    "share": "1/4",
+    "behind": 15.727813708302529,
+    "behind_formula": 15.74689697703019,
+    "residual": 2.8505898720968717e-05
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.out.weight",
+    "share": "1/4",
+    "behind": 18.15616723777048,
+    "behind_formula": 18.177061133598098,
+    "residual": 8.716608094941118e-06
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.query.weight",
+    "share": "1/4",
+    "behind": 16.023642990133094,
+    "behind_formula": 16.044103245086983,
+    "residual": 1.4881539937861032e-05
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.value.weight",
+    "share": "1/4",
+    "behind": 18.49367890601319,
+    "behind_formula": 18.50900980255115,
+    "residual": 4.264418835472883e-06
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.key.weight",
+    "share": "1/4",
+    "behind": 4.542077549678119,
+    "behind_formula": 4.57641680717762,
+    "residual": 0.005215682015947236
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.out.weight",
+    "share": "1/4",
+    "behind": 16.823788152950772,
+    "behind_formula": 16.841342996425436,
+    "residual": 3.86536879142589e-05
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.query.weight",
+    "share": "1/4",
+    "behind": 1.8960125215740875,
+    "behind_formula": 2.0689181299682122,
+    "residual": 0.0011910789175893226
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.value.weight",
+    "share": "1/4",
+    "behind": 17.095833139961158,
+    "behind_formula": 17.120859757587436,
+    "residual": 8.995462269532238e-06
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.mlp1.weight",
+    "share": "1/4",
+    "behind": 18.180087223516388,
+    "behind_formula": 18.19637036887728,
+    "residual": 2.137649509617392e-06
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.mlp2.weight",
+    "share": "1/4",
+    "behind": 18.86214765812082,
+    "behind_formula": 18.861865287899423,
+    "residual": -3.5794121988311193e-06
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.key.weight",
+    "share": "1/4",
+    "behind": 17.806608368144886,
+    "behind_formula": 17.826328408354343,
+    "residual": 1.2096368795062273e-05
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.out.weight",
+    "share": "1/4",
+    "behind": 18.309504333002685,
+    "behind_formula": 18.321240714415914,
+    "residual": 1.0706898692752518e-05
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.query.weight",
+    "share": "1/4",
+    "behind": 17.894379176330602,
+    "behind_formula": 17.91046953223266,
+    "residual": 1.1000608858954434e-05
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.value.weight",
+    "share": "1/4",
+    "behind": 19.090424126232723,
+    "behind_formula": 19.11189598751376,
+    "residual": 1.3898267669502609e-05
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.key.weight",
+    "share": "1/4",
+    "behind": 16.788644177921167,
+    "behind_formula": 16.808717474746896,
+    "residual": 7.328680285020171e-05
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.out.weight",
+    "share": "1/4",
+    "behind": 18.62430445126822,
+    "behind_formula": 18.625731556665954,
+    "residual": 1.800982440016715e-05
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.query.weight",
+    "share": "1/4",
+    "behind": 16.607660741392355,
+    "behind_formula": 16.626774407530686,
+    "residual": -1.827400475957583e-05
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.value.weight",
+    "share": "1/4",
+    "behind": 17.770559007235807,
+    "behind_formula": 17.783960919254014,
+    "residual": -6.376253254518381e-06
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.mlp1.weight",
+    "share": "1/4",
+    "behind": 20.094199083545462,
+    "behind_formula": 20.10815025894822,
+    "residual": -2.2181306092317605e-06
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.mlp2.weight",
+    "share": "1/4",
+    "behind": 20.472496624300472,
+    "behind_formula": 20.49119653895059,
+    "residual": -9.453851341076477e-07
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.key.weight",
+    "share": "1/4",
+    "behind": 6.325982832323312,
+    "behind_formula": 6.310691079613411,
+    "residual": 0.00180787924286528
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.out.weight",
+    "share": "1/4",
+    "behind": 14.834083147273702,
+    "behind_formula": 14.84822199248659,
+    "residual": 2.8618553656874913e-05
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.query.weight",
+    "share": "1/4",
+    "behind": 5.759200642661653,
+    "behind_formula": 5.765857249955413,
+    "residual": 0.0010521294966244806
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.value.weight",
+    "share": "1/4",
+    "behind": 13.013163136731125,
+    "behind_formula": 12.966520776857793,
+    "residual": 4.4563107782836936e-05
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.mlp1.weight",
+    "share": "1/4",
+    "behind": 16.683791221242245,
+    "behind_formula": 16.701079942025213,
+    "residual": 4.020788046892255e-06
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.mlp2.weight",
+    "share": "1/4",
+    "behind": 17.73417106667845,
+    "behind_formula": 17.751932236245683,
+    "residual": -5.7948722141302165e-06
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.key.weight",
+    "share": "1/4",
+    "behind": 17.374351299779295,
+    "behind_formula": 17.396885624486405,
+    "residual": 8.608472261009119e-05
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.out.weight",
+    "share": "1/4",
+    "behind": 18.397177192999713,
+    "behind_formula": 18.409034870158216,
+    "residual": 1.7353658248461714e-05
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.query.weight",
+    "share": "1/4",
+    "behind": 17.78803593825596,
+    "behind_formula": 17.796093248521487,
+    "residual": -2.4134432884075007e-06
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.value.weight",
+    "share": "1/4",
+    "behind": 17.947875712087964,
+    "behind_formula": 17.9611355279012,
+    "residual": 8.823145434038242e-06
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.mlp1.weight",
+    "share": "1/4",
+    "behind": 19.866348899640283,
+    "behind_formula": 19.883609341503963,
+    "residual": 1.6330412041841397e-06
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.mlp2.weight",
+    "share": "1/4",
+    "behind": 19.56350601227727,
+    "behind_formula": 19.583141772155795,
+    "residual": 4.581660459449201e-07
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.key.weight",
+    "share": "1/2",
+    "behind": 9.857837421056496,
+    "behind_formula": 9.65539296063493,
+    "residual": 0.22155623504794916
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.out.weight",
+    "share": "1/2",
+    "behind": 11.703211415956957,
+    "behind_formula": 11.683681110045503,
+    "residual": 0.04043291834717025
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.query.weight",
+    "share": "1/2",
+    "behind": 9.946579608819663,
+    "behind_formula": 9.773013770400661,
+    "residual": 0.19404097491282746
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.attn.value.weight",
+    "share": "1/2",
+    "behind": 12.922515965975352,
+    "behind_formula": 12.902357978335438,
+    "residual": 0.03549314859671222
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.key.weight",
+    "share": "1/2",
+    "behind": 9.906309466295859,
+    "behind_formula": 8.75931455716066,
+    "residual": 1.1865498486506478
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.out.weight",
+    "share": "1/2",
+    "behind": 11.737789063204932,
+    "behind_formula": 11.607124494630039,
+    "residual": 0.1482580657374734
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.query.weight",
+    "share": "1/2",
+    "behind": 8.722674158285658,
+    "behind_formula": 8.344853887694104,
+    "residual": 0.5519169579032702
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.cross_attn.value.weight",
+    "share": "1/2",
+    "behind": 11.763693102151693,
+    "behind_formula": 11.741317006510492,
+    "residual": 0.04741170872974882
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.mlp1.weight",
+    "share": "1/2",
+    "behind": 11.438928813327392,
+    "behind_formula": 11.454461596827393,
+    "residual": 0.0007524995103993419
+   },
+   {
+    "matrix": "whisper/decoder.blocks.0.mlp2.weight",
+    "share": "1/2",
+    "behind": 14.735922916705952,
+    "behind_formula": 14.734849435685362,
+    "residual": 0.0007875313869976488
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.key.weight",
+    "share": "1/2",
+    "behind": 12.427630799338559,
+    "behind_formula": 12.414950009446779,
+    "residual": 0.03241292647002957
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.out.weight",
+    "share": "1/2",
+    "behind": 13.016975337794765,
+    "behind_formula": 12.990708567707657,
+    "residual": 0.03801385839902735
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.query.weight",
+    "share": "1/2",
+    "behind": 12.457815694657315,
+    "behind_formula": 12.431174184714461,
+    "residual": 0.04274286645376746
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.attn.value.weight",
+    "share": "1/2",
+    "behind": 13.978190462416444,
+    "behind_formula": 13.966535075921644,
+    "residual": 0.03314114604350839
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.key.weight",
+    "share": "1/2",
+    "behind": 11.930235576928698,
+    "behind_formula": 11.683599596807461,
+    "residual": 0.26678256374981035
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.out.weight",
+    "share": "1/2",
+    "behind": 12.645605790095395,
+    "behind_formula": 12.601197034102093,
+    "residual": 0.04585387121543763
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.query.weight",
+    "share": "1/2",
+    "behind": 11.04938507574895,
+    "behind_formula": 11.053718256696145,
+    "residual": 0.01476221118637764
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.cross_attn.value.weight",
+    "share": "1/2",
+    "behind": 11.787098024372057,
+    "behind_formula": 11.757427056132215,
+    "residual": 0.043066504004791416
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.mlp1.weight",
+    "share": "1/2",
+    "behind": 16.704660615118954,
+    "behind_formula": 16.718438041943994,
+    "residual": 0.0001715304471129218
+   },
+   {
+    "matrix": "whisper/decoder.blocks.5.mlp2.weight",
+    "share": "1/2",
+    "behind": 17.289466540222836,
+    "behind_formula": 17.307309282162777,
+    "residual": 0.0008562273250439355
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.key.weight",
+    "share": "1/2",
+    "behind": 9.228709101415129,
+    "behind_formula": 8.48471361955938,
+    "residual": 0.7305116083887115
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.out.weight",
+    "share": "1/2",
+    "behind": 9.110863401801197,
+    "behind_formula": 9.025874209510366,
+    "residual": 0.09915665605737603
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.query.weight",
+    "share": "1/2",
+    "behind": 8.853509645686637,
+    "behind_formula": 8.285676850687533,
+    "residual": 0.5755415317894876
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.attn.value.weight",
+    "share": "1/2",
+    "behind": 7.986731341989602,
+    "behind_formula": 7.760194144056096,
+    "residual": 0.17993940116795712
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.mlp1.weight",
+    "share": "1/2",
+    "behind": 11.499268947317205,
+    "behind_formula": 11.515744483286959,
+    "residual": 0.0008172056012611206
+   },
+   {
+    "matrix": "whisper/encoder.blocks.0.mlp2.weight",
+    "share": "1/2",
+    "behind": 13.488015294060043,
+    "behind_formula": 13.505295418358813,
+    "residual": 0.0004752503962508373
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.key.weight",
+    "share": "1/2",
+    "behind": 12.79034352717751,
+    "behind_formula": 12.551216833797758,
+    "residual": 0.26174710280947194
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.out.weight",
+    "share": "1/2",
+    "behind": 12.906247176171163,
+    "behind_formula": 12.889241598451672,
+    "residual": 0.028880608536240925
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.query.weight",
+    "share": "1/2",
+    "behind": 12.521113139815634,
+    "behind_formula": 12.487793150335008,
+    "residual": 0.04137488630286034
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.attn.value.weight",
+    "share": "1/2",
+    "behind": 12.532717867551707,
+    "behind_formula": 12.517358183752593,
+    "residual": 0.02862832275777943
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.mlp1.weight",
+    "share": "1/2",
+    "behind": 16.285549227074107,
+    "behind_formula": 16.3027416959181,
+    "residual": 6.960606089172681e-05
+   },
+   {
+    "matrix": "whisper/encoder.blocks.5.mlp2.weight",
+    "share": "1/2",
+    "behind": 15.645065830382405,
+    "behind_formula": 15.664069164194121,
+    "residual": 0.0006328842328538174
+   }
+  ]
+ }
+}
