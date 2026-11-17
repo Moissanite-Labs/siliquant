@@ -56,7 +56,7 @@ The conventions are those of [weft-loom's CONTRIBUTING.md](https://github.com/Mo
 
 ## Status
 
-Nine studies so far, one of them partial. Two more are planned and not yet scored. The newest results are at the end of this section.
+Ten studies so far, one of them partial. One more is being scored. The newest results are at the end of this section.
 
 The first measured weight error only: at 2 bits per weight the lattice E8 beats scalar rounding on every matrix tried, and the lattice the starting briefs proposed, A8\*, gains less than half as much in the mean of each family of data.
 
@@ -91,7 +91,13 @@ The ninth scores a second model, `Qwen2.5-1.5B-Instruct`, on a second text, for 
 - **One ball per group of weights is far ahead at equal bits.** E8 in one ball per group of 128 scores a mean KL of 0.0195 at 4.5 bits. llama.cpp's `Q4_0` scores 0.0623 at 4.5 bits and its `Q4_K_M` 0.0333 at 4.81. Integer levels with no lattice score 0.0227.
 - **For those arms a decibel of weight error is a decibel of KL**, within a tenth, over nine arms from 4.0 to 4.5 bits.
 
-What these do not show: a second model for the ball arms, which is planned; llama.cpp's files with an importance matrix, which is issue #14 and planned; and anything about a packed format or speed. The bits are counted from the codebook, and the saving is in the file, not in memory.
+The tenth scores the same arms on a third model, `SmolLM2-1.7B-Instruct`, on the same text.
+
+- **The headline holds.** At 4.5 bits one ball per group of 128 scores 0.0560 for integer levels and 0.0609 for E8, where `Q4_K_M` scores 0.0838 at 4.82 bits and `Q4_0` 0.1271 at 4.5.
+- **Two things do not carry.** Integer levels are ahead of E8 on this model, and its E8 arms gain less on the output than their weight error says. And the harness's Voronoi code is not broken per row here: a codeword at zero is level per row and a little worse with groups of 32.
+- **So the arm that both models agree on is the plain one**: integer levels in one ball per group of 128 weights.
+
+What these do not show: llama.cpp's files with an importance matrix, which is issue #14 and is being scored; and anything about a packed format or speed. The bits are counted from the codebook, and the saving is in the file, not in memory.
 
 ## Licence
 
