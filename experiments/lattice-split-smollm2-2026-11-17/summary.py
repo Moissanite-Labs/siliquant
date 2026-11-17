@@ -13,6 +13,7 @@ HARNESS = HERE.parent / "model-output-smollm2-2026-11-17" / "results.jsonl"
 Z, E, X = "ZBG128:b560s16", "EBG128:b560s16", "X32:16"
 AGREE = 0.4
 SMALL, BIG = "noisepart(ZBG128:b560s16)@small#1", "noisepart(ZBG128:b560s16)@big#1"      # extension 1
+PS, NS, PB = "only(ZBG128:b560s16)@small", "onlynoise(ZBG128:b560s16)@small#1", "only(ZBG128:b560s16)@big"   # extension 2
 
 
 def db(x):
@@ -139,6 +140,21 @@ def main():
         else:
             P("None of E1, E2, E3 as written.")
         P(f"Noise on the weights rounded to zero: {sz:+.2f} dB from the integer arm, {sn:+.2f} from the noise arm. Noise on the larger weights: {bz:+.2f} and {bn:+.2f}.")
+
+    if all(v in rows for v in (PS, NS, PB)):
+        N = "noise(ZBG128:b560s16)#1"
+        P("")
+        P("Extension 2, by the statements of PREREG-extension-2.md")
+        ratio = rows[PS]["kl_mean"] / rows[NS]["kl_mean"]
+        m, se = paired(rows[PS], rows[NS])
+        P(f"F1 | the small weights set to zero, {rows[PS]['kl_mean']:.5f}, over noise of that size on them, {rows[NS]['kl_mean']:.5f}: {ratio:.3f} "
+          f"({m:+.2f} dB from the passages, error {se:.2f}) | {'holds' if ratio < 1.0 / 3.0 else 'FAILS'}")
+        both = rows[PS]["kl_mean"] + rows[PB]["kl_mean"]
+        P(f"F2 | the two parts together, {rows[PS]['kl_mean']:.5f} + {rows[PB]['kl_mean']:.5f} = {both:.5f}, over the integer arm's {rows[Z]['kl_mean']:.5f}: {both / rows[Z]['kl_mean']:.3f} "
+          f"| {'holds' if abs(both / rows[Z]['kl_mean'] - 1) <= 0.1 else 'FAILS'}")
+        P(f"F3 | KL per unit of weight error: noise on the small weights alone {c_of(rows[NS]):.1f}, noise on every weight {c_of(rows[N]):.1f}: {c_of(rows[NS]) / c_of(rows[N]):.2f} times "
+          f"| {'holds' if c_of(rows[NS]) >= 2 * c_of(rows[N]) else 'FAILS'}")
+        P(f"Per unit of weight error: the small weights set to zero {c_of(rows[PS]):.1f}, the integer arm's error on the other weights {c_of(rows[PB]):.1f}, the integer arm {c_of(rows[Z]):.1f}.")
 
 
 if __name__ == "__main__":
