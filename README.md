@@ -56,7 +56,7 @@ The conventions are those of [weft-loom's CONTRIBUTING.md](https://github.com/Mo
 
 ## Status
 
-Six studies so far.
+Seven studies so far.
 
 The first measured weight error only: at 2 bits per weight the lattice E8 beats scalar rounding on every matrix tried, and the lattice the starting briefs proposed, A8\*, gains less than half as much in the mean of each family of data.
 
@@ -80,6 +80,13 @@ The sixth, also of 2026-11-17, reads the proposal of issue #10: a formula that g
 - **A rule with a proved guarantee costs about half a decibel.** With a closed-form scale nothing is clipped and the error is under a bound, by two short proofs and in 1,308 of 1,308 runs. For five arms the pick is whole-number arithmetic with a certificate. No proof assistant has run on any of it.
 
 Nothing in the sixth is scored on a model's output, and its codebooks have no packed format. The second model and second text of issue #3 are still to do.
+
+The seventh, also of 2026-11-17, goes back to the output of `gemma-4-E4B-it` and treats the loss as a budget with parts. One model and one text, with no packed format.
+
+- **Bits split by measured gain beat equal bits.** At 4.5 bits the split scores a mean KL of 0.0805 against 0.1173 for the `Q4_0` rule. The split is fitted on the text it is scored on.
+- **Keeping 0.17 percent of the weights exact more than halves the KL of a row scale**, for 0.049 bit. A scale stored in 8 bits costs 2.1 percent of KL. With all three joined the score is 0.0629 at 4.484 bits.
+- **One matrix carries the damage of clipping large weights.** Clipped alone, the `ffn_down` of layer 10 scores 0.1560 and the other 41 layers add up to 0.0182. Nothing in its weights marks it, and no few units carry it. It accounts for a third to a half of the gap between a scale rule that clips and one that does not.
+- **The two kinds of matrix that looked sensitive in the second study are not, once each group of weights has its own scale.** A measure built on neural persistence ranked new arms worst of five.
 
 ## Licence
 
