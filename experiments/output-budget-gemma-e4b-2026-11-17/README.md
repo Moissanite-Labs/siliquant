@@ -376,10 +376,10 @@ Needs NumPy, torch, llama.cpp's `gguf` Python package, `llama-perplexity`, and t
 | | |
 |---|---|
 | Machine | An M1 Max, torch on MPS |
-| Python, NumPy, torch | 3.9.6, 2.0.2, 2.8.0 |
+| Python, NumPy, torch | 3.9.6, 2.0.2, 2.8.0, read off the machine after the runs |
 | Text and `gguf` package | A checkout of llama.cpp at commit `427291b` |
 | Scoring | The installed `llama-perplexity`, which reports version 0.5.0, build 11146, commit `7fe450e19` |
-| Seeds | The searched step of `R+S` samples blocks with seed 0, as in the first record. The power iteration of the spectral error uses seed 0. Nothing else is random. |
+| Seeds | The searched step of `R+S` samples blocks with seed 0, as in the first record. The power iteration of the spectral error uses seed 0. The random move that Part F measures is drawn for each matrix with the matrix's place among the 42 as its seed. Nothing else is random. |
 | Time | A variant scores in 30 to 43 seconds and is built in under a second to 40. Part A, 22 variants, took 17 minutes. |
 
 The first record names commit `427291b` only. Its three scores repeated here, two of them to six decimals, were made with the binary above.
