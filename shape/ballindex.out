@@ -1,0 +1,16 @@
+Numbering the points of ball-cut codebooks (shape/ballindex.py)
+lattice | n | q | bound | points equal to the record's count | bits of a number | bits per weight | n log2(q) | table entries | bits of the largest entry | table in megabytes if held exactly | look-ups per weight to number a block | to read it back | blocks read back equal | seconds to build the table
+Z8 | 8 | 16 | 179 | True | 32 | 4.0000 | 32 | 1620 | 32 | 0.01 | 7.09 | 8.09 | 200 of 200 | 0.0
+Z8 | 32 | 16 | 553 | True | 128 | 4.0000 | 128 | 18282 | 128 | 0.29 | 6.13 | 7.13 | 200 of 200 | 0.0
+Z8 | 128 | 16 | 2010 | True | 512 | 4.0000 | 512 | 259419 | 512 | 16.60 | 5.81 | 6.81 | 200 of 200 | 1.1
+Z8 | 32 | 32 | 2216 | True | 160 | 5.0000 | 160 | 73161 | 160 | 1.46 | 12.85 | 13.85 | 200 of 200 | 0.3
+Z8 | 128 | 32 | 8041 | True | 640 | 5.0000 | 640 | 1037418 | 640 | 82.99 | 12.09 | 13.09 | 200 of 200 | 8.2
+E8 | 8 | 16 | 178 | True | 32 | 4.0000 | 32 | 27094 | 32 | 0.11 | 8.77 | 9.77 | 200 of 200 | 0.0
+E8 | 16 | 16 | 304 | True | 64 | 4.0000 | 64 | 91275 | 64 | 0.73 | 8.25 | 9.25 | 200 of 200 | 0.1
+E8 | 32 | 16 | 552 | True | 128 | 4.0000 | 128 | 329141 | 128 | 5.27 | 8.41 | 9.41 | 200 of 200 | 0.6
+E8 | 128 | 16 | 2008 | True | 512 | 4.0000 | 512 | 4763569 | 512 | 304.87 | 9.67 | 10.67 | 200 of 200 | 15.3
+E8 | 8 | 32 | 720 | True | 40 | 5.0000 | 40 | 109478 | 40 | 0.55 | 17.78 | 18.78 | 200 of 200 | 0.2
+E8 | 32 | 32 | 2214 | True | 160 | 5.0000 | 160 | 1319693 | 160 | 26.39 | 17.64 | 18.64 | 200 of 200 | 4.0
+
+A look-up is one entry of the table, a whole number of up to the width shown, compared with the number being decoded and taken from it.
+For E8 the table has a row for each entry of a block, each half of E8 and each parity, and sizes are counted in quarters, so it is larger.
