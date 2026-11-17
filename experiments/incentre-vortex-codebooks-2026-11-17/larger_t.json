@@ -1,0 +1,3762 @@
+[
+ {
+  "matrix": "G/0",
+  "arm": "F8t",
+  "param": 2,
+  "bits": 1.5,
+  "rel_err": 0.20741360802000314,
+  "scale": 0.6404446751854165,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "G/0",
+  "arm": "F8t",
+  "param": 3,
+  "bits": 2.084962500721156,
+  "rel_err": 0.10113485183320409,
+  "scale": 0.5139099764609484,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "G/0",
+  "arm": "F8t",
+  "param": 4,
+  "bits": 2.5,
+  "rel_err": 0.06193572884792076,
+  "scale": 0.4191939131993011,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "G/0",
+  "arm": "F8t",
+  "param": 8,
+  "bits": 3.5,
+  "rel_err": 0.01965998695609832,
+  "scale": 0.2522793253013502,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "G/0",
+  "arm": "F8t",
+  "param": 16,
+  "bits": 4.5,
+  "rel_err": 0.00667563084288313,
+  "scale": 0.15284926554570352,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "G/0",
+  "arm": "F16t",
+  "param": 2,
+  "bits": 1.3125,
+  "rel_err": 0.24884906091741027,
+  "scale": 0.7070765249817896,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "G/0",
+  "arm": "F16t",
+  "param": 3,
+  "bits": 1.897462500721156,
+  "rel_err": 0.12465711492428316,
+  "scale": 0.5353006369345064,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "G/0",
+  "arm": "F16t",
+  "param": 4,
+  "bits": 2.3125,
+  "rel_err": 0.07602856652138472,
+  "scale": 0.43174822340451513,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "G/0",
+  "arm": "F16t",
+  "param": 8,
+  "bits": 3.3125,
+  "rel_err": 0.023484544463954198,
+  "scale": 0.25370511369200466,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "G/0",
+  "arm": "F16t",
+  "param": 16,
+  "bits": 4.3125,
+  "rel_err": 0.007788428057472847,
+  "scale": 0.15178819814226902,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "G/0",
+  "arm": "CaB7t",
+  "param": 2,
+  "bits": 1.5714285714285714,
+  "rel_err": 0.18901791586350825,
+  "scale": 0.6522319814520751,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "G/0",
+  "arm": "CaB7t",
+  "param": 3,
+  "bits": 2.1563910721497273,
+  "rel_err": 0.09060456658507375,
+  "scale": 0.5263263096067813,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "G/0",
+  "arm": "CaB7t",
+  "param": 4,
+  "bits": 2.571428571428571,
+  "rel_err": 0.0545180008816238,
+  "scale": 0.43325465194337204,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "G/0",
+  "arm": "CaB7t",
+  "param": 8,
+  "bits": 3.571428571428571,
+  "rel_err": 0.01675676820633534,
+  "scale": 0.2603946978143657,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "G/0",
+  "arm": "CaB7t",
+  "param": 16,
+  "bits": 4.571428571428571,
+  "rel_err": 0.005523791753220442,
+  "scale": 0.1559978856090124,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "G/0",
+  "arm": "CaB15t",
+  "param": 2,
+  "bits": 1.3333333333333333,
+  "rel_err": 0.2423138090373872,
+  "scale": 0.7110726570446096,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "G/0",
+  "arm": "CaB15t",
+  "param": 3,
+  "bits": 1.9182958340544893,
+  "rel_err": 0.11990047414601766,
+  "scale": 0.5420890951623709,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "G/0",
+  "arm": "CaB15t",
+  "param": 4,
+  "bits": 2.3333333333333335,
+  "rel_err": 0.07225126246518027,
+  "scale": 0.439694496886891,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "G/0",
+  "arm": "CaB15t",
+  "param": 8,
+  "bits": 3.3333333333333335,
+  "rel_err": 0.021744780552096946,
+  "scale": 0.25893131486662424,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "G/0",
+  "arm": "CaB15t",
+  "param": 16,
+  "bits": 4.333333333333333,
+  "rel_err": 0.006985038203572552,
+  "scale": 0.1531786511848879,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "G/1",
+  "arm": "F8t",
+  "param": 2,
+  "bits": 1.5,
+  "rel_err": 0.20773174311571566,
+  "scale": 0.6406399011382593,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "G/1",
+  "arm": "F8t",
+  "param": 3,
+  "bits": 2.084962500721156,
+  "rel_err": 0.10111361323916387,
+  "scale": 0.515174429360034,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "G/1",
+  "arm": "F8t",
+  "param": 4,
+  "bits": 2.5,
+  "rel_err": 0.062228354086823465,
+  "scale": 0.41932169555787324,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "G/1",
+  "arm": "F8t",
+  "param": 8,
+  "bits": 3.5,
+  "rel_err": 0.019913044756535336,
+  "scale": 0.2546679319479185,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "G/1",
+  "arm": "F8t",
+  "param": 16,
+  "bits": 4.5,
+  "rel_err": 0.006785543458143362,
+  "scale": 0.15289585839698897,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "G/1",
+  "arm": "F16t",
+  "param": 2,
+  "bits": 1.3125,
+  "rel_err": 0.24902178687220855,
+  "scale": 0.7048328042868264,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "G/1",
+  "arm": "F16t",
+  "param": 3,
+  "bits": 1.897462500721156,
+  "rel_err": 0.1245269342826994,
+  "scale": 0.5373321183585209,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "G/1",
+  "arm": "F16t",
+  "param": 4,
+  "bits": 2.3125,
+  "rel_err": 0.07628143886204003,
+  "scale": 0.43338672041942683,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "G/1",
+  "arm": "F16t",
+  "param": 8,
+  "bits": 3.3125,
+  "rel_err": 0.02374886790734022,
+  "scale": 0.2552167337968835,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "G/1",
+  "arm": "F16t",
+  "param": 16,
+  "bits": 4.3125,
+  "rel_err": 0.007890356963095549,
+  "scale": 0.1504562161044369,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "G/1",
+  "arm": "CaB7t",
+  "param": 2,
+  "bits": 1.5714285714285714,
+  "rel_err": 0.1887998754420026,
+  "scale": 0.6510278547740758,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "G/1",
+  "arm": "CaB7t",
+  "param": 3,
+  "bits": 2.1563910721497273,
+  "rel_err": 0.09046617992404919,
+  "scale": 0.5276213123475929,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "G/1",
+  "arm": "CaB7t",
+  "param": 4,
+  "bits": 2.571428571428571,
+  "rel_err": 0.05467934307394896,
+  "scale": 0.4309511457254616,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "G/1",
+  "arm": "CaB7t",
+  "param": 8,
+  "bits": 3.571428571428571,
+  "rel_err": 0.016885766767868172,
+  "scale": 0.26229490389651744,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "G/1",
+  "arm": "CaB7t",
+  "param": 16,
+  "bits": 4.571428571428571,
+  "rel_err": 0.0056324071570534795,
+  "scale": 0.15726552249165413,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "G/1",
+  "arm": "CaB15t",
+  "param": 2,
+  "bits": 1.3333333333333333,
+  "rel_err": 0.24182754798129946,
+  "scale": 0.708816255679461,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "G/1",
+  "arm": "CaB15t",
+  "param": 3,
+  "bits": 1.9182958340544893,
+  "rel_err": 0.11945302785104236,
+  "scale": 0.5434228815439102,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "G/1",
+  "arm": "CaB15t",
+  "param": 4,
+  "bits": 2.3333333333333335,
+  "rel_err": 0.07234354957053252,
+  "scale": 0.43982852841286096,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "G/1",
+  "arm": "CaB15t",
+  "param": 8,
+  "bits": 3.3333333333333335,
+  "rel_err": 0.02194677893844108,
+  "scale": 0.260474073605852,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "G/1",
+  "arm": "CaB15t",
+  "param": 16,
+  "bits": 4.333333333333333,
+  "rel_err": 0.0071105537730893195,
+  "scale": 0.15375996860348792,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "G/2",
+  "arm": "F8t",
+  "param": 2,
+  "bits": 1.5,
+  "rel_err": 0.2065954100778991,
+  "scale": 0.6385199940924609,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "G/2",
+  "arm": "F8t",
+  "param": 3,
+  "bits": 2.084962500721156,
+  "rel_err": 0.10106419403255747,
+  "scale": 0.5105840632001424,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "G/2",
+  "arm": "F8t",
+  "param": 4,
+  "bits": 2.5,
+  "rel_err": 0.061949923190177315,
+  "scale": 0.41703544166219025,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "G/2",
+  "arm": "F8t",
+  "param": 8,
+  "bits": 3.5,
+  "rel_err": 0.019873233422010146,
+  "scale": 0.25382522398933505,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "G/2",
+  "arm": "F8t",
+  "param": 16,
+  "bits": 4.5,
+  "rel_err": 0.006781657069713671,
+  "scale": 0.1523899189340968,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "G/2",
+  "arm": "F16t",
+  "param": 2,
+  "bits": 1.3125,
+  "rel_err": 0.2482319187471657,
+  "scale": 0.704951600110627,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "G/2",
+  "arm": "F16t",
+  "param": 3,
+  "bits": 1.897462500721156,
+  "rel_err": 0.12490031017926607,
+  "scale": 0.5355540615412386,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "G/2",
+  "arm": "F16t",
+  "param": 4,
+  "bits": 2.3125,
+  "rel_err": 0.07625136192369633,
+  "scale": 0.4310237802510724,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "G/2",
+  "arm": "F16t",
+  "param": 8,
+  "bits": 3.3125,
+  "rel_err": 0.023771519650169787,
+  "scale": 0.25437220982761405,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "G/2",
+  "arm": "F16t",
+  "param": 16,
+  "bits": 4.3125,
+  "rel_err": 0.0079062504802408,
+  "scale": 0.1491156039086625,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "G/2",
+  "arm": "CaB7t",
+  "param": 2,
+  "bits": 1.5714285714285714,
+  "rel_err": 0.18800413373250294,
+  "scale": 0.6480108783492087,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "G/2",
+  "arm": "CaB7t",
+  "param": 3,
+  "bits": 2.1563910721497273,
+  "rel_err": 0.09044598539313638,
+  "scale": 0.5229200405464154,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "G/2",
+  "arm": "CaB7t",
+  "param": 4,
+  "bits": 2.571428571428571,
+  "rel_err": 0.05448384499625193,
+  "scale": 0.429525108463975,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "G/2",
+  "arm": "CaB7t",
+  "param": 8,
+  "bits": 3.571428571428571,
+  "rel_err": 0.016898343810041055,
+  "scale": 0.26142695793520704,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "G/2",
+  "arm": "CaB7t",
+  "param": 16,
+  "bits": 4.571428571428571,
+  "rel_err": 0.005629874448262509,
+  "scale": 0.15784084213808036,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "G/2",
+  "arm": "CaB15t",
+  "param": 2,
+  "bits": 1.3333333333333333,
+  "rel_err": 0.24146778614821002,
+  "scale": 0.7089357228928264,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "G/2",
+  "arm": "CaB15t",
+  "param": 3,
+  "bits": 1.9182958340544893,
+  "rel_err": 0.1200529289853269,
+  "scale": 0.5404599948316448,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "G/2",
+  "arm": "CaB15t",
+  "param": 4,
+  "bits": 2.3333333333333335,
+  "rel_err": 0.07242404036434244,
+  "scale": 0.43743046578655537,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "G/2",
+  "arm": "CaB15t",
+  "param": 8,
+  "bits": 3.3333333333333335,
+  "rel_err": 0.021976092943417753,
+  "scale": 0.2590538993772957,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "G/2",
+  "arm": "CaB15t",
+  "param": 16,
+  "bits": 4.333333333333333,
+  "rel_err": 0.007121186302679861,
+  "scale": 0.15271831469494104,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "T/0",
+  "arm": "F8t",
+  "param": 2,
+  "bits": 1.5,
+  "rel_err": 0.24109455692762452,
+  "scale": 0.7962875504156003,
+  "at_edge": false,
+  "t": 3.8
+ },
+ {
+  "matrix": "T/0",
+  "arm": "F8t",
+  "param": 3,
+  "bits": 2.084962500721156,
+  "rel_err": 0.1498942374355287,
+  "scale": 0.750747102231061,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "T/0",
+  "arm": "F8t",
+  "param": 4,
+  "bits": 2.5,
+  "rel_err": 0.11584675120622442,
+  "scale": 0.6737421346176858,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "T/0",
+  "arm": "F8t",
+  "param": 8,
+  "bits": 3.5,
+  "rel_err": 0.0647957127385262,
+  "scale": 0.5071338131954782,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "T/0",
+  "arm": "F8t",
+  "param": 16,
+  "bits": 4.5,
+  "rel_err": 0.03575218111357256,
+  "scale": 0.38875134001562256,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "T/0",
+  "arm": "F16t",
+  "param": 2,
+  "bits": 1.3125,
+  "rel_err": 0.2758822157922793,
+  "scale": 0.8869611809673977,
+  "at_edge": false,
+  "t": 4.0
+ },
+ {
+  "matrix": "T/0",
+  "arm": "F16t",
+  "param": 3,
+  "bits": 1.897462500721156,
+  "rel_err": 0.1710550375909582,
+  "scale": 0.7576243074769924,
+  "at_edge": false,
+  "t": 4.0
+ },
+ {
+  "matrix": "T/0",
+  "arm": "F16t",
+  "param": 4,
+  "bits": 2.3125,
+  "rel_err": 0.1293612950935649,
+  "scale": 0.6468193397357878,
+  "at_edge": false,
+  "t": 4.0
+ },
+ {
+  "matrix": "T/0",
+  "arm": "F16t",
+  "param": 8,
+  "bits": 3.3125,
+  "rel_err": 0.07053608966090194,
+  "scale": 0.48622139622005256,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "T/0",
+  "arm": "F16t",
+  "param": 16,
+  "bits": 4.3125,
+  "rel_err": 0.038985101212918497,
+  "scale": 0.36598469659645944,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "T/0",
+  "arm": "CaB7t",
+  "param": 2,
+  "bits": 1.5714285714285714,
+  "rel_err": 0.21420601616291554,
+  "scale": 0.8503860176184366,
+  "at_edge": false,
+  "t": 4.0
+ },
+ {
+  "matrix": "T/0",
+  "arm": "CaB7t",
+  "param": 3,
+  "bits": 2.1563910721497273,
+  "rel_err": 0.13715265299241983,
+  "scale": 0.8073562287553838,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "T/0",
+  "arm": "CaB7t",
+  "param": 4,
+  "bits": 2.571428571428571,
+  "rel_err": 0.10425371624806334,
+  "scale": 0.717195516559029,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "T/0",
+  "arm": "CaB7t",
+  "param": 8,
+  "bits": 3.571428571428571,
+  "rel_err": 0.057699435610468364,
+  "scale": 0.5410050396070271,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "T/0",
+  "arm": "CaB7t",
+  "param": 16,
+  "bits": 4.571428571428571,
+  "rel_err": 0.031726227299939985,
+  "scale": 0.41471585729458904,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "T/0",
+  "arm": "CaB15t",
+  "param": 2,
+  "bits": 1.3333333333333333,
+  "rel_err": 0.26627048376835877,
+  "scale": 0.9083906258405106,
+  "at_edge": false,
+  "t": 4.0
+ },
+ {
+  "matrix": "T/0",
+  "arm": "CaB15t",
+  "param": 3,
+  "bits": 1.9182958340544893,
+  "rel_err": 0.1647401576880892,
+  "scale": 0.7732309974172804,
+  "at_edge": false,
+  "t": 4.0
+ },
+ {
+  "matrix": "T/0",
+  "arm": "CaB15t",
+  "param": 4,
+  "bits": 2.3333333333333335,
+  "rel_err": 0.12274801479156225,
+  "scale": 0.6699557950368494,
+  "at_edge": false,
+  "t": 4.0
+ },
+ {
+  "matrix": "T/0",
+  "arm": "CaB15t",
+  "param": 8,
+  "bits": 3.3333333333333335,
+  "rel_err": 0.06590142197386169,
+  "scale": 0.4979687588217181,
+  "at_edge": false,
+  "t": 3.8
+ },
+ {
+  "matrix": "T/0",
+  "arm": "CaB15t",
+  "param": 16,
+  "bits": 4.333333333333333,
+  "rel_err": 0.03625963359862777,
+  "scale": 0.38388309555862604,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "T/1",
+  "arm": "F8t",
+  "param": 2,
+  "bits": 1.5,
+  "rel_err": 0.2484891541617346,
+  "scale": 0.8004706639951422,
+  "at_edge": false,
+  "t": 3.8
+ },
+ {
+  "matrix": "T/1",
+  "arm": "F8t",
+  "param": 3,
+  "bits": 2.084962500721156,
+  "rel_err": 0.15743110837639535,
+  "scale": 0.7632455473300235,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "T/1",
+  "arm": "F8t",
+  "param": 4,
+  "bits": 2.5,
+  "rel_err": 0.12354735903967552,
+  "scale": 0.6849586002628443,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "T/1",
+  "arm": "F8t",
+  "param": 8,
+  "bits": 3.5,
+  "rel_err": 0.07210028519496446,
+  "scale": 0.5173754990110317,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "T/1",
+  "arm": "F8t",
+  "param": 16,
+  "bits": 4.5,
+  "rel_err": 0.04233624977673216,
+  "scale": 0.3997032081786985,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "T/1",
+  "arm": "F16t",
+  "param": 2,
+  "bits": 1.3125,
+  "rel_err": 0.2808806164442394,
+  "scale": 0.8947316138061827,
+  "at_edge": false,
+  "t": 4.0
+ },
+ {
+  "matrix": "T/1",
+  "arm": "F16t",
+  "param": 3,
+  "bits": 1.897462500721156,
+  "rel_err": 0.17802311860206585,
+  "scale": 0.7648903188738343,
+  "at_edge": false,
+  "t": 4.0
+ },
+ {
+  "matrix": "T/1",
+  "arm": "F16t",
+  "param": 4,
+  "bits": 2.3125,
+  "rel_err": 0.13687585086215442,
+  "scale": 0.6530226738260957,
+  "at_edge": false,
+  "t": 4.0
+ },
+ {
+  "matrix": "T/1",
+  "arm": "F16t",
+  "param": 8,
+  "bits": 3.3125,
+  "rel_err": 0.07799064432053578,
+  "scale": 0.49777150484118277,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "T/1",
+  "arm": "F16t",
+  "param": 16,
+  "bits": 4.3125,
+  "rel_err": 0.04564053637779998,
+  "scale": 0.3767961456864117,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "T/1",
+  "arm": "CaB7t",
+  "param": 2,
+  "bits": 1.5714285714285714,
+  "rel_err": 0.2218538612327644,
+  "scale": 0.8608291321962798,
+  "at_edge": false,
+  "t": 4.0
+ },
+ {
+  "matrix": "T/1",
+  "arm": "CaB7t",
+  "param": 3,
+  "bits": 2.1563910721497273,
+  "rel_err": 0.14493461965909563,
+  "scale": 0.8207971031462634,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "T/1",
+  "arm": "CaB7t",
+  "param": 4,
+  "bits": 2.571428571428571,
+  "rel_err": 0.11215804702033876,
+  "scale": 0.7275675081054245,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "T/1",
+  "arm": "CaB7t",
+  "param": 8,
+  "bits": 3.571428571428571,
+  "rel_err": 0.0647304750728183,
+  "scale": 0.5557890056749258,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "T/1",
+  "arm": "CaB7t",
+  "param": 16,
+  "bits": 4.571428571428571,
+  "rel_err": 0.03810143836167944,
+  "scale": 0.43041456609813983,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "T/1",
+  "arm": "CaB15t",
+  "param": 2,
+  "bits": 1.3333333333333333,
+  "rel_err": 0.27269644396734727,
+  "scale": 0.9183235009005776,
+  "at_edge": false,
+  "t": 4.0
+ },
+ {
+  "matrix": "T/1",
+  "arm": "CaB15t",
+  "param": 3,
+  "bits": 1.9182958340544893,
+  "rel_err": 0.17209017078266395,
+  "scale": 0.7816859579501573,
+  "at_edge": false,
+  "t": 4.0
+ },
+ {
+  "matrix": "T/1",
+  "arm": "CaB15t",
+  "param": 4,
+  "bits": 2.3333333333333335,
+  "rel_err": 0.1307656307143352,
+  "scale": 0.6796446116595743,
+  "at_edge": false,
+  "t": 4.0
+ },
+ {
+  "matrix": "T/1",
+  "arm": "CaB15t",
+  "param": 8,
+  "bits": 3.3333333333333335,
+  "rel_err": 0.07349901707585389,
+  "scale": 0.5191806928132662,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "T/1",
+  "arm": "CaB15t",
+  "param": 16,
+  "bits": 4.333333333333333,
+  "rel_err": 0.04282804928956228,
+  "scale": 0.39522327612552444,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "T/2",
+  "arm": "F8t",
+  "param": 2,
+  "bits": 1.5,
+  "rel_err": 0.23873420924479352,
+  "scale": 0.8002865944825754,
+  "at_edge": false,
+  "t": 3.8
+ },
+ {
+  "matrix": "T/2",
+  "arm": "F8t",
+  "param": 3,
+  "bits": 2.084962500721156,
+  "rel_err": 0.14700139435532386,
+  "scale": 0.7597918515340055,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "T/2",
+  "arm": "F8t",
+  "param": 4,
+  "bits": 2.5,
+  "rel_err": 0.11210932975413798,
+  "scale": 0.6833285401736499,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "T/2",
+  "arm": "F8t",
+  "param": 8,
+  "bits": 3.5,
+  "rel_err": 0.06089181620917821,
+  "scale": 0.5132435912948783,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "T/2",
+  "arm": "F8t",
+  "param": 16,
+  "bits": 4.5,
+  "rel_err": 0.03169658664769236,
+  "scale": 0.3871571461694782,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "T/2",
+  "arm": "F16t",
+  "param": 2,
+  "bits": 1.3125,
+  "rel_err": 0.27175928036057906,
+  "scale": 0.89452586883708,
+  "at_edge": false,
+  "t": 4.0
+ },
+ {
+  "matrix": "T/2",
+  "arm": "F16t",
+  "param": 3,
+  "bits": 1.897462500721156,
+  "rel_err": 0.1676805108270926,
+  "scale": 0.7614291804656895,
+  "at_edge": false,
+  "t": 4.0
+ },
+ {
+  "matrix": "T/2",
+  "arm": "F16t",
+  "param": 4,
+  "bits": 2.3125,
+  "rel_err": 0.1254535736226032,
+  "scale": 0.652335913085524,
+  "at_edge": false,
+  "t": 4.0
+ },
+ {
+  "matrix": "T/2",
+  "arm": "F16t",
+  "param": 8,
+  "bits": 3.3125,
+  "rel_err": 0.06668241633397218,
+  "scale": 0.48931380988993484,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "T/2",
+  "arm": "F16t",
+  "param": 16,
+  "bits": 4.3125,
+  "rel_err": 0.034892518235863174,
+  "scale": 0.36910609588003684,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "T/2",
+  "arm": "CaB7t",
+  "param": 2,
+  "bits": 1.5714285714285714,
+  "rel_err": 0.21208335763446534,
+  "scale": 0.8587805365417824,
+  "at_edge": false,
+  "t": 4.0
+ },
+ {
+  "matrix": "T/2",
+  "arm": "CaB7t",
+  "param": 3,
+  "bits": 2.1563910721497273,
+  "rel_err": 0.1344224424291586,
+  "scale": 0.818843775458062,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "T/2",
+  "arm": "CaB7t",
+  "param": 4,
+  "bits": 2.571428571428571,
+  "rel_err": 0.10090227675063113,
+  "scale": 0.7258360476102906,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "T/2",
+  "arm": "CaB7t",
+  "param": 8,
+  "bits": 3.571428571428571,
+  "rel_err": 0.05362781321918106,
+  "scale": 0.546345528453875,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "T/2",
+  "arm": "CaB7t",
+  "param": 16,
+  "bits": 4.571428571428571,
+  "rel_err": 0.02765379169051186,
+  "scale": 0.41500801892802525,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "T/2",
+  "arm": "CaB15t",
+  "param": 2,
+  "bits": 1.3333333333333333,
+  "rel_err": 0.2625744669920038,
+  "scale": 0.9161380805157354,
+  "at_edge": false,
+  "t": 4.0
+ },
+ {
+  "matrix": "T/2",
+  "arm": "CaB15t",
+  "param": 3,
+  "bits": 1.9182958340544893,
+  "rel_err": 0.16120677951528894,
+  "scale": 0.7798257067147552,
+  "at_edge": false,
+  "t": 4.0
+ },
+ {
+  "matrix": "T/2",
+  "arm": "CaB15t",
+  "param": 4,
+  "bits": 2.3333333333333335,
+  "rel_err": 0.11897804531102461,
+  "scale": 0.6756696938913753,
+  "at_edge": false,
+  "t": 4.0
+ },
+ {
+  "matrix": "T/2",
+  "arm": "CaB15t",
+  "param": 8,
+  "bits": 3.3333333333333335,
+  "rel_err": 0.06205323435405522,
+  "scale": 0.5028844183957912,
+  "at_edge": false,
+  "t": 3.8
+ },
+ {
+  "matrix": "T/2",
+  "arm": "CaB15t",
+  "param": 16,
+  "bits": 4.333333333333333,
+  "rel_err": 0.03215064079721583,
+  "scale": 0.38281783221539906,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.0.attn.key.weight",
+  "arm": "F8t",
+  "param": 4,
+  "bits": 2.5,
+  "rel_err": 0.0944905478611309,
+  "scale": 0.021071765411583752,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.0.attn.key.weight",
+  "arm": "F8t",
+  "param": 16,
+  "bits": 4.5,
+  "rel_err": 0.015725609547778782,
+  "scale": 0.009752574434762877,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.0.attn.key.weight",
+  "arm": "F16t",
+  "param": 4,
+  "bits": 2.3125,
+  "rel_err": 0.11516518174582985,
+  "scale": 0.02145958868829944,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "real/decoder.blocks.0.attn.key.weight",
+  "arm": "F16t",
+  "param": 16,
+  "bits": 4.3125,
+  "rel_err": 0.0180375772971362,
+  "scale": 0.009630445167165826,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.0.attn.key.weight",
+  "arm": "CaB7t",
+  "param": 4,
+  "bits": 2.571428571428571,
+  "rel_err": 0.0817949199321182,
+  "scale": 0.022352808895260135,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.0.attn.key.weight",
+  "arm": "CaB7t",
+  "param": 16,
+  "bits": 4.571428571428571,
+  "rel_err": 0.013218708606380233,
+  "scale": 0.010287335317464917,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.0.attn.key.weight",
+  "arm": "CaB15t",
+  "param": 4,
+  "bits": 2.3333333333333335,
+  "rel_err": 0.10470717478606513,
+  "scale": 0.022479138610877178,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "real/decoder.blocks.0.attn.key.weight",
+  "arm": "CaB15t",
+  "param": 16,
+  "bits": 4.333333333333333,
+  "rel_err": 0.016221529557337678,
+  "scale": 0.009718664685865889,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.0.attn.out.weight",
+  "arm": "F8t",
+  "param": 4,
+  "bits": 2.5,
+  "rel_err": 0.09630673846746712,
+  "scale": 0.008570185458812716,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.0.attn.out.weight",
+  "arm": "F8t",
+  "param": 16,
+  "bits": 4.5,
+  "rel_err": 0.0159264205755103,
+  "scale": 0.003824438039300121,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.0.attn.out.weight",
+  "arm": "F16t",
+  "param": 4,
+  "bits": 2.3125,
+  "rel_err": 0.11769822391041493,
+  "scale": 0.008637193814466175,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.0.attn.out.weight",
+  "arm": "F16t",
+  "param": 16,
+  "bits": 4.3125,
+  "rel_err": 0.018372537831311913,
+  "scale": 0.003789722356227331,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.0.attn.out.weight",
+  "arm": "CaB7t",
+  "param": 4,
+  "bits": 2.571428571428571,
+  "rel_err": 0.08313702274820794,
+  "scale": 0.009059593828025564,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.0.attn.out.weight",
+  "arm": "CaB7t",
+  "param": 16,
+  "bits": 4.571428571428571,
+  "rel_err": 0.013495529690299867,
+  "scale": 0.003997523412857878,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.0.attn.out.weight",
+  "arm": "CaB15t",
+  "param": 4,
+  "bits": 2.3333333333333335,
+  "rel_err": 0.10811745402656628,
+  "scale": 0.00897735691246567,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.0.attn.out.weight",
+  "arm": "CaB15t",
+  "param": 16,
+  "bits": 4.333333333333333,
+  "rel_err": 0.01665105404852941,
+  "scale": 0.0038812840255087314,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.0.attn.query.weight",
+  "arm": "F8t",
+  "param": 4,
+  "bits": 2.5,
+  "rel_err": 0.08798009929554768,
+  "scale": 0.020925677241479097,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.0.attn.query.weight",
+  "arm": "F8t",
+  "param": 16,
+  "bits": 4.5,
+  "rel_err": 0.014088522718401468,
+  "scale": 0.009383122741708882,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.0.attn.query.weight",
+  "arm": "F16t",
+  "param": 4,
+  "bits": 2.3125,
+  "rel_err": 0.10805830221689067,
+  "scale": 0.021385168117102903,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "real/decoder.blocks.0.attn.query.weight",
+  "arm": "F16t",
+  "param": 16,
+  "bits": 4.3125,
+  "rel_err": 0.016220000989381263,
+  "scale": 0.009203637057581489,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.0.attn.query.weight",
+  "arm": "CaB7t",
+  "param": 4,
+  "bits": 2.571428571428571,
+  "rel_err": 0.07665905692693048,
+  "scale": 0.02182569211406388,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.0.attn.query.weight",
+  "arm": "CaB7t",
+  "param": 16,
+  "bits": 4.571428571428571,
+  "rel_err": 0.011818624675502097,
+  "scale": 0.009697854500258991,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.0.attn.query.weight",
+  "arm": "CaB15t",
+  "param": 4,
+  "bits": 2.3333333333333335,
+  "rel_err": 0.09971012519856887,
+  "scale": 0.02202562597175958,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "real/decoder.blocks.0.attn.query.weight",
+  "arm": "CaB15t",
+  "param": 16,
+  "bits": 4.333333333333333,
+  "rel_err": 0.014564145372379187,
+  "scale": 0.00929794904769503,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.0.attn.value.weight",
+  "arm": "F8t",
+  "param": 4,
+  "bits": 2.5,
+  "rel_err": 0.07803880366374721,
+  "scale": 0.00781292797214368,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.0.attn.value.weight",
+  "arm": "F8t",
+  "param": 16,
+  "bits": 4.5,
+  "rel_err": 0.010970564850163886,
+  "scale": 0.0032420498920347498,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.0.attn.value.weight",
+  "arm": "F16t",
+  "param": 4,
+  "bits": 2.3125,
+  "rel_err": 0.09535033536665946,
+  "scale": 0.00812062857960256,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.0.attn.value.weight",
+  "arm": "F16t",
+  "param": 16,
+  "bits": 4.3125,
+  "rel_err": 0.012613563201272673,
+  "scale": 0.0032057125223761518,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.0.attn.value.weight",
+  "arm": "CaB7t",
+  "param": 4,
+  "bits": 2.571428571428571,
+  "rel_err": 0.06766069792468922,
+  "scale": 0.008046914960706301,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.0.attn.value.weight",
+  "arm": "CaB7t",
+  "param": 16,
+  "bits": 4.571428571428571,
+  "rel_err": 0.009178094926589225,
+  "scale": 0.0033435904469028108,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.0.attn.value.weight",
+  "arm": "CaB15t",
+  "param": 4,
+  "bits": 2.3333333333333335,
+  "rel_err": 0.08945715419781713,
+  "scale": 0.008287909553973818,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.0.attn.value.weight",
+  "arm": "CaB15t",
+  "param": 16,
+  "bits": 4.333333333333333,
+  "rel_err": 0.011420784970922365,
+  "scale": 0.0032647132710250065,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.0.cross_attn.key.weight",
+  "arm": "F8t",
+  "param": 4,
+  "bits": 2.5,
+  "rel_err": 0.254752678146795,
+  "scale": 0.008781932581218621,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.0.cross_attn.key.weight",
+  "arm": "F8t",
+  "param": 16,
+  "bits": 4.5,
+  "rel_err": 0.1364615538344739,
+  "scale": 0.007882156681901904,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.0.cross_attn.key.weight",
+  "arm": "F16t",
+  "param": 4,
+  "bits": 2.3125,
+  "rel_err": 0.2677519080539587,
+  "scale": 0.008544947372242142,
+  "at_edge": false,
+  "t": 3.8
+ },
+ {
+  "matrix": "real/decoder.blocks.0.cross_attn.key.weight",
+  "arm": "F16t",
+  "param": 16,
+  "bits": 4.3125,
+  "rel_err": 0.14451858407622534,
+  "scale": 0.0072066071379770745,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.0.cross_attn.key.weight",
+  "arm": "CaB7t",
+  "param": 4,
+  "bits": 2.571428571428571,
+  "rel_err": 0.2390585622889578,
+  "scale": 0.009771412407729989,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.0.cross_attn.key.weight",
+  "arm": "CaB7t",
+  "param": 16,
+  "bits": 4.571428571428571,
+  "rel_err": 0.12390686324200541,
+  "scale": 0.008912466168968484,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.0.cross_attn.key.weight",
+  "arm": "CaB15t",
+  "param": 4,
+  "bits": 2.3333333333333335,
+  "rel_err": 0.2563490209944136,
+  "scale": 0.009076499023632232,
+  "at_edge": false,
+  "t": 4.0
+ },
+ {
+  "matrix": "real/decoder.blocks.0.cross_attn.key.weight",
+  "arm": "CaB15t",
+  "param": 16,
+  "bits": 4.333333333333333,
+  "rel_err": 0.13622330097051957,
+  "scale": 0.007937256482981898,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.0.cross_attn.out.weight",
+  "arm": "F8t",
+  "param": 4,
+  "bits": 2.5,
+  "rel_err": 0.09930232954039354,
+  "scale": 0.006379044227203468,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.0.cross_attn.out.weight",
+  "arm": "F8t",
+  "param": 16,
+  "bits": 4.5,
+  "rel_err": 0.023786036091811548,
+  "scale": 0.0032439062759436568,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.0.cross_attn.out.weight",
+  "arm": "F16t",
+  "param": 4,
+  "bits": 2.3125,
+  "rel_err": 0.11765524415324641,
+  "scale": 0.006451351923709145,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "real/decoder.blocks.0.cross_attn.out.weight",
+  "arm": "F16t",
+  "param": 16,
+  "bits": 4.3125,
+  "rel_err": 0.02660003907193334,
+  "scale": 0.00314280779718216,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.0.cross_attn.out.weight",
+  "arm": "CaB7t",
+  "param": 4,
+  "bits": 2.571428571428571,
+  "rel_err": 0.08763010326460234,
+  "scale": 0.006743325449281577,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.0.cross_attn.out.weight",
+  "arm": "CaB7t",
+  "param": 16,
+  "bits": 4.571428571428571,
+  "rel_err": 0.020567384721296527,
+  "scale": 0.0034651722760270023,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.0.cross_attn.out.weight",
+  "arm": "CaB15t",
+  "param": 4,
+  "bits": 2.3333333333333335,
+  "rel_err": 0.11040947988943861,
+  "scale": 0.006644561487929949,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "real/decoder.blocks.0.cross_attn.out.weight",
+  "arm": "CaB15t",
+  "param": 16,
+  "bits": 4.333333333333333,
+  "rel_err": 0.02440796899483197,
+  "scale": 0.0032144602707956395,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.0.cross_attn.query.weight",
+  "arm": "F8t",
+  "param": 4,
+  "bits": 2.5,
+  "rel_err": 0.20970753810555107,
+  "scale": 0.00902636154195479,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "real/decoder.blocks.0.cross_attn.query.weight",
+  "arm": "F8t",
+  "param": 16,
+  "bits": 4.5,
+  "rel_err": 0.050055222384459,
+  "scale": 0.005096332668758214,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.0.cross_attn.query.weight",
+  "arm": "F16t",
+  "param": 4,
+  "bits": 2.3125,
+  "rel_err": 0.2381281848583247,
+  "scale": 0.008975634612138182,
+  "at_edge": false,
+  "t": 4.0
+ },
+ {
+  "matrix": "real/decoder.blocks.0.cross_attn.query.weight",
+  "arm": "F16t",
+  "param": 16,
+  "bits": 4.3125,
+  "rel_err": 0.054431384341349545,
+  "scale": 0.004998847132143967,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.0.cross_attn.query.weight",
+  "arm": "CaB7t",
+  "param": 4,
+  "bits": 2.571428571428571,
+  "rel_err": 0.1282381331335136,
+  "scale": 0.011991785865722734,
+  "at_edge": false,
+  "t": 4.0
+ },
+ {
+  "matrix": "real/decoder.blocks.0.cross_attn.query.weight",
+  "arm": "CaB7t",
+  "param": 16,
+  "bits": 4.571428571428571,
+  "rel_err": 0.02542912740150459,
+  "scale": 0.006232032303949621,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "real/decoder.blocks.0.cross_attn.query.weight",
+  "arm": "CaB15t",
+  "param": 4,
+  "bits": 2.3333333333333335,
+  "rel_err": 0.15960112394211617,
+  "scale": 0.01264932896243262,
+  "at_edge": false,
+  "t": 4.0
+ },
+ {
+  "matrix": "real/decoder.blocks.0.cross_attn.query.weight",
+  "arm": "CaB15t",
+  "param": 16,
+  "bits": 4.333333333333333,
+  "rel_err": 0.027284790020918867,
+  "scale": 0.006140756834266498,
+  "at_edge": false,
+  "t": 4.0
+ },
+ {
+  "matrix": "real/decoder.blocks.0.cross_attn.value.weight",
+  "arm": "F8t",
+  "param": 4,
+  "bits": 2.5,
+  "rel_err": 0.0852698152423557,
+  "scale": 0.007329280970349533,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.0.cross_attn.value.weight",
+  "arm": "F8t",
+  "param": 16,
+  "bits": 4.5,
+  "rel_err": 0.0134473526480296,
+  "scale": 0.003125704735128302,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.0.cross_attn.value.weight",
+  "arm": "F16t",
+  "param": 4,
+  "bits": 2.3125,
+  "rel_err": 0.1045513178174327,
+  "scale": 0.007422227838472891,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.0.cross_attn.value.weight",
+  "arm": "F16t",
+  "param": 16,
+  "bits": 4.3125,
+  "rel_err": 0.01551711219552357,
+  "scale": 0.0030906713790152334,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.0.cross_attn.value.weight",
+  "arm": "CaB7t",
+  "param": 4,
+  "bits": 2.571428571428571,
+  "rel_err": 0.07408703714195605,
+  "scale": 0.0076179338562911685,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.0.cross_attn.value.weight",
+  "arm": "CaB7t",
+  "param": 16,
+  "bits": 4.571428571428571,
+  "rel_err": 0.011315727101924125,
+  "scale": 0.0032636523827745284,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.0.cross_attn.value.weight",
+  "arm": "CaB15t",
+  "param": 4,
+  "bits": 2.3333333333333335,
+  "rel_err": 0.09731289830447341,
+  "scale": 0.0076179338562911685,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.0.cross_attn.value.weight",
+  "arm": "CaB15t",
+  "param": 16,
+  "bits": 4.333333333333333,
+  "rel_err": 0.013985993839317456,
+  "scale": 0.0031475548094278658,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.0.mlp1.weight",
+  "arm": "F8t",
+  "param": 4,
+  "bits": 2.5,
+  "rel_err": 0.08687435807736767,
+  "scale": 0.009413996571689452,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.0.mlp1.weight",
+  "arm": "F8t",
+  "param": 16,
+  "bits": 4.5,
+  "rel_err": 0.011226177612657543,
+  "scale": 0.003911629383183371,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.0.mlp1.weight",
+  "arm": "F16t",
+  "param": 4,
+  "bits": 2.3125,
+  "rel_err": 0.10612619758369152,
+  "scale": 0.009763712385906082,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.0.mlp1.weight",
+  "arm": "F16t",
+  "param": 16,
+  "bits": 4.3125,
+  "rel_err": 0.012879641383157213,
+  "scale": 0.003876122235579103,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.0.mlp1.weight",
+  "arm": "CaB7t",
+  "param": 4,
+  "bits": 2.571428571428571,
+  "rel_err": 0.06837032126512559,
+  "scale": 0.010525233669280635,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.0.mlp1.weight",
+  "arm": "CaB7t",
+  "param": 16,
+  "bits": 4.571428571428571,
+  "rel_err": 0.009339622751284329,
+  "scale": 0.004074444545111694,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.0.mlp1.weight",
+  "arm": "CaB15t",
+  "param": 4,
+  "bits": 2.3333333333333335,
+  "rel_err": 0.08811806356113033,
+  "scale": 0.010742048331646159,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.0.mlp1.weight",
+  "arm": "CaB15t",
+  "param": 16,
+  "bits": 4.333333333333333,
+  "rel_err": 0.011505131142609584,
+  "scale": 0.003933736449453762,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.0.mlp2.weight",
+  "arm": "F8t",
+  "param": 4,
+  "bits": 2.5,
+  "rel_err": 0.09482439774523571,
+  "scale": 0.00893951791970309,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.0.mlp2.weight",
+  "arm": "F8t",
+  "param": 16,
+  "bits": 4.5,
+  "rel_err": 0.016956633614938467,
+  "scale": 0.004324698513987812,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.0.mlp2.weight",
+  "arm": "F16t",
+  "param": 4,
+  "bits": 2.3125,
+  "rel_err": 0.11294585749732443,
+  "scale": 0.008970709119082385,
+  "at_edge": false,
+  "t": 3.8
+ },
+ {
+  "matrix": "real/decoder.blocks.0.mlp2.weight",
+  "arm": "F16t",
+  "param": 16,
+  "bits": 4.3125,
+  "rel_err": 0.019057987404364516,
+  "scale": 0.004184345823764415,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.0.mlp2.weight",
+  "arm": "CaB7t",
+  "param": 4,
+  "bits": 2.571428571428571,
+  "rel_err": 0.08108808782629838,
+  "scale": 0.009549280102857024,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.0.mlp2.weight",
+  "arm": "CaB7t",
+  "param": 16,
+  "bits": 4.571428571428571,
+  "rel_err": 0.014229963463523766,
+  "scale": 0.004536196918468344,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.0.mlp2.weight",
+  "arm": "CaB15t",
+  "param": 4,
+  "bits": 2.3333333333333335,
+  "rel_err": 0.10374653272390977,
+  "scale": 0.009462598143777675,
+  "at_edge": false,
+  "t": 3.8
+ },
+ {
+  "matrix": "real/decoder.blocks.0.mlp2.weight",
+  "arm": "CaB15t",
+  "param": 16,
+  "bits": 4.333333333333333,
+  "rel_err": 0.017056096508892397,
+  "scale": 0.004324698513987812,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.5.attn.key.weight",
+  "arm": "F8t",
+  "param": 4,
+  "bits": 2.5,
+  "rel_err": 0.07478289059736522,
+  "scale": 0.010523519872789643,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.5.attn.key.weight",
+  "arm": "F8t",
+  "param": 16,
+  "bits": 4.5,
+  "rel_err": 0.013583790428092855,
+  "scale": 0.004456790858559457,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.5.attn.key.weight",
+  "arm": "F16t",
+  "param": 4,
+  "bits": 2.3125,
+  "rel_err": 0.09004307012084052,
+  "scale": 0.010740299231786233,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "real/decoder.blocks.5.attn.key.weight",
+  "arm": "F16t",
+  "param": 16,
+  "bits": 4.3125,
+  "rel_err": 0.015136732034925663,
+  "scale": 0.004317892031765383,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.5.attn.key.weight",
+  "arm": "CaB7t",
+  "param": 4,
+  "bits": 2.571428571428571,
+  "rel_err": 0.06596293394834037,
+  "scale": 0.010937973131415368,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.5.attn.key.weight",
+  "arm": "CaB7t",
+  "param": 16,
+  "bits": 4.571428571428571,
+  "rel_err": 0.01173054393244885,
+  "scale": 0.004717572164876953,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.5.attn.key.weight",
+  "arm": "CaB15t",
+  "param": 4,
+  "bits": 2.3333333333333335,
+  "rel_err": 0.0854366150297685,
+  "scale": 0.010999790464601256,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "real/decoder.blocks.5.attn.key.weight",
+  "arm": "CaB15t",
+  "param": 16,
+  "bits": 4.333333333333333,
+  "rel_err": 0.013884559310775133,
+  "scale": 0.004472341210771935,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.5.attn.out.weight",
+  "arm": "F8t",
+  "param": 4,
+  "bits": 2.5,
+  "rel_err": 0.11453861371293612,
+  "scale": 0.011890949781586472,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.5.attn.out.weight",
+  "arm": "F8t",
+  "param": 16,
+  "bits": 4.5,
+  "rel_err": 0.028324802886991008,
+  "scale": 0.006144899945682172,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.5.attn.out.weight",
+  "arm": "F16t",
+  "param": 4,
+  "bits": 2.3125,
+  "rel_err": 0.1348937033601619,
+  "scale": 0.011808403757148143,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.5.attn.out.weight",
+  "arm": "F16t",
+  "param": 16,
+  "bits": 4.3125,
+  "rel_err": 0.0319230714675726,
+  "scale": 0.005904201878574071,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.5.attn.out.weight",
+  "arm": "CaB7t",
+  "param": 4,
+  "bits": 2.571428571428571,
+  "rel_err": 0.10120921536469969,
+  "scale": 0.012472473996148347,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.5.attn.out.weight",
+  "arm": "CaB7t",
+  "param": 16,
+  "bits": 4.571428571428571,
+  "rel_err": 0.024654846258372234,
+  "scale": 0.006555314893218489,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.5.attn.out.weight",
+  "arm": "CaB15t",
+  "param": 4,
+  "bits": 2.3333333333333335,
+  "rel_err": 0.12592430037793106,
+  "scale": 0.012204485081293764,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.5.attn.out.weight",
+  "arm": "CaB15t",
+  "param": 16,
+  "bits": 4.333333333333333,
+  "rel_err": 0.029361593267367828,
+  "scale": 0.0061235340985872225,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.5.attn.query.weight",
+  "arm": "F8t",
+  "param": 4,
+  "bits": 2.5,
+  "rel_err": 0.06989698589674356,
+  "scale": 0.010553410804364664,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.5.attn.query.weight",
+  "arm": "F8t",
+  "param": 16,
+  "bits": 4.5,
+  "rel_err": 0.01071040830361305,
+  "scale": 0.004228005717860644,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.5.attn.query.weight",
+  "arm": "F16t",
+  "param": 4,
+  "bits": 2.3125,
+  "rel_err": 0.08459913048605203,
+  "scale": 0.010785145047197351,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.5.attn.query.weight",
+  "arm": "F16t",
+  "param": 16,
+  "bits": 4.3125,
+  "rel_err": 0.012091054249579824,
+  "scale": 0.00415159609718756,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.5.attn.query.weight",
+  "arm": "CaB7t",
+  "param": 4,
+  "bits": 2.571428571428571,
+  "rel_err": 0.06171434128185237,
+  "scale": 0.010907396746208432,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.5.attn.query.weight",
+  "arm": "CaB7t",
+  "param": 16,
+  "bits": 4.571428571428571,
+  "rel_err": 0.009181478424408999,
+  "scale": 0.0044193556473300635,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.5.attn.query.weight",
+  "arm": "CaB15t",
+  "param": 4,
+  "bits": 2.3333333333333335,
+  "rel_err": 0.080487796012897,
+  "scale": 0.011007313756743077,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.5.attn.query.weight",
+  "arm": "CaB15t",
+  "param": 16,
+  "bits": 4.333333333333333,
+  "rel_err": 0.01107598483487523,
+  "scale": 0.004213304921349248,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.5.attn.value.weight",
+  "arm": "F8t",
+  "param": 4,
+  "bits": 2.5,
+  "rel_err": 0.07334862000858798,
+  "scale": 0.01034803567006231,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.5.attn.value.weight",
+  "arm": "F8t",
+  "param": 16,
+  "bits": 4.5,
+  "rel_err": 0.011328962337354444,
+  "scale": 0.004488354770451454,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.5.attn.value.weight",
+  "arm": "F16t",
+  "param": 4,
+  "bits": 2.3125,
+  "rel_err": 0.08933394669172023,
+  "scale": 0.010583959213800898,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "real/decoder.blocks.5.attn.value.weight",
+  "arm": "F16t",
+  "param": 16,
+  "bits": 4.3125,
+  "rel_err": 0.013006195742938185,
+  "scale": 0.004438048633320895,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.5.attn.value.weight",
+  "arm": "CaB7t",
+  "param": 4,
+  "bits": 2.571428571428571,
+  "rel_err": 0.06460368700631543,
+  "scale": 0.0107412779082908,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.5.attn.value.weight",
+  "arm": "CaB7t",
+  "param": 16,
+  "bits": 4.571428571428571,
+  "rel_err": 0.009502643275583273,
+  "scale": 0.004622775133736904,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.5.attn.value.weight",
+  "arm": "CaB15t",
+  "param": 4,
+  "bits": 2.3333333333333335,
+  "rel_err": 0.08478525127824163,
+  "scale": 0.010816364245695206,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "real/decoder.blocks.5.attn.value.weight",
+  "arm": "CaB15t",
+  "param": 16,
+  "bits": 4.333333333333333,
+  "rel_err": 0.011744112471036685,
+  "scale": 0.004488354770451454,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.5.cross_attn.key.weight",
+  "arm": "F8t",
+  "param": 4,
+  "bits": 2.5,
+  "rel_err": 0.08380891805599425,
+  "scale": 0.010913353651225784,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.5.cross_attn.key.weight",
+  "arm": "F8t",
+  "param": 16,
+  "bits": 4.5,
+  "rel_err": 0.019750945157091457,
+  "scale": 0.005131588436809967,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.5.cross_attn.key.weight",
+  "arm": "F16t",
+  "param": 4,
+  "bits": 2.3125,
+  "rel_err": 0.09808277813490021,
+  "scale": 0.011138163395267107,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "real/decoder.blocks.5.cross_attn.key.weight",
+  "arm": "F16t",
+  "param": 16,
+  "bits": 4.3125,
+  "rel_err": 0.021552963050053595,
+  "scale": 0.004864835902995572,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.5.cross_attn.key.weight",
+  "arm": "CaB7t",
+  "param": 4,
+  "bits": 2.571428571428571,
+  "rel_err": 0.0732603414587433,
+  "scale": 0.011471736841773867,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.5.cross_attn.key.weight",
+  "arm": "CaB7t",
+  "param": 16,
+  "bits": 4.571428571428571,
+  "rel_err": 0.017474488182031834,
+  "scale": 0.005388344104987816,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.5.cross_attn.key.weight",
+  "arm": "CaB15t",
+  "param": 4,
+  "bits": 2.3333333333333335,
+  "rel_err": 0.09154007268924791,
+  "scale": 0.01144706874773495,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "real/decoder.blocks.5.cross_attn.key.weight",
+  "arm": "CaB15t",
+  "param": 16,
+  "bits": 4.333333333333333,
+  "rel_err": 0.020056438125053783,
+  "scale": 0.005038849033868615,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.5.cross_attn.out.weight",
+  "arm": "F8t",
+  "param": 4,
+  "bits": 2.5,
+  "rel_err": 0.12138581835483807,
+  "scale": 0.014152367837738471,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.5.cross_attn.out.weight",
+  "arm": "F8t",
+  "param": 16,
+  "bits": 4.5,
+  "rel_err": 0.02791059217678974,
+  "scale": 0.007313535584185307,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.5.cross_attn.out.weight",
+  "arm": "F16t",
+  "param": 4,
+  "bits": 2.3125,
+  "rel_err": 0.1434229789050783,
+  "scale": 0.014232351727576512,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.5.cross_attn.out.weight",
+  "arm": "F16t",
+  "param": 16,
+  "bits": 4.3125,
+  "rel_err": 0.031486960304070756,
+  "scale": 0.007051579992855348,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.5.cross_attn.out.weight",
+  "arm": "CaB7t",
+  "param": 4,
+  "bits": 2.571428571428571,
+  "rel_err": 0.10717032431522629,
+  "scale": 0.015065132845936448,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.5.cross_attn.out.weight",
+  "arm": "CaB7t",
+  "param": 16,
+  "bits": 4.571428571428571,
+  "rel_err": 0.02414036760273833,
+  "scale": 0.007714557157599918,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.5.cross_attn.out.weight",
+  "arm": "CaB15t",
+  "param": 4,
+  "bits": 2.3333333333333335,
+  "rel_err": 0.13462998743962803,
+  "scale": 0.01457621277054595,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.5.cross_attn.out.weight",
+  "arm": "CaB15t",
+  "param": 16,
+  "bits": 4.333333333333333,
+  "rel_err": 0.0289590327717756,
+  "scale": 0.007396435920437807,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.5.cross_attn.query.weight",
+  "arm": "F8t",
+  "param": 4,
+  "bits": 2.5,
+  "rel_err": 0.06949716729491481,
+  "scale": 0.011159408245225664,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.5.cross_attn.query.weight",
+  "arm": "F8t",
+  "param": 16,
+  "bits": 4.5,
+  "rel_err": 0.010709707518490742,
+  "scale": 0.004486385239497947,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.5.cross_attn.query.weight",
+  "arm": "F16t",
+  "param": 4,
+  "bits": 2.3125,
+  "rel_err": 0.08424565273240192,
+  "scale": 0.011573963478057506,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.5.cross_attn.query.weight",
+  "arm": "F16t",
+  "param": 16,
+  "bits": 4.3125,
+  "rel_err": 0.012066361877573397,
+  "scale": 0.004365317702973554,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.5.cross_attn.query.weight",
+  "arm": "CaB7t",
+  "param": 4,
+  "bits": 2.571428571428571,
+  "rel_err": 0.06117856745732577,
+  "scale": 0.011705156586105,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.5.cross_attn.query.weight",
+  "arm": "CaB7t",
+  "param": 16,
+  "bits": 4.571428571428571,
+  "rel_err": 0.009228000596943457,
+  "scale": 0.004689428838877221,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.5.cross_attn.query.weight",
+  "arm": "CaB15t",
+  "param": 4,
+  "bits": 2.3333333333333335,
+  "rel_err": 0.08004063057903489,
+  "scale": 0.011853596473997575,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.5.cross_attn.query.weight",
+  "arm": "CaB15t",
+  "param": 16,
+  "bits": 4.333333333333333,
+  "rel_err": 0.011061885980149599,
+  "scale": 0.004511740610901604,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.5.cross_attn.value.weight",
+  "arm": "F8t",
+  "param": 4,
+  "bits": 2.5,
+  "rel_err": 0.08434260020033545,
+  "scale": 0.014817549102293085,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.5.cross_attn.value.weight",
+  "arm": "F8t",
+  "param": 16,
+  "bits": 4.5,
+  "rel_err": 0.012927776685815455,
+  "scale": 0.006261850855976258,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.5.cross_attn.value.weight",
+  "arm": "F16t",
+  "param": 4,
+  "bits": 2.3125,
+  "rel_err": 0.10277119621654415,
+  "scale": 0.015434305297765597,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.5.cross_attn.value.weight",
+  "arm": "F16t",
+  "param": 16,
+  "bits": 4.3125,
+  "rel_err": 0.014517446175371934,
+  "scale": 0.0060797696942176465,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.5.cross_attn.value.weight",
+  "arm": "CaB7t",
+  "param": 4,
+  "bits": 2.571428571428571,
+  "rel_err": 0.06947247438363374,
+  "scale": 0.015917705608102763,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.5.cross_attn.value.weight",
+  "arm": "CaB7t",
+  "param": 16,
+  "bits": 4.571428571428571,
+  "rel_err": 0.011040052211267562,
+  "scale": 0.00660520561973529,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.5.cross_attn.value.weight",
+  "arm": "CaB15t",
+  "param": 4,
+  "bits": 2.3333333333333335,
+  "rel_err": 0.08967946486937327,
+  "scale": 0.016280611345480138,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "real/decoder.blocks.5.cross_attn.value.weight",
+  "arm": "CaB15t",
+  "param": 16,
+  "bits": 4.333333333333333,
+  "rel_err": 0.013215135101380074,
+  "scale": 0.0062972404949956096,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.5.mlp1.weight",
+  "arm": "F8t",
+  "param": 4,
+  "bits": 2.5,
+  "rel_err": 0.07299041001221182,
+  "scale": 0.010429757258982658,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.5.mlp1.weight",
+  "arm": "F8t",
+  "param": 16,
+  "bits": 4.5,
+  "rel_err": 0.01230724190237284,
+  "scale": 0.004422962126211201,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.5.mlp1.weight",
+  "arm": "F16t",
+  "param": 4,
+  "bits": 2.3125,
+  "rel_err": 0.08802249625321126,
+  "scale": 0.01081720705505289,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.5.mlp1.weight",
+  "arm": "F16t",
+  "param": 16,
+  "bits": 4.3125,
+  "rel_err": 0.013853592724863396,
+  "scale": 0.004327928468813936,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.5.mlp1.weight",
+  "arm": "CaB7t",
+  "param": 4,
+  "bits": 2.571428571428571,
+  "rel_err": 0.06444369306911203,
+  "scale": 0.011001649966440602,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.5.mlp1.weight",
+  "arm": "CaB7t",
+  "param": 16,
+  "bits": 4.571428571428571,
+  "rel_err": 0.010533691352378619,
+  "scale": 0.004665485487257243,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.5.mlp1.weight",
+  "arm": "CaB15t",
+  "param": 4,
+  "bits": 2.3333333333333335,
+  "rel_err": 0.0833659976484023,
+  "scale": 0.011040036226268769,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.5.mlp1.weight",
+  "arm": "CaB15t",
+  "param": 16,
+  "bits": 4.333333333333333,
+  "rel_err": 0.012685308894234526,
+  "scale": 0.004422962126211201,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.5.mlp2.weight",
+  "arm": "F8t",
+  "param": 4,
+  "bits": 2.5,
+  "rel_err": 0.10034043592898993,
+  "scale": 0.01202382937420676,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.5.mlp2.weight",
+  "arm": "F8t",
+  "param": 16,
+  "bits": 4.5,
+  "rel_err": 0.03160213443081014,
+  "scale": 0.00687481095069189,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.5.mlp2.weight",
+  "arm": "F16t",
+  "param": 4,
+  "bits": 2.3125,
+  "rel_err": 0.11487133389373906,
+  "scale": 0.011982022460802823,
+  "at_edge": false,
+  "t": 3.8
+ },
+ {
+  "matrix": "real/decoder.blocks.5.mlp2.weight",
+  "arm": "F16t",
+  "param": 16,
+  "bits": 4.3125,
+  "rel_err": 0.034595053946585935,
+  "scale": 0.006517441441586824,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.5.mlp2.weight",
+  "arm": "CaB7t",
+  "param": 4,
+  "bits": 2.571428571428571,
+  "rel_err": 0.0909540879670878,
+  "scale": 0.012727382677616162,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/decoder.blocks.5.mlp2.weight",
+  "arm": "CaB7t",
+  "param": 16,
+  "bits": 4.571428571428571,
+  "rel_err": 0.02811783384152469,
+  "scale": 0.007401159064688133,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/decoder.blocks.5.mlp2.weight",
+  "arm": "CaB15t",
+  "param": 4,
+  "bits": 2.3333333333333335,
+  "rel_err": 0.10989575898946459,
+  "scale": 0.012314331364899586,
+  "at_edge": false,
+  "t": 3.8
+ },
+ {
+  "matrix": "real/decoder.blocks.5.mlp2.weight",
+  "arm": "CaB15t",
+  "param": 16,
+  "bits": 4.333333333333333,
+  "rel_err": 0.032306611041424266,
+  "scale": 0.006750567576393112,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/encoder.blocks.0.attn.key.weight",
+  "arm": "F8t",
+  "param": 4,
+  "bits": 2.5,
+  "rel_err": 0.20092324645286963,
+  "scale": 0.014679989312450221,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/encoder.blocks.0.attn.key.weight",
+  "arm": "F8t",
+  "param": 16,
+  "bits": 4.5,
+  "rel_err": 0.05446760178930695,
+  "scale": 0.00899502873506067,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.0.attn.key.weight",
+  "arm": "F16t",
+  "param": 4,
+  "bits": 2.3125,
+  "rel_err": 0.22712376314418295,
+  "scale": 0.014414688721651393,
+  "at_edge": false,
+  "t": 3.8
+ },
+ {
+  "matrix": "real/encoder.blocks.0.attn.key.weight",
+  "arm": "F16t",
+  "param": 16,
+  "bits": 4.3125,
+  "rel_err": 0.05971547378019157,
+  "scale": 0.008654196029961904,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/encoder.blocks.0.attn.key.weight",
+  "arm": "CaB7t",
+  "param": 4,
+  "bits": 2.571428571428571,
+  "rel_err": 0.1501484019869185,
+  "scale": 0.0182817656240675,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "real/encoder.blocks.0.attn.key.weight",
+  "arm": "CaB7t",
+  "param": 16,
+  "bits": 4.571428571428571,
+  "rel_err": 0.04031827123157817,
+  "scale": 0.010416538345233076,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.0.attn.key.weight",
+  "arm": "CaB15t",
+  "param": 4,
+  "bits": 2.3333333333333335,
+  "rel_err": 0.17829670519912688,
+  "scale": 0.017951372793549747,
+  "at_edge": false,
+  "t": 4.0
+ },
+ {
+  "matrix": "real/encoder.blocks.0.attn.key.weight",
+  "arm": "CaB15t",
+  "param": 16,
+  "bits": 4.333333333333333,
+  "rel_err": 0.046730897941064005,
+  "scale": 0.009806509286147567,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "real/encoder.blocks.0.attn.out.weight",
+  "arm": "F8t",
+  "param": 4,
+  "bits": 2.5,
+  "rel_err": 0.1704974784397153,
+  "scale": 0.012688538172287343,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/encoder.blocks.0.attn.out.weight",
+  "arm": "F8t",
+  "param": 16,
+  "bits": 4.5,
+  "rel_err": 0.04160334645020274,
+  "scale": 0.007303727281568836,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.0.attn.out.weight",
+  "arm": "F16t",
+  "param": 4,
+  "bits": 2.3125,
+  "rel_err": 0.20134532930778015,
+  "scale": 0.012760249044348748,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/encoder.blocks.0.attn.out.weight",
+  "arm": "F16t",
+  "param": 16,
+  "bits": 4.3125,
+  "rel_err": 0.046693661364171,
+  "scale": 0.007116093284152842,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.0.attn.out.weight",
+  "arm": "CaB7t",
+  "param": 4,
+  "bits": 2.571428571428571,
+  "rel_err": 0.14354795055844544,
+  "scale": 0.014362560255846736,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/encoder.blocks.0.attn.out.weight",
+  "arm": "CaB7t",
+  "param": 16,
+  "bits": 4.571428571428571,
+  "rel_err": 0.03583755458066971,
+  "scale": 0.007758066919801403,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.0.attn.out.weight",
+  "arm": "CaB15t",
+  "param": 4,
+  "bits": 2.3333333333333335,
+  "rel_err": 0.1791755302830882,
+  "scale": 0.014152203606640386,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "real/encoder.blocks.0.attn.out.weight",
+  "arm": "CaB15t",
+  "param": 16,
+  "bits": 4.333333333333333,
+  "rel_err": 0.04260424229572495,
+  "scale": 0.007438151492889012,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.0.attn.query.weight",
+  "arm": "F8t",
+  "param": 4,
+  "bits": 2.5,
+  "rel_err": 0.18804084033677634,
+  "scale": 0.013929783865564252,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/encoder.blocks.0.attn.query.weight",
+  "arm": "F8t",
+  "param": 16,
+  "bits": 4.5,
+  "rel_err": 0.04541862960630407,
+  "scale": 0.00818337949548322,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.0.attn.query.weight",
+  "arm": "F16t",
+  "param": 4,
+  "bits": 2.3125,
+  "rel_err": 0.2157344326540692,
+  "scale": 0.01363048256708537,
+  "at_edge": false,
+  "t": 3.8
+ },
+ {
+  "matrix": "real/encoder.blocks.0.attn.query.weight",
+  "arm": "F16t",
+  "param": 16,
+  "bits": 4.3125,
+  "rel_err": 0.05024883279426271,
+  "scale": 0.007953980881468148,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/encoder.blocks.0.attn.query.weight",
+  "arm": "CaB7t",
+  "param": 4,
+  "bits": 2.571428571428571,
+  "rel_err": 0.13918590437434358,
+  "scale": 0.01695219106535743,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "real/encoder.blocks.0.attn.query.weight",
+  "arm": "CaB7t",
+  "param": 16,
+  "bits": 4.571428571428571,
+  "rel_err": 0.03335966744504334,
+  "scale": 0.009188829044103718,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.0.attn.query.weight",
+  "arm": "CaB15t",
+  "param": 4,
+  "bits": 2.3333333333333335,
+  "rel_err": 0.16870511009654784,
+  "scale": 0.016820673992519457,
+  "at_edge": false,
+  "t": 4.0
+ },
+ {
+  "matrix": "real/encoder.blocks.0.attn.query.weight",
+  "arm": "CaB15t",
+  "param": 16,
+  "bits": 4.333333333333333,
+  "rel_err": 0.038974832217118116,
+  "scale": 0.00866221560483875,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "real/encoder.blocks.0.attn.value.weight",
+  "arm": "F8t",
+  "param": 4,
+  "bits": 2.5,
+  "rel_err": 0.13392064738759776,
+  "scale": 0.010933140945657926,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/encoder.blocks.0.attn.value.weight",
+  "arm": "F8t",
+  "param": 16,
+  "bits": 4.5,
+  "rel_err": 0.02285456951496642,
+  "scale": 0.005386506095250695,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.0.attn.value.weight",
+  "arm": "F16t",
+  "param": 4,
+  "bits": 2.3125,
+  "rel_err": 0.15872406167867467,
+  "scale": 0.011033293785465813,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "real/encoder.blocks.0.attn.value.weight",
+  "arm": "F16t",
+  "param": 16,
+  "bits": 4.3125,
+  "rel_err": 0.025838862402833784,
+  "scale": 0.005248125836542518,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/encoder.blocks.0.attn.value.weight",
+  "arm": "CaB7t",
+  "param": 4,
+  "bits": 2.571428571428571,
+  "rel_err": 0.099661465096559,
+  "scale": 0.012546008379562143,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/encoder.blocks.0.attn.value.weight",
+  "arm": "CaB7t",
+  "param": 16,
+  "bits": 4.571428571428571,
+  "rel_err": 0.016663963948922944,
+  "scale": 0.005798906864464453,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.0.attn.value.weight",
+  "arm": "CaB15t",
+  "param": 4,
+  "bits": 2.3333333333333335,
+  "rel_err": 0.1267893874779598,
+  "scale": 0.012207447545696267,
+  "at_edge": false,
+  "t": 4.0
+ },
+ {
+  "matrix": "real/encoder.blocks.0.attn.value.weight",
+  "arm": "CaB15t",
+  "param": 16,
+  "bits": 4.333333333333333,
+  "rel_err": 0.020202205017766414,
+  "scale": 0.005630287118785912,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/encoder.blocks.0.mlp1.weight",
+  "arm": "F8t",
+  "param": 4,
+  "bits": 2.5,
+  "rel_err": 0.12053583598990263,
+  "scale": 0.010540721005100354,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/encoder.blocks.0.mlp1.weight",
+  "arm": "F8t",
+  "param": 16,
+  "bits": 4.5,
+  "rel_err": 0.025989914805123665,
+  "scale": 0.005466146468726042,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.0.mlp1.weight",
+  "arm": "F16t",
+  "param": 4,
+  "bits": 2.3125,
+  "rel_err": 0.13998427287176315,
+  "scale": 0.01051805490836381,
+  "at_edge": false,
+  "t": 3.8
+ },
+ {
+  "matrix": "real/encoder.blocks.0.mlp1.weight",
+  "arm": "F16t",
+  "param": 16,
+  "bits": 4.3125,
+  "rel_err": 0.028755481894263545,
+  "scale": 0.005240741790062488,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/encoder.blocks.0.mlp1.weight",
+  "arm": "CaB7t",
+  "param": 4,
+  "bits": 2.571428571428571,
+  "rel_err": 0.09472204290865287,
+  "scale": 0.011769289301505313,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/encoder.blocks.0.mlp1.weight",
+  "arm": "CaB7t",
+  "param": 16,
+  "bits": 4.571428571428571,
+  "rel_err": 0.020198089560138164,
+  "scale": 0.005972113299799059,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.0.mlp1.weight",
+  "arm": "CaB15t",
+  "param": 4,
+  "bits": 2.3333333333333335,
+  "rel_err": 0.11695282120317727,
+  "scale": 0.011362845118371465,
+  "at_edge": false,
+  "t": 4.0
+ },
+ {
+  "matrix": "real/encoder.blocks.0.mlp1.weight",
+  "arm": "CaB15t",
+  "param": 16,
+  "bits": 4.333333333333333,
+  "rel_err": 0.023906331522374882,
+  "scale": 0.005649493733592077,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/encoder.blocks.0.mlp2.weight",
+  "arm": "F8t",
+  "param": 4,
+  "bits": 2.5,
+  "rel_err": 0.11081564021965698,
+  "scale": 0.007303200208433426,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/encoder.blocks.0.mlp2.weight",
+  "arm": "F8t",
+  "param": 16,
+  "bits": 4.5,
+  "rel_err": 0.02432066884968237,
+  "scale": 0.003672237582256919,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.0.mlp2.weight",
+  "arm": "F16t",
+  "param": 4,
+  "bits": 2.3125,
+  "rel_err": 0.13140349109092775,
+  "scale": 0.0073286820717569584,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "real/encoder.blocks.0.mlp2.weight",
+  "arm": "F16t",
+  "param": 16,
+  "bits": 4.3125,
+  "rel_err": 0.027111292555423137,
+  "scale": 0.0035454194230497248,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.0.mlp2.weight",
+  "arm": "CaB7t",
+  "param": 4,
+  "bits": 2.571428571428571,
+  "rel_err": 0.09342464630795973,
+  "scale": 0.007818161265003053,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/encoder.blocks.0.mlp2.weight",
+  "arm": "CaB7t",
+  "param": 16,
+  "bits": 4.571428571428571,
+  "rel_err": 0.020694195377332986,
+  "scale": 0.003865267084684927,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.0.mlp2.weight",
+  "arm": "CaB15t",
+  "param": 4,
+  "bits": 2.3333333333333335,
+  "rel_err": 0.11799016326287702,
+  "scale": 0.0076337264513099135,
+  "at_edge": false,
+  "t": 3.8
+ },
+ {
+  "matrix": "real/encoder.blocks.0.mlp2.weight",
+  "arm": "CaB15t",
+  "param": 16,
+  "bits": 4.333333333333333,
+  "rel_err": 0.024273324515481472,
+  "scale": 0.003677126422391534,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/encoder.blocks.5.attn.key.weight",
+  "arm": "F8t",
+  "param": 4,
+  "bits": 2.5,
+  "rel_err": 0.08792622522796875,
+  "scale": 0.010697563515991017,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/encoder.blocks.5.attn.key.weight",
+  "arm": "F8t",
+  "param": 16,
+  "bits": 4.5,
+  "rel_err": 0.025990146619143152,
+  "scale": 0.005288831829266485,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.5.attn.key.weight",
+  "arm": "F16t",
+  "param": 4,
+  "bits": 2.3125,
+  "rel_err": 0.10151405756202803,
+  "scale": 0.010871024135010966,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "real/encoder.blocks.5.attn.key.weight",
+  "arm": "F16t",
+  "param": 16,
+  "bits": 4.3125,
+  "rel_err": 0.0279468715874881,
+  "scale": 0.005019304900259497,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/encoder.blocks.5.attn.key.weight",
+  "arm": "CaB7t",
+  "param": 4,
+  "bits": 2.571428571428571,
+  "rel_err": 0.07913770105380527,
+  "scale": 0.011157666486791305,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/encoder.blocks.5.attn.key.weight",
+  "arm": "CaB7t",
+  "param": 16,
+  "bits": 4.571428571428571,
+  "rel_err": 0.02345377774504135,
+  "scale": 0.005693754477837292,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.5.attn.key.weight",
+  "arm": "CaB15t",
+  "param": 4,
+  "bits": 2.3333333333333335,
+  "rel_err": 0.09658422868071778,
+  "scale": 0.01113367374968904,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "real/encoder.blocks.5.attn.key.weight",
+  "arm": "CaB15t",
+  "param": 16,
+  "bits": 4.333333333333333,
+  "rel_err": 0.026268822323601275,
+  "scale": 0.00521137064393447,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/encoder.blocks.5.attn.out.weight",
+  "arm": "F8t",
+  "param": 4,
+  "bits": 2.5,
+  "rel_err": 0.0844176934626467,
+  "scale": 0.012313669562747877,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.5.attn.out.weight",
+  "arm": "F8t",
+  "param": 16,
+  "bits": 4.5,
+  "rel_err": 0.01634779796243726,
+  "scale": 0.00544646875908978,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.5.attn.out.weight",
+  "arm": "F16t",
+  "param": 4,
+  "bits": 2.3125,
+  "rel_err": 0.10103340930236082,
+  "scale": 0.012540301151745807,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/encoder.blocks.5.attn.out.weight",
+  "arm": "F16t",
+  "param": 16,
+  "bits": 4.3125,
+  "rel_err": 0.018371502784632253,
+  "scale": 0.005359563622030808,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.5.attn.out.weight",
+  "arm": "CaB7t",
+  "param": 4,
+  "bits": 2.571428571428571,
+  "rel_err": 0.07197413355095096,
+  "scale": 0.013034182356828877,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.5.attn.out.weight",
+  "arm": "CaB7t",
+  "param": 16,
+  "bits": 4.571428571428571,
+  "rel_err": 0.01387573429812757,
+  "scale": 0.005836787431818936,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.5.attn.out.weight",
+  "arm": "CaB15t",
+  "param": 4,
+  "bits": 2.3333333333333335,
+  "rel_err": 0.0929200976066145,
+  "scale": 0.01298886244117437,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/encoder.blocks.5.attn.out.weight",
+  "arm": "CaB15t",
+  "param": 16,
+  "bits": 4.333333333333333,
+  "rel_err": 0.01672890927938542,
+  "scale": 0.005458205737917294,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/encoder.blocks.5.attn.query.weight",
+  "arm": "F8t",
+  "param": 4,
+  "bits": 2.5,
+  "rel_err": 0.07154523491378449,
+  "scale": 0.010623755433258924,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/encoder.blocks.5.attn.query.weight",
+  "arm": "F8t",
+  "param": 16,
+  "bits": 4.5,
+  "rel_err": 0.012489148008110993,
+  "scale": 0.0045562988749367405,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.5.attn.query.weight",
+  "arm": "F16t",
+  "param": 4,
+  "bits": 2.3125,
+  "rel_err": 0.08587773682019034,
+  "scale": 0.010880430907098882,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "real/encoder.blocks.5.attn.query.weight",
+  "arm": "F16t",
+  "param": 16,
+  "bits": 4.3125,
+  "rel_err": 0.01395479514807487,
+  "scale": 0.004334522457122365,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/encoder.blocks.5.attn.query.weight",
+  "arm": "CaB7t",
+  "param": 4,
+  "bits": 2.571428571428571,
+  "rel_err": 0.06330194161018875,
+  "scale": 0.011143307794298254,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.5.attn.query.weight",
+  "arm": "CaB7t",
+  "param": 16,
+  "bits": 4.571428571428571,
+  "rel_err": 0.010777049919748653,
+  "scale": 0.00472555852557807,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.5.attn.query.weight",
+  "arm": "CaB15t",
+  "param": 4,
+  "bits": 2.3333333333333335,
+  "rel_err": 0.08168038840360249,
+  "scale": 0.011080683913149805,
+  "at_edge": false,
+  "t": 3.6
+ },
+ {
+  "matrix": "real/encoder.blocks.5.attn.query.weight",
+  "arm": "CaB15t",
+  "param": 16,
+  "bits": 4.333333333333333,
+  "rel_err": 0.012808878387914429,
+  "scale": 0.004448813226374989,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/encoder.blocks.5.attn.value.weight",
+  "arm": "F8t",
+  "param": 4,
+  "bits": 2.5,
+  "rel_err": 0.0679449098116783,
+  "scale": 0.012414412151321417,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.5.attn.value.weight",
+  "arm": "F8t",
+  "param": 16,
+  "bits": 4.5,
+  "rel_err": 0.008547386348117695,
+  "scale": 0.004801818387647362,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.5.attn.value.weight",
+  "arm": "F16t",
+  "param": 4,
+  "bits": 2.3125,
+  "rel_err": 0.08331614102569145,
+  "scale": 0.012758712932805233,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/encoder.blocks.5.attn.value.weight",
+  "arm": "F16t",
+  "param": 16,
+  "bits": 4.3125,
+  "rel_err": 0.009858506898796164,
+  "scale": 0.004758230701402832,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.5.attn.value.weight",
+  "arm": "CaB7t",
+  "param": 4,
+  "bits": 2.571428571428571,
+  "rel_err": 0.05913875730337981,
+  "scale": 0.012858470444237224,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.5.attn.value.weight",
+  "arm": "CaB7t",
+  "param": 16,
+  "bits": 4.571428571428571,
+  "rel_err": 0.007165029832507274,
+  "scale": 0.004900733496344381,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.5.attn.value.weight",
+  "arm": "CaB15t",
+  "param": 4,
+  "bits": 2.3333333333333335,
+  "rel_err": 0.07875335986412868,
+  "scale": 0.01306697009367355,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/encoder.blocks.5.attn.value.weight",
+  "arm": "CaB15t",
+  "param": 16,
+  "bits": 4.333333333333333,
+  "rel_err": 0.008900646124777882,
+  "scale": 0.004801818387647362,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/encoder.blocks.5.mlp1.weight",
+  "arm": "F8t",
+  "param": 4,
+  "bits": 2.5,
+  "rel_err": 0.0771038711266459,
+  "scale": 0.011718641930539925,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.5.mlp1.weight",
+  "arm": "F8t",
+  "param": 16,
+  "bits": 4.5,
+  "rel_err": 0.012898168868159025,
+  "scale": 0.004764614872337348,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.5.mlp1.weight",
+  "arm": "F16t",
+  "param": 4,
+  "bits": 2.3125,
+  "rel_err": 0.0937753579761806,
+  "scale": 0.011960040219013852,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/encoder.blocks.5.mlp1.weight",
+  "arm": "F16t",
+  "param": 16,
+  "bits": 4.3125,
+  "rel_err": 0.014494264269526595,
+  "scale": 0.004711212371554635,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.5.mlp1.weight",
+  "arm": "CaB7t",
+  "param": 4,
+  "bits": 2.571428571428571,
+  "rel_err": 0.06812492081277763,
+  "scale": 0.012069599951034547,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.5.mlp1.weight",
+  "arm": "CaB7t",
+  "param": 16,
+  "bits": 4.571428571428571,
+  "rel_err": 0.011199555309083859,
+  "scale": 0.004952262178923688,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.5.mlp1.weight",
+  "arm": "CaB15t",
+  "param": 4,
+  "bits": 2.3333333333333335,
+  "rel_err": 0.08925948069496448,
+  "scale": 0.012153971853707335,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/encoder.blocks.5.mlp1.weight",
+  "arm": "CaB15t",
+  "param": 16,
+  "bits": 4.333333333333333,
+  "rel_err": 0.013369647217434446,
+  "scale": 0.004764614872337348,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/encoder.blocks.5.mlp2.weight",
+  "arm": "F8t",
+  "param": 4,
+  "bits": 2.5,
+  "rel_err": 0.07650729451871051,
+  "scale": 0.012999138372092368,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/encoder.blocks.5.mlp2.weight",
+  "arm": "F8t",
+  "param": 16,
+  "bits": 4.5,
+  "rel_err": 0.010979804716908266,
+  "scale": 0.00549339605222861,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.5.mlp2.weight",
+  "arm": "F16t",
+  "param": 4,
+  "bits": 2.3125,
+  "rel_err": 0.09293400458030622,
+  "scale": 0.013435159704446772,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/encoder.blocks.5.mlp2.weight",
+  "arm": "F16t",
+  "param": 16,
+  "bits": 4.3125,
+  "rel_err": 0.012711475419042852,
+  "scale": 0.005401299142731446,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.5.mlp2.weight",
+  "arm": "CaB7t",
+  "param": 4,
+  "bits": 2.571428571428571,
+  "rel_err": 0.06554579530958202,
+  "scale": 0.013837525190383644,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.5.mlp2.weight",
+  "arm": "CaB7t",
+  "param": 16,
+  "bits": 4.571428571428571,
+  "rel_err": 0.009087232548444558,
+  "scale": 0.005689892514850354,
+  "at_edge": false,
+  "t": 3.2
+ },
+ {
+  "matrix": "real/encoder.blocks.5.mlp2.weight",
+  "arm": "CaB15t",
+  "param": 4,
+  "bits": 2.3333333333333335,
+  "rel_err": 0.08634286368634621,
+  "scale": 0.013837525190383644,
+  "at_edge": false,
+  "t": 3.4
+ },
+ {
+  "matrix": "real/encoder.blocks.5.mlp2.weight",
+  "arm": "CaB15t",
+  "param": 16,
+  "bits": 4.333333333333333,
+  "rel_err": 0.01140442471591247,
+  "scale": 0.00549339605222861,
+  "at_edge": false,
+  "t": 3.4
+ }
+]
