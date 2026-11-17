@@ -1,6 +1,7 @@
 1. Parts of the bit budget, in bits per weight
    any cell shape, any dimension, high rates: 1.533 dB = 0.255 bit
    the E8 cell: 0.65 dB = 0.108 bit (bounds/bounds.out)
+   the region of the E8 code, one scale per row, Gaussian data: 1.64 dB = 0.272 bit (e8-gain-largest-entry-rule-2026-11-17)
    a scale of 16 bits for every    32 weights: 0.5000 bit
    a scale of  8 bits for every    32 weights: 0.2500 bit
    a scale of  6 bits for every    32 weights: 0.1875 bit

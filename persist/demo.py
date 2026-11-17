@@ -1,4 +1,4 @@
-"""Figures quoted in notes/persistence-spec-check.md. Random matrices only, no model.
+"""Figures quoted in notes/persistence-and-flow-check.md. Random matrices only, no model.
 
     python3 persist/demo.py > persist/demo.out
 """

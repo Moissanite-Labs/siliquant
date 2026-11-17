@@ -23,6 +23,8 @@ print("1. Parts of the bit budget, in bits per weight")
 sphere = 10 * math.log10(math.pi * math.e / 6)
 print(f"   any cell shape, any dimension, high rates: {sphere:.3f} dB = {sphere / DB_PER_BIT:.3f} bit")
 print(f"   the E8 cell: 0.65 dB = {0.65 / DB_PER_BIT:.3f} bit (bounds/bounds.out)")
+print(f"   the region of the E8 code, one scale per row, Gaussian data: 1.64 dB = {1.64 / DB_PER_BIT:.3f} bit"
+      " (e8-gain-largest-entry-rule-2026-11-17)")
 for bits, group in [(16, 32), (8, 32), (6, 32), (16, 2560), (16, 10240)]:
     print(f"   a scale of {bits:2d} bits for every {group:5d} weights: {bits / group:.4f} bit")
 

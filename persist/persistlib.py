@@ -161,8 +161,16 @@ def bound(W, p=2, wmax=None, count="neurons"):
 
 
 def normalised(W, p=2, wmax=None, essential="none", count="neurons"):
-    """Persistence divided by the bound. At most 1 when wmax is the layer's own."""
-    return persistence(W, p, wmax, essential) / bound(W, p, wmax, count)
+    """Persistence divided by the bound.
+
+    At most 1 when wmax is the layer's own and essential is "none" or "min".
+    With essential="zero" it can pass 1. A layer whose weights all have one
+    size has persistence 0 and bound 0, and scores 0.
+    """
+    b = bound(W, p, wmax, count)
+    if b == 0.0:
+        return 0.0
+    return persistence(W, p, wmax, essential) / b
 
 
 def mean_normalised(layers, p=2, scope="layer", essential="none", count="neurons"):

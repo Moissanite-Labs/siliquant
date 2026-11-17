@@ -16,15 +16,15 @@ The note reads them the way the repository's rule asks: against the table of pro
 ## Result
 
 - **The persistence document restates the paper correctly in the main.** Three of its table cells are cut off mid-sentence. One of them held the meaning of the count in the paper's bound, and the document's own algorithm then reads that count the other way. On a random 650 by 650 layer the two readings give 0.37 and 0.02.
-- **The score reads each unit's largest weight.** It is built on a maximum spanning tree, and the largest link at every unit is in that tree. On random matrices 72 to 85 percent of the tree is a row's or a column's largest entry, and those maxima alone give 97 to 98 percent of the score. The scale rule that worked on gemma is set from the same entries.
+- **The score reads each unit's largest weight.** The largest link at every unit is in the tree when it is unique. On random matrices 72 to 85 percent of the tree is a row's or a column's largest entry, and those maxima alone give 97 to 98 percent of the score. The rule that did best in the gemma record, an exploratory one, sets a row's step from the same entry.
 - **It cannot be a measure of behaviour.** Flipping signs, or reordering one layer's rows alone, leaves it equal to six digits and changes the outputs by more than their own size. Rescaling ReLU units leaves the outputs equal to 1e-15 and moves it from 0.45 to 0.89.
-- **The paper's bound needs two things the paper's main text leaves open.** It holds with each layer's own largest weight and fails with the network's, which is what the paper divides by: 9.4 against a cap of 1 on one layer in the check. It is reached by the theorem's own example only if the piece that never joins is counted with the layer's smallest weight.
+- **The paper's bound needs two things its main text leaves open.** It holds with each layer's own largest weight and fails with the network's, which the paper divides by: 9.4 against a cap of 1 on one layer of the check. Its own example meets it exactly under one way of counting the piece that never joins, falls short under a second and passes it under a third (row 4).
 - **A published critique exists and the document does not have it.** Girrbach and others (2023) find the variance of the weights and the concentration of large weights to be the main factors of the score, and in later layers of deep networks the variance alone.
-- **Its closing claim is larger than its evidence.** "Production readiness" rests on small fully connected networks on four data sets. On CIFAR-10 the method loses 1.13 points of accuracy.
-- **Of the ten claims in the two replies, five are wrong or already closed here.** Three of the five were closed by [pr6-proposal-check.md](pr6-proposal-check.md), one by the gemma record and one by this note. Two more hold in a narrower form, one is right for another problem, one has no source and one cannot be checked.
+- **Its closing claim is larger than its evidence.** "Production readiness" rests on small fully connected networks on four data sets. On CIFAR-10 the paper's own table has the method 1.13 points of accuracy under stopping by validation loss.
+- **Of the ten claims in the two replies, three are wrong as stated or contradicted by a record** (rows 18, 21 and 23). One is closed at its end point, with its schedule not run. One was measured on Gaussian data only, where it gains nothing, and not on the heavy tails it speaks of. Two hold in a narrower form, one is right for another problem, one has no source and one cannot be checked.
 - **What is left is a budget.** Read as a budget with parts, the gap to Shannon's floor has two parts no record has scored on a model's output: where the bits go among the kinds of matrix, and what a scale costs to store. The plan named above scores both.
 
-All checks of the score ran on random matrices and a random two-layer network. No model was read for this note.
+All checks of the score ran on random matrices and one random two-layer network, with one seed. No model was read for this note.
 
 ## What the score is
 
@@ -44,14 +44,28 @@ The score of a layer is the p-norm of one minus those sizes, the sizes having be
 | 4 | The bound is reached when one weight is large and the rest are equal | True under one convention | A connected graph ends as one piece, which has no joining level. Counted with the layer's smallest weight, the example reaches the bound exactly. Left out, it falls short: 2.884 against 2.993. Counted with level 0, as the paper's Algorithm 3 does for convolutions, it passes the bound: 3.053 | recomputed, reported |
 | 5 | The bound normalises every layer to at most 1 | False with the network's largest weight | A 64 by 64 layer with weights ten times smaller than the network's largest scores 9.413. With its own largest weight it scores 0.422 | recomputed |
 | 6 | Theorem 2: the score lies between the norms built on the n largest and the n smallest weights | True, and it says little | Any n - 1 links lie between the n - 1 largest and the n - 1 smallest weights. It holds for every spanning tree | by inspection |
-| 7 | The cost is that of a sort and a union-find | Confirmed | A dense method here takes about half a second for a 2560 by 10240 layer | recomputed |
-| 8 | Stopping within two epochs of validation loss at equal accuracy: (-0.53, -0.08) on Fashion-MNIST, (+0.17, -0.06) on MNIST, (-1.33, -1.13) on CIFAR-10, (-1.68, +0.07) on IMDB | Confirmed as the paper's table | The four pairs match. The document pairs network sizes with data sets in a way the paper's tables do not show one for one | reported |
+| 7 | The cost is that of a sort and a union-find | Confirmed for the method named | Standard. This repository uses another method, on the dense matrix, which took about half a second for a 2560 by 10240 layer on the machine that ran the demo | by inspection, recomputed |
+| 8 | Against stopping by validation loss, as pairs of (epochs, points of accuracy): (-0.53, -0.08) on Fashion-MNIST, (+0.17, -0.06) on MNIST, (-1.33, -1.13) on CIFAR-10, (-1.68, +0.07) on IMDB | Confirmed as the paper's table | The four pairs match the paper's. A negative first number is an earlier stop and a negative second a lower accuracy. So accuracy is within 0.1 point on three data sets and 1.13 points lower on CIFAR-10. The document pairs network sizes with data sets in a way the paper's tables do not show one for one | reported |
 | 9 | With permuted labels the score's rule stays stable where validation loss does not. With little data it frees the validation split | Confirmed as the paper's appendix | Appendix A.7, on MNIST and Fashion-MNIST with one network of 500, 500 and 200 units | reported |
 | 10 | The norm of all weights fails as a stopping rule because it never triggers | Confirmed as the paper's statement | | excerpt |
 | 11 | Not in the document: what the score ignores | The sign of every weight, and the order of rows and of columns of each layer on its own | Flipping the sign of a layer: score equal to six digits, outputs changed by 1.54 times their size. Reordering the rows of one layer alone: equal, 1.26 times | recomputed |
 | 12 | Not in the document: what the score does not ignore | A rescaling that leaves the function as it is | For a ReLU unit, incoming weights times s and outgoing weights over s. Outputs equal to 1.8e-15. The mean score of two layers goes 0.445, 0.557, 0.787, 0.885 as the spread of s grows | recomputed |
 | 13 | Not in the document: a published critique | Girrbach and others, TMLR 2023 | "variance of network weights and spatial concentration of large weights are the main factors". In later layers of deep networks they find no relevant spatial structure | reported |
 | 14 | "Production readiness" | Larger than the evidence | Fully connected networks on four data sets. The paper itself says convolutional layers need more work | reported |
+
+The document is not in this repository, so rows 3, 4 and 14 cannot be checked from here. The evidence for row 3 is two short quotations. The cell of its section 1.4 that explains the count ends in the middle of a formula:
+
+```text
+While the bipartite layer graph $G_k = (V_k \sqcup V_{k+1}, E_k)$ contains $
+```
+
+Line 10 of its Algorithm 1 then writes the count as a product:
+
+```text
+NP_k_plus <- (w_max_k - w_min_k) * (|V_k * V_{k+1}| - 1)^(1/p)
+```
+
+The other two cut-off cells are the third row of the same table and the space cost of the union-find in section 2.4.
 
 Rows 11 and 12 together close one path under the closure rule, by counterexample: a score that is constant on moves that break the function, and varies on moves that keep it, is not a measure of behaviour. It may still say where the large weights sit.
 
@@ -67,15 +81,15 @@ The largest link at any vertex is in the maximum spanning tree when it is unique
 | 256 by 1024 | 0.837 | 0.835 |
 | 256 by 1024, score from the maxima alone over the true score | 0.9715 | 0.9832 |
 
-So the score is close to a statistic of the largest entry of each row and each column, set against the largest of all. That is the statistic the `XR` rule of the gemma record sets its step from. Whether the score, or the plain spread of the rows, says which kinds of matrix are sensitive is predictions F7 and F8 of the plan.
+So the score is close to a statistic of the largest entry of each row and each column, set against the largest of all. The `XR` rule of the gemma record sets a row's step from the row's largest entry, so the two read the same entries of the rows. The rule does not use the columns. Whether the score, or the plain spread of the rows, says which kinds of matrix are sensitive is predictions F7 and F8 of the plan.
 
 ## Claims of the two replies
 
 | # | Claim | Verdict | What was found | Basis |
 |---|---|---|---|---|
 | 15 | A metric built from the expected product of the Jacobian with itself makes distance in weight space equal change of function | True for small moves on the inputs it was built from | It is the matrix G of weft-loom's gate calibration record. Its distance matched the probes within 1.1 on 12 of 12 hosts, was blind to moves the probes cannot see, and was off by more than 3 on a large natural move | reported from weft-loom |
-| 16 | Point-vortex equilibria give codebooks that fit heavy tails | About as good as the best scalar quantiser | [pr6-proposal-check.md](pr6-proposal-check.md), row 17 | checked there |
-| 17 | The fold of F_3 as a smooth path to a dense packing avoids the shock of rounding | End point closed by a ceiling, schedule not run | The same note, row 8: the end point is worth 0.25 dB, and no cell in 3 dimensions is worth more than 0.35. The densest packing is not the target of rounding. Issue #9 asks for the schedule | checked there, recomputed in `budget.out` |
+| 16 | Point-vortex equilibria give codebooks that fit heavy tails | Not evaluated on heavy tails. No gain on Gaussian data | [pr6-proposal-check.md](pr6-proposal-check.md), row 17: on Gaussian data a vortex codebook is about as good as the best scalar quantiser. Its row 19: the changed force law meant for heavy tails was not evaluated | checked there |
+| 17 | The fold of F_3 as a smooth path to a dense packing avoids the shock of rounding | End point closed by a ceiling, schedule not run | The same note, row 8: the end point is worth 0.25 dB, and no cell in 3 dimensions is worth more than 0.35. In 3 dimensions the lattice A_3\* gives a lower error than the end point, 0.257 dB against 0.247, and it is not the densest packing (`bounds/bounds.out`, sections 1 and 9). Issue #9 asks for the schedule | checked there, recomputed in `budget.out` |
 | 18 | Symmetries of the weights are waste, and removing them removes resistance | Contradicted for rounding on one model | Balancing through the exact symmetries of gemma and rounding to 5 bits: KL 5.507. Rounding the weights as trained: 2.184. With the gain vectors moved into the matrices: 17.846. The record did not examine why | checked, `budget.out` |
 | 19 | Aligning permutations joins separately trained models with no loss barrier | Right for another problem | Git Re-Basin reports it for ResNets on CIFAR-10. It is about merging two models. For a gate, weft-loom's CL-5 measured distance after the best relabelling and found no usable radius on 12 hosts | reported |
 | 20 | "mLoRA-Asym": freezing some entries of an adapter breaks its symmetry | No source | A search for the name found no paper. The nearest work fixes a chosen number of entries in each row of a network's weights (Lim and others, 2024) | reported |
@@ -91,7 +105,7 @@ The replies name devices. What carries over from drag reduction is the habit beh
 | Part | Size | Scored on a model's output? |
 |---|---|---|
 | The shape of a cell | At most 0.255 bit at high rates in any dimension. E8: 0.108 | E8 against scalar, in the gemma record |
-| The shape of a code's region | With one scale per row on Gaussian data, 1.64 dB of E8's gain is from its region: 0.27 bit ([e8-gain-largest-entry-rule-2026-11-17](../experiments/e8-gain-largest-entry-rule-2026-11-17/README.md)) | No. Weight error only |
+| The shape of a code's region | With one scale per row on Gaussian data, 1.64 dB of E8's gain is from its region: 0.272 bit ([e8-gain-largest-entry-rule-2026-11-17](../experiments/e8-gain-largest-entry-rule-2026-11-17/README.md)) | No. Weight error only |
 | The storage of scales | 0.500 bit at 16 bits for every 32 weights. 0.250 at 8 bits. 0.188 at 6 | No |
 | Bits spread evenly over kinds of matrix | Unknown. At equal bits one kind costs 52.5 times the KL per weight of another, under arm S | No |
 | The few large entries | Keeping the 188,362 entries of `ffn_down` beyond 5 standard deviations apart costs 0.005 bit per weight of that kind. Pulling them back costs a KL of 0.164 | The clip only. Not the keeping |
@@ -102,7 +116,7 @@ If one more bit divides a kind's KL by four and the parts add, the split with eq
 
 ## What follows
 
-One study, planned before any run: `experiments/output-budget-gemma-e4b-2026-11-17/PREREG.md`. It scores the last three rows of the budget on gemma's output, asks whether the damage of a clip adds up over layers as rounding's does, and computes three more measures of a weight change, the tree shift among them, with the failures predicted above.
+One study, planned before any run: `experiments/output-budget-gemma-e4b-2026-11-17/PREREG.md`. Until its own pull request is merged it is on the branch `record/output-budget-gemma-e4b-20261117`. It scores the last three rows of the budget on gemma's output, asks whether the damage of a clip adds up over layers as rounding's does, and computes three more measures of a weight change, the tree shift among them, with the failures predicted above.
 
 Not proposed: early stopping by this score. Nothing in this repository trains a model.
 
