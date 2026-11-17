@@ -2,7 +2,7 @@
 """Tables and verdicts for the run on Qwen2.5-1.5B, from results.jsonl.
 
 Prints every table of the README and scores the predictions of PREREG.md (P1 to P6) and of
-PREREG-arms.md (A1 to A7) by the rules written there. It computes nothing new: every number
+PREREG-arms.md (A1 to A7, and B1 to B7 of its extension 1) by the rules written there. It computes nothing new: every number
 is a field of results.jsonl or arithmetic on two of them.
 
 Usage, from the root of a checkout:
@@ -19,6 +19,7 @@ Q4_0, Q4_K_M, Q3_K_M = "file:qwen15-Q4_0.gguf", "file:qwen15-Q4_K_M.gguf", "file
 PLAN_1 = ["unchanged", "identity", "X32:16", "VE832:16", Q4_0, "XR:16", "VE8R:16", "XR:32", "VE8R:32", Q4_K_M, Q3_K_M]
 PLAN_2 = ["EB32@32:16", "ZB32@32:16", "EC32@32:16", "EB128@128:16", "ZB128@128:16", "X128:16", "VE8128:16", "EB128@R:16", "ZB128@R:16",
           "EC128@R:16", "EB128@R:32", "EB8@32:16", "PaB8@32:16", "SEB8@32:16"]
+PLAN_3 = ["VE8ZR:16", "VE8ZR:32", "VE8Z32:16", "EBG128:b560s16", "EBG32:b136s8", "EBG128:b504s8", "ZBG128:b560s16"]      # extension 1 of PREREG-arms.md
 GEMMA = {"X32:16": (0.117, 0.075, 1.96, 1.51), "XR:16": (0.448, 0.215, 3.20, 2.52), "XR:32": (0.118, 0.059, 2.99, 2.55)}   # X, VE8, KL gain, weight gain
 HALF = {"X32:16": 0.98, "XR:16": 1.60, "XR:32": 1.50}
 SCALAR_OF = {"32": "X32:16", "128": "X128:16", "R16": "XR:16", "R32": "XR:32"}
@@ -60,17 +61,15 @@ def main():
         return {Q4_0: "llama.cpp Q4_0", Q4_K_M: "llama.cpp Q4_K_M", Q3_K_M: "llama.cpp Q3_K_M"}.get(n, n)
 
     print("Qwen2.5-1.5B-Instruct on the wikitext-2 test set: 40 passages of 512 tokens, 10,200 positions scored")
-    print(f"variants scored: {len(rows)} of {len(PLAN_1) + len(PLAN_2)}")
-    missing = [n for n in PLAN_1 + PLAN_2 if n not in rows]
+    print(f"variants scored: {len(rows)} of {len(PLAN_1) + len(PLAN_2) + len(PLAN_3)}")
+    missing = [n for n in PLAN_1 + PLAN_2 + PLAN_3 if n not in rows]
     if missing:
         print("not reached: " + ", ".join(name(n) for n in missing))
     print()
     print("1. Every variant, in the order scored")
     print("variant | bits per weight | weight error in dB, mean over 196 matrices | pooled | mean KL | its standard error | same top token, percent | "
           "ln of the perplexity ratio | 99th percentile of KL | seconds to build | seconds to score")
-    for n in PLAN_1 + PLAN_2:
-        if n not in rows:
-            continue
+    for n in rows:
         r = rows[n]
         wm = "-" if r.get("weight_err_db_mean") is None or r["weight_err_db_mean"] == float("-inf") else f"{r['weight_err_db_mean']:.2f}"
         wp = "-" if r.get("weight_err_db_pooled") is None or r["weight_err_db_pooled"] == float("-inf") else f"{r['weight_err_db_pooled']:.2f}"
@@ -168,11 +167,48 @@ def main():
         line("A7", "", None)
 
     print()
+    print("4b. The predictions of extension 1 of PREREG-arms.md")
+    print("prediction | what was measured | holds")
+    if have("VE8ZR:16", "VE8R:16", "VE8ZR:32", "VE8R:32"):
+        a, b = kl("VE8ZR:16") / kl("VE8R:16"), kl("VE8ZR:32") / kl("VE8R:32")
+        line("B1", f"VE8ZR:16 {kl('VE8ZR:16'):.4f} against VE8R:16 {kl('VE8R:16'):.4f}, a share of {a:.3f}. VE8ZR:32 {kl('VE8ZR:32'):.4f} against VE8R:32 {kl('VE8R:32'):.4f}, a share of {b:.3f}",
+             a < 1.0 / 3.0 and b < 1.0 / 3.0)
+    else:
+        line("B1", "", None)
+    if have("VE8ZR:16", "XR:16", "VE8ZR:32", "XR:32"):
+        z1, z2 = gap("XR:16", "VE8ZR:16"), gap("XR:32", "VE8ZR:32")
+        line("B2", f"VE8ZR:16 {kl('VE8ZR:16'):.4f} against XR:16 {kl('XR:16'):.4f}: lower by {z1[0]:.4f}, {z1[2]:.1f} errors, {kl_gain('XR:16', 'VE8ZR:16'):+.2f} dB. "
+                   f"VE8ZR:32 {kl('VE8ZR:32'):.4f} against XR:32 {kl('XR:32'):.4f}: lower by {z2[0]:.4f}, {z2[2]:.1f} errors, {kl_gain('XR:32', 'VE8ZR:32'):+.2f} dB",
+             z1[2] >= 2.0 and z2[2] >= 2.0)
+    else:
+        line("B2", "", None)
+    if have("VE8Z32:16", "VE832:16"):
+        rel = kl("VE8Z32:16") / kl("VE832:16") - 1.0
+        line("B3", f"VE8Z32:16 {kl('VE8Z32:16'):.4f}, VE832:16 {kl('VE832:16'):.4f}, {100 * rel:+.1f} percent", abs(rel) <= 0.15)
+    else:
+        line("B3", "", None)
+    lower_by_2("B4", "EBG128:b560s16", "EB32@32:16")
+    lower_by_2("B5", "EBG32:b136s8", "EB32@32:16")
+    if have("EBG128:b504s8", "VE832:16", Q4_0):
+        line("B6", f"EBG128:b504s8 at {rows['EBG128:b504s8']['bits_per_weight']:.3f} bits {kl('EBG128:b504s8'):.4f}. VE832:16 at 4.5 bits {kl('VE832:16'):.4f}, Q4_0 at 4.5 bits {kl(Q4_0):.4f}",
+             kl("EBG128:b504s8") < kl("VE832:16") and kl("EBG128:b504s8") < kl(Q4_0))
+    else:
+        line("B6", "", None)
+    lower_by_2("B7", "ZBG128:b560s16", "ZB32@32:16")
+    if len(verdicts) == 3 and have("VE8ZR:16", "VE8ZR:32", "VE8Z32:16"):
+        print("   the verdict of issue #3 again, with a codeword at zero:")
+        for x, v, label in (("X32:16", "VE8Z32:16", "groups of 32, 16 levels"), ("XR:16", "VE8ZR:16", "per row, 16 levels"), ("XR:32", "VE8ZR:32", "per row, 32 levels")):
+            d, e, z = gap(x, v)
+            kg = kl_gain(x, v)
+            print(f"   {label} | scalar KL {kl(x):.4f} | E8 KL {kl(v):.4f} | gap in errors {z:.1f} | KL gain {kg:+.2f} dB | weight error gain {w_gain(x, v):+.2f} dB | "
+                  f"{'disappears' if z < 2.0 else ('holds' if kg >= HALF[x] else 'shrinks')}")
+
+    print()
     print("5. Every arm against the scalar rule with the same group and levels: what its weight error gain became on the output")
     print("arm | bits | scalar arm | bits | weight error gain in dB | KL gain in dB | ratio | KL lower by, in errors | top token, points gained")
-    for n in ["VE832:16", "EB32@32:16", "ZB32@32:16", "EC32@32:16", "EB8@32:16", "PaB8@32:16", "SEB8@32:16", "VE8128:16", "EB128@128:16", "ZB128@128:16",
-              "VE8R:16", "EB128@R:16", "ZB128@R:16", "EC128@R:16", "VE8R:32", "EB128@R:32"]:
-        group = n.split(":")[0].split("@")[-1].replace("VE8", "").replace("X", "")
+    for n in ["VE832:16", "VE8Z32:16", "EB32@32:16", "ZB32@32:16", "EC32@32:16", "EB8@32:16", "PaB8@32:16", "SEB8@32:16", "VE8128:16", "EB128@128:16", "ZB128@128:16",
+              "VE8R:16", "VE8ZR:16", "EB128@R:16", "ZB128@R:16", "EC128@R:16", "VE8R:32", "VE8ZR:32", "EB128@R:32"]:
+        group = n.split(":")[0].split("@")[-1].replace("VE8Z", "").replace("VE8", "").replace("X", "")
         key = ("R" + n.split(":")[1]) if group == "R" else group
         x = SCALAR_OF[key]
         if not have(n, x):
@@ -182,11 +218,21 @@ def main():
         print(f"{n} | {rows[n]['bits_per_weight']:.3f} | {x} | {rows[x]['bits_per_weight']:.3f} | {wg:+.2f} | {kg:+.2f} | {kg / wg:.2f} | {z:.1f} | {rows[n]['same_top'] - rows[x]['same_top']:+.2f}")
 
     print()
+    print("5b. The arms with one ball per group, against X32:16 at 4.5 bits: weight error gain and what it became")
+    print("arm | bits | weight error, dB | weight error gain over X32:16 | mean KL | KL gain in dB | ratio | top token, percent")
+    for n in ["ZB32@32:16", "EC32@32:16", "EB32@32:16", "ZBG128:b560s16", "EBG32:b136s8", "EBG128:b560s16", "ZB128@128:16", "EB128@128:16", "EBG128:b504s8"]:
+        if have(n, "X32:16"):
+            kg, wg = kl_gain("X32:16", n), w_gain("X32:16", n)
+            print(f"{n} | {rows[n]['bits_per_weight']:.3f} | {w(n):.2f} | {wg:+.2f} | {kl(n):.4f} | {kg:+.2f} | {kg / wg:.2f} | {rows[n]['same_top']:.2f}")
+
+    print()
     print("6. Comparisons the second plan reports without a prediction")
     print("pair | mean KL of the first | of the second | first lower by | in errors | in dB")
     for a, b in (("EB128@128:16", "VE832:16"), ("EB8@32:16", "VE832:16"), ("PaB8@32:16", "VE832:16"), ("PaB8@32:16", "EB8@32:16"), ("EC32@32:16", "EB32@32:16"),
                  ("EC128@R:16", "EB128@R:16"), ("EB128@R:32", "VE8R:32"), ("ZB128@128:16", "VE8128:16"), ("ZB128@R:16", "VE8R:16"), ("ZB32@32:16", "VE832:16"),
-                 ("EB128@128:16", Q4_0), ("EB32@32:16", Q4_K_M), ("EB128@R:16", Q3_K_M), ("EB128@128:16", "EB32@32:16"), ("EB128@R:32", Q4_K_M)):
+                 ("EB128@128:16", Q4_0), ("EB32@32:16", Q4_K_M), ("EB128@R:16", Q3_K_M), ("EB128@128:16", "EB32@32:16"), ("EB128@R:32", Q4_K_M),
+                 ("EBG128:b560s16", Q4_K_M), ("EBG32:b136s8", Q4_K_M), ("EBG128:b560s16", "EBG32:b136s8"), ("EBG128:b504s8", "EB128@128:16"), ("EBG128:b504s8", Q3_K_M),
+                 ("EB128@R:16", "VE8ZR:16"), ("ZBG128:b560s16", Q4_K_M)):
         if have(a, b):
             d, e, z = gap(b, a)
             print(f"{name(a)} ({rows[a]['bits_per_weight']:.3f} bits) against {name(b)} ({rows[b]['bits_per_weight']:.3f}) | {kl(a):.4f} | {kl(b):.4f} | {d:+.4f} | {z:+.1f} | {kl_gain(b, a):+.2f}")
@@ -201,8 +247,8 @@ def main():
     print("8. Weight error by kind of matrix, in dB, mean over the 28 layers")
     kinds = ["attn_q", "attn_k", "attn_v", "attn_output", "ffn_gate", "ffn_up", "ffn_down"]
     print("variant | " + " | ".join(kinds))
-    for n in PLAN_1 + PLAN_2:
-        if n in rows and isinstance(rows[n].get("weight_err_db_by_kind"), dict) and n != "identity":
+    for n in rows:
+        if isinstance(rows[n].get("weight_err_db_by_kind"), dict) and n != "identity":
             print(f"{name(n)} | " + " | ".join(f"{rows[n]['weight_err_db_by_kind'][k]:.2f}" for k in kinds))
 
     print()
@@ -223,7 +269,7 @@ def main():
         den = math.sqrt(sum((x - ma) ** 2 for x in ra) * sum((y - mb) ** 2 for y in rb))
         return num / den if den else float("nan")
 
-    scored = [n for n in PLAN_1 + PLAN_2 if n in rows and n not in ("unchanged", "identity") and isinstance(w(n), float) and math.isfinite(w(n))]
+    scored = [n for n in rows if n not in ("unchanged", "identity") and isinstance(w(n), float) and math.isfinite(w(n))]
     print("set of variants | how many | mean weight error against KL | pooled weight error against KL")
     sets = [("all", scored),
             ("this repository's arms", [n for n in scored if not n.startswith("file:")]),
