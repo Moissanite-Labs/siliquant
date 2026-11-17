@@ -56,7 +56,7 @@ The conventions are those of [weft-loom's CONTRIBUTING.md](https://github.com/Mo
 
 ## Status
 
-Ten studies so far, one of them partial. One more is being scored. The newest results are at the end of this section.
+Eleven studies so far, one of them partial. The newest results are at the end of this section.
 
 The first measured weight error only: at 2 bits per weight the lattice E8 beats scalar rounding on every matrix tried, and the lattice the starting briefs proposed, A8\*, gains less than half as much in the mean of each family of data.
 
@@ -97,7 +97,12 @@ The tenth scores the same arms on a third model, `SmolLM2-1.7B-Instruct`, on the
 - **Two things do not carry.** Integer levels are ahead of E8 on this model, and its E8 arms gain less on the output than their weight error says. And the harness's Voronoi code is not broken per row here: a codeword at zero is level per row and a little worse with groups of 32.
 - **So the arm that both models agree on is the plain one**: integer levels in one ball per group of 128 weights.
 
-What these do not show: llama.cpp's files with an importance matrix, which is issue #14 and is being scored; and anything about a packed format or speed. The bits are counted from the codebook, and the saving is in the file, not in memory.
+The eleventh answers issue #14: llama.cpp's files made with an importance matrix, beside the ball arms, on both models.
+
+- **The matrix helps llama.cpp's files, by 15 percent of KL on Qwen2.5 and 55 percent on SmolLM2.** With it, `Q4_K_M` is ahead of the ball arm with no data on SmolLM2 and still behind it on Qwen2.5.
+- **Given the same matrix at half strength, the ball arm is ahead on both**: 0.0209 and 0.0282 at 4.5 bits, against 0.0282 and 0.0378 for `Q4_K_M` with the matrix at 4.8 bits. At full strength it does worse. The half-strength arm was planned and not predicted to win, and its strength was not chosen on held-out text.
+
+What these do not show: accuracy on a task, a matrix from other text, and anything about a packed format or speed. The bits are counted from the codebook, and the saving is in the file, not in memory.
 
 ## Licence
 

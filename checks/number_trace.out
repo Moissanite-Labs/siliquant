@@ -7,6 +7,7 @@ record | numbers | found in own outputs | only as dB of a stored value | only in
 ball-dimension-no-clip-rule-2026-11-17 | 307 | 306 | 0 | 0 | 1 | 0 | 0 | 270 | 187
 e8-gain-largest-entry-rule-2026-11-17 | 304 | 303 | 1 | 0 | 0 | 0 | 0 | 274 | 215
 fold-path-codebooks-2026-11-17 | 294 | 291 | 2 | 1 | 0 | 0 | 0 | 268 | 186
+imatrix-baseline-2026-11-17 | 107 | 107 | 0 | 0 | 0 | 0 | 0 | 71 | 7
 incentre-vortex-codebooks-2026-11-17 | 429 | 419 | 4 | 3 | 2 | 1 | 1 | 373 | 305
 lattice-vs-scalar-rounding-2026-11-15 | 93 | 89 | 3 | 0 | 1 | 0 | 0 | 88 | 81
 model-output-gemma-e4b-2026-11-15 | 269 | 266 | 0 | 1 | 2 | 0 | 0 | 231 | 61
@@ -15,7 +16,7 @@ model-output-smollm2-2026-11-17 | 218 | 206 | 0 | 3 | 9 | 0 | 0 | 181 | 25
 region-shapes-no-clip-rule-2026-11-17 | 200 | 199 | 0 | 0 | 1 | 0 | 0 | 180 | 139
 shape-formula-held-out-2026-11-17 | 310 | 305 | 4 | 0 | 0 | 1 | 0 | 226 | 223
 
-in all: 2750 numbers, 2 not found
+in all: 2857 numbers, 2 not found
 
 Not found, with two decimals or more: the line of the README, the number, and where it stands
   incentre-vortex-codebooks-2026-11-17
@@ -26,6 +27,7 @@ record | lines | all numbers on two output lines | not | a number changed by 3 i
 ball-dimension-no-clip-rule-2026-11-17 | 54 | 45 | 9 | 20 of 45
 e8-gain-largest-entry-rule-2026-11-17 | 57 | 46 | 11 | 31 of 46
 fold-path-codebooks-2026-11-17 | 50 | 40 | 10 | 20 of 40
+imatrix-baseline-2026-11-17 | 12 | 9 | 3 | 9 of 9
 incentre-vortex-codebooks-2026-11-17 | 54 | 21 | 33 | 11 of 21
 lattice-vs-scalar-rounding-2026-11-15 | 17 | 3 | 14 | 3 of 3
 model-output-gemma-e4b-2026-11-15 | 50 | 35 | 15 | 27 of 35
@@ -68,6 +70,10 @@ Lines not covered by two output lines: the line of the README, how many of its n
     line 137: 1 of 3   0.15 0.195 0.15
     line 138: 5 of 7   0.76 0.89 1.12 0.3 0.33 0.77 1.06
     line 139: 2 of 5   0.05 0.03 0.06 0.07 0.11
+  imatrix-baseline-2026-11-17
+    line 24: 4 of 5   4.5 0.0227 0.0282 0.0560 0.0378
+    line 25: 6 of 9   4.51 0.0209 0.0282 4.81 4.82 0.0282 0.0378 9.2 10.0
+    line 93: 2 of 3   -24.94 -24.22 -22.33
   incentre-vortex-codebooks-2026-11-17
     line 30: 3 of 4   1.2 2.0 1.04 0.68
     line 32: 6 of 7   3.2 4.0 0.586 0.7 1.7 1.3 1.9
