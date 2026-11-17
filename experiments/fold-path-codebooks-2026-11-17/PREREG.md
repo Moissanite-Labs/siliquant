@@ -109,3 +109,20 @@ Reported without a prediction: whether G falls at every step of the path. Which 
 - Anything for blocks of more than 3 weights. The fold is in 3 dimensions.
 - That Lloyd's algorithm found the best codebook. It finds a local one. Two starts are two.
 - Anything at other than 4 bits a weight.
+
+## Amendment 1: the rows of the real matrices
+
+Written 2026-11-17 after the first run stopped, and before any matrix was rounded.
+
+**What was wrong.** The plan says the real matrices are of `whisper-tiny.en` with rows of 384 or 1,536. They are the 32 matrices of `whisper-base.en` that every earlier record used (SHA-256 `b6c8ee500656e04e8e57c2949a5253f0dda002ba36cd1561846574dbcf01132e`), and their rows are 512 or 2,048 long. Neither divides by 3. The program checks this and stopped.
+
+**What the first run had done by then.** The self-tests, the cell of every sampled state, and the table of codebooks. Its output is kept as `first-run.out`. So these were seen before this amendment:
+
+- the whole curve of G. The start is at -1.86 dB and both ends near +0.25. The lowest G sampled is state 808, in the slides, at +0.257 dB;
+- the sizes of the eleven codebooks, 4,015 to 4,096 points.
+
+No matrix was loaded or rounded. Predictions C1 and C2 are about the curve, so they are no longer blind. They are scored as written, and the record says so.
+
+**The change.** Each real matrix is cut to the first 480 weights of each row if its rows are 512 long, and to the first 2,016 if they are 2,048. Both divide by 96. Nothing else changes. With one scale per row the real matrices have 4.033 or 4.008 bits a weight.
+
+The sampling is seeded, so the second run repeats the first run's numbers for the curve.

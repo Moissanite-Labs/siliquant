@@ -254,9 +254,10 @@ def load_matrices(weights_path, ball_module):
         if len(keys) != REAL_COUNT:
             raise SystemExit(f"FAIL: {len(keys)} matrices match, expected {REAL_COUNT}")
         for i, k in enumerate(keys):
-            W = np.ascontiguousarray(z[k], dtype=np.float32)
-            if W.shape[1] % 96:
-                raise SystemExit(f"FAIL: {k} has rows of {W.shape[1]}, not a multiple of 96")
+            W = z[k]
+            W = np.ascontiguousarray(W[:, : (W.shape[1] // 96) * 96], dtype=np.float32)      # amendment 1: the first 480 or 2,016 weights of each row
+            if W.shape[1] not in (480, 2016):
+                raise SystemExit(f"FAIL: {k} has rows of {z[k].shape[1]}")
             test[f"whisper{i % 2}/{k}"] = W                               # two halves: each is rounded with a codebook fitted to the other
     return test, train
 
