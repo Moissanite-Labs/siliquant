@@ -124,6 +124,18 @@ class ScoreTests(unittest.TestCase):
             self.assertAlmostEqual(P.persistence(W, p, essential="min"), P.bound(W, p), places=12)
             self.assertLess(P.persistence(W, p, essential="none"), P.bound(W, p))
 
+    def test_last_piece_at_level_zero_passes_the_bound(self):
+        W = np.full((6, 9), 0.2)
+        W[2, 5] = 1.0
+        self.assertGreater(P.persistence(W, essential="zero"), P.bound(W))
+        self.assertGreater(P.normalised(W, essential="zero"), 1.0)
+
+    def test_constant_layer_scores_zero(self):
+        W = np.full((4, 7), -0.5)
+        self.assertEqual(P.bound(W), 0.0)
+        self.assertEqual(P.normalised(W), 0.0)
+        self.assertEqual(P.mean_normalised([W, W]), 0.0)
+
     def test_bound_fails_with_the_largest_weight_of_a_network(self):
         W = self.rng.standard_normal((16, 16)) * 0.1
         wmax = 10 * np.abs(W).max()

@@ -1,4 +1,4 @@
-"""Figures quoted in notes/persistence-spec-check.md. Random matrices only, no model.
+"""Figures quoted in notes/persistence-and-flow-check.md. Random matrices only, no model.
 
     python3 persist/demo.py > persist/demo.out
 """
@@ -46,7 +46,7 @@ print(f"   the network's:           score {P.normalised(W, wmax=wmax):.3f}  (the
 print("\n5. The piece that never joins: is the bound of Theorem 1 reached by its own example?")
 W = np.full((6, 9), 0.2)
 W[2, 5] = 1.0
-for essential in ("none", "min"):
+for essential in ("none", "min", "zero"):
     print(f"   essential={essential:5}  persistence {P.persistence(W, essential=essential):.6f}"
           f"  bound {P.bound(W):.6f}")
 
