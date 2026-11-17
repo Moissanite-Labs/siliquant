@@ -9,12 +9,13 @@ The repository follows one rule from weft-loom: a path is closed only on a proof
 | Folder | What it holds |
 |---|---|
 | `bounds/` | Proved floors and ceilings for rounding weights, computed from their formulas: Shannon's floor, the best scalar quantiser, what the shape of a lattice cell is worth. Also lattice constants, covering thickness and codebook counts, the cells of the point set F_n of incentre-lattices, the best lattices known above 8 dimensions, and what the region of a code is worth when one scale serves a group: for Gaussian weights from integrals, and its limits for any weights. Start with `bounds/bounds.out`. |
-| `perm/` | Exact counting of matchings that avoid forbidden pairs: derangements, rook and hit polynomials, permanents, bounds on permanents, and the closure of a set of forbidden cells. Counts are tested against full enumeration on small cases, and bounds against exact values. `perm/demo.out` holds the figures the notes quote. |
+| `perm/` | Exact counting of matchings that avoid forbidden pairs: derangements, rook and hit polynomials, permanents, bounds on permanents, and the closure of a set of forbidden cells, with a witness for every cell that a second function checks from the board alone. Counts are tested against full enumeration on small cases, and bounds against exact values. `perm/demo.out` holds the figures the notes quote. |
 | `lattice/` | Nearest-point decoders for the lattices Z^n, D_n, E_8, A_n and A_n\*, Voronoi codes, scalar reference quantisers, and row and column balancing. Tested against brute force and against known constants. |
-| `shape/` | The process of issue #10 as code, for weight error. Codebooks cut from the integers or E8 by the ball of a p-norm, counted exactly. The region part of the error, computed from the weights with nothing rounded, and a formula for the error with no fitted constant. A receipt in whole numbers. For five arms the pick in exact arithmetic with a certificate, and a checker that shares no code with it. A closed-form scale with a proved bound on the error. |
+| `shape/` | The process of issue #10 as code, for weight error. Codebooks cut from the integers or E8 by the ball of a p-norm, counted exactly. The region part of the error, computed from the weights with nothing rounded, and a formula for the error with no fitted constant. A receipt in whole numbers. For five arms the pick in exact arithmetic with a certificate, and a checker that shares no code with it. A closed-form scale with a proved bound on the error. `shape/ballindex.py` numbers the points of a codebook cut by a ball over any number of weights, so that a block can be stored in the bits of its number; `shape/ballindex.out` gives the sizes of its tables. |
 | `harness/` | Tools for experiments on real model files: read weights out of a GGUF file and write a changed copy, round on a GPU, and score a changed model against the original with llama.cpp's own tool. `harness/test_tq.py` checks the GPU code against `lattice/`. |
+| `checks/` | Programs that read the repository itself: whether each record's plan was committed before its data, read from git; whether each row of a check note names a file for what it says was recomputed; and a trace of the numbers in the records, which measures how little such a trace can catch. [checks/README.md](checks/README.md) says what each found. |
 | `experiments/` | One folder per study, each with its plan, program, output and limits. Index in [experiments/README.md](experiments/README.md). |
-| `notes/` | [concept-map.md](notes/concept-map.md): the combinatorics the project owner listed, mapped to code, to the closure rule and to rounding. [brief-check.md](notes/brief-check.md): a source check of the two briefs the repository started from. [pr6-proposal-check.md](notes/pr6-proposal-check.md): a check of the research report in PR #6, claim by claim, and what follows from it. [issue10-proposal-check.md](notes/issue10-proposal-check.md): the same for the proposal of issue #10 and the published work it cites, with what PR #5 has that bears on it. |
+| `notes/` | [concept-map.md](notes/concept-map.md): the combinatorics the project owner listed, mapped to code, to the closure rule and to rounding. [brief-check.md](notes/brief-check.md): a source check of the two briefs the repository started from. [pr6-proposal-check.md](notes/pr6-proposal-check.md): a check of the research report in PR #6, claim by claim, and what follows from it. [issue10-proposal-check.md](notes/issue10-proposal-check.md): the same for the proposal of issue #10 and the published work it cites, with what PR #5 has that bears on it. [grafts-followup.md](notes/grafts-followup.md): what became of the fifteen crossings of the grafts note. |
 
 ## How to check it
 
@@ -29,7 +30,7 @@ python3 -m unittest lattice/test_lattices.py
 ```
 
 ```bash
-python3 -m unittest shape/test_shapelib.py shape/test_certified.py
+python3 -m unittest shape/test_shapelib.py shape/test_certified.py shape/test_ballindex.py
 ```
 
 ```bash
@@ -38,6 +39,10 @@ python3 bounds/bounds.py
 
 ```bash
 python3 harness/test_tq.py
+```
+
+```bash
+python3 checks/plan_before_data.py && python3 checks/claim_ledger.py
 ```
 
 ## How records are kept
