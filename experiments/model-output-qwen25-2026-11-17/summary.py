@@ -273,8 +273,8 @@ def main():
     print("set of variants | how many | mean weight error against KL | pooled weight error against KL")
     sets = [("all", scored),
             ("this repository's arms", [n for n in scored if not n.startswith("file:")]),
-            ("16 levels, 4.49 to 4.50 bits", [n for n in scored if not n.startswith("file:") and 4.48 < rows[n]["bits_per_weight"] < 4.51]),
-            ("16 levels, one scale per row or per 128", [n for n in scored if not n.startswith("file:") and rows[n]["bits_per_weight"] < 4.2])]
+            ("4.49 to 4.50 bits", [n for n in scored if not n.startswith("file:") and 4.48 < rows[n]["bits_per_weight"] < 4.51]),
+            ("under 4.2 bits", [n for n in scored if not n.startswith("file:") and rows[n]["bits_per_weight"] < 4.2])]
     for label, names in sets:
         if len(names) >= 3:
             ks = [kl(n) for n in names]

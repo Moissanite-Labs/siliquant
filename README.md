@@ -56,7 +56,7 @@ The conventions are those of [weft-loom's CONTRIBUTING.md](https://github.com/Mo
 
 ## Status
 
-Six studies so far.
+Nine studies so far, one of them partial. Two more are planned and not yet scored. The newest results are at the end of this section.
 
 The first measured weight error only: at 2 bits per weight the lattice E8 beats scalar rounding on every matrix tried, and the lattice the starting briefs proposed, A8\*, gains less than half as much in the mean of each family of data.
 
@@ -79,7 +79,19 @@ The sixth, also of 2026-11-17, reads the proposal of issue #10: a formula that g
 - **Two limits are proved.** On a round cloud no region beats the ball. For any weights a region is worth at most 2.5 log10 of a ratio of volumes: 4.50 dB for a ball over the cube and 11.51 for a cross-polytope.
 - **A rule with a proved guarantee costs about half a decibel.** With a closed-form scale nothing is clipped and the error is under a bound, by two short proofs and in 1,308 of 1,308 runs. For five arms the pick is whole-number arithmetic with a certificate. No proof assistant has run on any of it.
 
-Nothing in the sixth is scored on a model's output, and its codebooks have no packed format. The second model and second text of issue #3 are still to do.
+Nothing in the sixth is scored on a model's output, and its codebooks have no packed format.
+
+The seventh, of the same date, cut codebooks by a ball over 8 to 128 weights. The gain grows with the block as the limits table's formula says, and with one ball per group of weights the error does not depend on the weights. Weight error only.
+
+The eighth answers issue #9: the fold of incentre-lattices as a path of codebooks over 3 weights. The cell does improve along the fold, and its best state is its end, close packing, worth a quarter of a decibel. Every state loses to a fitted codebook, to E8 and to a longer ball.
+
+The ninth scores a second model, `Qwen2.5-1.5B-Instruct`, on a second text, for issue #3. It is partial: 27 of 32 variants.
+
+- **As the gemma record ran it, E8's win shrinks with groups of 32 and reverses with one scale per row.** The cause is in the harness: its E8 Voronoi code subtracts the mean of its codewords, so none of them is zero. With a codeword at zero the same code is ahead of the scalar rule at all three bit points. The change is invisible in mean weight error and worth a factor of 17 in KL per row.
+- **One ball per group of weights is far ahead at equal bits.** E8 in one ball per group of 128 scores a mean KL of 0.0195 at 4.5 bits. llama.cpp's `Q4_0` scores 0.0623 at 4.5 bits and its `Q4_K_M` 0.0333 at 4.81. Integer levels with no lattice score 0.0227.
+- **For those arms a decibel of weight error is a decibel of KL**, within a tenth, over nine arms from 4.0 to 4.5 bits.
+
+What these do not show: a second model for the ball arms, which is planned; llama.cpp's files with an importance matrix, which is issue #14 and planned; and anything about a packed format or speed. The bits are counted from the codebook, and the saving is in the file, not in memory.
 
 ## Licence
 
