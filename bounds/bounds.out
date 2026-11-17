@@ -96,6 +96,16 @@
    than the ball (proof in experiments/shape-formula-held-out-2026-11-17/PREREG.md). So by this formula no code in 8 dimensions with one scale per group gains
    more over the scalar rule on Gaussian weights than the last column.
 
+   For any weights whatever, not only Gaussian ones. For a block of 8 weights,
+   (largest entry)^2 <= squared length <= (sum of sizes)^2 <= 8 * squared length, and squared length <= 8 * (largest entry)^2.
+   The largest over a group and the mean over groups keep these. So the gain of one region over another lies between two fixed numbers:
+   ball over cube             | -4.531 dB to +4.500 dB
+   cross-polytope over cube   | -6.548 dB to +11.514 dB
+   cross-polytope over ball   | -2.017 dB to +7.014 dB
+   The upper end is 2.5 log10 of the ratio of the two volumes at equal reach along a weight axis. It is reached when every block
+   that sets a scale holds one weight and seven zeros. The lower end is reached when such a block has eight equal weights.
+   shape/check_certificate.py checks the identities behind the three inequalities.
+
    The same against Shannon's floor 2^(-2B) at B bits per weight in total, with 16 bits per scale: 10 log10(G Phi) + 6.02 * 16 / g, in dB above the floor
    g | scalar rule | E_8 in a ball | ball cell in a ball (the ceiling in 8 dimensions)
       8 | 12.66 | 11.15 | 11.07

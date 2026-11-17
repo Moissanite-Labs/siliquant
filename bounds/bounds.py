@@ -272,6 +272,15 @@ def main():
     print("   than the ball (proof in experiments/shape-formula-held-out-2026-11-17/PREREG.md). So by this formula no code in 8 dimensions with one scale per group gains")
     print("   more over the scalar rule on Gaussian weights than the last column.")
     print()
+    print("   For any weights whatever, not only Gaussian ones. For a block of 8 weights,")
+    print("   (largest entry)^2 <= squared length <= (sum of sizes)^2 <= 8 * squared length, and squared length <= 8 * (largest entry)^2.")
+    print("   The largest over a group and the mean over groups keep these. So the gain of one region over another lies between two fixed numbers:")
+    for name, hi, span in (("ball over cube", db(4.0 / v_ball), 8.0), ("cross-polytope over cube", db(4.0 / v_cross), 64.0), ("cross-polytope over ball", db(v_ball / v_cross), 8.0)):
+        print(f"   {name:<26} | {hi - db(span):+.3f} dB to {hi:+.3f} dB")
+    print("   The upper end is 2.5 log10 of the ratio of the two volumes at equal reach along a weight axis. It is reached when every block")
+    print("   that sets a scale holds one weight and seven zeros. The lower end is reached when such a block has eight equal weights.")
+    print("   shape/check_certificate.py checks the identities behind the three inequalities.")
+    print()
     print("   The same against Shannon's floor 2^(-2B) at B bits per weight in total, with 16 bits per scale: 10 log10(G Phi) + 6.02 * 16 / g, in dB above the floor")
     print("   g | scalar rule | E_8 in a ball | ball cell in a ball (the ceiling in 8 dimensions)")
     for g in (8, 32, 128, 512, 2048):
