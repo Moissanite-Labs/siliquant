@@ -160,6 +160,20 @@ print(f"   by the weight error of its clip, layer 10 is number {by_err.index(10)
       f" ({err[by_err[0]]:.2f}, {err[by_err[1]]:.2f}, {err[by_err[2]]:.2f} dB), with KL"
       f" {hk[by_err[0]]:.6f}, {hk[by_err[1]]:.6f}, {hk[by_err[2]]:.6f}")
 
+def _spearman():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("earlier_summary", FIRST.parent / "summary.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod.spearman        # the rank correlation of the first record, as summary.py uses it
+
+
+spearman = _spearman()
+others = [i for i in layers if i != 10]
+print(f"   rank correlation between a layer's KL and the weight error of its clip: all 42 layers "
+      f"{spearman([hk[i] for i in layers], [err[i] for i in layers]):+.3f}; without layer 10 "
+      f"{spearman([hk[i] for i in others], [err[i] for i in others]):+.3f}")
+
 print("\n7. Part L: is layer 10 marked by its weights?")
 L = json.loads((HERE / "large_by_layer.json").read_text())
 rows_l = {r["layer"]: r for r in L["layers"]}

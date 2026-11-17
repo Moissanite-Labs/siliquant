@@ -14,7 +14,7 @@ It also computes three measures of a weight change, one of them built on neural 
 
 ## Status
 
-`complete`. One model, one text, one runtime. No arm has a packed format: bits are counted, and rounded weights are scored from 16-bit float copies. The split of bits in questions 2 and the joined arm is fitted on the text it is scored on.
+`complete`. One model, one text, one runtime. No arm has a packed format: bits are counted, and rounded weights are scored from 16-bit float copies. The split of bits in question 2 and in the joined arm is fitted on the text it is scored on.
 
 ## Preregistration
 
@@ -28,20 +28,20 @@ In all, 25 of 36 predictions hold, 9 fail and 2 are not decided. Each extension 
 
 ## Result in short
 
-1. **Under the rule that clips nothing, no kind of matrix stands out.** Rounded alone to 16 levels with a scale per 32 weights, the seven kinds cost a KL of 0.0085 to 0.0274, a factor of 3.24. Under one scale per matrix, in the first record, the factor was 40.7. Predictions A1 and A2 fail: the two kinds that write into the stream are not the sensitive ones here.
-2. **What made them stand out was the scale.** Per weight `ffn_down` costs 1.67 times `ffn_gate` under this rule, where it cost 25.3 times under one scale per matrix. `attn_output` costs 1.64 times `attn_q`, where it cost 16.7 times.
+1. **Under the rule that clips nothing, no kind of matrix stands out.** Rounded alone to 16 levels with a scale per 32 weights, the seven kinds cost a KL of 0.0085 to 0.0274, a factor of 3.24. In the first record's arm S the factor was 40.7. Predictions A1 and A2 fail: of the two kinds that write into the stream, `attn_output` is first here and `ffn_down` third, by narrow margins.
+2. **The gap of the first record came with its arm, and this record does not say which part of the arm.** Arm S has one scale per matrix, searched for least squared error, which clips. The rule here has a scale per 32 weights, set from the largest entry, which clips nothing. Per weight `ffn_down` costs 1.67 times `ffn_gate` here and 25.3 times under arm S. The size of the group and the clipping changed together.
 3. **Per weight, the small attention matrices cost most.** `attn_v` costs 31.8 times `ffn_gate` per weight, and `attn_k` is second. They are 3.26 percent of the weights.
-4. **In this range the parts add, and a bit is worth a steady factor.** The seven KLs add up to 1.158 times the KL of all kinds at once. One more bit divides the KL of a kind by 2.62 to 4.94 in all 14 steps, 3.65 in the geometric mean.
-5. **Bits set by equal gain beat equal bits.** At 4.5 bits the split scores 0.0805 against 0.1173, 31.4 percent lower. At 3.5 bits it scores 0.3164 against 0.4959, 36.2 percent lower. The program's forecasts were 12 and 13 percent too high. The split is fitted on the scored text.
-6. **The control arm did not control.** The arm meant to place the same levels the wrong way round also beat equal bits, by 19.0 and 14.4 percent. Prediction B4 fails. The rule that built it left it most of the gain: see Part B.
-7. **Keeping 0.17 percent of the weights exact more than halves the KL of a row scale.** 0.2071 against 0.4489 at 16 levels and 0.0520 against 0.1180 at 32, for 0.049 bit. The same bits spent on levels would give about 0.42 and 0.11. With a scale per 32 weights the gain is 20.6 percent.
-8. **A scale does not need 16 bits.** In 8 bits it costs 2.1 percent of KL and saves 0.245 bit. In 6 bits it costs 8.3 percent and saves 0.308. With the saved bits spent on levels, 20 levels and a 6-bit scale score 0.0815 at 4.514 bits, 30.6 percent under the `Q4_0` rule.
-9. **Joined, the parts give 0.0629 at 4.484 bits**, 46.4 percent under the `Q4_0` rule at equal bits. That is under llama.cpp's `Q4_K_M` at 4.80 bits (0.0689) and under the first record's E8 arm at 4.5 bits (0.0747). Neither comparison is on equal terms: see Limits.
-10. **The damage of a clip adds over layers, and one layer carries nearly all of it.** Six layers clipped at once score 0.978 of the six alone, added up, where E1 expected 1.5 or more. Clipped alone, layer 10's `ffn_down` scores 0.1560. The other 41 layers add up to 0.0182. The first record's "few large weights" are, for this clip, the large entries of one matrix.
-11. **Nothing in the weights marks that matrix, and no few units carry it.** It has 6.2 percent of the model's large entries of this kind. It is fourth of 42 layers by their number and by the size of the clip's change, and nineteenth by its largest entry. Its ten hidden units with the most change carry 0.05 percent of its damage. Predictions M1 to M3 fail.
-12. **That one matrix is a third to a half of the gap between two scale rules.** A rule that clips scores 0.3395 and one that does not scores 0.1180. Swapping the rule on this one matrix, 0.66 percent of the weights, closes 33.2 percent of the gap one way and opens 55.0 percent of it the other way. M4 expected more than half both ways.
+4. **In this range the parts add, and a bit is worth a factor between 2.6 and 4.9.** The seven KLs add up to 1.158 times the KL of all kinds at once. One more bit divides the KL of a kind by 2.62 to 4.94 in all 14 steps, 3.65 in the geometric mean.
+5. **Bits set by equal gain beat equal bits.** At 4.5 bits the split scores 0.0805 against 0.1173, 31.4 percent lower. At 3.5 bits it scores 0.3164 against 0.4959, 36.2 percent lower. The measured KLs came in 12 and 13 percent under the program's forecasts. The split is fitted on the scored text.
+6. **The control arm did not control.** The arm meant to place the same levels the wrong way round also beat equal bits, by 19.0 and 14.4 percent, where the best arm gained 31.4 and 36.2. Prediction B4 fails. The rule that built it left it much of the gain: see Part B.
+7. **Keeping 0.17 percent of the weights exact more than halves the KL of a row scale.** 0.2071 against 0.4489 at 16 levels and 0.0520 against 0.1180 at 32, for 0.049 bit. By the slope of the plain rule, the same bits spent on levels would give about 0.42 and 0.11. No arm with those levels was scored. With a scale per 32 weights the gain is 20.6 percent.
+8. **A scale does not need 16 bits.** In 8 bits it costs 2.1 percent of KL and saves 0.245 bit. In 6 bits it costs 8.3 percent and saves 0.308. With the saved bits spent on levels, 20 levels and a 6-bit scale score 0.0815 at 4.514 bits, 30.6 percent under the `Q4_0` rule and 0.014 bit over it.
+9. **Joined, the parts give 0.0629 at 4.484 bits**, 46.4 percent under the `Q4_0` rule and 0.016 bit under it. That is under llama.cpp's `Q4_K_M` at 4.80 bits (0.0689) and under the first record's E8 arm at 4.5 bits (0.0747). Neither comparison is on equal terms: see Limits.
+10. **The damage of a clip adds over layers, and one layer carries nearly all of it.** Six layers clipped at once score 0.978 of the six alone, added up, where E1 expected 1.5 or more. Clipped alone, layer 10's `ffn_down` scores 0.1560. The other 41 layers add up to 0.0182. The damage that the first record's clip found in `ffn_down` is, for this clip, the damage of one matrix.
+11. **None of three figures of its large entries picks that matrix out, and its ten units with the most change do not carry the damage.** It has 6.2 percent of the model's large entries of this kind. It is fourth of 42 layers by their number and by the size of the clip's change, and nineteenth by its largest entry. The ten hidden units with the most change carry 0.05 percent of its damage. Predictions M1 to M3 fail.
+12. **That one matrix is a third to a half of the gap between two scale rules at 32 levels.** A rule that clips, `R+S:32`, scores 0.3395, and one that does not, `XR:32`, scores 0.1180. Swapping the rule on this one matrix, 0.66 percent of the weights, closes 33.2 percent of the gap one way and opens 55.0 percent of it the other way. M4 expected the first to be over half and fails. M5 expected the second to be and holds.
 13. **A weight that nothing reads needs no bits.** With the 55 million unread key and value weights at 0 bits, the joined arm scores the same 0.062882 at 4.397 bits.
-14. **None of the three measures is a certificate, and the one built on persistence is the weakest.** On 16 new arms it ranks at 0.462, where squared error ranks at 0.891 and the spectral error at 0.900. None of those 16 arms clips. On them the plain weight error does order the output.
+14. **None of the three measures is a certificate, and the one built on persistence is the weakest on new arms.** On 16 arms built after the measures were fixed it ranks at 0.462, where squared error ranks at 0.891 and the spectral error at 0.900. Those 16 are all of one family, with a scale set from the largest entry.
 
 ## How it was measured
 
@@ -71,7 +71,7 @@ Every figure below is in [results.out](results.out), written by `summary.py`, or
 
 KL of each kind rounded alone, with the rest of the model unchanged.
 
-| Kind | Weights | 8 levels | 16 levels | 32 levels | Per weight at 16 levels, times 1e9 | The same under one scale per matrix |
+| Kind | Weights | 8 levels | 16 levels | 32 levels | Per weight at 16 levels, times 1e9 | The same under arm S of the first record |
 |---|---|---|---|---|---|---|
 | `attn_v` | 64,225,280 | 0.1058 | 0.0264 | 0.0073 | 0.4105 | 1.0438 |
 | `attn_k` | 64,225,280 | 0.0295 | 0.0085 | 0.0029 | 0.1318 | 0.7613 |
@@ -82,7 +82,7 @@ KL of each kind rounded alone, with the rest of the model unchanged.
 | `ffn_gate` | 1,101,004,800 | 0.0563 | 0.0142 | 0.0054 | 0.0129 | 0.0714 |
 | all kinds at once | 3,945,267,200 | 0.4959 | 0.1173 | 0.0313, first record | | |
 
-The first record asked why the two writing kinds were so sensitive, and left it open. Under this rule they are not. The gap it saw came with one scale for a whole matrix.
+The first record asked why the two writing kinds were so sensitive, and left it open. Under this rule they are not. Its figures were for arm S: one scale for a whole matrix, searched for least squared error, which clips the largest entries. The rule here differs in both ways at once. Which of the two made the gap is not separated here. Parts H and M show that one `ffn_down` matrix is hurt badly by a clip.
 
 The key and value matrices are counted whole here. 55,050,240 of their 128,450,560 weights, 42.9 percent, are never read by llama.cpp's forward pass. So the weights that are read cost more per weight than the table says. Part K takes this up.
 
@@ -105,7 +105,7 @@ Turned into bits with the slope of `X32` between 4.5 and 5.5 bits, the gain at 4
 
 **Why the control failed.** The plan built the reversed arm from the same levels as the best arm, in the order with the worst forecast, inside the same budget. The kinds differ so much in size that every order inside the budget still gives the small kinds many levels.
 
-Its forecast was already under that of equal bits, 0.1006 against a sum of 0.1359 for 16 levels everywhere. The plan did not foresee that. So B4 tests less than it was meant to. The best arm is still under the reversed one, at 0.847 and 0.746 of its KL.
+Its forecast was already under that of equal bits, 0.1006 against a sum of 0.1359 for 16 levels everywhere. The plan did not foresee that. So B4 tests less than it was meant to. The reversed arm kept 19.0 of the best arm's 31.4 percent at 4.5 bits, and 14.4 of its 36.2 at 3.5. The best arm is under the reversed one, at 0.847 and 0.746 of its KL.
 
 The 64 levels of `attn_k` and `attn_v` lie beyond the 32 levels that Part A measured. The forecast there follows the end slope, as the plan says.
 
@@ -129,7 +129,7 @@ llama.cpp's `Q4_K_M` splits bits by a fixed rule. At commit `427291b`, `src/llam
 
 The last column is an estimate: the plain arm's KL divided by 3.752 for each bit.
 
-A kept entry buys far more than the same bits spent on levels. The rule that clips nothing pays for each large entry with a coarse step for its whole row. Kept apart, the entry costs 28 to 30 bits once, and the row gets a finer step.
+By that estimate a kept entry buys far more than the same bits spent on levels. No arm with more levels at those bits was scored. The rule that clips nothing pays for each large entry with a coarse step for its whole row. Kept apart, the entry costs 28 to 30 bits once, and the row gets a finer step.
 
 Prediction C3 holds as written: at a limit of 3.45 a row scale with kept entries stays above a scale per 32 weights, 0.2071 against 0.1173. At a limit of 2.5 it does not. `XRo:16~2.5` scores 0.1063 at 4.444 bits, under `X32:16` at 4.5 bits. So with 1.5 percent of the weights kept, a row scale does the work of a scale per 32 weights at the same bits.
 
@@ -145,7 +145,7 @@ Keeping large weights apart is published work (SpQR and others). The clip probes
 | `X32s8:18` | 4.425 | 0.0972 | 0.829 |
 | `X32s6:20` | 4.514 | 0.0815 | 0.694 |
 
-A scale per 32 weights in 16 bits is 0.5 bit per weight. Three quarters of it can be dropped at a cost of 8.3 percent of KL. llama.cpp's K formats already store scales in 6 bits. The Qwen2.5 record in pull request 12 scores an arm with an 8-bit scale on another model.
+A scale per 32 weights in 16 bits is 0.5 bit per weight. A 6-bit scale saves 0.308 of that, at a cost of 8.3 percent of KL. llama.cpp's K formats already store scales in 6 bits. The Qwen2.5 record in pull request 12 scores an arm with an 8-bit scale on another model.
 
 ## The joined arm
 
@@ -185,9 +185,9 @@ Extension 1. The same clip on each of the other 36 layers alone.
 | All 42 alone, added up | 0.174156 |
 | All 42 at once, first record | 0.163763 |
 
-The damage adds over all 42 layers too: the ratio is 1.063. Layer 10 holds 89.6 percent of the sum and is 78.4 times the next layer. Seven early layers have a KL under five times its standard error. Together they hold 2.9 percent of the sum, so by the extension's rule the verdicts stand.
+The damage adds over all 42 layers too: the ratio is 1.063. Layer 10 holds 89.6 percent of the sum and is 78.4 times the next layer. Seven layers, all among the first fifteen, have a KL under five times its standard error. Together they hold 2.9 percent of the sum, so by the extension's rule the verdicts stand.
 
-The size of the clip's change does not say which layer it is. Layers 20, 21 and 16 are changed more by their clip than layer 10 is, and score 0.0003, 0.0020 and 0.0006. Over all 42 layers the rank correlation between a layer's KL and the size of its change is 0.753, so H3 holds. It holds for the 41 small layers and says nothing of the one that matters.
+The size of the clip's change does not say which layer it is. Layers 20, 21 and 16 are changed more by their clip than layer 10 is, and score 0.0003, 0.0020 and 0.0006. Over all 42 layers the rank correlation between a layer's KL and the size of its change is 0.753, so H3 holds. Without layer 10 it is 0.740. It orders the small layers and says nothing of the one that matters.
 
 ## Part K: a closure in the budget
 
@@ -198,7 +198,7 @@ Extension 1. The joined arm with the unread key and value matrices of the last 1
 | The joined arm | 4.4844 | 0.062882 |
 | The same, 55,050,240 unread weights at 0 bits | 4.3971 | 0.062882 |
 
-The score is the same in every printed figure, and 0.0873 bit is saved. The certificate is the first record's: llama.cpp's forward pass at commit `427291b` never reads those matrices.
+The score is the same in every printed figure, and 0.0873 bit is saved. The certificate is the first record's: the forward pass never reads those matrices. This run repeats it on the binary named under "How to rerun".
 
 ## Part L: is layer 10 marked by its weights
 
@@ -210,7 +210,7 @@ Extension 2, weights only. For the `ffn_down` matrix of each layer, in [large_by
 | Largest entry, in standard deviations of its row | 18.52 | 19th | layers 11, 29 and 12 |
 | The clip's squared change over the squared size of the matrix | 0.001817 | 4th | layers 20, 21 and 16 |
 
-The 42 matrices hold 188,362 such entries, the first record's count. Layer 10 has 6.2 percent of them and 89.6 percent of the damage. None of the three figures picks it out.
+The 42 matrices hold 188,362 such entries, the first record's count. Layer 10 has 6.2 percent of them and 89.6 percent of the damage. None of the three figures picks it out. Other figures of the weights were not tried.
 
 Inside layer 10 the change is spread out. It touches 2,427 of 10,240 hidden units and 1,184 of 2,560 dimensions of the stream. Half of it lies in 102 hidden units, or in 51 dimensions. The top hidden unit holds 1.3 percent.
 
@@ -225,22 +225,22 @@ Extension 2. The first four rows clip only some of the entries that the clip of 
 | All but the top ten hidden units | 0.155882 | 99.93 percent |
 | The top ten dimensions of the stream | 0.001060 | 0.68 percent |
 
-The plan guessed that a few hidden units carry the damage. They do not. The ten units with the most change hold 9.8 percent of the change and 0.05 percent of the damage. Whatever makes this matrix sensitive is spread over thousands of its entries.
+The plan guessed that the hidden units with the most change carry the damage. They do not. The ten units with the most change hold 9.8 percent of the change and 0.05 percent of the damage. Units were ranked by the size of their change, not by their damage, and the units after the tenth were not clipped apart. So where in the other 2,417 units the damage sits is not known.
 
 | Rule on 293 matrices | Rule on layer 10's `ffn_down` | KL |
 |---|---|---|
 | `R+S:32`, clips | `R+S:32` | 0.3395, first record |
-| `R+S:32` | `XR:32` | 0.2659 |
-| `XR:32`, clips nothing | `R+S:32` | 0.2400 |
+| `R+S:32` | `XR:32` | 0.265947 |
+| `XR:32`, clips nothing | `R+S:32` | 0.239950 |
 | `XR:32` | `XR:32` | 0.1180, first record |
 
 The gap between the two rules is 0.2215. Freeing this one matrix from the clipping rule closes 33.2 percent of it. Putting this one matrix under the clipping rule opens 55.0 percent of it. The two do not add to the whole, and M4 fails: most of the gap is not this matrix when the rest of the model is already clipped.
 
-So the first record's finding that the output followed how the scale is set is, by a third to a half, a finding about one matrix of 294. The rest is spread over the model.
+So of the gap between these two rules, a third to a half is one matrix of 294. What carries the rest was not measured. The first record's finding that the output followed how the scale is set rests on more arms than these two, arm S among them, and this result is about these two only.
 
 **A reading, not tested here.** Published work reports a few activations in language models that are far larger than the rest, stay nearly the same for every input and act as fixed offsets (Sun and others, 2024).
 
-A matrix that writes such an offset would be hurt by a change that moves many of its entries the same way, and little by noise. That fits the clip against the random move of the first record. Nothing here measures an activation.
+A matrix that writes such an offset would be hurt by a change that moves many of its entries the same way, and little by noise. That fits the clip against the random move of the first record. One result here sits badly with it: the ten dimensions of the stream with the most change carry 0.68 percent of the damage. Nothing here measures an activation.
 
 ## Part F: three more measures of a weight change
 
@@ -258,7 +258,7 @@ The 26 were known when the measures were chosen. The 16 were not built yet.
 
 - **Along the rows** is the part of each row's change that lies along the row. It misses the mark of 0.8 that F1 set. It has the clip at 3.45 as worse than `XR:32`, and the same entries moved at random as better than the clip, both as they are. It has the clip at 5 as better than `XR:32`, which it is not. That failure was predicted.
 - **Tree shift** has both clips as worse than `XR:32`, as they are. It has `XR:32` with the step times 0.7 as far worse, when it is better. Both were predicted. On the new arms it is the weakest of the five.
-- **Squared error** fails on the 26, which mix rules that clip with rules that do not. It ranks the 16 new arms well. None of them clips.
+- **Squared error** ranks the 26 at 0.603 and the 16 new arms at 0.891. The 16 are all of one family. Why it does better there was not tested, and two of the 16 have the same squared error and KLs of 0.0805 and 0.0950.
 
 The weights alone, by kind, mean over layers:
 
@@ -313,7 +313,7 @@ Over the seven kinds the rank correlation between persistence and KL per weight 
 | M2 | The rest carries at most 0.2 of it: 0.0312 or less | 0.1559 | fails |
 | M3 | The top hidden unit carries at least half: 0.0780 or more | 0.0000 | fails |
 | M4 | `R+S:32` with this matrix under `XR:32` scores 0.2288 or less | 0.2659 | fails |
-| M5 | `XR:32` with this matrix under `R+S:32` scores 0.2288 or more | 0.2400 | holds |
+| M5 | `XR:32` with this matrix under `R+S:32` scores 0.2288 or more | 0.2399 | holds |
 
 F3 and the second half of F5 predict that a measure fails. They hold when it does.
 
@@ -327,6 +327,7 @@ F3 and the second half of F5 predict that a measure fails. They hold when it doe
 - A first run of `measures.py` was started while Part A was scoring. It was stopped after one variant and its output deleted. Part F was run again from the start.
 - The commit message of the plan says 29 predictions. The plan has 27.
 - `detail.py` was written after the results, to print the ratios this record quotes. It scores nothing.
+- Programs changed after the first data: `run.py` and `allocate.py` at `2b543c5` for the two checks, `run.py`, `summary.py` and the tests at `e4c70eb` and `566fbbe` for the extensions, and `run.py` at `39ce552` for the fault named below. No arm that had been scored was changed.
 - In extension 2 the first launch of Part M stopped on a fault in a check, after its first four variants and before the last two were built. The fix was committed and the part started again. Nothing was scored twice.
 
 ## Limits
@@ -341,14 +342,15 @@ F3 and the second half of F5 predict that a measure fails. They hold when it doe
 - **The measures of Part F were chosen after the KLs of the 26 variants were known.** Only the 16 new arms are free of that, and they are all of one family.
 - **Part E's verdicts are not decided by the plan's own rule.** Part H repeats the question on 42 layers, where the rule lets the verdict stand.
 - **The extensions were written with results in view.** H3 and M1 to M5 were written after the layers they concern had been seen in part.
-- **Parts H, L and M are about one kind of matrix, one limit of the clip and one model.** Why layer 10 is the one is not known. The reading given in Part M was not tested.
+- **Parts H, L and M are about one kind of matrix, one limit of the clip and one model.** Why layer 10 is the one is not known. The reading given in Part M was not tested. Part M compares two rules at 32 levels and no others.
+- **Two things differ between arm S of the first record and the rule of Part A**: the size of the group that shares a scale, and whether the rule clips. No arm here changes one without the other.
 
 ## Read against the closure rule
 
 - **A weight that no path reads needs no bits.** The first record closed 55,050,240 key and value weights by certificate. Part A and the split of bits counted them all the same. Part K applies the closure to the budget and saves 0.0873 bit at the same score.
-- **One reading of the clip probes is ended by a counterexample.** That the damage of clipping `ffn_down` sits in a few hidden units of the layer that carries it: the ten units with the most change carry 0.05 percent of it.
+- **One guess of this record's own plan is ended by a counterexample.** That the hidden units of layer 10 with the most change carry its damage: the ten with the most change carry 0.05 percent of it.
 - **No certificate for damage came of the three measures.** Each has an exhibited case it gets wrong. The path "a measure built on persistence orders damage" is not closed by proof. It is not shown, and on the new arms it is the weakest tried.
-- **One reading of the first record is ended by a counterexample.** That the writing kinds are the sensitive ones held under one scale per matrix. Under the rule that clips nothing it does not hold on the same model and text.
+- **One reading of the first record is ended by a counterexample.** That the writing kinds are the sensitive ones held under arm S. Under the rule that clips nothing, with a scale per 32 weights, it does not hold on the same model and text.
 
 ## What follows
 
@@ -369,7 +371,20 @@ F3 and the second half of F5 predict that a measure fails. They hold when it doe
 
 ## How to rerun
 
-Needs NumPy, torch, a llama.cpp build with `llama-perplexity`, its `gguf` Python package, and the model file. Run on an M1 Max with torch on MPS and llama.cpp at `427291b`. A scored variant took about three minutes.
+Needs NumPy, torch, llama.cpp's `gguf` Python package, `llama-perplexity`, and the model file. Each program refuses to run unless its plan is committed and pushed.
+
+| | |
+|---|---|
+| Machine | An M1 Max, torch on MPS |
+| Python, NumPy, torch | 3.9.6, 2.0.2, 2.8.0 |
+| Text and `gguf` package | A checkout of llama.cpp at commit `427291b` |
+| Scoring | The installed `llama-perplexity`, which reports version 0.5.0, build 11146, commit `7fe450e19` |
+| Seeds | The searched step of `R+S` samples blocks with seed 0, as in the first record. The power iteration of the spectral error uses seed 0. Nothing else is random. |
+| Time | A variant scores in 30 to 43 seconds and is built in under a second to 40. Part A, 22 variants, took 17 minutes. |
+
+The first record names commit `427291b` only. Its three scores repeated here, two of them to six decimals, were made with the binary above.
+
+Below, `E` stands for `experiments/output-budget-gemma-e4b-2026-11-17` and `RUN` for the command of the third block.
 
 ```bash
 python3 harness/build_eval_text.py ~/src/llama.cpp eval.txt
@@ -380,31 +395,38 @@ llama-perplexity -m gemma-4-E4B-it-Q8_0.gguf -f eval.txt -c 512 -b 512 --chunks 
 ```
 
 ```bash
-python3 experiments/output-budget-gemma-e4b-2026-11-17/run.py --model gemma-4-E4B-it-Q8_0.gguf --kld base.kld --work work --part first
+python3 E/run.py --model gemma-4-E4B-it-Q8_0.gguf --kld base.kld --work work --out E/results.jsonl --part first
 ```
 
-Then the parts in the plan's order, each with `--part`: `A`, then `allocate.py` and `B`, then `C`, `D`, `E`, the joined arm `G`, `H`, `K`, `large_by_layer.py` and `M`. Parts B, G and M read a committed output file, and every part checks that its plan is committed and pushed.
+Then, in this order, with each output committed and pushed before the part that reads it:
+
+| Step | Command |
+|---|---|
+| Part A | `RUN` with `--part A` |
+| The split of bits | `python3 E/allocate.py --results E/results.jsonl > E/allocate.out` |
+| Part B | `RUN` with `--part B --allocate-out E/allocate.out` |
+| Parts C, D, E | `RUN` with `--part C`, then `D`, then `E` |
+| The joined arm's levels | `python3 E/allocate.py --results E/results.jsonl --budgets 4.5 --scale-bits 8 > E/allocate_joined.out` |
+| The joined arm | `RUN` with `--part G --joined-out E/allocate_joined.out` |
+| Parts H and K | `RUN` with `--part H`, then `K` |
+| Part L | `python3 E/large_by_layer.py --model gemma-4-E4B-it-Q8_0.gguf` |
+| Part M | `RUN` with `--part M` |
+| Part F, the 26 variants | `python3 E/measures.py --model gemma-4-E4B-it-Q8_0.gguf --out E/measures.jsonl` |
+| Part F, the 16 new arms | the same with `--held-out-from E/results.jsonl` |
+| Part F, the weights alone | `python3 E/measures.py --model gemma-4-E4B-it-Q8_0.gguf --weights-only E/weights_only.jsonl` |
 
 ```bash
-python3 experiments/output-budget-gemma-e4b-2026-11-17/allocate.py --results experiments/output-budget-gemma-e4b-2026-11-17/results.jsonl > experiments/output-budget-gemma-e4b-2026-11-17/allocate.out
+python3 E/summary.py > E/results.out
 ```
 
 ```bash
-python3 experiments/output-budget-gemma-e4b-2026-11-17/measures.py --model gemma-4-E4B-it-Q8_0.gguf --out experiments/output-budget-gemma-e4b-2026-11-17/measures.jsonl
-```
-
-```bash
-python3 experiments/output-budget-gemma-e4b-2026-11-17/summary.py > experiments/output-budget-gemma-e4b-2026-11-17/results.out
-```
-
-```bash
-python3 experiments/output-budget-gemma-e4b-2026-11-17/detail.py > experiments/output-budget-gemma-e4b-2026-11-17/detail.out
+python3 E/detail.py > E/detail.out
 ```
 
 The tests need no model:
 
 ```bash
-python3 experiments/output-budget-gemma-e4b-2026-11-17/test_programs.py
+python3 E/test_programs.py
 ```
 
 ## Disclosure

@@ -22,7 +22,7 @@ The three scores were 0.000000, 0.117297 and 0.448857. The limits are under 0.00
 - Part A ran under the hand rule: the first step was checked by eye before it was started. `run.py` at that commit (c5ef566) did not check it.
 - The check was added to `run.py` in commit 2b543c5 and runs before every part but the first step. Parts B, C, D, E and the joined arm ran under the coded check. Part A's job was already running when the file changed.
 - The same commit makes Parts B and G refuse unless their `allocate` output is committed, unchanged and on the remote, and records its commit and commit time in `results.start`. Part B ran at head 059fa99, the commit of `allocate.out`. The joined arm's levels are in `allocate_joined.out` (commit 1a70e93, 05:05 local) and were scored at 05:15 local. Commit times in `git log` against the `started` times in `results.start` show the order.
-- `results.start` has one line per invocation of `run.py` (seven).
+- `results.start` has one line per invocation of `run.py`: seven for the main plan and eleven with the two extensions.
 
 ## Reversed arms
 
@@ -48,7 +48,7 @@ The gate lists the plan, `run.py`, `allocate.py`, `measures.py`, `summary.py`, `
 
 ## Machine
 
-M1 Max, torch on MPS, llama.cpp at 427291b. A scored variant took about three minutes.
+M1 Max, torch on MPS. The evaluation text and the `gguf` package are from a checkout of llama.cpp at 427291b. The scoring binary is the installed `llama-perplexity`, which reports version 0.5.0, build 11146, commit 7fe450e19. A variant scores in 30 to 43 seconds and is built in under a second to 40. An earlier line of this file said about three minutes for a variant, which was wrong.
 
 ## Extension 1 (PREREG-extension-1.md)
 

@@ -85,8 +85,8 @@ The seventh, also of 2026-11-17, goes back to the output of `gemma-4-E4B-it` and
 
 - **Bits split by measured gain beat equal bits.** At 4.5 bits the split scores a mean KL of 0.0805 against 0.1173 for the `Q4_0` rule. The split is fitted on the text it is scored on.
 - **Keeping 0.17 percent of the weights exact more than halves the KL of a row scale**, for 0.049 bit. A scale stored in 8 bits costs 2.1 percent of KL. With all three joined the score is 0.0629 at 4.484 bits.
-- **One matrix carries the damage of clipping large weights.** Clipped alone, the `ffn_down` of layer 10 scores 0.1560 and the other 41 layers add up to 0.0182. Nothing in its weights marks it, and no few units carry it. It accounts for a third to a half of the gap between a scale rule that clips and one that does not.
-- **The two kinds of matrix that looked sensitive in the second study are not, once each group of weights has its own scale.** A measure built on neural persistence ranked new arms worst of five.
+- **One matrix carries the damage of clipping large weights.** Clipped alone, the `ffn_down` of layer 10 scores 0.1560 and the other 41 layers add up to 0.0182. None of three figures of its large entries picks it out, and its ten units with the most change do not carry the damage. Between one scale rule that clips and one that does not, at 32 levels, it accounts for a third to a half of the gap.
+- **The two kinds of matrix that looked sensitive in the second study do not stand out under a scale per 32 weights that clips nothing.** The two rules differ in group size and in clipping, and the study does not separate them. A measure built on neural persistence ranked new arms worst of five.
 
 ## Licence
 

@@ -66,6 +66,7 @@
    the next largest is layer 21 at 0.001990: layer 10 is 78.4 times it
    the 42 alone over all 42 at once (first record, 0.163763): 1.063
    by the weight error of its clip, layer 10 is number 4 of 42 (-27.41 dB); the three largest are layers 20, 21, 16 (-25.86, -26.24, -26.81 dB), with KL 0.000312, 0.001990, 0.000602
+   rank correlation between a layer's KL and the weight error of its clip: all 42 layers +0.753; without layer 10 +0.740
 
 7. Part L: is layer 10 marked by its weights?
    entries beyond 5 standard deviations: layer 10 is number 4 of 42 (1.169e+04); the three largest are layer 21 (1.865e+04), layer 20 (1.378e+04), layer 22 (1.223e+04)
