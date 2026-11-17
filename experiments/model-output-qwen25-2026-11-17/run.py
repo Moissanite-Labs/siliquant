@@ -362,11 +362,11 @@ def main():
     done = set()
     if os.path.exists(args.out):
         with open(args.out) as f:
-            done = {json.loads(line)["variant"] for line in f if line.strip()}
+            done = {(r.get("model"), r["variant"]) for r in map(json.loads, filter(str.strip, f))}      # one results file may hold two models
     os.makedirs(args.work, exist_ok=True)
     for v in args.variants:
         label = "file:" + os.path.basename(v[5:]) if v.startswith("file:") else v
-        if label in done:
+        if (MODELS[digest], label) in done:
             print(f"{label}: already in the results file", file=sys.stderr, flush=True)
             continue
         t0 = time.time()
