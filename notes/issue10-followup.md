@@ -131,7 +131,7 @@ The line on this model is not between the scalar rule and the ball. It is betwee
 
 The formula cannot see this. It has the lattice as a cell constant and nothing else.
 
-**What the lattice reading says of the rows to come.** Written at 20:30 UTC, when the run had seven rows and had been started again at 20:22 for the next six. It is a reading of five arms after the fact, so it is worth something only if it says what comes next. Three statements, each against a prediction already made:
+**What the lattice reading says of the rows to come.** Written at 20:26 UTC, when the run had seven rows and had been started again at 20:22 for the next six. It is a reading of five arms after the fact, so it is worth something only if it says what comes next. Three statements, each against a prediction already made:
 
 | Arm | The scalar rule's constant says (O2, O4) | The lattice reading says | They differ by |
 |---|---|---|---|
