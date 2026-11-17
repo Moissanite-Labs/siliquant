@@ -1,0 +1,2 @@
+built X32:16, ZBG128:b560s16, EBG128:b560s16, ZBG128:b576s16, fine0(ZBG128:b560s16) on 168 matrices in 147 seconds
+{"step": "build", "weights_rounded_to_zero_by_the_integer_arm": 0.07844664218525092, "bits_of_fine0_if_the_choice_of_three_is_coded_at_its_entropy_bound": 4.624334986171113, "bits_of_ZBG128:b576s16": 4.625}

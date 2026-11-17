@@ -1,0 +1,37 @@
+File: experiments/model-output-qwen25-2026-11-17/results.jsonl. Variants: 27.
+Anchor X32:16: mean KL 0.06204 at a mean weight error of -20.672 dB. KL per unit of weight error: 7.24.
+
+variant | bits | weight error by the closed form, dB | measured, dB | measured minus formula | KL by the anchor | measured KL | its standard error | measured over predicted, dB
+X32:16 | 4.5000 | - | -20.672 | - | 0.0620 | 0.0620 | 0.0016 | +0.00
+VE832:16 | 4.5000 | - | -22.408 | - | 0.0416 | 0.0551 | 0.0019 | +1.22
+file:qwen15-Q4_0.gguf | 4.5000 | - | -20.672 | - | 0.0620 | 0.0623 | 0.0016 | +0.02
+XR:16 | 4.0079 | - | -14.908 | - | 0.2340 | 0.6317 | 0.0077 | +4.31
+VE8R:16 | 4.0079 | - | -17.864 | - | 0.1185 | 3.6580 | 0.0319 | +14.90
+XR:32 | 5.0079 | - | -20.747 | - | 0.0610 | 0.1293 | 0.0022 | +3.26
+VE8R:32 | 5.0079 | - | -23.917 | - | 0.0294 | 1.0414 | 0.0219 | +15.49
+file:qwen15-Q4_K_M.gguf | 4.8120 | - | -24.208 | - | 0.0275 | 0.0333 | 0.0007 | +0.84
+file:qwen15-Q3_K_M.gguf | 3.8236 | - | -18.893 | - | 0.0935 | 0.1097 | 0.0020 | +0.70
+EB32@32:16 | 4.4985 | -23.567 | -23.553 | +0.014 | 0.0319 | 0.0339 | 0.0008 | +0.27
+ZB32@32:16 | 4.4991 | -22.913 | -22.904 | +0.010 | 0.0370 | 0.0367 | 0.0007 | -0.04
+EC32@32:16 | 4.4907 | - | -23.380 | - | 0.0333 | 0.0341 | 0.0009 | +0.11
+EB128@128:16 | 4.1244 | -23.340 | -23.337 | +0.003 | 0.0336 | 0.0331 | 0.0007 | -0.06
+VE8ZR:16 | 4.0079 | - | -18.021 | - | 0.1142 | 0.2088 | 0.0032 | +2.62
+EBG128:b560s16 | 4.4999 | -25.597 | -25.604 | -0.007 | 0.0200 | 0.0195 | 0.0004 | -0.09
+EBG32:b136s8 | 4.4994 | -25.146 | -25.129 | +0.018 | 0.0221 | 0.0208 | 0.0004 | -0.27
+X128:16 | 4.1250 | - | -18.731 | - | 0.0970 | 0.1003 | 0.0021 | +0.14
+VE8128:16 | 4.1250 | - | -20.931 | - | 0.0585 | 0.1014 | 0.0041 | +2.39
+ZB128@128:16 | 4.1250 | -22.686 | -22.679 | +0.007 | 0.0390 | 0.0377 | 0.0009 | -0.16
+EB128@R:16 | 4.0073 | - | -21.758 | - | 0.0483 | 0.0577 | 0.0014 | +0.77
+ZB128@R:16 | 4.0078 | - | -21.115 | - | 0.0560 | 0.0683 | 0.0015 | +0.86
+VE8ZR:32 | 5.0079 | - | -24.043 | - | 0.0286 | 0.0500 | 0.0009 | +2.43
+VE8Z32:16 | 4.5000 | - | -22.403 | - | 0.0417 | 0.0434 | 0.0009 | +0.18
+EBG128:b504s8 | 3.9997 | -22.841 | -22.829 | +0.012 | 0.0377 | 0.0371 | 0.0009 | -0.07
+ZBG128:b560s16 | 4.4998 | -24.943 | -24.944 | -0.001 | 0.0232 | 0.0227 | 0.0006 | -0.09
+
+The predictions
+   O1 | holds | closed form against measured weight error, mark 0.05 dB: EBG128:b560s16 -0.007, EB32@32:16 +0.014, ZBG128:b560s16 -0.001, EBG128:b504s8 +0.012
+   O2 | holds | KL by the anchor and the closed form, mark 0.5 dB: EBG128:b560s16 -0.09, EB32@32:16 +0.27, ZBG128:b560s16 -0.09, EBG128:b504s8 -0.07
+   O3 | holds | KL over that of EBG128:b560s16 in dB, measured against the closed form, mark 0.4 dB: EB32@32:16 +2.40 against +2.03, ZBG128:b560s16 +0.66 against +0.65, EBG128:b504s8 +2.78 against +2.76
+   O4 | holds | VE8Z32:16 by the anchor and its measured weight error, mark 0.5 dB: +0.18
+   O5 | holds | one scale per row is outside the law: KL at least 1.5 dB above the anchor's: XR:16 +4.31, VE8ZR:16 +2.62
+   O6 | holds | the arm with the smallest predicted error at 4.5 bits or fewer, EBG128:b560s16, has the lowest mean KL of all 25 scored variants: the lowest is EBG128:b560s16 at 0.0195
