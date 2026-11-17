@@ -346,7 +346,7 @@ def build(reader, v):
         "share_out_of_range": over / changed_w,
     }
     if spec["arm"] == "swap":
-        stats["arm_check"] = check_against_first_record(spec, per_kind, base_l10)
+        stats["arm_check"] = check_against_first_record(spec, per_kind, base_l10, l10_pos)
     if dead_stats:
         stats["weights_zeroed"] = zeroed
         stats["tensors_zeroed"] = dead_stats["tensors"]
