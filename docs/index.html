@@ -93,7 +93,7 @@
         <div class="lg:col-span-8 space-y-2">
           <h2 class="text-lg font-bold text-slate-900">Executive Summary: What Held, What Failed, and What the Sweep Found</h2>
           <p class="text-sm text-slate-600 leading-relaxed">
-            Testing the three weight-only codebook families proposed in PR #6 against equal-bit scalar mixes (<code>S</code>) and <code>E8</code> mixes across Gaussian (<code>G</code>), heavy-tailed Student-<em>t</em><sub>4</sub> (<code>T</code>), and 32 real speech-model matrices (<code>Real</code>) yields a sharp split: <strong>as proposed, every candidate loses to both scalar and E8 on every family</strong> because pyramidal Voronoi cells carry a 0.68–1.69 dB normalized second-moment penalty over cubes. However, an unplanned sweep (<code>larger_t.py</code>) letting the axis offset <em>t</em> move to <strong>3.2–4.0</strong> uncovered an <strong>outlier-escape regime</strong> that beats scalar rounding in 34/40 synthetic cells (up to &minus;1.72 dB on Student-<em>t</em>) and beats E8 in 8/40 low-bit cells.
+            Testing the three weight-only codebook families proposed in PR #6 against equal-bit scalar mixes (<code>S</code>) and <code>E8</code> mixes across Gaussian (<code>G</code>), heavy-tailed Student-<em>t</em><sub>4</sub> (<code>T</code>), and 32 real speech-model matrices (<code>Real</code>) yields a sharp split: <strong>as proposed, every candidate loses to both scalar and E8 on every family</strong> because pyramidal Voronoi cells carry a 0.68–1.69 dB normalized second-moment penalty over cubes. However, an unplanned sweep (<code>larger_t.py</code>) letting the axis offset <em>t</em> move to <strong>3.2–4.0</strong> uncovered an <strong>outlier-escape regime</strong> that beats scalar rounding in 38/40 synthetic cells (up to &minus;1.72 dB on Student-<em>t</em>) and beats E8 in 8/40 low-bit cells.
           </p>
         </div>
         <div class="lg:col-span-4 grid grid-cols-2 gap-3">
@@ -104,7 +104,7 @@
           </div>
           <div class="p-3 rounded-xl bg-teal-50/70 border border-teal-200">
             <div class="text-xs font-medium text-teal-800">Free-t Sweep (t &approx; 3.4)</div>
-            <div class="text-lg font-bold text-teal-900 mt-0.5">34/40 Beat Scalar</div>
+            <div class="text-lg font-bold text-teal-900 mt-0.5">38/40 Beat Scalar</div>
             <div class="text-xs text-teal-800">Up to &minus;1.72 dB on T</div>
           </div>
           <div class="p-3 rounded-xl bg-[#FAF8F5] border border-slate-200">
@@ -155,7 +155,7 @@
                 <span class="font-bold text-slate-900">3. Zero-search decoding holds for any 0 &lt; t &lt; 1:</span> Rounding to 2m and picking the largest coordinate remainder |x<sub>k</sub> &minus; 2m<sub>k</sub>| is exact for all t &isin; (0, 1)—the incentre plays no special role in it.
               </div>
               <div class="p-3 rounded-xl bg-teal-50/80 border border-teal-200">
-                <span class="font-bold text-teal-900">4. Free t &isin; [3.2, 4.0] creates an outlier-escape code:</span> Five to seven times the incentre (0.586), large t abandons pyramid cells and lets one coordinate per block jump 1.7 cells past the grid edge, beating scalar in 34/40 synthetic cells.
+                <span class="font-bold text-teal-900">4. Free t &isin; [3.2, 4.0] creates an outlier-escape code:</span> Five to seven times the incentre (0.586), large t abandons pyramid cells and lets one coordinate per block jump 1.7 cells past the grid edge, beating scalar in 38/40 synthetic cells.
               </div>
               <div class="p-3 rounded-xl bg-[#FAF8F5] border border-slate-200">
                 <span class="font-bold text-slate-900">5. Vortex codebooks match scalar, trail E8:</span> V16 (&minus;9.34 dB) and V64 (&minus;14.56 dB) match optimal scalar quantisers (&minus;9.30, &minus;14.62 dB) but lag E8 (&minus;10.12, &minus;15.55 dB).
@@ -234,7 +234,7 @@
               <canvas id="sweepGapChart"></canvas>
             </div>
             <p class="text-xs text-slate-500 bg-[#FAF8F5] p-3 rounded-lg border border-slate-200/70">
-              <strong>Sweep Discovery:</strong> With t free up to 4.0, candidates beat Scalar in 34/40 synthetic cells and 6/8 Real cells, and beat E8 in 8/40 synthetic cells at K = 2, 3 (by up to &minus;0.64 dB on Student-t). Note that 30/376 searches hit the 4.0 ceiling on Student-t at K = 2..4.
+              <strong>Sweep Discovery:</strong> With t free up to 4.0, candidates beat Scalar in 38/40 synthetic cells and 7/8 Real cells, and beat E8 in 8/40 synthetic cells at K = 2, 3 (by up to &minus;0.64 dB on Student-t). Note that 30 of 376 searches hit the 4.0 ceiling: 21 on Student-t at K = 2 to 4 and 9 on the real matrices.
             </p>
           </div>
         </div>
