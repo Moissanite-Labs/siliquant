@@ -79,3 +79,31 @@
    D_3, measured with the nearest-point decoder: G = 0.078724 +- 0.000018, 0.247 dB against the cube
    ball in 3 dimensions (no tiling reaches it): G = 0.076967, 0.345 dB against the cube
    E_8 is worth 0.654 dB. So no cells in 3 dimensions are worth what the E_8 cell is worth.
+
+10. The region of a code when one scale serves a group and nothing is clipped (issue #10): Gaussian weights, from integrals
+   With fine cells: error / variance = G * Phi * codewords^(-2/n). G is the cell (section 2). Phi is the region:
+   Phi = volume(K)^(2/n) * E[square of the largest K-norm of a block in a group of g weights] / variance, for a region of shape K.
+   Region gain = 10 log10 of the cube's Phi over the region's: what the region is worth against the scalar largest-entry rule.
+   g | Phi of the cube | ball in 8 dimensions: Phi | its gain in dB | cross-polytope in 8 dimensions: Phi | its gain in dB | ceiling in 8 dimensions: ball region and ball cell, in dB
+      8 | 13.830 | 11.355 | +0.856 | 12.311 | +0.505 | +1.585
+     32 | 22.838 | 17.537 | +1.147 | 19.431 | +0.702 | +1.876
+    128 | 32.593 | 23.421 | +1.435 | 26.465 | +0.905 | +2.164
+    512 | 42.700 | 28.931 | +1.691 | 33.246 | +1.087 | +2.420
+   2048 | 53.005 | 34.155 | +1.909 | 39.822 | +1.242 | +2.638
+   Measured on three Gaussian matrices in the record e8-gain-largest-entry-rule-2026-11-17: ball +0.85, +1.15, +1.44 and +1.90 dB
+   at g = 8, 32, 128 and 2048, and cross-polytope +0.70 and +1.24 dB at g = 32 and 2048.
+   The ball column is a ceiling for round clouds. If the blocks are spread evenly over all directions, no region has a smaller Phi
+   than the ball (proof in experiments/shape-formula-held-out-2026-11-17/PREREG.md). So by this formula no code in 8 dimensions with one scale per group gains
+   more over the scalar rule on Gaussian weights than the last column.
+
+   The same against Shannon's floor 2^(-2B) at B bits per weight in total, with 16 bits per scale: 10 log10(G Phi) + 6.02 * 16 / g, in dB above the floor
+   g | scalar rule | E_8 in a ball | ball cell in a ball (the ceiling in 8 dimensions)
+      8 | 12.66 | 11.15 | 11.07
+     32 | 5.81 | 4.00 | 3.93
+    128 | 5.09 | 3.00 | 2.93
+    512 | 5.70 | 3.36 | 3.28
+   2048 | 6.50 | 3.94 | 3.86
+   A small group pays for its scale and a large one for its largest block. Of these five, groups of 128 give the smallest error at equal bits.
+
+   More dimensions, one group per row of 2016 weights: the gain of a ball region over the scalar rule, in dB
+   n = 8: +1.906, n = 16: +2.637, n = 24: +3.028. Measured in that record on Gaussian matrices: +1.90, +2.62 and +3.02.
