@@ -8,7 +8,7 @@ Is E8's error worse for this model than noise of its size, or is the error of in
 
 ## Status
 
-Complete, 2026-11-17: the plan and three extensions, 18 rows. Each plan was committed and pushed before its arms were scored. Extension 3 is reported in its own section at the end.
+Complete, 2026-11-17: the plan and three extensions, 18 rows. Each plan was committed and pushed before its arms were scored.
 
 ## Preregistration
 
@@ -29,7 +29,8 @@ Complete, 2026-11-17: the plan and three extensions, 18 rows. Each plan was comm
 - **Those small weights are where this model's output is lost.** With nothing else changed, setting them to zero costs 0.0152, which is 27 percent of the arm's KL from 7.8 percent of its error. Noise of that size on them costs 0.0319. Per unit of weight error that is 60 and 127 of KL, where the arm's error on all other weights costs 14.
 - **No single matrix shows any of it.** Fed the model's own inputs, the output of a matrix is off by the same amount under integer levels, under noise, and under noise on the small weights only, to 0.02 dB. The difference is made further on in the model.
 - **E8 cannot have the gain.** It rounds half of the small weights to zero and moves the other half to plus or minus half a step, which on a weight near zero is a larger error than noise gives it.
-- **A guess of mine was wrong.** I read the gain as pruning by size, which models bear well, and stated that zeroing the small weights would cost under a third of what noise on them costs. It costs 0.48 of it.
+- **Finer levels at zero buy three times what their weight error says, and that is not yet a better use of bits.** Three levels in place of the one at zero take 0.96 dB off the KL for 0.31 dB off the weight error. The same bits spent on every weight take 0.76 dB off both. The first is ahead by 0.20 dB, which is 0.9 errors on these 16 passages: the direction stated, and under the mark set for it.
+- **Two statements of mine were wrong.** I read the gain as pruning by size, which models bear well, and stated that zeroing the small weights would cost under a third of what noise on them costs. It costs 0.48 of it. And I stated that finer levels at zero would beat the same bits spent everywhere by 2 errors. They are ahead by 0.9.
 
 ## The instrument
 
@@ -68,6 +69,8 @@ So the split is not a property of llama.cpp or of the harness. A second program 
 | `only(ZBG128:b560s16)@small` | 0.0152 | 0.0004 | -36.010 | 60.5 |
 | `onlynoise(ZBG128:b560s16)@small#1` | 0.0319 | 0.0013 | -36.010 | 127.3 |
 | `only(ZBG128:b560s16)@big` | 0.0417 | 0.0013 | -25.280 | 14.1 |
+| `ZBG128:b576s16`, 4.625 bits | 0.0472 | 0.0015 | -25.683 | 17.4 |
+| `fine0(ZBG128:b560s16)`, 4.624 bits | 0.0450 | 0.0015 | -25.240 | 15.0 |
 
 The arms are described in `run.py` and in the plans. "Small" is the weights the integer arm rounds to zero: those under half a step of their group.
 
@@ -139,11 +142,29 @@ One part of the weights changed and the rest left exact.
 
 So the picture of extension 1 was half right. The gain of integer levels over noise is all at the small weights, and it is exactly the gap between the first two rows: 0.0167, where the arm and the noise arm are 0.0168 apart. But setting those weights to zero is not cheap. It is the dearest part of the arm's error by a factor of four. It is only half as dear as the alternative.
 
+## Extension 3: finer levels at zero, against the same bits everywhere
+
+Two arms at 4.625 bits a weight. `ZBG128:b576s16` is the integer arm with 16 more bits for each group's point. `fine0(ZBG128:b560s16)` is the integer arm with three levels where it has one at zero: a weight under half a step goes to the nearest of minus a third, zero and a third of a step. `build.out` has the share of such weights, 7.84 percent, and the count that follows from it: 4.624 bits if the choice among three is coded at its entropy bound. That is a bound and not a code.
+
+| Arm | Mean KL | Weight error | Over the integer arm: KL | weight error |
+|---|---|---|---|---|
+| The integer arm, 4.5 bits | 0.0562 | -24.928 dB | | |
+| The same bits everywhere | 0.0472 | -25.683 | -0.76 dB | -0.76 dB |
+| Finer levels at zero | 0.0450 | -25.240 | -0.96 | -0.31 |
+
+| | Statement | Verdict |
+|---|---|---|
+| G1 | Finer levels at zero have a lower mean KL than the same bits everywhere, by at least 2 errors of the paired difference | **Fails.** Lower by 0.0021, error 0.0023: 0.9 errors |
+| G2 | Their mean KL is between 0.043 and 0.045 | **Fails**, at 0.04504 |
+| G3 | The same bits everywhere is within 0.2 dB of 0.0472 | **Holds**, at 0.04717 |
+
+What stands: bits spent on every weight give a decibel of KL for a decibel of weight error, to 0.01 dB, on a fourth arm on integer levels. Bits spent at zero give three decibels for one. What does not stand is that the second is the better buy: at equal bits it is 0.20 dB ahead, and 16 passages cannot tell that from nothing. The arm with the larger weight error has the lower KL, so the weight error has their order wrong, but by less than the errors.
+
 ## What follows
 
 1. **For issue #10.** Its formula has the lattice as a cell constant and counts every squared error alike. On this model that gives the weight error to 0.035 dB and misses the output by 1.1 dB between two lattices, for a reason that is neither the cell nor the lattice: what a rule does to a weight under half a step. A term for it would read one thing from a rule, whether a weight near zero can get an error larger than itself, and one thing from a model, how much dearer an error on its small weights is. The second is 4 to 9 times here. It is not known for any other model.
 2. **For the choice between the lattices** (issue #15, and the other record's "arm to carry forward"). The integer arm's lead over E8 on this model is not a lead of its cell. E8's cell is still 0.66 dB better, and E8 pays 1.1 dB at zero. A code that had E8's cell away from zero and rounded small weights towards zero would have both. None is built here.
-3. **Where to spend bits.** The small weights hold 27 percent of the integer arm's KL in 7.8 percent of its error. Extension 3 tests the plainest use of that.
+3. **Where to spend bits.** The small weights hold 27 percent of the integer arm's KL in 7.8 percent of its error. The plainest use of that, three levels at zero, is 0.20 dB ahead of the same bits spent everywhere and is not shown to be ahead. The harness's 40 passages would about halve the error. A rule that chose the levels near zero for the output and not for the count is not tried.
 4. **Qwen2.5.** There the two lattices share a figure, so by this reading an error on a small weight is no dearer than on any other there. The same two arms as extension 1 would say. This instrument cannot run that model: it has biases and shared key heads.
 
 ## Limits
@@ -167,14 +188,14 @@ From the root of a checkout, with NumPy. The model file and the text are those o
 ```bash
 E=experiments/lattice-split-smollm2-2026-11-17
 python3 $E/run.py reference --model SmolLM2-1.7B-Instruct-f16.gguf --text wiki.test.raw --work DIR > $E/reference.out
-python3 $E/run.py build --model SmolLM2-1.7B-Instruct-f16.gguf --work DIR
+python3 $E/run.py build --model SmolLM2-1.7B-Instruct-f16.gguf --work DIR > $E/build.out
 python3 $E/run.py score --model SmolLM2-1.7B-Instruct-f16.gguf --text wiki.test.raw --work DIR --out $E/results.jsonl ARM [ARM ...]
 python3 $E/summary.py > $E/results.out
 python3 $E/layer_error.py --model SmolLM2-1.7B-Instruct-f16.gguf --text wiki.test.raw --work DIR > $E/layer_error.out
 python3 -m unittest shape/test_npforward.py
 ```
 
-The reference pass takes 6 minutes on 4 CPU threads, the build 11, an arm 4 to 9. The work folder holds 13 GB. No weights and no text are committed.
+The reference pass takes 6 minutes on 4 CPU threads, the build 11, an arm 4 to 9. The work folder holds 16 GB. No weights and no text are committed.
 
 ## Disclosure
 

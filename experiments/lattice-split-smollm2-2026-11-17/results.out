@@ -21,6 +21,8 @@ noisepart(ZBG128:b560s16)@big#1 | 0.05691 | 0.00180 | 0.03152 | -24.928 | 17.70 
 only(ZBG128:b560s16)@small | 0.01517 | 0.00043 | 0.00816 | -36.010 | 60.54 | +5.40 | +4.19 | 11.367
 onlynoise(ZBG128:b560s16)@small#1 | 0.03191 | 0.00125 | 0.01577 | -36.010 | 127.32 | +8.63 | +7.42 | 11.405
 only(ZBG128:b560s16)@big | 0.04166 | 0.00129 | 0.02363 | -25.280 | 14.05 | -0.94 | -2.15 | 11.659
+ZBG128:b576s16 | 0.04717 | 0.00148 | 0.02449 | -25.683 | 17.45 | -0.00 | -1.21 | 11.669
+fine0(ZBG128:b560s16) | 0.04504 | 0.00152 | 0.02526 | -25.240 | 15.05 | -0.65 | -1.86 | 11.675
 
 Pairs: the first arm's KL per unit of weight error over the second's, in dB, from the means | from the 16 passages' ratios | its standard error | agree (within 0.4 dB)
 noise(EBG128:b560s16)#1 over EBG128:b560s16 | -0.11 | -0.05 | 0.19 | yes
@@ -62,3 +64,10 @@ F1 | the small weights set to zero, 0.01517, over noise of that size on them, 0.
 F2 | the two parts together, 0.01517 + 0.04166 = 0.05683, over the integer arm's 0.05616: 1.012 | holds
 F3 | KL per unit of weight error: noise on the small weights alone 127.3, noise on every weight 22.7: 5.61 times | holds
 Per unit of weight error: the small weights set to zero 60.5, the integer arm's error on the other weights 14.1, the integer arm 17.5.
+
+Extension 3, by the statements of PREREG-extension-3.md
+G1 | finer levels at zero 0.04504 at -25.240 dB, the same bits everywhere 0.04717 at -25.683 dB: -0.00213 (error 0.00229, -0.9 errors; -0.22 dB from the passages, error 0.17) | FAILS
+G2 | finer levels at zero: 0.04504, stated 0.043 to 0.045 | FAILS
+G3 | the same bits everywhere: 0.04717, -0.00 dB from 0.0472 | holds
+fine0(ZBG128:b560s16) over the integer arm: -0.96 dB of KL (-0.99 from the passages, error 0.08) for -0.31 dB of weight error
+ZBG128:b576s16 over the integer arm: -0.76 dB of KL (-0.78 from the passages, error 0.12) for -0.76 dB of weight error

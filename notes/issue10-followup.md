@@ -1,7 +1,7 @@
 # Issue #10 after the model-output runs
 
 Date: 2026-11-17
-Status: one test is still running. Six predictions for a third model were committed before its ball arms were scored. The first arm is in and goes against one of them. The verdicts are under "The third model" and are filled in as the rows land.
+Status: complete. Six predictions for a third model were committed before its ball arms were scored: one holds and five fail, all five for one reason. A second run, planned before its arms, found the reason. Both are under "The third model" and "Why the lattices split".
 
 [issue10-proposal-check.md](issue10-proposal-check.md) read the proposal of issue #10 when nothing of its family had been scored on a model. It left the proposal's claim about a model's output untested, and its second hard limit, decode cost, unreadable. Five things have landed since: a run on `Qwen2.5-1.5B-Instruct` with 27 scored variants, a study of balls over more than 8 weights, a way to number the points of a ball-cut codebook, the fold study of issue #9, and the first half of an importance-matrix baseline. This note reads the open rows of the check against them and carries out stage 4 of the proposal with what they give.
 
@@ -14,6 +14,7 @@ Status: one test is still running. Six predictions for a third model were commit
 - **It does not follow it with one scale per row, or without a codeword at zero.** Those arms have 0.8 to 4.3 dB and 1.2 to 15.5 dB more KL than the constant gives. The formula does not see either.
 - **A test before the data: of six predictions one holds and five fail.** Six predictions for `SmolLM2-1.7B-Instruct` were committed and pushed at `49f7a73`, when only its scalar rule and one of llama.cpp's files had a score. The closed form gives the weight error of its four ball arms to 0.035 dB. It does not give their KL. On this model a decibel of weight error is not a decibel of KL.
 - **On that model integer levels in a ball score under E8 in the same ball**: 0.0560 against 0.0609, though E8 has 0.66 dB less weight error. The arms with one scale per group sort by lattice: 16.4 to 17.4 of KL per unit of weight error on integer levels, 21.4 to 23.0 on five arms on E8. On Qwen2.5 the same arms were all between 6.8 and 7.7. Three statements made from that split before their rows all held. Nothing measured on the weights tells the two lattices apart on that model.
+- **Why: E8's error is noise of its size, and the error of integer levels is better than noise at one place, zero.** A run of this branch's own (`experiments/lattice-split-smollm2-2026-11-17`, plans committed before their arms) put noise in place of each arm's error. For E8 nothing changes. For integer levels the KL rises 1.1 dB, and all of the rise comes from the 7.8 percent of the weights they round to zero. Those weights hold 27 percent of the arm's KL: an error on them costs 4 to 9 times what an error on any other weight costs. The formula counts every squared error alike.
 - **Stage 4 can now be carried out under both of its limits.** `shape/design.out` lists 36 settings of the knobs with the error by the formula, the KL it implies on two models, the size of the table that numbers the codebook's points, and the look-ups to read a group back. 30 of the 36 have not been scored on any model.
 - **The shape knob is closed in practice for the language model.** Once a region spans the group, the best p-norm region is worth 0.05 dB over the ball in the mean on 21 matrices, by the formula. On the output a cross-polytope and a ball over 32 weights score the same: 0.0341 and 0.0339.
 - **By the formula little is left inside this family.** The scored arm at 4.5 bits is 0.25 dB from the same group with a shorter scale, 0.6 dB from what E8 reaches with any group, and 1.5 dB from Shannon's floor for Gaussian weights. No lattice can add more than 0.88 dB to E8.
@@ -179,6 +180,44 @@ What the weights cannot show is how the errors of the eight weights of a block g
 
 **From the weights of this model, before its arms with one scale per row are scored** (`shape/row_spread.smollm2.out`, 19:58 UTC). The scalar rule per row has rows 1.30 times as uneven as an even spread at 16 levels and 1.39 at 32, and 1.2 percent of the rows have over four times the matrix's share. With groups of 32 the figure is 1.01. That is the regime of Qwen2.5, where the arms per row lay above the constant. The measured weight error of `X32:16`, -21.166 dB, is reproduced to the last digit shown, and that of `XR:16` comes out at -16.59 dB.
 
+## Why the lattices split: what a rule does to a weight near zero
+
+`experiments/lattice-split-smollm2-2026-11-17`. The plan and each of three extensions were committed and pushed before their arms were scored. The model is run in NumPy by `shape/npforward.py`, since this session has no build of llama.cpp, on the harness's text and on 16 of its 40 passages. Four checks set in the plan hold: its reference perplexity is 0.19 percent from llama.cpp's, its weight errors are the harness's, its KL for three arms is within 6.5 percent, and it has the split, 1.21 dB where the harness has 1.02.
+
+| Arm, at the weight error of the arm named | Mean KL | KL per unit of weight error |
+|---|---|---|
+| E8 in the ball | 0.0638 | 23.1 |
+| Gaussian noise in place of its error, the same size in every group | 0.0622 | 22.5 |
+| Integer levels in the ball | 0.0562 | 17.5 |
+| Gaussian noise in place of its error | 0.0730 | 22.7 |
+| Its own error, the weights of each group trading errors | 0.0737 | 22.9 |
+| Noise on the 92 percent of the weights it does not round to zero | 0.0569 | 17.7 |
+| Noise on the 7.8 percent it rounds to zero | 0.0706 | 22.0 |
+
+- **Measured: E8's error acts as noise of its size.** 0.11 dB apart, and two draws of noise are 0.14 dB apart.
+- **Measured: the error of integer levels is 1.1 dB better than noise, and only at zero.** Away from zero it is noise already. At zero the error on a weight is the weight itself, never larger and never of the other sign. E8 rounds half of those weights to zero and moves the rest to half a step.
+- **Measured: the small weights are where the output is lost.** With all else exact, setting them to zero costs 0.0152 and noise of that size on them 0.0319. The integer arm's error on every other weight costs 0.0417. The parts add to 1 percent. Per unit of weight error that is 60, 127 and 14.
+- **Measured: no single matrix shows it.** Fed the model's own inputs, the output of a matrix is off by the same amount under each of these arms, to 0.02 dB. The difference is made further on.
+- **Measured: for one pattern of error a decibel is a decibel.** The integer arm's error made 0.66 dB smaller has a KL 0.67 dB smaller. The integer arm with 16 more bits a group has 0.76 dB less of both.
+- **Measured: the feed-forward matrices carry it.** E8 there and integer levels in attention is 3.3 errors above the integer arm. The reverse is not above it.
+
+Stated before their rows, and how they went:
+
+| | Statement | Verdict |
+|---|---|---|
+| Plan | My guess: noise agrees with E8 and is above integer levels | Holds |
+| Extension 1 | My guess: the gain is all at the weights rounded to zero | Holds |
+| Extension 2 | Setting them to zero costs under a third of noise on them | **Fails**: 0.48 of it |
+| | The two parts of the arm's error add within 10 percent | Holds: 1.2 percent |
+| | Noise on the small weights costs at least twice per unit what noise on all does | Holds: 5.6 times |
+| Extension 3 | Three levels at zero beat the same bits spent on every weight, by 2 errors | **Fails**: ahead by 0.20 dB, 0.9 errors |
+| | Their KL is 0.043 to 0.045 | **Fails**: 0.04504 |
+| | 16 more bits a group give 0.0472 | Holds: 0.04717 |
+
+**What this does to the formula.** It is right about the cell and blind to the place. E8's cell is 0.66 dB better on this model too, and that shows wherever E8 is set against E8. What the formula lacks is not a property of a lattice. It is whether a rule can give a weight near zero an error larger than the weight, and how dear this model holds such an error. Three levels at zero take 0.96 dB off the KL for 0.31 dB off the weight error, so the formula's order of that arm and the one with the same bits everywhere is the wrong way round, by an amount this run cannot tell from nothing.
+
+**What is not known.** Why an error on a small weight is dear here. And whether it is on Qwen2.5, where the two lattices share a figure: the instrument does not handle that model's biases and shared key heads.
+
 ## Stage 4, under both limits
 
 `shape/design.out`: one ball per group of 32, 64 or 128 weights, integer levels or E8, a scale of 16, 8 or 6 bits, at 4.5 and at 4.0 bits per weight. For each, the error by the closed form with the exact count of its codebook, the KL the anchors give on both models, and the cost of the index.
@@ -224,7 +263,7 @@ A table's size is one cost and not the only one. A group's number is as long as 
 Three figures its two workstreams can use, all by the formula and none scored:
 
 - **The arm it calls cheapest, integer levels over 32 weights with an 8-bit scale**: -24.49 dB, so a mean KL of 0.0258 on Qwen2.5 if the constant holds there. That would be under `Q4_K_M` with an importance matrix on Qwen2.5, 0.0282 at 4.81 bits, by 0.4 dB. On SmolLM2 the scalar rule's constant holds for the one ball arm on integer levels, within 0.26 dB, and is low by 1.3 to 1.5 dB for the arms on E8. So `shape/design.out`'s figures for that model are near for its `ZBG` rows and low for its `EBG` rows.
-- **Dropping E8 costs 0.65 dB of weight error, whatever else is chosen, and of KL on one model of two.** On Qwen2.5 it was scored at 0.66 dB of KL. On SmolLM2 integer levels in the same ball scored 0.36 dB *under* E8. So the case of issue #15 for integer levels, made there on cost, has a score on its side on one model.
+- **Dropping E8 costs 0.65 dB of weight error, whatever else is chosen, and of KL on one model of two.** On Qwen2.5 it was scored at 0.66 dB of KL. On SmolLM2 integer levels in the same ball scored 0.36 dB *under* E8. So the case of issue #15 for integer levels, made there on cost, has a score on its side on one model. The lattice-split run says why: integer levels do not win on their cell there. They win at the 7.8 percent of the weights they round to zero, where E8 cannot follow. A code with E8's cell away from zero and integer rounding at zero would have both gains. None is built.
 - **"Right at the Shannon boundary"**: the scored arm is 1.5 dB above Shannon's floor for Gaussian weights, and 0.6 dB above what E8 can reach with any group and any split of the bits.
 
 ## Limits
@@ -234,6 +273,7 @@ Three figures its two workstreams can use, all by the formula and none scored:
 - **Counted bits.** Nothing here has a packed file. The table sizes are of an index written to be exact and not to be fast.
 - **Fine cells.** No ball arm has been run under 4 bits. At 2 bits the formula of the check was low by 0.8 dB for blocks of 8.
 - **The mean of the matrices' errors in dB is what the constant is fitted to.** On Qwen2.5 the pooled error of the scalar rule differs from it by 0.5 dB, and with the pooled figure the fit is worse.
+- **The lattice-split run is scored in NumPy, on 16 passages of one model.** It agrees with llama.cpp to 0.19 percent in perplexity. Its noise arms are one draw, two for one of them.
 - **The formula sees weights only.** The importance-matrix baseline shows what reading data gives llama.cpp's files: a sixth off their KL. No ball arm reads data.
 - **Published work.** That the granular and the boundary gain separate, and that a ball is the best region for a round source, is in print since 1989 and 1993 (rows 39 to 41 of the check). The closed form is those results under this rule. The constant per model is close to the linearity theorem of HIGGS (arXiv 2411.17525), which the check quotes: for small relative errors the loss in perplexity is a weighted sum of the layers' relative errors. That paper reports its prediction diverging under about 3 bits.
 
@@ -241,7 +281,8 @@ Three figures its two workstreams can use, all by the formula and none scored:
 
 - The records `model-output-qwen25-2026-11-17`, `ball-dimension-no-clip-rule-2026-11-17`, `fold-path-codebooks-2026-11-17`, `imatrix-baseline-2026-11-17` and `model-output-smollm2-2026-11-17` on the branch `bayan/charming-gates-jlas14`, and `shape/ballindex.out`. **Checked.**
 - Issues #14, #15 and #16 and their comments as they stood at 19:30 UTC on 2026-11-17. **Checked.**
+- The record `lattice-split-smollm2-2026-11-17` on this branch: `results.out`, `layer_error.out`, `build.out`. Its rows are this session's. **Checked.**
 
 ## Disclosure
 
-Written by an AI agent session under the owner's direction. The runs it reads are another session's. Nothing here has been reviewed by a person.
+Written by an AI agent session under the owner's direction. The runs of `model-output-*` it reads are another session's. The lattice-split run is its own. Nothing here has been reviewed by a person.
