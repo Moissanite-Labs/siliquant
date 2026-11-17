@@ -198,6 +198,35 @@ def main():
         print(f"{name(n)} | {rows[n]['bits_per_weight']:.3f} | {kl(n):.4f} | {rows[n]['same_top']:.2f}")
 
     print()
+    print("9. Not in either plan: does weight error rank the variants as the output does?")
+    print("   Spearman's rank correlation between weight error and mean KL, over the variants that have both. 1 means the same order.")
+
+    def ranks(v):
+        order = sorted(range(len(v)), key=lambda i: v[i])
+        r = [0.0] * len(v)
+        for pos, i in enumerate(order):
+            r[i] = float(pos)
+        return r
+
+    def spearman(a, b):
+        ra, rb = ranks(a), ranks(b)
+        ma, mb = sum(ra) / len(ra), sum(rb) / len(rb)
+        num = sum((x - ma) * (y - mb) for x, y in zip(ra, rb))
+        den = math.sqrt(sum((x - ma) ** 2 for x in ra) * sum((y - mb) ** 2 for y in rb))
+        return num / den if den else float("nan")
+
+    scored = [n for n in PLAN_1 + PLAN_2 if n in rows and n not in ("unchanged", "identity") and isinstance(w(n), float) and math.isfinite(w(n))]
+    print("set of variants | how many | mean weight error against KL | pooled weight error against KL")
+    sets = [("all", scored),
+            ("this repository's arms", [n for n in scored if not n.startswith("file:")]),
+            ("16 levels, 4.49 to 4.50 bits", [n for n in scored if not n.startswith("file:") and 4.48 < rows[n]["bits_per_weight"] < 4.51]),
+            ("16 levels, one scale per row or per 128", [n for n in scored if not n.startswith("file:") and rows[n]["bits_per_weight"] < 4.2])]
+    for label, names in sets:
+        if len(names) >= 3:
+            ks = [kl(n) for n in names]
+            print(f"{label} | {len(names)} | {spearman([w(n) for n in names], ks):.3f} | {spearman([rows[n]['weight_err_db_pooled'] for n in names], ks):.3f}")
+
+    print()
     print("8. Weight error by kind of matrix, in dB, mean over the 28 layers")
     kinds = ["attn_q", "attn_k", "attn_v", "attn_output", "ffn_gate", "ffn_up", "ffn_down"]
     print("variant | " + " | ".join(kinds))
