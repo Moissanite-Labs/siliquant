@@ -1,0 +1,53 @@
+1. Parts of the bit budget, in bits per weight
+   any cell shape, any dimension, high rates: 1.533 dB = 0.255 bit
+   the E8 cell: 0.65 dB = 0.108 bit (bounds/bounds.out)
+   a scale of 16 bits for every    32 weights: 0.5000 bit
+   a scale of  8 bits for every    32 weights: 0.2500 bit
+   a scale of  6 bits for every    32 weights: 0.1875 bit
+   a scale of 16 bits for every  2560 weights: 0.0063 bit
+   a scale of 16 bits for every 10240 weights: 0.0016 bit
+
+2. The sphere bound in 3 dimensions
+   second moment of a ball 0.076967, of a cube 0.083333: at most 0.345 dB over the cube
+
+3. Arm S at 4 bits, one kind of matrix at a time (results.jsonl)
+   attn_output     257 M weights  KL 0.9624  KL per million weights 3.745e-03
+   ffn_down       1101 M weights  KL 1.9889  KL per million weights 1.806e-03
+   attn_v           64 M weights  KL 0.0670  KL per million weights 1.047e-03
+   attn_k           64 M weights  KL 0.0489  KL per million weights 7.640e-04
+   attn_q          257 M weights  KL 0.0576  KL per million weights 2.240e-04
+   ffn_up         1101 M weights  KL 0.1716  KL per million weights 1.558e-04
+   ffn_gate       1101 M weights  KL 0.0786  KL per million weights 7.139e-05
+   largest over smallest KL per weight: 52.5
+   sum over kinds 3.375, all kinds at once 6.505
+
+4. Equal gain per bit, if one more bit divides a kind's KL by four and the parts add
+   attn_output   5.75 bits  modelled KL 0.085
+   ffn_down      5.22 bits  modelled KL 0.364
+   attn_v        4.83 bits  modelled KL 0.021
+   attn_k        4.60 bits  modelled KL 0.021
+   attn_q        3.72 bits  modelled KL 0.085
+   ffn_up        3.46 bits  modelled KL 0.364
+   ffn_gate      2.89 bits  modelled KL 0.364
+   modelled sum: 3.375 with 4 bits for every kind, 1.306 after the split
+   The table of part 3 is from the arm that breaks the model, and its parts do not add.
+   This is the arithmetic of a prediction. It is not a result.
+
+5. Keeping the large entries of ffn_down apart
+   16 bits for the value and 12 for the place in a row of 2560: 0.0048 bit per weight of ffn_down
+   16 bits for the value and 14 for the place in a row of 10240: 0.0051 bit per weight of ffn_down
+
+6. Scored pairs the note quotes (results.jsonl)
+   S:32             KL 2.183950
+   G+S:32           KL 5.506681
+   GF+S:32          KL 17.845963
+   R+S:32           KL 0.339548
+   XR:32            KL 0.118049
+   XR:32~0.7        KL 0.101133
+   X32:16           KL 0.117297
+   VE832:16         KL 0.074728
+   clip:3.45        KL 0.317921
+   flip:3.45        KL 0.095438
+   clip:5           KL 0.200084
+   clip:5@ffn_down  KL 0.163763
+   gauge:1          KL 0.000047

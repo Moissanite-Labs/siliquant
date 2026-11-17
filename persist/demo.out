@@ -26,6 +26,7 @@ seed 20261117, numpy 2.0.2
 5. The piece that never joins: is the bound of Theorem 1 reached by its own example?
    essential=none   persistence 2.884441  bound 2.993326
    essential=min    persistence 2.993326  bound 2.993326
+   essential=zero   persistence 3.052868  bound 2.993326
 
 6. Rescaling ReLU units: the same function, another score. 64 -> 256 -> 10
    spread 0.00  move over size  0.00  largest output gap 0.0e+00  layer scores 0.3734 0.5170  mean 0.4452
@@ -43,4 +44,4 @@ seed 20261117, numpy 2.0.2
    largest ratio, 2-norm of sorted sizes over Frobenius change:          0.6205
 
 9. Time for one tree, 2560 x 10240
-   0.6 s
+   0.5 s
