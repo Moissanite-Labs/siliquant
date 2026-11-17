@@ -1,0 +1,73 @@
+Checks of the instrument
+C1 | reference perplexity on 40 passages 9.4292, the harness's 9.4117: +0.19 percent | holds
+C2 | weight error less the harness's, dB: X32:16 +0.0000, ZBG128:b560s16 +0.0000, EBG128:b560s16 +0.0000 | holds
+C3 | mean KL on 16 passages over the harness's on 40: X32:16 0.1339 / 0.1257 = 1.065, ZBG128:b560s16 0.0562 / 0.0560 = 1.004, EBG128:b560s16 0.0638 / 0.0609 = 1.048 | holds
+C4 | KL per unit of weight error, E8 arm over integer arm: +1.21 dB from the means, +1.11 from the passages (error 0.21); the harness's +1.02 | holds
+
+variant | mean KL | its standard error | median | weight error, dB | KL per unit of weight error | that over the integer arm's, dB | over the E8 arm's, dB | perplexity
+X32:16 | 0.13387 | 0.00421 | 0.07324 | -21.166 | 17.51 | +0.01 | -1.20 | 12.607
+ZBG128:b560s16 | 0.05616 | 0.00167 | 0.03234 | -24.928 | 17.47 | +0.00 | -1.21 | 11.849
+EBG128:b560s16 | 0.06376 | 0.00262 | 0.03187 | -25.585 | 23.07 | +1.21 | +0.00 | 11.873
+noise(EBG128:b560s16)#1 | 0.06223 | 0.00188 | 0.03294 | -25.585 | 22.52 | +1.10 | -0.11 | 11.899
+noise(ZBG128:b560s16)#1 | 0.07298 | 0.00225 | 0.03876 | -24.928 | 22.70 | +1.14 | -0.07 | 12.008
+shuffle(EBG128:b560s16)#1 | 0.06080 | 0.00197 | 0.03201 | -25.585 | 22.00 | +1.00 | -0.21 | 11.839
+shuffle(ZBG128:b560s16)#1 | 0.07372 | 0.00224 | 0.04083 | -24.928 | 22.93 | +1.18 | -0.03 | 11.701
+mix(attn=E,ffn=Z) | 0.05464 | 0.00163 | 0.02992 | -25.303 | 18.53 | +0.26 | -0.95 | 11.859
+mix(attn=Z,ffn=E) | 0.06571 | 0.00237 | 0.03266 | -25.209 | 21.80 | +0.96 | -0.24 | 11.795
+noise(EBG128:b560s16)#2 | 0.06424 | 0.00243 | 0.03371 | -25.585 | 23.24 | +1.24 | +0.03 | 11.714
+scale(ZBG128:b560s16,-0.66) | 0.04810 | 0.00143 | 0.02767 | -25.588 | 17.41 | -0.01 | -1.22 | 11.757
+noisepart(ZBG128:b560s16)@small#1 | 0.07059 | 0.00213 | 0.03828 | -24.928 | 21.95 | +0.99 | -0.22 | 12.006
+noisepart(ZBG128:b560s16)@big#1 | 0.05691 | 0.00180 | 0.03152 | -24.928 | 17.70 | +0.06 | -1.15 | 11.900
+only(ZBG128:b560s16)@small | 0.01517 | 0.00043 | 0.00816 | -36.010 | 60.54 | +5.40 | +4.19 | 11.367
+onlynoise(ZBG128:b560s16)@small#1 | 0.03191 | 0.00125 | 0.01577 | -36.010 | 127.32 | +8.63 | +7.42 | 11.405
+only(ZBG128:b560s16)@big | 0.04166 | 0.00129 | 0.02363 | -25.280 | 14.05 | -0.94 | -2.15 | 11.659
+ZBG128:b576s16 | 0.04717 | 0.00148 | 0.02449 | -25.683 | 17.45 | -0.00 | -1.21 | 11.669
+fine0(ZBG128:b560s16) | 0.04504 | 0.00152 | 0.02526 | -25.240 | 15.05 | -0.65 | -1.86 | 11.675
+
+Pairs: the first arm's KL per unit of weight error over the second's, in dB, from the means | from the 16 passages' ratios | its standard error | agree (within 0.4 dB)
+noise(EBG128:b560s16)#1 over EBG128:b560s16 | -0.11 | -0.05 | 0.19 | yes
+noise(ZBG128:b560s16)#1 over ZBG128:b560s16 | +1.14 | +1.09 | 0.17 | no
+noise(EBG128:b560s16)#1 over noise(ZBG128:b560s16)#1 | -0.03 | -0.03 | 0.01 | yes
+noise(EBG128:b560s16)#2 over noise(EBG128:b560s16)#1 | +0.14 | +0.14 | 0.14 | yes
+shuffle(EBG128:b560s16)#1 over EBG128:b560s16 | -0.21 | -0.13 | 0.20 | yes
+shuffle(ZBG128:b560s16)#1 over ZBG128:b560s16 | +1.18 | +1.14 | 0.16 | no
+shuffle(EBG128:b560s16)#1 over noise(EBG128:b560s16)#1 | -0.10 | -0.08 | 0.13 | yes
+shuffle(ZBG128:b560s16)#1 over noise(ZBG128:b560s16)#1 | +0.04 | +0.05 | 0.14 | yes
+shuffle(EBG128:b560s16)#1 over shuffle(ZBG128:b560s16)#1 | -0.18 | -0.16 | 0.12 | yes
+scale(ZBG128:b560s16,-0.66) over ZBG128:b560s16 | -0.01 | -0.01 | 0.01 | yes
+EBG128:b560s16 over ZBG128:b560s16 | +1.21 | +1.11 | 0.21 | no
+X32:16 over ZBG128:b560s16 | +0.01 | +0.01 | 0.14 | yes
+noisepart(ZBG128:b560s16)@small#1 over ZBG128:b560s16 | +0.99 | +0.96 | 0.10 | no
+noisepart(ZBG128:b560s16)@small#1 over noise(ZBG128:b560s16)#1 | -0.14 | -0.13 | 0.16 | yes
+noisepart(ZBG128:b560s16)@big#1 over ZBG128:b560s16 | +0.06 | +0.04 | 0.15 | yes
+noisepart(ZBG128:b560s16)@big#1 over noise(ZBG128:b560s16)#1 | -1.08 | -1.05 | 0.14 | no
+
+Mixed arms: mean KL less the integer arm's, over the 16 passages | its standard error | in errors
+mix(attn=E,ffn=Z) | -0.00152 | 0.00224 | -0.7
+mix(attn=Z,ffn=E) | +0.00955 | 0.00287 | +3.3
+EBG128:b560s16 | +0.00760 | 0.00398 | +1.9
+the two mixed arms' KL together less the two ball arms' together: +0.00043 (zero if the kinds add)
+
+Readings, by the rules of PREREG.md
+D1a: noise at E8's size agrees with the E8 arm, and noise at the integer arm's size is above the integer arm.
+Two draws of noise differ by +0.14 dB: readings from one draw stand.
+For the E8 arm, shuffled: -0.21 dB from the arm and -0.10 dB from noise. Neither D2 nor D2'.
+D2 for the integer arm: shuffled, it agrees with noise and not with the arm. Which weight gets which error matters.
+L: the integer arm's error made 0.66 dB smaller has a KL -0.67 dB from the integer arm's: holds.
+
+Extension 1, by the rules of PREREG-extension-1.md
+E1: noise on the larger weights agrees with the integer arm, and noise on the weights rounded to zero agrees with the noise arm.
+Noise on the weights rounded to zero: +0.99 dB from the integer arm, -0.14 from the noise arm. Noise on the larger weights: +0.06 and -1.08.
+
+Extension 2, by the statements of PREREG-extension-2.md
+F1 | the small weights set to zero, 0.01517, over noise of that size on them, 0.03191: 0.475 (-3.18 dB from the passages, error 0.15) | FAILS
+F2 | the two parts together, 0.01517 + 0.04166 = 0.05683, over the integer arm's 0.05616: 1.012 | holds
+F3 | KL per unit of weight error: noise on the small weights alone 127.3, noise on every weight 22.7: 5.61 times | holds
+Per unit of weight error: the small weights set to zero 60.5, the integer arm's error on the other weights 14.1, the integer arm 17.5.
+
+Extension 3, by the statements of PREREG-extension-3.md
+G1 | finer levels at zero 0.04504 at -25.240 dB, the same bits everywhere 0.04717 at -25.683 dB: -0.00213 (error 0.00229, -0.9 errors; -0.22 dB from the passages, error 0.17) | FAILS
+G2 | finer levels at zero: 0.04504, stated 0.043 to 0.045 | FAILS
+G3 | the same bits everywhere: 0.04717, -0.00 dB from 0.0472 | holds
+fine0(ZBG128:b560s16) over the integer arm: -0.96 dB of KL (-0.99 from the passages, error 0.08) for -0.31 dB of weight error
+ZBG128:b576s16 over the integer arm: -0.76 dB of KL (-0.78 from the passages, error 0.12) for -0.76 dB of weight error
