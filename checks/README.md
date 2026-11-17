@@ -1,20 +1,22 @@
 # Checks on the records themselves
 
-Two programs that read the repository, not weights. They are crossings X2 and X3 of [notes/cross-org-grafts.md](../notes/cross-org-grafts.md), which that note ranked first and second. Both only read. Neither changes a record.
+Three programs that read the repository, not weights. They are crossings X2, X3 and X4 of [notes/cross-org-grafts.md](../notes/cross-org-grafts.md), three of the five that note ranked first. They only read. None changes a record. (Crossing X1, a witness for every cell of a closure, is in `perm/`.)
 
 | File | What it answers | Output |
 |---|---|---|
 | `plan_before_data.py` | Was each record's plan committed before its data? Read from git. | `plan_before_data.out` |
 | `number_trace.py` | Can each number in a record's README be found in a committed output? | `number_trace.out` |
+| `claim_ledger.py` | Does each row of a check note say what its verdict rests on, in words from a fixed list, with a file to open? | `claim_ledger.out` |
 
 Run from the root of a checkout with full history:
 
 ```bash
 python3 checks/plan_before_data.py > checks/plan_before_data.out
 python3 checks/number_trace.py > checks/number_trace.out
+python3 checks/claim_ledger.py > checks/claim_ledger.out
 ```
 
-Both outputs here are of the tree at the commit that adds this file. The model-output run on Qwen2.5 had a plan and no data yet.
+The first two outputs are of the tree at the commit that added them. The model-output run on Qwen2.5 had a plan and no data yet.
 
 ## What the first one found
 
@@ -39,6 +41,16 @@ A second pass is stricter. It takes each line of a README with three numbers or 
 So matching numbers after the fact cannot carry the rule that every number traces to an output. It catches a number that is nowhere at all, and about half of the slips within a table row.
 
 What it is good for: the two lists in its output are where a second reader should start. The one number found nowhere, 0.746865, is a figure from a source and the record says so.
+
+## What the third one found
+
+It reads the tables of the three check notes as they stand: 105 rows. It keeps no second copy of the claims. It exits with 1 if a row breaks a rule.
+
+- **Every part of every Basis is one of ten kinds.** Nothing had to be changed for that.
+- **Eleven rows said "recomputed" or "proved" and named no file to open.** Eight were in the note on PR #6 and three in the note on the briefs. One of them is the row the grafts note found: claim 10 of the briefs cites 1.26/n and named only the folder `perm/`. The figure is in `perm/demo.out`, section 4. Each of the eleven rows names its file now.
+- **The note on issue #10 passes by its legend.** It says once, above its tables, that "measured" means a committed output of one record. 14 of its rows rest on that sentence and name no file of their own. The program counts them apart.
+
+What it cannot tell: whether the file named holds the number claimed.
 
 ## What follows
 
