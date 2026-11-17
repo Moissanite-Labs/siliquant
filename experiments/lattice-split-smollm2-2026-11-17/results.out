@@ -16,6 +16,8 @@ mix(attn=E,ffn=Z) | 0.05464 | 0.00163 | 0.02992 | -25.303 | 18.53 | +0.26 | -0.9
 mix(attn=Z,ffn=E) | 0.06571 | 0.00237 | 0.03266 | -25.209 | 21.80 | +0.96 | -0.24 | 11.795
 noise(EBG128:b560s16)#2 | 0.06424 | 0.00243 | 0.03371 | -25.585 | 23.24 | +1.24 | +0.03 | 11.714
 scale(ZBG128:b560s16,-0.66) | 0.04810 | 0.00143 | 0.02767 | -25.588 | 17.41 | -0.01 | -1.22 | 11.757
+noisepart(ZBG128:b560s16)@small#1 | 0.07059 | 0.00213 | 0.03828 | -24.928 | 21.95 | +0.99 | -0.22 | 12.006
+noisepart(ZBG128:b560s16)@big#1 | 0.05691 | 0.00180 | 0.03152 | -24.928 | 17.70 | +0.06 | -1.15 | 11.900
 
 Pairs: the first arm's KL per unit of weight error over the second's, in dB, from the means | from the 16 passages' ratios | its standard error | agree (within 0.4 dB)
 noise(EBG128:b560s16)#1 over EBG128:b560s16 | -0.11 | -0.05 | 0.19 | yes
@@ -30,6 +32,10 @@ shuffle(EBG128:b560s16)#1 over shuffle(ZBG128:b560s16)#1 | -0.18 | -0.16 | 0.12 
 scale(ZBG128:b560s16,-0.66) over ZBG128:b560s16 | -0.01 | -0.01 | 0.01 | yes
 EBG128:b560s16 over ZBG128:b560s16 | +1.21 | +1.11 | 0.21 | no
 X32:16 over ZBG128:b560s16 | +0.01 | +0.01 | 0.14 | yes
+noisepart(ZBG128:b560s16)@small#1 over ZBG128:b560s16 | +0.99 | +0.96 | 0.10 | no
+noisepart(ZBG128:b560s16)@small#1 over noise(ZBG128:b560s16)#1 | -0.14 | -0.13 | 0.16 | yes
+noisepart(ZBG128:b560s16)@big#1 over ZBG128:b560s16 | +0.06 | +0.04 | 0.15 | yes
+noisepart(ZBG128:b560s16)@big#1 over noise(ZBG128:b560s16)#1 | -1.08 | -1.05 | 0.14 | no
 
 Mixed arms: mean KL less the integer arm's, over the 16 passages | its standard error | in errors
 mix(attn=E,ffn=Z) | -0.00152 | 0.00224 | -0.7
@@ -43,3 +49,7 @@ Two draws of noise differ by +0.14 dB: readings from one draw stand.
 For the E8 arm, shuffled: -0.21 dB from the arm and -0.10 dB from noise. Neither D2 nor D2'.
 D2 for the integer arm: shuffled, it agrees with noise and not with the arm. Which weight gets which error matters.
 L: the integer arm's error made 0.66 dB smaller has a KL -0.67 dB from the integer arm's: holds.
+
+Extension 1, by the rules of PREREG-extension-1.md
+E1: noise on the larger weights agrees with the integer arm, and noise on the weights rounded to zero agrees with the noise arm.
+Noise on the weights rounded to zero: +0.99 dB from the integer arm, -0.14 from the noise arm. Noise on the larger weights: +0.06 and -1.08.
