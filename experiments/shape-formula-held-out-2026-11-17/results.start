@@ -1,0 +1,12 @@
+{
+ "commit": "41e44808343966c847ea3c8f7ab88359ef6406d0",
+ "commit_is_on_the_remote": true,
+ "started": "2026-11-17T07:11:59Z",
+ "sha256": {
+  "experiments/shape-formula-held-out-2026-11-17/PREREG.md": "7a8c8440a2c13475a7ac9da22a62c8ae57d17495d6a5d58c5a56e96cce1439f9",
+  "experiments/shape-formula-held-out-2026-11-17/run.py": "4836cb7c98f2a19d0a9695554fd614ef65f369cd51a3f6105df0ec14dea6cced",
+  "experiments/shape-formula-held-out-2026-11-17/summary.py": "7f8a44a358c4fdd86e4190d2e32740efe5b1f55e643fbd363d9c6c78aaaf0085",
+  "experiments/shape-formula-held-out-2026-11-17/predictions.py": "db9740bbe0512a0b1c5c8aebd8b78651d8d8e972313d99f5ccab6e6f4b608e88",
+  "shape/shapelib.py": "fe9b20b5a9fe69f80894d3ca9da2300741eb315c2d993c5b47d8f980f103cbe9"
+ }
+}

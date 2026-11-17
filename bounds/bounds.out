@@ -53,3 +53,67 @@
 
 6. Packing ternary weights
    5 ternary weights fit in one byte: 243 of 256 states, 99.06 percent of the byte's 8 bits, 1.60 bits stored per weight against log2(3) = 1.5850
+
+7. The point set F_n of Foundation-0/incentre-lattices as a codebook (proposed in PR #6): what its cells are worth
+   The cube [-1, 1]^n is cut into the 2n pyramids over its facets, with one point on the axis of each at distance t from the centre.
+   The cell of each point is its pyramid for any 0 < t < 1 (proof in experiments/incentre-vortex-codebooks-2026-11-17/README.md).
+   G = [n/(n+2) - 2t n/(n+1) + t^2 + n(n-1)/(3(n+2))] / (n (2^n / 2n)^(2/n)). A negative gain means worse than the cube.
+   n | G at t = 2 - sqrt 2 (the incentre) | gain in dB | G at t = n/(n+1) (the centroid, the best t) | gain in dB | measured at the centroid
+    2 | 0.114382 | -1.375 | 0.111111 | -1.249 | 0.111128 +- 0.000070 (+0.2 standard errors)
+    3 | 0.127803 | -1.857 | 0.120383 | -1.597 | 0.120376 +- 0.000062 (-0.1 standard errors)
+    4 | 0.130677 | -1.954 | 0.122565 | -1.675 | 0.122494 +- 0.000053 (-1.3 standard errors)
+    8 | 0.123026 | -1.692 | 0.117284 | -1.484 | 0.117232 +- 0.000033 (-1.6 standard errors)
+   16 | 0.110216 | -1.214 | 0.107172 | -1.093 | 0.107153 +- 0.000019 (-1.0 standard errors)
+   24 | 0.103819 | -0.955 | 0.101805 | -0.869 | 0.101793 +- 0.000015 (-0.8 standard errors)
+   F_n is behind the cube in every dimension. Its G tends to 1/12 from above as n grows.
+
+8. Lattices in more than 8 dimensions: the best known, from a source and not recomputed here
+   lattice | dimension | G | gain in dB against the cube | gain in dB against E_8
+   K_12 (Coxeter-Todd)      | 12 | 0.070095600 | 0.75 | 0.10
+   Lambda_16 (Barnes-Wall)  | 16 | 0.06830 | 0.86 | 0.21
+   Lambda_24 (Leech)        | 24 | 0.06577 | 1.03 | 0.37
+   Source: Agrell and Allen, arXiv 2202.09605, table I, with the digits it prints. K_12 is exact there and the other two are numerical.
+   These are records and not ceilings. The ceilings are the ball rows of section 2.
+
+9. Three dimensions: the end point of the fold that PR #6 proposes as a training schedule is the face-centred cubic lattice D_3
+   D_3, measured with the nearest-point decoder: G = 0.078724 +- 0.000018, 0.247 dB against the cube
+   ball in 3 dimensions (no tiling reaches it): G = 0.076967, 0.345 dB against the cube
+   E_8 is worth 0.654 dB. So no cells in 3 dimensions are worth what the E_8 cell is worth.
+
+10. The region of a code when one scale serves a group and nothing is clipped (issue #10): Gaussian weights, from integrals
+   With fine cells: error / variance = G * Phi * codewords^(-2/n). G is the cell (section 2). Phi is the region:
+   Phi = volume(K)^(2/n) * E[square of the largest K-norm of a block in a group of g weights] / variance, for a region of shape K.
+   Region gain = 10 log10 of the cube's Phi over the region's: what the region is worth against the scalar largest-entry rule.
+   g | Phi of the cube | ball in 8 dimensions: Phi | its gain in dB | cross-polytope in 8 dimensions: Phi | its gain in dB | ceiling in 8 dimensions: ball region and ball cell, in dB
+      8 | 13.830 | 11.355 | +0.856 | 12.311 | +0.505 | +1.585
+     32 | 22.838 | 17.537 | +1.147 | 19.431 | +0.702 | +1.876
+    128 | 32.593 | 23.421 | +1.435 | 26.465 | +0.905 | +2.164
+    512 | 42.700 | 28.931 | +1.691 | 33.246 | +1.087 | +2.420
+   2048 | 53.005 | 34.155 | +1.909 | 39.822 | +1.242 | +2.638
+   Measured on three Gaussian matrices in the record e8-gain-largest-entry-rule-2026-11-17: ball +0.85, +1.15, +1.44 and +1.90 dB
+   at g = 8, 32, 128 and 2048, and cross-polytope +0.70 and +1.24 dB at g = 32 and 2048.
+   The ball column is a ceiling for round clouds. If the blocks are spread evenly over all directions, no region has a smaller Phi
+   than the ball (proof in experiments/shape-formula-held-out-2026-11-17/PREREG.md). So by this formula no code in 8 dimensions with one scale per group gains
+   more over the scalar rule on Gaussian weights than the last column.
+
+   For any weights whatever, not only Gaussian ones. For a block of 8 weights,
+   (largest entry)^2 <= squared length <= (sum of sizes)^2 <= 8 * squared length, and squared length <= 8 * (largest entry)^2.
+   The largest over a group and the mean over groups keep these. So the gain of one region over another lies between two fixed numbers:
+   ball over cube             | -4.531 dB to +4.500 dB
+   cross-polytope over cube   | -6.548 dB to +11.514 dB
+   cross-polytope over ball   | -2.017 dB to +7.014 dB
+   The upper end is 2.5 log10 of the ratio of the two volumes at equal reach along a weight axis. It is reached when every block
+   that sets a scale holds one weight and seven zeros. The lower end is reached when such a block has eight equal weights.
+   shape/check_certificate.py checks the identities behind the three inequalities.
+
+   The same against Shannon's floor 2^(-2B) at B bits per weight in total, with 16 bits per scale: 10 log10(G Phi) + 6.02 * 16 / g, in dB above the floor
+   g | scalar rule | E_8 in a ball | ball cell in a ball (the ceiling in 8 dimensions)
+      8 | 12.66 | 11.15 | 11.07
+     32 | 5.81 | 4.00 | 3.93
+    128 | 5.09 | 3.00 | 2.93
+    512 | 5.70 | 3.36 | 3.28
+   2048 | 6.50 | 3.94 | 3.86
+   A small group pays for its scale and a large one for its largest block. Of these five, groups of 128 give the smallest error at equal bits.
+
+   More dimensions, one group per row of 2016 weights: the gain of a ball region over the scalar rule, in dB
+   n = 8: +1.906, n = 16: +2.637, n = 24: +3.028. Measured in that record on Gaussian matrices: +1.90, +2.62 and +3.02.

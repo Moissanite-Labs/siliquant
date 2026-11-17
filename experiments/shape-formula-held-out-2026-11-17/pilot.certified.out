@@ -1,0 +1,9 @@
+Set: seen. The pick among 5 arms at 3 group sizes, 4.5 bits per weight with the scales, in exact arithmetic at level 2.
+certificates written: 38. Confirmed by shape/check_certificate.py: 38. Identities for any 8 numbers: hold. Bounds on pi: hold.
+the exact value of the pick against the 64-bit floats of shapelib at level 2: largest relative difference 4.4e-16
+
+family | matrices | the pick: arm@group and count | same as the float pick at level 2 | at level 3 | the pick is the measured best of the 15 | regret among the 15: mean, max | regret among all 39 arms: mean, max | measured over the exact formula for the pick: mean (min, max)
+      G | 3 | E8:p2@128 3 | 3 | 3 | 3 | 0.000, 0.00 | 0.000, 0.00 | +0.01 (+0.01, +0.02)
+      T | 3 | E8:p1@128 3 | 3 | 3 | 3 | 0.000, 0.00 | 0.000, 0.00 | +0.02 (+0.02, +0.02)
+whisper | 32 | E8:p2@128 17, E8:p1@128 12, E8:p1@32 3 | 32 | 30 | 30 | 0.025, 0.76 | 0.123, 1.24 | -0.02 (-0.77, +0.04)
+    all | 38 | E8:p2@128 20, E8:p1@128 15, E8:p1@32 3 | 38 | 36 | 36 | 0.021, 0.76 | 0.104, 1.24 | -0.01 (-0.77, +0.04)
