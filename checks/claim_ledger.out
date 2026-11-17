@@ -3,11 +3,12 @@ kinds: recomputed, proved, derived, checked, reported, record, source, search, r
 
 note | rows | of them recomputed or proved | name a file that exists | name a record only | name neither | parts of a Basis outside the list | rows that could not be read
 notes/brief-check.md | 19 | 7 | 7 | 0 | 0 | 0 | 0
+notes/issue10-followup.md | 7 | 6 | 6 | 0 | 0 | 0 | 0
 notes/issue10-proposal-check.md | 43 | 15 | 1 | 14 | 0 | 0 | 0
 notes/issue15-proposal-check.md | 15 | 10 | 10 | 0 | 0 | 0 | 0
 notes/pr6-proposal-check.md | 43 | 10 | 10 | 0 | 0 | 0 | 0
 
-How often each kind is named, over all rows: recomputed 41, proved 4, derived 16, checked 31, reported 24, record 20, source 17, search 2, read 2, none 8
+How often each kind is named, over all rows: recomputed 47, proved 4, derived 19, checked 31, reported 24, record 24, source 17, search 2, read 2, none 8
 
 Rows that break a rule
   none
