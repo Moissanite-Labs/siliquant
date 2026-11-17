@@ -131,6 +131,16 @@ The line on this model is not between the scalar rule and the ball. It is betwee
 
 The formula cannot see this. It has the lattice as a cell constant and nothing else.
 
+**What the lattice reading says of the rows to come.** Written at 20:30 UTC, when the run had seven rows and had been started again at 20:22 for the next six. It is a reading of five arms after the fact, so it is worth something only if it says what comes next. Three statements, each against a prediction already made:
+
+| Arm | The scalar rule's constant says (O2, O4) | The lattice reading says | They differ by |
+|---|---|---|---|
+| `VE8Z32:16`, E8 with a codeword at zero, groups of 32 | KL within 0.5 dB of 16.4 times its weight error. About 0.090 if its weight error is the -22.6 dB seen on four matrices. | KL 0.9 to 1.9 dB above that: the constant of the two E8 arms, 22.0 to 23.0. About 0.121 to 0.126. So O4 fails. | 1.3 to 1.5 dB |
+| `EBG128:b504s8`, E8 at 4.0 bits | KL 0.0855 | E8 against E8, so the closed form holds: 2.76 dB above `EBG128:b560s16`, which is 0.115. Between 0.105 and 0.126. The last arm of O3 holds and O2 fails on it. | 1.3 dB |
+| `VE832:16`, E8 with no codeword at zero | Not in the claim | At least 0.9 dB above the scalar rule's law at its weight error: the E8 constant, and whatever the missing zero adds | |
+
+If `VE8Z32:16` lands within 0.5 dB of the scalar rule's law, the lattice reading is wrong and the split is something else about the ball arms on E8.
+
 **From the weights of this model, before its arms with one scale per row are scored** (`shape/row_spread.smollm2.out`, 19:58 UTC). The scalar rule per row has rows 1.30 times as uneven as an even spread at 16 levels and 1.39 at 32, and 1.2 percent of the rows have over four times the matrix's share. With groups of 32 the figure is 1.01. That is the regime of Qwen2.5, where the arms per row lay above the constant. The measured weight error of `X32:16`, -21.166 dB, is reproduced to the last digit shown, and that of `XR:16` comes out at -16.59 dB.
 
 ## Stage 4, under both limits
