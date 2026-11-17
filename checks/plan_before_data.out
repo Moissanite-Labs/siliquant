@@ -1,0 +1,36 @@
+Plans and data in the order git has them, for every record under experiments/
+head 80825b4
+
+record | first plan | data files committed with it | first data after it | plan before data | plan changed before first data | plan changed after first data | of those, followed by new data | named in the README | programs changed after first data
+ball-dimension-no-clip-rule-2026-11-17 | 5398096 | 0 | 801a4c6 | yes | 0 | 0 | 0 | 0 of 0 | 0
+e8-gain-largest-entry-rule-2026-11-17 | 61c552b | 0 | affbdfd | yes | 0 | 0 | 0 | 0 of 0 | 1
+incentre-vortex-codebooks-2026-11-17 | 61c552b | 0 | 8d709ad | yes | 2 | 0 | 0 | 0 of 0 | 0
+lattice-vs-scalar-rounding-2026-11-15 | 195f06e | 0 | 1c3d4c9 | yes | 0 | 0 | 0 | 0 of 0 | 1
+model-output-gemma-e4b-2026-11-15 | 60ec5aa | 0 | eac9d89 | yes | 6 | 2 | 1 | 0 of 2 | 5
+model-output-qwen25-2026-11-17 | 81b83d2 | 0 | none yet | yes | 0 | 0 | 0 | 0 of 0 | 0
+region-shapes-no-clip-rule-2026-11-17 | 6964d05 | 0 | dfe9da0 | yes | 0 | 0 | 0 | 0 of 0 | 0
+shape-formula-held-out-2026-11-17 | 41e4480 | 3 | 997a182 | yes | 0 | 1 | 1 | 1 of 1 | 1
+
+Data committed with a plan, each change to a plan, and each program changed after the first data
+  e8-gain-largest-entry-rule-2026-11-17: program detail.py changed at 3bc2de2 after the first data
+  incentre-vortex-codebooks-2026-11-17: plan changed at fb54260 (2026-11-17T04:16), before the first data was committed. Codebook study: extension 1 of the plan, before it is scored
+  incentre-vortex-codebooks-2026-11-17: plan changed at b56c08e (2026-11-17T04:46), before the first data was committed. Codebook study: amendment 1 of the plan, a smaller run, before any result
+  lattice-vs-scalar-rounding-2026-11-15: program detail.py changed at 7815d19 after the first data
+  model-output-gemma-e4b-2026-11-15: plan changed at d864dee (2026-11-15T18:46), before the first data was committed. Model output run: round 2 plan, before round 2 is scored
+  model-output-gemma-e4b-2026-11-15: plan changed at 7d53f77 (2026-11-15T18:47), before the first data was committed. Plan: correct the time stated for round 2 to the commit's own
+  model-output-gemma-e4b-2026-11-15: plan changed at d7764c9 (2026-11-15T19:00), before the first data was committed. Model output run: round 3 plan, before round 3 is scored
+  model-output-gemma-e4b-2026-11-15: plan changed at 223ca16 (2026-11-15T19:10), before the first data was committed. Model output run: round 4 plan, before round 4 is scored
+  model-output-gemma-e4b-2026-11-15: plan changed at aab5b32 (2026-11-15T19:32), before the first data was committed. Model output run: round 5 plan
+  model-output-gemma-e4b-2026-11-15: plan changed at 90df081 (2026-11-15T19:32), before the first data was committed. Plan: split one long paragraph of round 5 (wording only)
+  model-output-gemma-e4b-2026-11-15: plan changed at e2ff142 (2026-11-15T19:56), new data followed, not named in the README by its commit. Model output run: round 6 plan, before the measure is computed
+  model-output-gemma-e4b-2026-11-15: plan changed at 7961368 (2026-11-15T20:19), no data added after it, not named in the README by its commit. Model output run: fixes after a second read, and round 6 folded in
+  model-output-gemma-e4b-2026-11-15: program summary.py changed at 5420a66 after the first data
+  model-output-gemma-e4b-2026-11-15: program large_entries.py changed at 7961368 after the first data
+  model-output-gemma-e4b-2026-11-15: program run.py changed at 7961368 after the first data
+  model-output-gemma-e4b-2026-11-15: program summary.py changed at 7961368 after the first data
+  model-output-gemma-e4b-2026-11-15: program checks.py changed at bad596a after the first data
+  shape-formula-held-out-2026-11-17: 3 data files were committed with the first plan: pilot.detail.json, pilot.json, pilot.out
+  shape-formula-held-out-2026-11-17: plan changed at 8331606 (2026-11-17T07:56), new data followed, named in the README. Study on issue #10: extension 1 of the plan, a rule with a proved guarantee, before it is 
+  shape-formula-held-out-2026-11-17: program detail.py changed at eb44099 after the first data
+
+records with data from before their first plan, or first data that does not descend from it: 0
