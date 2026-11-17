@@ -66,3 +66,20 @@ class TestClosedForm(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestDesign(unittest.TestCase):
+    def test_table_size_formula_is_that_of_the_index(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("design", HERE / "design.py")
+        design = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(design)
+        import ballindex as BI
+        for lattice, n, bound in (("Z8", 8, 179), ("Z8", 32, 553), ("E8", 8, 178), ("E8", 16, 304)):
+            self.assertEqual(design.table_entries(lattice, n, bound), BI.BallIndex(lattice, n, bound).table_entries())
+        # the codebooks of two scored arms: the bound and the count give the bits the run reports
+        for lattice, n, bits, want in (("E8", 32, 136, 4.4994), ("Z8", 128, 560, 4.4998)):
+            bound, points = design.ball_bound(lattice, n, bits)
+            self.assertLessEqual(points, 1 << bits)
+            scale = 8 if n == 32 else 16
+            self.assertAlmostEqual((math.log2(points) + scale) / n, want, places=3)
