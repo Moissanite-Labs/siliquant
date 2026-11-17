@@ -29,9 +29,9 @@ An extension, asked for by the owner during the run, adds a fifth: which parts o
 
 1. **From 4 bits up the formula gives the error.** On the 85 real matrices the measured error is within 0.3 dB of the formula's in 96.6 percent of 5,525 runs, and 0.085 dB off in the mean. The formula has no fitted constant.
 2. **Its pick is the best arm.** Among 13 arms at a fixed group and rate, the arm with the smallest predicted error is the measured best in 96 percent of 425 choices on real matrices. Where it is not, it costs at most 0.04 dB.
-3. **At 2 bits the formula is low**, by 0.8 dB in the mean on real matrices and by up to 3 dB. Only 12 percent of the runs are within 0.3 dB.
+3. **At 2 bits the formula is low**, by 0.8 dB in the mean on real matrices and by up to 3.3 dB. Only 12 percent of the runs of a cut arm are within 0.3 dB.
 4. **On real weights the best region is neither the ball nor the cross-polytope.** It is a p-norm ball with p = 5/4 or 3/2 on 64 to 75 of the 85 real matrices, on both models. It is ahead of the better of the two by 0.2 to 0.3 dB in the mean.
-5. **The map has to hold the region part itself.** Treating the cloud as round costs 0.4 to 0.7 dB. Knowing only the spread of single weights costs 0.1 to 0.2 dB. On the language model that second description is worse than the first.
+5. **The map has to hold the region part itself.** Over the two models together, treating the cloud as round costs 0.4 to 0.7 dB and knowing only the spread of single weights costs 0.1 to 0.2 dB. On the language model alone the second description is worse than the first.
 6. **Groups of 128 are the best size at 4.5 bits** on 82 of 85 real matrices. The formula picks the measured best group on 84. A group of 32 pays 0.7 to 0.9 dB for its scales, and a row pays 1.0 to 1.2 dB for its largest block.
 7. **Dropping directions loses on 83 of 85 real matrices, by 3 to 19 dB, and wins on two by 2 dB.** The formula says which two. In both, an eighth of the directions holds over 99 percent of the squared weights.
 8. **The rounding error is not like noise on real matrices,** and less so as the group grows. Its largest singular value is 1.4 to 1.9 times that of noise of the same size on the 85 real matrices, and 1.0 on Gaussian ones.
@@ -67,7 +67,7 @@ Under the searched rule a block can still lie outside the codebook at its group'
 
 Checks. `shapelib` reproduces the eight codebooks of the record `region-shapes-no-clip-rule-2026-11-17` and its errors on a Gaussian matrix to the last digit, and the errors of the scalar rule in `e8-gain-largest-entry-rule-2026-11-17`. A second counter that shares no code with it gives the same count for all 28 codebooks with p = 1 or 2. `check_receipts.py` replayed all 109 receipts from the weights, and caught a changed digit and a changed weight.
 
-All numbers below are in [results.out](results.out), [safe.out](safe.out), [certified.out](certified.out) or [detail.out](detail.out).
+All numbers below are in [results.out](results.out), [safe.out](safe.out), [certified.out](certified.out) or [detail.out](detail.out). Table 7 of `detail.out` holds the figures that no other table shows.
 
 ## Results
 
@@ -87,7 +87,7 @@ Measured error over the formula's at level 3, in dB. Mean size, and the share of
 Where it is off from 4 bits up:
 
 - **The star, p = 2/3.** The formula is low by 0.13 to 0.16 dB in the mean. 63 of the 85 real matrices have some run more than 0.3 dB off. With the star left out, 4 have.
-- **A lump at zero, for E8.** Those 4 are the three self-attention matrices that read the stream in decoder block 1 of whisper (key, query, value) and its cross-attention query. Between a half and two thirds of their entries are under a tenth of the root mean square. The formula is high for E8 there by up to 1.6 dB. On the family BS, built to have such a lump, it is high by 0.14 dB.
+- **A lump at zero, for E8.** Those 4 are the three self-attention matrices that read the stream in decoder block 1 of whisper (key, query, value) and its cross-attention query. Between 48 and 67 percent of their entries are under a tenth of the root mean square. The formula is high for E8 there by up to 1.6 dB. On the family BS, built to have such a lump, it is high by 0.14 dB.
 - **The scalar rule on uniform weights.** The formula is low by 0.75 dB at 16 levels. The rule does clip: the largest entry goes to the lowest level, and a weight within half a step of the other end is pulled back a whole level. That adds 3/q of the error at q levels, which is 0.75, 0.61, 0.56 and 2.43 dB at 16, 20, 22 and 4 levels. Measured: 0.75, 0.61, 0.56 and 2.43 (`detail.out`, table 6, written after the run).
 
 ### The pick
@@ -100,7 +100,7 @@ Among the 12 cut arms and X, at a fixed group and rate, from 4 bits up.
 | qwen | 105 | 101 | 0.000 to 0.001 dB | 0.01 | 0.992 to 0.998 |
 | synthetic | 120 | 108 | 0.000 to 0.24 dB by family and cell | 0.25 | 0.89 to 1.00 |
 
-The synthetic misses are the uniform family, where the formula takes X and E8 with p = 3 is 0.05 to 0.24 dB better with groups of 32 or 128, and one cell of BS.
+The synthetic misses are the uniform family, where the formula takes X and E8 with p = 3 is 0.04 to 0.24 dB better with groups of 32 or 128, and one cell of BS.
 
 At 2 bits the pick costs 0.00 to 0.11 dB in the mean on real matrices, and up to 2.1 dB on one. On Student t and uniform data it costs 1.1 to 2.0 dB in four of six cells.
 
@@ -117,9 +117,9 @@ The measured best arm in the three cells of the budget:
 | qwen | 128 | 15 of 21 | 0.08 | 0.13 |
 | qwen | row | 20 of 21 | 0.16 | 0.30 |
 
-Part of what the inner shapes gain is count and not shape. A codebook with p = 5/4 or 3/2 has 0.9997 or more of its cap, and E8 in a cross-polytope has 0.79 to 0.94 (`results.out`, table 1).
+Part of what the inner shapes gain is count and not shape. In the cells from 4 bits up a codebook with p = 5/4 or 3/2 has 0.9997 or more of its cap, and E8 in a cross-polytope has 0.79 to 0.94 (`results.out`, table 1).
 
-On the synthetic families the best shape is what the family's own geometry says: the ball for Gaussian weights, p = 5/4 for Laplace, the star for Student t with 3 degrees of freedom, and p = 3 or the cube for uniform weights.
+On the synthetic families the best shape is what the family's own geometry says: the ball for Gaussian weights, p = 5/4 for Laplace in four of the five cells from 4 bits up and the cross-polytope in the fifth, the star for Student t with 3 degrees of freedom, and p = 3 or the cube for uniform weights.
 
 ### What the map has to hold
 
@@ -162,7 +162,7 @@ The rank arms at 4.5 bits, against the best of the 39 full arms.
 | Gaussian | 22.8 | 21.6 | 18.6 | 0 |
 | K | ahead by 7.2 | 8.5 | 8.1 | 3 of 3 |
 
-The two are `decoder.blocks.1.attn.key.weight` and `decoder.blocks.1.attn.query.weight` of whisper. The arm that keeps a quarter of the directions is 1.99 and 2.06 dB ahead. In both, an eighth of the directions holds 99.3 and 99.4 percent of the squared weights, and two thirds of the entries are near zero. The formula put the rank arm ahead on the same two and on no other. Its error is within 1.5 dB of the measured one on all 255 rank arms of the real matrices, and within 0.01 dB where the dropped share dominates.
+The two are `decoder.blocks.1.attn.key.weight` and `decoder.blocks.1.attn.query.weight` of whisper. The arm that keeps a quarter of the directions is 1.99 and 2.06 dB ahead. In both, an eighth of the directions holds 99.3 and 99.4 percent of the squared weights, and two thirds of the entries are near zero. The formula put the rank arm ahead on the same two and on no other. Its error is within 1.5 dB of the measured one on all 255 rank arms of the real matrices, and within 0.01 dB on the arms that keep 1/8 or 1/4 of the directions.
 
 So prediction 8a fails. The knob is live on real matrices, rarely.
 
@@ -188,9 +188,9 @@ The largest singular value of the rounding error over that of a matrix of indepe
 | T3 | X | 1.11 | 1.28 | 1.84 |
 | T3 | E8 in a ball | 1.69 | 1.86 | 2.82 |
 
-[Reading] The second record found that the largest singular value of the weight change ranked damage to the output best of five measures, and that a finer group helped the output by more than its weight error said. This table gives one reason that would fit. A group's error follows its scale, so the error is gathered where the scales are large, and more so as the group grows. On RS, where every row has its own scale, the ratio is 2. Nothing here tests that reason on an output.
+[Reading] The second record found that the largest singular value of the weight change ranked damage to the output best of five measures. Two of its rows, set side by side here and not there, say a finer group helped the output by more than its weight error did: `Q4_0` with groups of 32 and the row rule at 32 levels have the same mean KL, 0.117 and 0.118, and weight errors of -21.06 and -22.39 dB. This table gives one reason that would fit. A group's error follows its scale, so the error is gathered where the scales are large, and more so as the group grows. On RS, where every row has its own scale, the ratio is 2. Nothing here tests that reason on an output.
 
-On Student t data E8 in a ball has the more gathered error of the two. On the real matrices it has the less gathered, in every cell.
+On Student t data E8 in a ball has the more gathered error of the two. On the real matrices it has the less gathered in the mean, in every cell, and on 46 to 55 of the 64 whisper matrices and 15 to 18 of the 21 qwen matrices.
 
 ### The predictions
 
@@ -231,7 +231,7 @@ For the scalar rule and for the integers and E8 cut by a ball or a cross-polytop
 | It is the measured best of the 15 | 102 of 109. Mean regret 0.053 dB, largest 1.81 |
 | Against the best of all 39 arms | behind by 0.20 dB in the mean. The five arms do not include p = 5/4 and 3/2 |
 
-It differs from the pick of level 3 on the three BS matrices and on the four whisper matrices with a lump at zero: the cell at zero changes the order there, and level 2 does not have it. It is not the measured best on seven: three near ties of 0.01 dB, and those four whisper matrices, by 0.9 to 1.8 dB.
+It differs from the pick of level 3 on the three BS matrices and on the four whisper matrices with a lump at zero: the cell at zero changes the order there, and level 2 does not have it. It is not the measured best on seven: three near ties of 0.01 dB, and those four whisper matrices, by 0.9 to 1.8 dB (`detail.out`, table 7).
 
 ### The safe scale
 
@@ -253,7 +253,7 @@ Three inequalities hold for any block of 8 numbers, and so for any matrix. They 
 
 ## What the run shows
 
-1. **The three parts of issue #10 are a cell, a region and a rate, and they add in dB.** The shape and the size of the proposal are one part, not two: the region part holds the shape through the norm and the size through the group. For Gaussian weights the step from groups of 8 to a row costs 4.8 dB with a ball, 5.1 with a cross-polytope and 5.8 with a cube, so the size cannot be priced apart from the shape. The dropped part adds in plain units, not in dB.
+1. **The three parts of issue #10 are a cell, a region and a rate, and they add in dB.** The shape and the size of the proposal are one part, not two: the region part holds the shape through the norm and the size through the group. For Gaussian weights the step from groups of 8 to a row of 2,048 costs 4.8 dB with a ball, 5.1 with a cross-polytope and 5.8 with a cube (`bounds/bounds.out`, section 10), so the size cannot be priced apart from the shape. The dropped part adds in plain units, not in dB.
 
 2. **The fit to a family is not needed.** The proposal maps a cloud to a tidy family and reads the formula off the family. The region part can be computed on the matrix itself, exactly for three shapes, and it is what the pick needs. A family that treats the weights as independent is worse than no family on the language model.
 
@@ -261,13 +261,14 @@ Three inequalities hold for any block of 8 numbers, and so for any matrix. They 
 
 4. **Where the formula was off, it was the formula and not the map.** The proposal says that if measurement and prediction disagree, "the map was wrong". Here the map was exact each time, and the disagreement had a cause in the rule: the wall, the cell at zero, the clip of the scalar rule on its far side, a star's thin arms.
 
-5. **A guarantee is cheap at 4 bits and not at 2.** The safe scale gives up r_eff / (r - m) in scale. At 4.5 bits that is half a decibel for E8 in a ball. At 2 bits the same ratio is 3.7 dB for E8 in a ball and 5.3 dB for the integers, by arithmetic and not run.
+5. **A guarantee is cheap at 4 bits and not at 2.** The safe scale gives up r_eff / (r - m) in scale. At 4.5 bits that is half a decibel for E8 in a ball. At 2 bits the same ratio is 3.7 dB for E8 in a ball and 5.3 dB for the integers in a ball, by arithmetic and not run (`detail.out`, table 7).
 
 ## Deviations from the plan
 
 - **The extension.** `shape/certified.py`, `shape/check_certificate.py`, `certify.py`, `safe.py` and the second part of section 10 of the limits table were written while the main run was in progress, after the owner's question. They change no number of the main plan. The extension's plan was committed after the main run finished and before its output was read.
-- **`detail.py` was written after the results were read.** None of its six tables was planned. Table 1 names the two matrices of prediction 8a, table 2 splits two predictions by model, table 6 is the arithmetic of the scalar rule's clip.
-- **One held-out matrix was loaded before the plan was committed**, to time the receipt and the SVD: `model.layers.11.mlp.gate_proj.weight` of qwen. Three values of its region part with groups of 32 were printed. The plan says so.
+- **`detail.py` was written after the results were read.** None of its seven tables was planned. Table 1 names the two matrices of prediction 8a, table 2 splits two predictions by model, table 6 is the arithmetic of the scalar rule's clip, and table 7 holds figures this record quotes that no other table shows. Table 7 was added after a second agent's check of this record found them untraced.
+- **One held-out matrix was loaded before the plan was committed**, to time the receipt and the SVD: `model.layers.11.mlp.gate_proj.weight` of qwen. Its largest entry, its standard deviation and three values of its region part with groups of 32 were printed. The plan says so.
+- **Two marks were loosened before the plan was committed**, after the smoke run on small matrices that are not in the study: prediction 2b from -0.2 to -0.05 dB, and 6b from 0.05 to 0.10 dB. The plan says so. At the earlier mark 2b would fail: the result is -0.14 dB. 6b holds at either.
 - **The pilot was run twice.** The second pass added the spectral ratio and changed no other number.
 - **The run took 42 minutes**, about what the pilot's rate gave. The tests of the extension and the limits table ran on the same machine during it. The programs are deterministic, so this changes no number.
 - **Prediction 6a is stated for the two models together and holds as stated.** By model it does not hold on qwen. The record reports both.
@@ -275,7 +276,7 @@ Three inequalities hold for any block of 8 numbers, and so for any matrix. They 
 ## Limits
 
 - **Weight error only.** The second record found that weight error does not say what a model's output does. Its three pairs under this rule are the only evidence here that a gain in weight error carries over, and they are one model and one text. The size knob is where this bites: the formula takes groups of 128 on weight error, and the second record's output scores favoured finer groups by more than weight error did.
-- **No packed format and no decode cost.** The second hard limit of issue #10 cannot be read here. The codebooks with a row cap do not have a whole number of bits per block: stored one block at a time they need 4.5 bits per weight before the scale, not 4.47 to 4.50 (`results.out`, table 1).
+- **No packed format and no decode cost.** The second hard limit of issue #10 cannot be read here. The codebooks with a row cap do not have a whole number of bits per block: stored one block at a time they need 4.5 bits per weight before the scale, not 4.45 to 4.50 (`results.out`, table 1).
 - **Two small models.** 64 matrices of a speech model and 21 of a language model with half a billion weights. The interior shape is weaker on the language model: 0.08 to 0.16 dB over the better of ball and cross-polytope.
 - **Six shapes of one family.** For one block per group the best region for a cloud has a closed form. It was not computed.
 - **The formula sees weights only.** No activation enters it.
@@ -313,7 +314,7 @@ python3 experiments/shape-formula-held-out-2026-11-17/summary.py results > resul
 ```
 
 ```bash
-python3 experiments/shape-formula-held-out-2026-11-17/check_receipts.py results --whisper weights.npz --qwen model.safetensors
+python3 experiments/shape-formula-held-out-2026-11-17/check_receipts.py results --whisper weights.npz --qwen model.safetensors > receipts.out
 ```
 
 ```bash
@@ -325,11 +326,15 @@ python3 experiments/shape-formula-held-out-2026-11-17/certify.py results > certi
 ```
 
 ```bash
-python3 shape/check_certificate.py experiments/shape-formula-held-out-2026-11-17/results.certificates.json
+python3 shape/check_certificate.py experiments/shape-formula-held-out-2026-11-17/results.certificates.json >> certified.out
+```
+
+```bash
+python3 experiments/shape-formula-held-out-2026-11-17/detail.py > detail.out
 ```
 
 `run.py --set held` and `safe.py` refuse to start unless their plan and programs are committed as they stand and pushed, and refuse a weights file whose SHA-256 is not the one in the plan. `run.py --set seen --whisper weights.npz` reruns the pilot. `run.py --smoke` and `safe.py --smoke` run the code paths on small matrices that are not in the study. The main run took 42 minutes on 4 shared CPU cores with NumPy 2.5.3 and Python 3.13, the pilot 8 minutes and the extension 34 seconds.
 
 ## Disclosure
 
-The plans, the programs and this record were written by an AI agent session under the owner's direction. A second agent checked the published work cited in `notes/issue10-proposal-check.md`. Nothing here has been reviewed by a person.
+The plans, the programs and this record were written by an AI agent session under the owner's direction. A second agent checked the published work cited in `notes/issue10-proposal-check.md`. A third agent traced the numbers of this record to the outputs, and its findings were applied. Nothing here has been reviewed by a person.

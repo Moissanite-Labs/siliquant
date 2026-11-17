@@ -13,20 +13,20 @@ This note reads the proposal the way the repository's rule asks: against the tab
 
 - **The formula of stage 4 exists and holds on weight error from 4 bits up.** It has no fitted constant. On 85 real matrices that no codebook had been run on, the measured error is within 0.3 dB of it in 96.6 percent of 5,525 runs, and the arm it picks is the measured best in 96 percent of 425 choices.
 - **Its parts are not the three the proposal names.** In dB the error is a cell, a region and a rate. The proposal's shape and size are one part, the region, and cannot be priced apart. Its dropped part adds in plain units. The proposal has no knob for the lattice, which is worth 0.65 dB.
-- **At 2 bits the formula is low by 0.8 dB in the mean and by up to 3 dB.** "Exact for the tidy families" holds for the region part of a Gaussian cloud, which is an integral. It does not hold for the error.
+- **At 2 bits the formula is low by 0.8 dB in the mean and by up to 3.3 dB on real matrices.** "Exact for the tidy families" holds for the region part of a Gaussian cloud, which is an integral. It does not hold for the error.
 - **Two proved limits bound the shape knob.** On a round cloud no region beats the ball, so for Gaussian weights the answer is known before any probe. And for any weights a region is worth at most 2.5 log10 of a ratio of volumes: 4.50 dB for a ball over the cube, 11.51 for a cross-polytope.
 - **The map does not need a family.** The number the formula needs is computed on the matrix itself, exactly for three shapes. A description by the spread of single weights picks worse than "round" on the language model.
 - **The receipt of stage 2 was built for three shapes**, with a checker that replays it and fails on a changed digit. For five arms the pick itself is whole-number arithmetic with a certificate. No proof assistant ran: the Lean route the proposal names was not opened and not tested.
 - **Dropping directions is the weakest knob and is not dead.** It loses on 83 of 85 real matrices by 3 to 19 dB and wins on two by 2 dB. The formula says which.
 - **Two of the proposal's claims were not tested.** Nothing was scored on a model's output, and no codebook has a packed format, so the decode budget cannot be read.
-- **The comment's account of published work is mostly right. Two of its statements are wrong and seven need a qualification. All three things it calls new have published precedent.** The split is from 1993. A ball-cut integer grid is plotted in QuIP#. What was not found in print: a measured comparison of ball-cut E8 with a single-scale E8 Voronoi code at equal rate, and a replayable receipt. The search was short.
+- **The comment's account of published work is mostly right. Two of its statements are wrong and seven need a qualification. Of the five things it calls new, three are published.** The split is from 1993. A ball-cut integer grid is plotted in QuIP#. A rule for which region and which budget is published in parts. Two were not found in print: a measured comparison of ball-cut E8 with a single-scale E8 Voronoi code at equal rate, and a replayable receipt. The search was short.
 
 ## What the proposal did not use
 
 Three findings of the records bear on it.
 
 - **Weight error does not say what the output does** (second record). Stage 4 minimises weight error. Its loop compares "the measured error against the formula's prediction", which is a check of the formula and not of the output.
-- **The output followed how the scale is set, and finer groups helped it by more than their weight error said** (second record). The formula's size knob is settled on weight error: groups of 128 at 4.5 bits. That is the knob most likely to be set wrongly for an output.
+- **The output followed how the scale is set** (second record). **And finer groups helped it by more than their weight error did**: this follows from two rows of that record, where groups of 32 at 16 levels and a row at 32 levels have the same mean KL and weight errors 1.3 dB apart. The formula's size knob is settled on weight error: groups of 128 at 4.5 bits. That is the knob most likely to be set wrongly for an output.
 - **The scale has a cost on the wall and a block at zero has its own error** (the record of the E8 gain). The comment under the proposal says the split was measured with "nothing left over". It left 0.3 dB with groups of 32 and up to 0.5 dB in the mean on real matrices. Both causes are terms of the formula now.
 
 ## Claims
@@ -81,7 +81,7 @@ Three findings of the records bear on it.
 |---|---|---|---|---|
 | 20 | "The formula can be exact for the tidy families and bounded for the spiky ones" | The region part is exact for a Gaussian cloud. The error is not. A bound exists for any weights | Gaussian, E8: 0.03 to 0.05 dB over the formula from 4 bits up, 0.77 dB at 2 bits. With the safe scale of the extension the error has a proved bound for any weights, 2.4 dB above the estimate for E8. It held in 1,308 of 1,308 runs | measured, and proved |
 | 21 | "The step from a real model's cloud to a family is tested, never proved" | Agreed, and the step can be left out | Row 10 | measured |
-| 22 | "The process is deterministic and the core is checkable" | True of what was built | Rows 5 and 8. The programs have no random draw but the seeded shuffle | checked |
+| 22 | "The process is deterministic and the core is checkable" | True of what was built | Rows 5 and 8. The programs have no unseeded draw: the synthetic matrices and the shuffled copy come from fixed seeds | checked |
 | 23 | "The fit to reality is validated on real matrices and on model output" | Matrices: yes. Output: no | 85 held-out matrices of two models. No model was scored | measured |
 | 24 | "Issue #9 is one experiment inside this process, the fold as an annealing schedule for the patch-shape knob" | The fold moves the cell, not the region | In the formula a lattice enters through G alone: its cell's volume cancels. So a path through lattices can gain at most what a cell is worth. In 3 dimensions, where the fold lives, that is 0.35 dB against 0.65 for E8 (`notes/pr6-proposal-check.md`, row 8). The shape knob of this note is the region | derived |
 
@@ -126,7 +126,7 @@ The comment that assigned issue #10 asks for this. PR #5 adds `notes/cross-org-g
 |---|---|---|---|
 | X1, with W7 and O12 | A witness for each claim, re-verified by a checker that can fail | Stage 2: "a receipt that proves the numbers are correct" | Built. `check_receipts.py` replays every receipt from the weights and exits with 1 on a difference. It also changes one digit and one weight and checks that both are caught. PR #5 lists two checkers elsewhere that print a pass whatever happens |
 | X2, with O8 | Refuse outputs unless the plan's hash matches and the plan's commit comes before the first output | The loop of stage 4 is a preregistered run | Built. `run.py` refuses the run of the plan unless the plan and four programs are committed as they stand and pushed, and records their hashes |
-| X3, with O11 | Generate a table from the data, then compare | Every figure of the record | Built in part. `summary.py` generates every table and `predictions.py` every verdict. The record's prose still quotes them by hand |
+| X3, with O11 | Generate a table from the data, then compare | Every figure of the record | Built in part. `summary.py`, `safe.py`, `certify.py` and `detail.py` generate the tables, and `predictions.py` and `safe.py` every verdict. The record's prose still quotes them by hand. Another agent then traced it to the outputs and found some twenty slips, none in a result table |
 | X5, with W1 | Accept a change only if it stays within a radius of a saved baseline | Stage 4: "compare the measured error against the formula's prediction" | Not built. The formula gives the radius: a rounded matrix whose error is more than, say, 0.3 dB over the formula's is refused. With a mark of 0.3 dB that gate would have passed 96 to 100 percent of the runs of the study from 4 bits up, and 13 to 22 percent at 2 bits (`detail.out`, table 4) |
 | X10, with W8 | Rank variants by the largest singular value of the weight change, which ranked damage best in the second record | The formula predicts squared error, the weaker measure | Measured, not built. The record has the ratio of the two for two arms. On real matrices the rounding error is not like noise, and less so as the group grows |
 | X13, with O6 | Bits realised over bits nominal | The first hard limit of stage 4 is "total bits" | Reported. The codebook table gives the bits if each block's index is stored alone in whole bits. The cells with a row cap do not fit a whole number of bits per block |
@@ -170,7 +170,7 @@ Not recommended as it stands: fitting a cloud to a family before reading the for
 
 - Issue #10 and its two comments, as they stood on 2026-11-17. **Checked.**
 - The records of this repository, and `bounds/bounds.out`. **Checked.**
-- PR #5, `notes/cross-org-grafts.md` at commit `5b975e6`. **Checked.**
+- PR #5, `notes/cross-org-grafts.md` at commit `5b975e6`, read on the branch of that pull request. It is not in this checkout. **Checked.**
 - QuIP#: arXiv 2402.04396. QTIP: arXiv 2406.11235. SpQR: arXiv 2306.03078. SliceGPT: arXiv 2401.15024. LoRA: arXiv 2106.09685. NestQuant: arXiv 2502.09720. HIGGS: arXiv 2411.17525. LLVQ: arXiv 2603.11021. HyperQuant: arXiv 2606.23406. Pyramid vector quantisation for language models: arXiv 2410.16926. Radio: arXiv 2505.03031. The OCP MX specification, version 1.0. **Checked** for the lines quoted, in the texts the agent downloaded.
 - QuIP: arXiv 2307.13304. QuaRot: arXiv 2404.00456. SpinQuant: arXiv 2405.16406. SqueezeLLM: arXiv 2306.07629. SVDQuant: arXiv 2411.05007. LLM.int8(): arXiv 2208.07339. QLoRA: arXiv 2305.14314. AQLM: arXiv 2401.06118. VPTQ: arXiv 2409.17066. Viazovska: arXiv 1603.04246. llama.cpp's source header and pull request 1684. **Reported.**
 - Eyuboglu and Forney, IEEE Transactions on Information Theory 39(1), 1993. Forney and Wei, IEEE Journal on Selected Areas in Communications 7(6), 1989. Fischer, 1986 and 1989. Jeong and Gibson, 1993. Hamkins and Zeger, 2002. Abstracts only, from an index. The first was **checked** there, the rest **reported**. None of the papers was opened.
@@ -180,4 +180,4 @@ Not reached: Proven-Commons and the Foundation-0 records.
 
 ## Disclosure
 
-Written by an AI agent session under the owner's direction. The check of published work was delegated to a second agent, and its findings are marked above. Nothing here has been reviewed by a person.
+Written by an AI agent session under the owner's direction. The check of published work was delegated to a second agent, and its findings are marked above. A third agent traced the figures of the record and of this note to the outputs, and its findings were applied. Nothing here has been reviewed by a person.

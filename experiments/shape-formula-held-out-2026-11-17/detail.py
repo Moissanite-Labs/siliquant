@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tables written after the run was read. None was planned. Reads results.json and safe.json and rounds nothing.
+"""Tables written after the run was read. None was planned. Reads results.json, safe.json and bounds/bounds.out and rounds nothing.
 
 Usage, from the root of a checkout, with NumPy:
   python3 experiments/shape-formula-held-out-2026-11-17/detail.py > detail.out
@@ -131,6 +131,54 @@ def main():
         v = [db(r["meas"] / r["L3"]) for r in rows if r["kind"] == "scalar" and r["family"] == "U" and r["group"] == g and r["rate"] == rate]
         q = [r["q"] for r in rows if r["kind"] == "scalar" and r["family"] == "U" and r["group"] == g and r["rate"] == rate][0]
         P(f"   {g:>3} | {rate:>2} | {q} | {np.mean(v):+.2f} | {db(1.0 + 3.0 / q):+.2f}")
+    P("")
+
+    P("7. Figures the record quotes that no other table shows")
+    star_off = defaultdict(float)
+    for r in rows:
+        if r["kind"] in ("cut", "scalar") and r["family"] in REAL and r["rate"] in FINE and r.get("p") != "2/3":
+            star_off[r["matrix"]] = max(star_off[r["matrix"]], abs(db(r["meas"] / r["L3"])))
+    P("   Real matrices with a run more than 0.3 dB off from 4 bits up, the star p = 2/3 left out: matrix | largest residual | zero lump")
+    for m, v in sorted(star_off.items(), key=lambda t: -t[1]):
+        if v > 0.3:
+            P(f"   {m} | {v:.2f} | {probe[m]['share_under_a_tenth_of_rms']:.3f}")
+    P("   The five arms with an exact formula, at the three group sizes of the budget: where the pick of level 2 is not the pick of level 3, and where it is not the measured best")
+    exact = defaultdict(list)
+    for r in rows:
+        if r["kind"] in ("cut", "scalar") and r["budget"] and r["arm"] in ("X", "Z8:p1", "Z8:p2", "E8:p1", "E8:p2"):
+            exact[r["matrix"]].append(r)
+    for m, rs in exact.items():
+        l2, l3, mb = min(rs, key=lambda r: r["L2"]), min(rs, key=lambda r: r["L3"]), min(rs, key=lambda r: r["meas"])
+        if l2 is not l3 or l2 is not mb:
+            P(f"   {m} | level 2: {l2['arm']}@{l2['group']} | level 3: {l3['arm']}@{l3['group']} | measured best: {mb['arm']}@{mb['group']} | level 2's pick over the measured best: {db(l2['meas'] / mb['meas']):.3f} dB | zero lump {probe[m]['share_under_a_tenth_of_rms']:.3f}")
+    P("   Runs of a cut arm in which a block was shrunk, by rate: rate | runs with one | runs | largest share of blocks")
+    for rate in ("2", "4", "4+"):
+        v = [r["shrunk"] for r in rows if r["kind"] == "cut" and r["rate"] == rate]
+        P(f"   {rate:>2} | {sum(x > 0 for x in v)} | {len(v)} | {max(v):.4f}")
+    best_rank = defaultdict(lambda: 1e9)
+    for r in rows:
+        if r["kind"] == "rank" and r["family"] in REAL:
+            best_rank[r["matrix"]] = min(best_rank[r["matrix"]], r["meas"])
+    gaps = sorted(db(best_rank[m] / full[m]) for m in best_rank)
+    P(f"   The best rank arm of a real matrix against its best full arm at 4.5 bits: ahead on {sum(g < 0 for g in gaps)} of {len(gaps)}, by {-gaps[0]:.2f} and {-gaps[1]:.2f} dB. Behind on the rest by {min(g for g in gaps if g > 0):.2f} to {gaps[-1]:.2f} dB")
+    res2 = [db(r["meas"] / r["L3"]) for r in rows if r["kind"] in ("cut", "scalar") and r["family"] in REAL and r["rate"] == "2"]
+    P(f"   The largest residual at 2 bits on a real matrix: {max(res2):+.2f} dB. Over every family: {max(db(r['meas'] / r['L3']) for r in rows if r['kind'] in ('cut', 'scalar') and r['rate'] == '2'):+.2f} dB")
+    sys.path.insert(0, str(HERE.parents[1] / "shape"))
+    import certified as C
+    import shapelib as S
+    P("   The safe scale at 2 bits, not run: 20 log10(r_eff / (r - m)) for a codebook of at most 2^16 points")
+    for lattice, p, name in (("E8", 2, "E8 in a ball"), ("Z8", 2, "the integers in a ball"), ("E8", 1, "E8 in a cross-polytope"), ("Z8", 1, "the integers in a cross-polytope")):
+        code = S.Codebook(lattice, S.Shape(p), 1 << 16)
+        P(f"   {name}: {20.0 * math.log10(code.r_eff / C.safe_radius(code)):.2f} dB")
+    lines = (HERE.parents[1] / "bounds" / "bounds.out").read_text().splitlines()
+    start = next(i for i, ln in enumerate(lines) if ln.startswith("10. "))
+    phi = {}
+    for ln in lines[start:]:
+        parts = [x.strip() for x in ln.split("|")]
+        if len(parts) == 7 and parts[0].isdigit():
+            phi[int(parts[0])] = (float(parts[1]), float(parts[2]), float(parts[4]))
+    P("   Gaussian weights, from the limits table: what the step from groups of 8 to groups of 2048 costs in the region part")
+    P(f"   cube {db(phi[2048][0] / phi[8][0]):.2f} dB | ball {db(phi[2048][1] / phi[8][1]):.2f} dB | cross-polytope {db(phi[2048][2] / phi[8][2]):.2f} dB")
     print("\n".join(out))
 
 

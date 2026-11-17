@@ -72,3 +72,34 @@
      R | 4+ | 22 | +0.56 | +0.56
     32 |  2 | 4 | +2.43 | +2.43
      R |  2 | 4 | +2.43 | +2.43
+
+7. Figures the record quotes that no other table shows
+   Real matrices with a run more than 0.3 dB off from 4 bits up, the star p = 2/3 left out: matrix | largest residual | zero lump
+   whisper/decoder.blocks.1.attn.key.weight | 1.62 | 0.668
+   whisper/decoder.blocks.1.attn.value.weight | 1.54 | 0.662
+   whisper/decoder.blocks.1.attn.query.weight | 1.49 | 0.667
+   whisper/decoder.blocks.1.cross_attn.query.weight | 0.93 | 0.485
+   The five arms with an exact formula, at the three group sizes of the budget: where the pick of level 2 is not the pick of level 3, and where it is not the measured best
+   T3/2 | level 2: E8:p1@32 | level 3: E8:p1@32 | measured best: E8:p1@128 | level 2's pick over the measured best: 0.006 dB | zero lump 0.128
+   BS/0 | level 2: E8:p1@128 | level 3: Z8:p1@128 | measured best: E8:p1@128 | level 2's pick over the measured best: 0.000 dB | zero lump 0.388
+   BS/1 | level 2: E8:p1@128 | level 3: Z8:p1@128 | measured best: E8:p1@128 | level 2's pick over the measured best: 0.000 dB | zero lump 0.388
+   BS/2 | level 2: E8:p1@128 | level 3: Z8:p1@128 | measured best: E8:p1@128 | level 2's pick over the measured best: 0.000 dB | zero lump 0.388
+   C/1 | level 2: X@32 | level 3: X@32 | measured best: X@128 | level 2's pick over the measured best: 0.014 dB | zero lump 0.080
+   whisper/decoder.blocks.1.attn.key.weight | level 2: E8:p1@128 | level 3: Z8:p1@128 | measured best: Z8:p1@128 | level 2's pick over the measured best: 1.552 dB | zero lump 0.668
+   whisper/decoder.blocks.1.attn.out.weight | level 2: E8:p1@32 | level 3: E8:p1@32 | measured best: E8:p1@128 | level 2's pick over the measured best: 0.006 dB | zero lump 0.190
+   whisper/decoder.blocks.1.attn.query.weight | level 2: E8:p1@32 | level 3: Z8:p1@128 | measured best: Z8:p1@128 | level 2's pick over the measured best: 1.810 dB | zero lump 0.667
+   whisper/decoder.blocks.1.attn.value.weight | level 2: E8:p1@128 | level 3: Z8:p1@128 | measured best: Z8:p1@128 | level 2's pick over the measured best: 1.539 dB | zero lump 0.662
+   whisper/decoder.blocks.1.cross_attn.query.weight | level 2: E8:p1@128 | level 3: Z8:p1@128 | measured best: Z8:p1@128 | level 2's pick over the measured best: 0.866 dB | zero lump 0.485
+   Runs of a cut arm in which a block was shrunk, by rate: rate | runs with one | runs | largest share of blocks
+    2 | 797 | 3924 | 0.0250
+    4 | 827 | 3924 | 0.0054
+   4+ | 457 | 2616 | 0.0018
+   The best rank arm of a real matrix against its best full arm at 4.5 bits: ahead on 2 of 85, by 2.06 and 1.99 dB. Behind on the rest by 3.15 to 18.65 dB
+   The largest residual at 2 bits on a real matrix: +3.33 dB. Over every family: +5.16 dB
+   The safe scale at 2 bits, not run: 20 log10(r_eff / (r - m)) for a codebook of at most 2^16 points
+   E8 in a ball: 3.67 dB
+   the integers in a ball: 5.33 dB
+   E8 in a cross-polytope: 4.86 dB
+   the integers in a cross-polytope: 10.98 dB
+   Gaussian weights, from the limits table: what the step from groups of 8 to groups of 2048 costs in the region part
+   cube 5.83 dB | ball 4.78 dB | cross-polytope 5.10 dB
