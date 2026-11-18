@@ -1,17 +1,17 @@
 Plans and data in the order git has them, for every record under experiments/
-head 03b3761
+head aa5e5d9
 
 record | first plan | data files committed with it | first data after it | plan before data | plan changed before first data | plan changed after first data | of those, followed by new data | named in the README | programs changed after first data
 ball-dimension-no-clip-rule-2026-11-17 | 5398096 | 0 | 801a4c6 | yes | 0 | 0 | 0 | 0 of 0 | 0
 bit-split-held-out-qwen25-2026-11-18 | 4ce900b | 0 | none yet | yes | 0 | 0 | 0 | 0 of 0 | 0
-clip-by-layer-qwen25-2026-11-18 | 4ce900b | 1 | none yet | yes | 0 | 0 | 0 | 0 of 0 | 0
+clip-by-layer-qwen25-2026-11-18 | 4ce900b | 1 | 681972b | yes | 0 | 0 | 0 | 0 of 0 | 0
 e8-gain-largest-entry-rule-2026-11-17 | 61c552b | 0 | affbdfd | yes | 0 | 0 | 0 | 0 of 0 | 1
 fold-path-codebooks-2026-11-17 | cae753e | 0 | cda52eb | yes | 0 | 1 | 1 | 1 of 1 | 0
 imatrix-baseline-2026-11-17 | 86a18b5 | 0 | ee48f57 | yes | 0 | 2 | 2 | 2 of 2 | 2
 incentre-vortex-codebooks-2026-11-17 | 61c552b | 0 | 8d709ad | yes | 2 | 0 | 0 | 0 of 0 | 0
 lattice-split-smollm2-2026-11-17 | eac2ef2 | 0 | 0355136 | yes | 0 | 3 | 3 | 3 of 3 | 6
 lattice-vs-scalar-rounding-2026-11-15 | 195f06e | 0 | 1c3d4c9 | yes | 0 | 0 | 0 | 0 of 0 | 1
-mmlu-subset-2026-11-18 | e81eafa | 0 | none yet | yes | 0 | 0 | 0 | 0 of 0 | 0
+mmlu-subset-2026-11-18 | e81eafa | 0 | 968ddbb | yes | 0 | 0 | 0 | 0 of 0 | 0
 model-output-gemma-e4b-2026-11-15 | 60ec5aa | 0 | eac9d89 | yes | 6 | 2 | 2 | 2 of 2 | 5
 model-output-qwen25-2026-11-17 | 81b83d2 | 0 | 8de998d | yes | 0 | 1 | 1 | 1 of 1 | 8
 model-output-smollm2-2026-11-17 | 14726fd | 0 | acc5c55 | yes | 0 | 0 | 0 | 0 of 0 | 0

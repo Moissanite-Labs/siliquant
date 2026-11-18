@@ -61,7 +61,7 @@ The conventions are those of [weft-loom's CONTRIBUTING.md](https://github.com/Mo
 
 ## Status
 
-Fourteen studies so far, and three more planned with nothing scored. The newest results are at the end of this section.
+Fifteen studies so far, and two more planned or running. The newest results are at the end of this section.
 
 The first measured weight error only: at 2 bits per weight the lattice E8 beats scalar rounding on every matrix tried, and the lattice the starting briefs proposed, A8\*, gains less than half as much in the mean of each family of data.
 
@@ -126,6 +126,12 @@ The fourteenth, of 2026-11-18, stores the integer ball arm in a file and scores 
 - **4.5 bits a weight in a file, read back bit for bit.** 18 bytes for a block of 32 weights. The file of Qwen2.5 is 737 megabytes.
 - **The model the file holds is ahead of llama.cpp's `Q4_K_M` at 4.8 bits on both models**: 0.0245 against 0.0333 and 0.0589 against 0.0838. With the importance matrix on both sides, 0.0227 against 0.0282 and 0.0309 against 0.0378.
 - **It decodes at 20 to 25 million weights a second on one core**, about a minute for a model. Nothing is saved when the model runs: the file is decoded to floats first.
+
+The fifteenth, of 2026-11-18, is run 3 of issue #20: the clip of `ffn_down` on each layer of Qwen2.5 alone, by the rule of the twelfth study.
+
+- **Not one matrix as on gemma: two, at the ends of the model.** Layer 1 holds 40.6 percent of the summed damage and the last layer 29.8. With their neighbours, 83.3 percent in four matrices of 28.
+- **Here the weights say which.** The four matrices the clip changes most are the four that cost most. On gemma no figure of the weights found the matrix.
+- **The damage does not add.** All layers at once cost a mean KL of 0.593, five times the sum of the 28 alone.
 
 ## Licence
 
