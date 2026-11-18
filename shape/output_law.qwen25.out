@@ -1,4 +1,4 @@
-File: experiments/model-output-qwen25-2026-11-17/results.jsonl. Variants: 27.
+File: experiments/model-output-qwen25-2026-11-17/results.jsonl. Variants: 28.
 Anchor X32:16: mean KL 0.06204 at a mean weight error of -20.672 dB. KL per unit of weight error: 7.24.
 
 variant | bits | weight error by the closed form, dB | measured, dB | measured minus formula | KL by the anchor | measured KL | its standard error | measured over predicted, dB
@@ -27,6 +27,7 @@ VE8ZR:32 | 5.0079 | - | -24.043 | - | 0.0286 | 0.0500 | 0.0009 | +2.43
 VE8Z32:16 | 4.5000 | - | -22.403 | - | 0.0417 | 0.0434 | 0.0009 | +0.18
 EBG128:b504s8 | 3.9997 | -22.841 | -22.829 | +0.012 | 0.0377 | 0.0371 | 0.0009 | -0.07
 ZBG128:b560s16 | 4.4998 | -24.943 | -24.944 | -0.001 | 0.0232 | 0.0227 | 0.0006 | -0.09
+EC128@R:16 | 4.0069 | - | -21.899 | - | 0.0468 | 0.0487 | 0.0009 | +0.17
 
 The predictions
    O1 | holds | closed form against measured weight error, mark 0.05 dB: EBG128:b560s16 -0.007, EB32@32:16 +0.014, ZBG128:b560s16 -0.001, EBG128:b504s8 +0.012
@@ -34,4 +35,4 @@ The predictions
    O3 | holds | KL over that of EBG128:b560s16 in dB, measured against the closed form, mark 0.4 dB: EB32@32:16 +2.40 against +2.03, ZBG128:b560s16 +0.66 against +0.65, EBG128:b504s8 +2.78 against +2.76
    O4 | holds | VE8Z32:16 by the anchor and its measured weight error, mark 0.5 dB: +0.18
    O5 | holds | one scale per row is outside the law: KL at least 1.5 dB above the anchor's: XR:16 +4.31, VE8ZR:16 +2.62
-   O6 | holds | the arm with the smallest predicted error at 4.5 bits or fewer, EBG128:b560s16, has the lowest mean KL of all 25 scored variants: the lowest is EBG128:b560s16 at 0.0195
+   O6 | holds | the arm with the smallest predicted error at 4.5 bits or fewer, EBG128:b560s16, has the lowest mean KL of all 26 scored variants: the lowest is EBG128:b560s16 at 0.0195
