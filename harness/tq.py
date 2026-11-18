@@ -184,6 +184,108 @@ def maxscale_round(W, q, group, shrink=1.0):
     return Wh, {"rel_err": rel, "scale": None, "overload": over, "bits": math.log2(q) + 16.0 / size}
 
 
+def _finish(W, Wh, over, bits, extra=None):
+    W64 = W.astype(np.float64)
+    rel = float(np.sum((W64 - Wh.astype(np.float64)) ** 2) / np.sum(W64 ** 2))
+    info = {"rel_err": rel, "scale": None, "overload": over, "bits": bits}
+    info.update(extra or {})
+    return Wh, info
+
+
+def maxscale_round_kept(W, q, group, limit):
+    """maxscale_round with the largest entries of each row kept as they are (arms XRo and X32o of the plan).
+
+    In each row, the entries whose size is above `limit` standard deviations of the row (the
+    standard deviation of the whole row, with divisor n) are kept exactly. The scale of a group
+    (a row for group "R", else `group` consecutive weights) is set from the group's largest
+    entry that is not kept; the entries that are not kept are rounded as maxscale_round does, at
+    q levels. The result is the rounded matrix as float16, with the kept entries written as
+    float16 of their own value.
+    Bits per weight: log2(q) + 16 / group size, plus for each kept entry 16 bits for its value
+    and ceil(log2(row length)) bits for its position, shared over all the weights. The info dict
+    also holds "kept", the number of kept entries.
+    """
+    if q % 2:
+        raise ValueError("even level counts only")
+    m, n = W.shape
+    size = n if group == "R" else int(group)
+    lim = float(limit) * W.astype(np.float64).std(axis=1, keepdims=True)
+    kept_np = np.abs(W.astype(np.float64)) > lim
+    Wt = torch.from_numpy(np.ascontiguousarray(W)).to(DEV)
+    kept = torch.from_numpy(kept_np).to(DEV)
+    X = Wt.reshape(-1, size)
+    K = kept.reshape(-1, size)
+    rest = torch.where(K, torch.full_like(X, -1.0), X.abs())
+    j = rest.argmax(dim=1, keepdim=True)
+    d = X.gather(1, j) / (-q / 2.0)
+    safe = torch.where(d == 0, torch.ones_like(d), d)
+    R = torch.clamp(torch.round(X / safe), -q // 2, q // 2 - 1) * d
+    R = torch.where(K, X, R)
+    Wh = R.reshape(m, n).to(torch.float16).cpu().numpy()
+    ratio = X / safe
+    clipped = ((ratio > (q // 2 - 1) + 0.5) | (ratio < -(q // 2) - 0.5)) & ~K
+    n_kept = int(kept_np.sum())
+    bits = math.log2(q) + 16.0 / size + n_kept * (16.0 + math.ceil(math.log2(n))) / (m * n)
+    return _finish(W, Wh, float(clipped.float().mean()), bits, {"kept": n_kept})
+
+
+def sbit_scales(a, row_max16, bits):
+    """The stored scale of each group, for the arms X32sB: a (largest size in each group), row_max16 (the row's largest, as stored).
+
+    The scale is the smallest of R * 2^(-8 c / (2^B - 1)), c = 0 .. 2^B - 1, that is at least a.
+    NumPy float64 in, float64 out.
+    """
+    cmax = 2 ** bits - 1
+    a = np.asarray(a, dtype=np.float64)
+    R = np.asarray(row_max16, dtype=np.float64)
+
+    def val(c):
+        return R * 2.0 ** (-8.0 * c / cmax)
+
+    with np.errstate(divide="ignore"):
+        c = np.floor(cmax * np.log2(R / np.where(a > 0, a, 1.0)) / 8.0)
+    c = np.where(a > 0, c, cmax)
+    c = np.clip(c, 0, cmax)
+    for _ in range(2):
+        c = np.where(val(c) < a, c - 1, c)
+        c = np.where((c < cmax) & (val(np.minimum(c + 1, cmax)) >= a), c + 1, c)
+    c = np.clip(c, 0, cmax)
+    return val(c)
+
+
+def maxscale_round_sbit(W, q, group, bits):
+    """maxscale_round with each group's scale stored in `bits` bits (arms X32sB of the plan).
+
+    The row's largest entry R is stored in 16 bits (as a float16 that is not below it, so that
+    nothing is clipped). A group's scale s is the smallest of R * 2^(-8 c / (2^B - 1)), c from 0
+    to 2^B - 1, that is at least the group's largest entry. The step is s / (q / 2), and the
+    entries are mapped as in maxscale_round, with the sign of the group's largest entry deciding
+    which side the end level is on. Bits per weight: log2(q) + B / group size + 16 / row length.
+    The info dict also holds "scale_ok", true when every group's scale is at least its largest entry.
+    """
+    if q % 2:
+        raise ValueError("even level counts only")
+    m, n = W.shape
+    size = int(group)
+    Wt = torch.from_numpy(np.ascontiguousarray(W)).to(DEV)
+    X = Wt.reshape(-1, size)
+    j = X.abs().argmax(dim=1, keepdim=True)
+    top = X.gather(1, j)
+    a = top.abs().reshape(-1).cpu().numpy().astype(np.float64)
+    rowmax = np.abs(W).max(axis=1)
+    r16 = rowmax.astype(np.float16)
+    r16 = np.where(r16.astype(np.float32) < rowmax, np.nextafter(r16, np.float16(np.inf)), r16).astype(np.float64)
+    Rg = np.repeat(r16, n // size)
+    s = sbit_scales(a, Rg, bits)
+    st = torch.from_numpy(s.astype(np.float32)).to(DEV)[:, None]
+    d = torch.sign(top) * st / (-q / 2.0)
+    safe = torch.where(d == 0, torch.ones_like(d), d)
+    R = torch.clamp(torch.round(X / safe), -q // 2, q // 2 - 1) * d
+    Wh = R.reshape(m, n).to(torch.float16).cpu().numpy()
+    over = float((((X / safe) > (q // 2 - 1) + 0.5) | ((X / safe) < -(q // 2) - 0.5)).float().mean())
+    return _finish(W, Wh, over, math.log2(q) + bits / size + 16.0 / n, {"scale_ok": bool(np.all(s >= a))})
+
+
 def maxscale_voronoi(W, q, group, name="E8", steps=14):
     """A Voronoi code with one scale per group of weights and nothing shrunk: the lattice form of maxscale_round.
 

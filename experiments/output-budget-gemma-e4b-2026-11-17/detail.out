@@ -1,0 +1,88 @@
+1. Part A against arm S of the first record, one kind at a time, 16 levels
+   kind | weights | X32:16 KL | per weight x 1e9 | S:16 KL (first record) | per weight x 1e9
+   attn_q       |  256901120 | 0.0167 | 0.0652 | 0.0576 | 0.2241
+   attn_k       |   64225280 | 0.0085 | 0.1318 | 0.0489 | 0.7613
+   attn_v       |   64225280 | 0.0264 | 0.4105 | 0.0670 | 1.0438
+   attn_output  |  256901120 | 0.0274 | 0.1067 | 0.9624 | 3.7460
+   ffn_gate     | 1101004800 | 0.0142 | 0.0129 | 0.0786 | 0.0714
+   ffn_up       | 1101004800 | 0.0190 | 0.0172 | 0.1716 | 0.1558
+   ffn_down     | 1101004800 | 0.0237 | 0.0216 | 1.9889 | 1.8064
+   X32: largest over smallest KL of a kind 3.24; per weight 31.8
+   S:   largest over smallest KL of a kind 40.7; per weight 52.5
+   ffn_down over ffn_gate, per weight: X32 1.67, S 25.3
+   attn_output over attn_q, per weight: X32 1.64, S 16.7
+   one more bit divides a kind's KL by 2.62 to 4.94, geometric mean 3.65
+   all kinds at once: X32:8 over X32:16 4.23; X32:16 over X32:32 (first record) 3.752
+   key and value weights never read: 55050240 of 128450560, 42.9 percent
+
+2. Gains at equal or nearly equal bits, and what they are worth in bits
+   A gain is turned into bits with the slope of X32 from 4.5 to 5.5 bits: one bit divides KL by 3.752.
+   best arm at 4.5 bits               | 4.498 bits | KL 0.0805 | 0.686 of the uniform arm | 31.4 percent lower | worth +0.285 bit | bits against the uniform arm -0.002
+   reversed arm at 4.5 bits           | 4.498 bits | KL 0.0950 | 0.810 of the uniform arm | 19.0 percent lower | worth +0.159 bit | bits against the uniform arm -0.002
+   best arm at 3.5 bits               | 3.498 bits | KL 0.3164 | 0.638 of the uniform arm | 36.2 percent lower | worth +0.340 bit | bits against the uniform arm -0.002
+   reversed arm at 3.5 bits           | 3.498 bits | KL 0.4243 | 0.856 of the uniform arm | 14.4 percent lower | worth +0.118 bit | bits against the uniform arm -0.002
+   X32o:16~3.45                       | 4.549 bits | KL 0.0931 | 0.794 of the uniform arm | 20.6 percent lower | worth +0.175 bit | bits against the uniform arm +0.049
+   XRo:16~2.5                         | 4.444 bits | KL 0.1063 | 0.906 of the uniform arm | 9.4 percent lower | worth +0.075 bit | bits against the uniform arm -0.056
+   X32s8:16                           | 4.255 bits | KL 0.1198 | 1.021 of the uniform arm | -2.1 percent lower | worth -0.016 bit | bits against the uniform arm -0.245
+   X32s6:16                           | 4.192 bits | KL 0.1271 | 1.083 of the uniform arm | -8.3 percent lower | worth -0.061 bit | bits against the uniform arm -0.308
+   X32s8:18                           | 4.425 bits | KL 0.0972 | 0.829 of the uniform arm | 17.1 percent lower | worth +0.142 bit | bits against the uniform arm -0.075
+   X32s6:20                           | 4.514 bits | KL 0.0815 | 0.694 of the uniform arm | 30.6 percent lower | worth +0.276 bit | bits against the uniform arm +0.014
+   joined arm                         | 4.484 bits | KL 0.0629 | 0.536 of the uniform arm | 46.4 percent lower | worth +0.471 bit | bits against the uniform arm -0.016
+   best over reversed: 0.847 at 4.5 bits, 0.746 at 3.5 bits
+   reversed arms, predicted KL against the sum of Part A at the uniform level: 4.5 bits 0.100550 against 0.135877; 3.5 bits 0.438241 against 0.504067
+   bits of each kind in the best arm at 4.5 bits (log2 of the levels plus 0.5):
+      attn_q        32 levels  5.500 bits
+      attn_k        64 levels  6.500 bits
+      attn_v        64 levels  6.500 bits
+      attn_output   46 levels  6.024 bits
+      ffn_gate      12 levels  4.085 bits
+      ffn_up        12 levels  4.085 bits
+      ffn_down      16 levels  4.500 bits
+   attn_k and attn_v are 3.26 percent of the block weights; raising them from 16 to 64 levels costs 0.0651 bit over all weights
+   ffn_gate and ffn_up are 55.81 percent; lowering them from 16 to 12 levels saves 0.2316 bit over all weights
+
+3. Part C: kept entries against the plain arm at the same levels
+   XRo:16~8      | kept 0.0014 percent | +0.0004 bit | KL 0.4190 | 0.933 of XR | the same bits spent on levels would give about 0.4486
+   XRo:16~5      | kept 0.0150 percent | +0.0043 bit | KL 0.3405 | 0.759 of XR | the same bits spent on levels would give about 0.4463
+   XRo:16~3.45   | kept 0.1732 percent | +0.0494 bit | KL 0.2071 | 0.462 of XR | the same bits spent on levels would give about 0.4205
+   XRo:16~2.5    | kept 1.5387 percent | +0.4388 bit | KL 0.1063 | 0.237 of XR | the same bits spent on levels would give about 0.2512
+   XRo:32~8      | kept 0.0014 percent | +0.0004 bit | KL 0.1068 | 0.905 of XR | the same bits spent on levels would give about 0.1180
+   XRo:32~5      | kept 0.0150 percent | +0.0043 bit | KL 0.0843 | 0.714 of XR | the same bits spent on levels would give about 0.1174
+   XRo:32~3.45   | kept 0.1732 percent | +0.0494 bit | KL 0.0520 | 0.440 of XR | the same bits spent on levels would give about 0.1106
+   XR:16 here 0.448857; XR:32 from the first record 0.118049
+   XRo:16~2.5 at 4.444 bits: 0.906 of X32:16 at 4.500 bits
+
+4. Part E against all 42 layers (first record)
+   clip: six alone add up to 0.001673; all 42 at once 0.163763; ratio 97.9 for 7 times the layers
+   rounding: six alone add up to 0.005700; all 42 at once 0.023730; ratio 4.16 for 7 times the layers
+
+5. The joined arm against the first record's files
+   llama.cpp Q4_0   4.500 bits KL 0.1173 top token 89.40 | joined arm 4.484 bits KL 0.0629 top token 92.02 | ratio 0.536
+   llama.cpp Q4_K_M 4.803 bits KL 0.0689 top token 91.79 | joined arm 4.484 bits KL 0.0629 top token 92.02 | ratio 0.913
+   VE832:16         4.500 bits KL 0.0747 top token 91.57 | joined arm 4.484 bits KL 0.0629 top token 92.02 | ratio 0.841
+
+6. Part H: the clip on each layer alone
+   sum over 42 layers 0.174156; layer 10 alone 0.155993, 89.6 percent of the sum; the other 41 add up to 0.018163
+   the next largest is layer 21 at 0.001990: layer 10 is 78.4 times it
+   the 42 alone over all 42 at once (first record, 0.163763): 1.063
+   by the weight error of its clip, layer 10 is number 4 of 42 (-27.41 dB); the three largest are layers 20, 21, 16 (-25.86, -26.24, -26.81 dB), with KL 0.000312, 0.001990, 0.000602
+   rank correlation between a layer's KL and the weight error of its clip: all 42 layers +0.753; without layer 10 +0.740
+
+7. Part L: is layer 10 marked by its weights?
+   entries beyond 5 standard deviations: layer 10 is number 4 of 42 (1.169e+04); the three largest are layer 21 (1.865e+04), layer 20 (1.378e+04), layer 22 (1.223e+04)
+   largest entry in standard deviations of its row: layer 10 is number 19 of 42 (18.52); the three largest are layer 11 (27.38), layer 29 (26.61), layer 12 (25.42)
+   the clip's squared change over the squared size of the matrix: layer 10 is number 4 of 42 (0.001817); the three largest are layer 20 (0.002591), layer 21 (0.002379), layer 16 (0.002083)
+   entries beyond 5 standard deviations in all 42 layers: 188362; layer 10 has 6.2 percent of them
+
+8. Part K: the closure in the budget
+   joined arm 4.4844 bits, KL 0.062882; with the unread keys and values at 0 bits 4.3971 bits, KL 0.062882; 0.0873 bit saved
+
+9. Part M: parts of layer 10, and one matrix under the other rule
+   clip on the top hidden unit: KL 0.000010, 0.01 percent of layer 10's 0.155993
+   clip on the top ten hidden units: KL 0.000071, 0.05 percent of layer 10's 0.155993
+   clip on all but the top ten hidden units: KL 0.155882, 99.93 percent of layer 10's 0.155993
+   clip on the top ten dimensions of the stream: KL 0.001060, 0.68 percent of layer 10's 0.155993
+   the two rules on all matrices: R+S:32 0.339548, XR:32 0.118049, gap 0.221499
+   R+S:32 with layer 10's ffn_down under XR:32: 0.265947; that closes 33.2 percent of the gap
+   XR:32 with layer 10's ffn_down under R+S:32: 0.239950; that opens 55.0 percent of the gap
+   layer 10's ffn_down is 26214400 of 3945267200 block weights, 0.66 percent, one matrix of 294

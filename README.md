@@ -12,10 +12,11 @@ The repository follows one rule from weft-loom: a path is closed only on a proof
 | `perm/` | Exact counting of matchings that avoid forbidden pairs: derangements, rook and hit polynomials, permanents, bounds on permanents, and the closure of a set of forbidden cells, with a witness for every cell that a second function checks from the board alone. Counts are tested against full enumeration on small cases, and bounds against exact values. `perm/demo.out` holds the figures the notes quote. |
 | `lattice/` | Nearest-point decoders for the lattices Z^n, D_n, E_8, A_n and A_n\*, Voronoi codes, scalar reference quantisers, and row and column balancing. Tested against brute force and against known constants. |
 | `shape/` | The process of issue #10 as code, for weight error. Codebooks cut from the integers or E8 by the ball of a p-norm, counted exactly. The region part of the error, computed from the weights with nothing rounded, and a formula for the error with no fitted constant. A receipt in whole numbers. For five arms the pick in exact arithmetic with a certificate, and a checker that shares no code with it. A closed-form scale with a proved bound on the error. `shape/ballindex.py` numbers the points of a codebook cut by a ball over any number of weights, so that a block can be stored in the bits of its number; `shape/ballindex.out` gives the sizes of its tables. |
+| `persist/` | The score called neural persistence: the maximum spanning tree of a layer read as a graph, the score built on it, the paper's bound under both readings of its count, and a distance between two layers' sorted tree sizes. Tested against full enumeration on small graphs. `persist/demo.out` holds the figures the note quotes. |
 | `harness/` | Tools for experiments on real model files: read weights out of a GGUF file and write a changed copy, round on a GPU, and score a changed model against the original with llama.cpp's own tool. `harness/test_tq.py` checks the GPU code against `lattice/`. |
 | `checks/` | Programs that read the repository itself: whether each record's plan was committed before its data, read from git; whether each row of a check note names a file for what it says was recomputed; and a trace of the numbers in the records, which measures how little such a trace can catch. [checks/README.md](checks/README.md) says what each found. |
 | `experiments/` | One folder per study, each with its plan, program, output and limits. Index in [experiments/README.md](experiments/README.md). |
-| `notes/` | [concept-map.md](notes/concept-map.md): the combinatorics the project owner listed, mapped to code, to the closure rule and to rounding. [brief-check.md](notes/brief-check.md): a source check of the two briefs the repository started from. [pr6-proposal-check.md](notes/pr6-proposal-check.md): a check of the research report in PR #6, claim by claim, and what follows from it. [issue10-proposal-check.md](notes/issue10-proposal-check.md): the same for the proposal of issue #10 and the published work it cites, with what PR #5 has that bears on it. [grafts-followup.md](notes/grafts-followup.md): what became of the fifteen crossings of the grafts note. [issue15-proposal-check.md](notes/issue15-proposal-check.md): the claims of issue #15 read against what was measured, and what issue #14 asks for. |
+| `notes/` | [concept-map.md](notes/concept-map.md): the combinatorics the project owner listed, mapped to code, to the closure rule and to rounding. [brief-check.md](notes/brief-check.md): a source check of the two briefs the repository started from. [pr6-proposal-check.md](notes/pr6-proposal-check.md): a check of the research report in PR #6, claim by claim, and what follows from it. [issue10-proposal-check.md](notes/issue10-proposal-check.md): the same for the proposal of issue #10 and the published work it cites, with what PR #5 has that bears on it. [grafts-followup.md](notes/grafts-followup.md): what became of the fifteen crossings of the grafts note. [issue15-proposal-check.md](notes/issue15-proposal-check.md): the claims of issue #15 read against what was measured, and what issue #14 asks for. [persistence-and-flow-check.md](notes/persistence-and-flow-check.md): a check of a document on neural persistence and of two replies that map drag reduction onto models, with the bit budget that is left and its arithmetic in `notes/budget.out`. |
 
 ## How to check it
 
@@ -31,6 +32,10 @@ python3 -m unittest lattice/test_lattices.py
 
 ```bash
 python3 -m unittest shape/test_shapelib.py shape/test_certified.py shape/test_ballindex.py
+```
+
+```bash
+python3 -m unittest persist/test_persist.py
 ```
 
 ```bash
@@ -56,7 +61,7 @@ The conventions are those of [weft-loom's CONTRIBUTING.md](https://github.com/Mo
 
 ## Status
 
-Eleven studies so far, one of them partial. The newest results are at the end of this section.
+Thirteen studies so far, one of them partial. The newest results are at the end of this section.
 
 The first measured weight error only: at 2 bits per weight the lattice E8 beats scalar rounding on every matrix tried, and the lattice the starting briefs proposed, A8\*, gains less than half as much in the mean of each family of data.
 
@@ -103,6 +108,18 @@ The eleventh answers issue #14: llama.cpp's files made with an importance matrix
 - **Given the same matrix at half strength, the ball arm is ahead on both**: 0.0209 and 0.0282 at 4.5 bits, against 0.0282 and 0.0378 for `Q4_K_M` with the matrix at 4.8 bits. At full strength it does worse. The half-strength arm was planned and not predicted to win. A sweep of five strengths on the validation text then chose that strength by a rule fixed beforehand.
 
 What these do not show: accuracy on a task, a matrix from other text, and anything about a packed format or speed. The bits are counted from the codebook, and the saving is in the file, not in memory.
+
+The twelfth, also of 2026-11-17 and from another lane of work, goes back to the output of `gemma-4-E4B-it` and treats the loss as a budget with parts. One model and one text, with no packed format.
+
+- **Bits split by measured gain beat equal bits.** At 4.5 bits the split scores a mean KL of 0.0805 against 0.1173 for the `Q4_0` rule. The split is fitted on the text it is scored on.
+- **Keeping 0.17 percent of the weights exact more than halves the KL of a row scale**, for 0.049 bit. A scale stored in 8 bits costs 2.1 percent of KL. With all three joined the score is 0.0629 at 4.484 bits.
+- **One matrix carries the damage of clipping large weights.** Clipped alone, the `ffn_down` of layer 10 scores 0.1560 and the other 41 layers add up to 0.0182. None of three figures of its large entries picks it out, and its ten units with the most change do not carry the damage. Between one scale rule that clips and one that does not, at 32 levels, it accounts for a third to a half of the gap.
+- **The two kinds of matrix that looked sensitive in the second study do not stand out under a scale per 32 weights that clips nothing.** The two rules differ in group size and in clipping, and the study does not separate them. A measure built on neural persistence ranked new arms worst of five.
+
+The thirteenth, from the lane of issue #10, asks why integer levels beat E8 on SmolLM2 against their weight error. It runs the model in NumPy on 16 passages.
+
+- **E8's error costs what noise of its size costs. The error of integer levels costs 1.1 dB less.** All of that is at the 7.8 percent of the weights that integer rounding sends to zero.
+- **E8 cannot have that gain**: it moves half of those weights to plus or minus half a step.
 
 ## Licence
 
