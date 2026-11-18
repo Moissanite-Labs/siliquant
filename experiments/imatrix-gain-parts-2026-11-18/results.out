@@ -9,6 +9,7 @@ the feed-forward readers, ZBG128:b560s16+h@ffn_gate,ffn_up | 4.5008 | 0.053312 |
 the writers, ZBG128:b560s16+h@attn_output,ffn_down | 4.5022 | 0.049897 | 0.000956 | 88.79 | 10.8 | 4.2 | 0.219
 every kind weighted, hZBG128:b560s16 | 4.5047 | 0.028205 | 0.000610 | 91.35 | 49.6 | 22.7 | 1.000
 the three shares add up to 0.999 of the whole gain
+the same in percent: the attention's readers 68.5, the feed-forward readers 9.5, the writers 21.9, together 99.9
 
 Part B: the same arms with a matrix made from a text with no meaning, beside the matrix of the wikitext-2 training text and no matrix
 model | arm | matrix | bits a weight | mean KL | its standard error | first choice kept, percent | share of the real matrix's gain | above the arm with no matrix by, in errors
@@ -19,8 +20,11 @@ SmolLM2-1.7B | one ball per group of 128 | none | 4.4998 | 0.055962 | 0.001060 |
 SmolLM2-1.7B | one ball per group of 128 | wikitext-2 training text | 4.5047 | 0.028205 | 0.000610 | 91.35 | 1.000 | -22.7
 SmolLM2-1.7B | one ball per group of 128 | no meaning | 4.5047 | 0.031360 | 0.000653 | 90.73 | 0.886 | -19.8
 SmolLM2-1.7B | one ball per group of 128 | no meaning, on the five kinds that read the stream only (extension 1) | 4.5022 | 0.035731 | 0.000728 | 90.12 | 0.729 | -15.7
+SmolLM2-1.7B: the matrix of no meaning buys the ball arm 88.6 percent of what the training text's matrix buys
 SmolLM2-1.7B, not predicted: the ball arm with the matrix of no meaning against llama.cpp Q4_K_M with the matrix of the training text: 0.031360 against 0.037827, under it by 6.6 errors
 SmolLM2-1.7B, extension 1: the matrix of no meaning on the readers only against on every kind: 0.035731 against 0.031360, above it by 4.5 errors
+SmolLM2-1.7B, extension 1: the readers-only arm is above by 0.0044 of KL, which is 0.157 of the whole gain
+SmolLM2-1.7B: the matrix of no meaning buys llama.cpp Q4_K_M 95.5 percent of what the training text's matrix buys
 Qwen2.5-1.5B | llama.cpp Q4_K_M | none | 4.8120 | 0.033348 | 0.000682 | 91.11 |  | 
 Qwen2.5-1.5B | llama.cpp Q4_K_M | wikitext-2 training text | 4.8120 | 0.028205 | 0.000634 | 91.84 | 1.000 | -5.5
 Qwen2.5-1.5B | llama.cpp Q4_K_M | no meaning | 4.8120 | 0.029415 | 0.000588 | 91.46 | 0.765 | -4.4
@@ -28,7 +32,9 @@ Qwen2.5-1.5B | one ball per group of 128 | none | 4.4998 | 0.022750 | 0.000632 |
 Qwen2.5-1.5B | one ball per group of 128 | wikitext-2 training text | 4.5060 | 0.020898 | 0.000479 | 92.64 | 1.000 | -2.3
 Qwen2.5-1.5B | one ball per group of 128 | no meaning | 4.5060 | 0.022833 | 0.000421 | 92.81 | -0.045 | 0.1
 Qwen2.5-1.5B | one ball per group of 128 | no meaning, on the five kinds that read the stream only (extension 1) | 4.5024 | 0.023293 | 0.000528 | 92.73 | -0.293 | 0.7
+Qwen2.5-1.5B: the matrix of no meaning buys the ball arm -4.5 percent of what the training text's matrix buys
 Qwen2.5-1.5B, not predicted: the ball arm with the matrix of no meaning against llama.cpp Q4_K_M with the matrix of the training text: 0.022833 against 0.028205, under it by 7.1 errors
+Qwen2.5-1.5B: the matrix of no meaning buys llama.cpp Q4_K_M 76.5 percent of what the training text's matrix buys
 
 Extension 2: the arm as a file. Integer levels in one ball per 32 weights with columns weighted, 18 bytes a block, written by shape/ballpack.py, read back from disk and scored
 model | matrix | bytes of the file | bits a weight | mean KL | its standard error | first choice kept, percent | under llama.cpp Q4_K_M with the training text's matrix by, in errors

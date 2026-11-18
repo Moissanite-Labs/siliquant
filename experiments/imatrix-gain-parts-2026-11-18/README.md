@@ -163,7 +163,7 @@ What I got wrong.
 
 - **The queue stopped for ten minutes on a fault of the program.** The check that skips variants already scored read a `text` field from every row, and the row of a llama.cpp file, written by the earlier record's program, has none. The driver stopped at 20:11 UTC before any Qwen2.5 variant was built. Fixed at `2edd30c` and started again. No row was lost and no variant is built differently. `results.start` has the two extra starts.
 - **Extensions 1 and 2 were added after the plan.** `run.py` and `summary.py` were extended for them. The planned variants come out bit for bit as before on the single-matrix test.
-- **`summary.py` prints two things more than planned**: the ball arm with the matrix of no meaning against `Q4_K_M` with the real matrix on Qwen2.5 as well as on SmolLM2, and the file made with no matrix beside the two files made with one. Neither has a prediction.
+- **`summary.py` prints two things more than planned**: the ball arm with the matrix of no meaning against `Q4_K_M` with the real matrix on Qwen2.5 as well as on SmolLM2, and the file made with no matrix beside the two files made with one. Neither has a prediction. It also prints the shares as percentages and the gap of extension 1 as a KL, so that every figure of this record is in `results.out`.
 - **`guess.py` was not planned.** Its table is marked above.
 
 ## Limits

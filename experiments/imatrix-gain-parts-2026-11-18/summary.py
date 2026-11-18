@@ -77,6 +77,7 @@ def main():
     if len(gains) == 3:
         a, f, w = (gains[v] for _, v in PARTS)
         print(f"the three shares add up to {a + f + w:.3f} of the whole gain")
+        print(f"the same in percent: the attention's readers {100 * a:.1f}, the feed-forward readers {100 * f:.1f}, the writers {100 * w:.1f}, together {100 * (a + f + w):.1f}")
         verdict["P1"], verdict["P2"], verdict["P3"], verdict["P4"] = a > 0.5, f < 0.25, w < 0.25, 0.75 <= a + f + w <= 1.25
     print()
     print("Part B: the same arms with a matrix made from a text with no meaning, beside the matrix of the wikitext-2 training text and no matrix")
@@ -99,12 +100,14 @@ def main():
                 verdict["R1"] = share >= 0.5
             else:
                 verdict["R2"] = -gap(br, b) < 2
+            print(f"{SHORT[m]}: the matrix of no meaning buys the ball arm {100 * share:.1f} percent of what the training text's matrix buys")
             print(f"{SHORT[m]}, not predicted: the ball arm with the matrix of no meaning against llama.cpp Q4_K_M with the matrix of the training text: "
                   f"{br['kl_mean']:.6f} against {qi['kl_mean']:.6f}, under it by {gap(br, qi):.1f} errors")
         rd = mine[m].get(READERS)
         if rd and m == SMOL and br:
             print(f"{SHORT[m]}, extension 1: the matrix of no meaning on the readers only against on every kind: {rd['kl_mean']:.6f} against {br['kl_mean']:.6f}, above it by {-gap(rd, br):.1f} errors")
             verdict["E1"] = -gap(rd, br) < 2
+            print(f"{SHORT[m]}, extension 1: the readers-only arm is above by {rd['kl_mean'] - br['kl_mean']:.4f} of KL, which is {(rd['kl_mean'] - br['kl_mean']) / (b['kl_mean'] - bi['kl_mean']):.3f} of the whole gain")
         if rd and m == QWEN:
             verdict["E2"] = -gap(rd, b) < 2
         if qr:
@@ -113,6 +116,7 @@ def main():
                 verdict["R3"] = share >= 0.5
             else:
                 verdict["R4"] = -gap(qr, q) < 2
+            print(f"{SHORT[m]}: the matrix of no meaning buys llama.cpp Q4_K_M {100 * share:.1f} percent of what the training text's matrix buys")
     print()
     print("Extension 2: the arm as a file. Integer levels in one ball per 32 weights with columns weighted, 18 bytes a block, written by shape/ballpack.py, read back from disk and scored")
     print("model | matrix | bytes of the file | bits a weight | mean KL | its standard error | first choice kept, percent | under llama.cpp Q4_K_M with the training text's matrix by, in errors")
