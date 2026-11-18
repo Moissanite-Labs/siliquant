@@ -6,9 +6,10 @@ notes/brief-check.md | 19 | 7 | 7 | 0 | 0 | 0 | 0
 notes/issue10-followup.md | 7 | 6 | 6 | 0 | 0 | 0 | 0
 notes/issue10-proposal-check.md | 43 | 15 | 1 | 14 | 0 | 0 | 0
 notes/issue15-proposal-check.md | 15 | 10 | 10 | 0 | 0 | 0 | 0
+notes/persistence-and-flow-check.md | 24 | 9 | 9 | 0 | 0 | 0 | 0
 notes/pr6-proposal-check.md | 43 | 10 | 10 | 0 | 0 | 0 | 0
 
-How often each kind is named, over all rows: recomputed 47, proved 4, derived 19, checked 31, reported 24, record 24, source 17, search 2, read 2, none 8
+How often each kind is named, over all rows: recomputed 56, proved 4, derived 21, checked 36, reported 35, record 24, source 17, search 3, read 2, none 8
 
 Rows that break a rule
   none

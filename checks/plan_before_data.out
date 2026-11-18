@@ -1,17 +1,18 @@
 Plans and data in the order git has them, for every record under experiments/
-head bade2c7
+head 4ac89c6
 
 record | first plan | data files committed with it | first data after it | plan before data | plan changed before first data | plan changed after first data | of those, followed by new data | named in the README | programs changed after first data
 ball-dimension-no-clip-rule-2026-11-17 | 5398096 | 0 | 801a4c6 | yes | 0 | 0 | 0 | 0 of 0 | 0
 e8-gain-largest-entry-rule-2026-11-17 | 61c552b | 0 | affbdfd | yes | 0 | 0 | 0 | 0 of 0 | 1
 fold-path-codebooks-2026-11-17 | cae753e | 0 | cda52eb | yes | 0 | 1 | 1 | 1 of 1 | 0
-imatrix-baseline-2026-11-17 | 86a18b5 | 0 | ee48f57 | yes | 0 | 2 | 2 | 2 of 2 | 1
+imatrix-baseline-2026-11-17 | 86a18b5 | 0 | ee48f57 | yes | 0 | 2 | 2 | 2 of 2 | 2
 incentre-vortex-codebooks-2026-11-17 | 61c552b | 0 | 8d709ad | yes | 2 | 0 | 0 | 0 of 0 | 0
 lattice-split-smollm2-2026-11-17 | eac2ef2 | 0 | 0355136 | yes | 0 | 3 | 3 | 3 of 3 | 6
 lattice-vs-scalar-rounding-2026-11-15 | 195f06e | 0 | 1c3d4c9 | yes | 0 | 0 | 0 | 0 of 0 | 1
 model-output-gemma-e4b-2026-11-15 | 60ec5aa | 0 | eac9d89 | yes | 6 | 2 | 2 | 2 of 2 | 5
 model-output-qwen25-2026-11-17 | 81b83d2 | 0 | 8de998d | yes | 0 | 1 | 1 | 1 of 1 | 8
 model-output-smollm2-2026-11-17 | 14726fd | 0 | acc5c55 | yes | 0 | 0 | 0 | 0 of 0 | 0
+output-budget-gemma-e4b-2026-11-17 | ec636b1 | 0 | c253666 | yes | 0 | 2 | 2 | 2 of 2 | 10
 region-shapes-no-clip-rule-2026-11-17 | 6964d05 | 0 | dfe9da0 | yes | 0 | 0 | 0 | 0 of 0 | 0
 shape-formula-held-out-2026-11-17 | 41e4480 | 3 | 997a182 | yes | 0 | 1 | 1 | 1 of 1 | 1
 
@@ -21,6 +22,7 @@ Data committed with a plan, each change to a plan, and each program changed afte
   imatrix-baseline-2026-11-17: plan changed at 79fb0cc (2026-11-17T22:16), new data followed, named in the README. Importance-matrix baseline: extension 1, the ball arm given the same matrix
   imatrix-baseline-2026-11-17: plan changed at b148352 (2026-11-17T22:48), new data followed, named in the README. Importance-matrix baseline: extension 2, the strength chosen on validation text
   imatrix-baseline-2026-11-17: program summary.py changed at 76904f3 after the first data
+  imatrix-baseline-2026-11-17: program summary.py changed at 10e2677 after the first data
   incentre-vortex-codebooks-2026-11-17: plan changed at fb54260 (2026-11-17T04:16), before the first data was committed. Codebook study: extension 1 of the plan, before it is scored
   incentre-vortex-codebooks-2026-11-17: plan changed at b56c08e (2026-11-17T04:46), before the first data was committed. Codebook study: amendment 1 of the plan, a smaller run, before any result
   lattice-split-smollm2-2026-11-17: plan changed at e1f4dac (2026-11-17T22:32), new data followed, named in the README. Lattice split on SmolLM2, extension 1: is it the weights rounded to zero? The plan, before
@@ -55,6 +57,18 @@ Data committed with a plan, each change to a plan, and each program changed afte
   model-output-qwen25-2026-11-17: program run.py changed at 79fb0cc after the first data
   model-output-qwen25-2026-11-17: program run.py changed at 84b38d0 after the first data
   model-output-qwen25-2026-11-17: program run.py changed at b148352 after the first data
+  output-budget-gemma-e4b-2026-11-17: plan changed at bdc2b2b (2026-11-17T13:38), new data followed, named in the README. Extension 1 of the plan: where the clip's damage lives, and a closure in the budget
+  output-budget-gemma-e4b-2026-11-17: plan changed at c21dd06 (2026-11-17T14:05), new data followed, named in the README. Extension 2 of the plan: one layer carries the clip's damage
+  output-budget-gemma-e4b-2026-11-17: program allocate.py changed at 2b543c5 after the first data
+  output-budget-gemma-e4b-2026-11-17: program run.py changed at 2b543c5 after the first data
+  output-budget-gemma-e4b-2026-11-17: program run.py changed at e4c70eb after the first data
+  output-budget-gemma-e4b-2026-11-17: program summary.py changed at e4c70eb after the first data
+  output-budget-gemma-e4b-2026-11-17: program test_programs.py changed at e4c70eb after the first data
+  output-budget-gemma-e4b-2026-11-17: program run.py changed at 566fbbe after the first data
+  output-budget-gemma-e4b-2026-11-17: program summary.py changed at 566fbbe after the first data
+  output-budget-gemma-e4b-2026-11-17: program test_programs.py changed at 566fbbe after the first data
+  output-budget-gemma-e4b-2026-11-17: program run.py changed at 39ce552 after the first data
+  output-budget-gemma-e4b-2026-11-17: program detail.py changed at 71727f9 after the first data
   shape-formula-held-out-2026-11-17: 3 data files were committed with the first plan: pilot.detail.json, pilot.json, pilot.out
   shape-formula-held-out-2026-11-17: plan changed at 8331606 (2026-11-17T07:56), new data followed, named in the README. Study on issue #10: extension 1 of the plan, a rule with a proved guarantee, before it is 
   shape-formula-held-out-2026-11-17: program detail.py changed at eb44099 after the first data
