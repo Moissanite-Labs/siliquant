@@ -61,7 +61,7 @@ The conventions are those of [weft-loom's CONTRIBUTING.md](https://github.com/Mo
 
 ## Status
 
-Thirteen studies so far, and four more planned with nothing scored. The newest results are at the end of this section.
+Fourteen studies so far, and three more planned with nothing scored. The newest results are at the end of this section.
 
 The first measured weight error only: at 2 bits per weight the lattice E8 beats scalar rounding on every matrix tried, and the lattice the starting briefs proposed, A8\*, gains less than half as much in the mean of each family of data.
 
@@ -107,7 +107,7 @@ The eleventh answers issue #14: llama.cpp's files made with an importance matrix
 - **The matrix helps llama.cpp's files, by 15 percent of KL on Qwen2.5 and 55 percent on SmolLM2.** With it, `Q4_K_M` is ahead of the ball arm with no data on SmolLM2 and still behind it on Qwen2.5.
 - **Given the same matrix at half strength, the ball arm is ahead on both**: 0.0209 and 0.0282 at 4.5 bits, against 0.0282 and 0.0378 for `Q4_K_M` with the matrix at 4.8 bits. At full strength it does worse. The half-strength arm was planned and not predicted to win. A sweep of five strengths on the validation text then chose that strength by a rule fixed beforehand.
 
-What these do not show: accuracy on a task, a matrix from other text, and anything about a packed format or speed. The bits are counted from the codebook, and the saving is in the file, not in memory.
+What these do not show: accuracy on a task, and a matrix from other text. Their bits are counted from the codebook. The fourteenth study, below, puts one arm in a file.
 
 The twelfth, also of 2026-11-17 and from another lane of work, goes back to the output of `gemma-4-E4B-it` and treats the loss as a budget with parts. One model and one text, with no packed format.
 
@@ -120,6 +120,12 @@ The thirteenth, from the lane of issue #10, asks why integer levels beat E8 on S
 
 - **E8's error costs what noise of its size costs. The error of integer levels costs 1.1 dB less.** All of that is at the 7.8 percent of the weights that integer rounding sends to zero.
 - **E8 cannot have that gain**: it moves half of those weights to plus or minus half a step.
+
+The fourteenth, of 2026-11-18, stores the integer ball arm in a file and scores the model read back from it.
+
+- **4.5 bits a weight in a file, read back bit for bit.** 18 bytes for a block of 32 weights. The file of Qwen2.5 is 737 megabytes.
+- **The model the file holds is ahead of llama.cpp's `Q4_K_M` at 4.8 bits on both models**: 0.0245 against 0.0333 and 0.0589 against 0.0838. With the importance matrix on both sides, 0.0227 against 0.0282 and 0.0309 against 0.0378.
+- **It decodes at 20 to 25 million weights a second on one core**, about a minute for a model. Nothing is saved when the model runs: the file is decoded to floats first.
 
 ## Licence
 
