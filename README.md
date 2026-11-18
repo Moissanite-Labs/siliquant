@@ -61,7 +61,7 @@ The conventions are those of [weft-loom's CONTRIBUTING.md](https://github.com/Mo
 
 ## Status
 
-Thirteen studies so far, one of them partial. The newest results are at the end of this section.
+Thirteen studies so far, and four more planned with nothing scored. The newest results are at the end of this section.
 
 The first measured weight error only: at 2 bits per weight the lattice E8 beats scalar rounding on every matrix tried, and the lattice the starting briefs proposed, A8\*, gains less than half as much in the mean of each family of data.
 
@@ -90,7 +90,7 @@ The seventh, of the same date, cut codebooks by a ball over 8 to 128 weights. Th
 
 The eighth answers issue #9: the fold of incentre-lattices as a path of codebooks over 3 weights. The cell does improve along the fold, and its best state is its end, close packing, worth a quarter of a decibel. Every state loses to a fitted codebook, to E8 and to a longer ball.
 
-The ninth scores a second model, `Qwen2.5-1.5B-Instruct`, on a second text, for issue #3. It is partial: 27 of 32 variants.
+The ninth scores a second model, `Qwen2.5-1.5B-Instruct`, on a second text, for issue #3: 32 variants.
 
 - **As the gemma record ran it, E8's win shrinks with groups of 32 and reverses with one scale per row.** The cause is in the harness: its E8 Voronoi code subtracts the mean of its codewords, so none of them is zero. With a codeword at zero the same code is ahead of the scalar rule at all three bit points. The change is invisible in mean weight error and worth a factor of 17 in KL per row.
 - **One ball per group of weights is far ahead at equal bits.** E8 in one ball per group of 128 scores a mean KL of 0.0195 at 4.5 bits. llama.cpp's `Q4_0` scores 0.0623 at 4.5 bits and its `Q4_K_M` 0.0333 at 4.81. Integer levels with no lattice score 0.0227.

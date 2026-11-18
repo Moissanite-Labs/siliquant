@@ -1,22 +1,27 @@
 Plans and data in the order git has them, for every record under experiments/
-head 4ac89c6
+head b368296
 
 record | first plan | data files committed with it | first data after it | plan before data | plan changed before first data | plan changed after first data | of those, followed by new data | named in the README | programs changed after first data
 ball-dimension-no-clip-rule-2026-11-17 | 5398096 | 0 | 801a4c6 | yes | 0 | 0 | 0 | 0 of 0 | 0
+bit-split-held-out-qwen25-2026-11-18 | 4ce900b | 0 | none yet | yes | 0 | 0 | 0 | 0 of 0 | 0
+clip-by-layer-qwen25-2026-11-18 | 4ce900b | 1 | none yet | yes | 0 | 0 | 0 | 0 of 0 | 0
 e8-gain-largest-entry-rule-2026-11-17 | 61c552b | 0 | affbdfd | yes | 0 | 0 | 0 | 0 of 0 | 1
 fold-path-codebooks-2026-11-17 | cae753e | 0 | cda52eb | yes | 0 | 1 | 1 | 1 of 1 | 0
 imatrix-baseline-2026-11-17 | 86a18b5 | 0 | ee48f57 | yes | 0 | 2 | 2 | 2 of 2 | 2
 incentre-vortex-codebooks-2026-11-17 | 61c552b | 0 | 8d709ad | yes | 2 | 0 | 0 | 0 of 0 | 0
 lattice-split-smollm2-2026-11-17 | eac2ef2 | 0 | 0355136 | yes | 0 | 3 | 3 | 3 of 3 | 6
 lattice-vs-scalar-rounding-2026-11-15 | 195f06e | 0 | 1c3d4c9 | yes | 0 | 0 | 0 | 0 of 0 | 1
+mmlu-subset-2026-11-18 | e81eafa | 0 | none yet | yes | 0 | 0 | 0 | 0 of 0 | 0
 model-output-gemma-e4b-2026-11-15 | 60ec5aa | 0 | eac9d89 | yes | 6 | 2 | 2 | 2 of 2 | 5
 model-output-qwen25-2026-11-17 | 81b83d2 | 0 | 8de998d | yes | 0 | 1 | 1 | 1 of 1 | 8
 model-output-smollm2-2026-11-17 | 14726fd | 0 | acc5c55 | yes | 0 | 0 | 0 | 0 of 0 | 0
 output-budget-gemma-e4b-2026-11-17 | ec636b1 | 0 | c253666 | yes | 0 | 2 | 2 | 2 of 2 | 10
+packed-ball-format-2026-11-18 | 4d3995c | 0 | none yet | yes | 0 | 0 | 0 | 0 of 0 | 0
 region-shapes-no-clip-rule-2026-11-17 | 6964d05 | 0 | dfe9da0 | yes | 0 | 0 | 0 | 0 of 0 | 0
 shape-formula-held-out-2026-11-17 | 41e4480 | 3 | 997a182 | yes | 0 | 1 | 1 | 1 of 1 | 1
 
 Data committed with a plan, each change to a plan, and each program changed after the first data
+  clip-by-layer-qwen25-2026-11-18: 1 data files were committed with the first plan: weights_only.jsonl
   e8-gain-largest-entry-rule-2026-11-17: program detail.py changed at 3bc2de2 after the first data
   fold-path-codebooks-2026-11-17: plan changed at cda52eb (2026-11-17T10:27), new data followed, named in the README. Fold study: amendment 1 of the plan, before any matrix is rounded
   imatrix-baseline-2026-11-17: plan changed at 79fb0cc (2026-11-17T22:16), new data followed, named in the README. Importance-matrix baseline: extension 1, the ball arm given the same matrix

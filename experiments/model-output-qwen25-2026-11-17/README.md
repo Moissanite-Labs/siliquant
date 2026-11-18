@@ -12,7 +12,7 @@ Four records of 2026-11-17 then found, on weight error only, that most of E8's g
 
 ## Status
 
-`partial`. 27 of 32 variants are scored: all of the first plan, 9 of the 14 arms of the second and all 7 of its extension. The five arms not yet scored are `EC128@R:16`, `EB128@R:32`, `EB8@32:16`, `PaB8@32:16` and `SEB8@32:16`. They are queued and this record will be completed when they are in. One model, one text. No arm has a packed format: bits are counted from the codebook and the rounded weights are scored from 16-bit float copies.
+`complete`, 2026-11-18. All 32 variants are scored: the 11 of the first plan, the 14 arms of the second and the 7 of its extension. 15 of the 20 predictions hold. One model, one text. No arm has a packed format: bits are counted from the codebook and the rounded weights are scored from 16-bit float copies.
 
 ## Preregistration
 
@@ -21,7 +21,7 @@ Three plans, each committed and pushed before its variants were scored.
 | Plan | Commit | Covers | Predictions that hold |
 |---|---|---|---|
 | [PREREG.md](PREREG.md) | `81b83d2` | issue #3 as written: 11 variants | 3 of 6 |
-| [PREREG-arms.md](PREREG-arms.md) | `81b83d2` | 14 arms from the weight-error records | 6 of 6 scored so far, 1 not reached |
+| [PREREG-arms.md](PREREG-arms.md) | `81b83d2` | 14 arms from the weight-error records | 6 of 7 |
 | Extension 1 of the second | `7ba09a0`, with 14 variants seen | 7 arms: a codeword at zero, and bits split freely between the point and the scale | 6 of 7 |
 
 The extension was written after the first results. It says which, and its predictions are not blind to them.
@@ -34,6 +34,7 @@ The extension was written after the first results. It says which, and its predic
 4. **Integer levels with no lattice get nearly all of it.** In the same ball they score 0.0227 at 4.5 bits, 11 errors of the gap ahead of `Q4_K_M`. E8 is worth 0.66 dB of KL over them, which is its cell.
 5. **At 4.0 bits one ball per group is under `Q4_0` at 4.5 bits and close to `Q4_K_M` at 4.81**: 0.0371.
 6. **For the arms with one ball per group, weight error did say what the output does.** Over nine such arms, from 4.0 to 4.5 bits and with groups of 32 and 128, the gain in KL over the scalar rule is 0.91 to 1.08 times the gain in weight error. Their weight error is known before anything is rounded. For other arms it did not: the Voronoi code with and without a codeword at zero have the same weight error and a factor of 17 between their KL.
+7. **A ball over 8 weights is not enough.** E8 in a ball over 8 weights with a scale per 32 scores 0.0462 at 4.5 bits, where one ball over the 32 scores 0.0339. The length of the block is where the gain is, as the weight-error record said.
 
 ## The model, the text and the scoring
 
@@ -54,7 +55,8 @@ The extension was written after the first results. It says which, and its predic
 | `VE8Z...` | the same with a codeword at zero |
 | `EB32@32:16`, `ZB32@32:16`, `EC32@32:16` | E8, or integer levels, in one ball (B) or cross-polytope (C) per group of 32, with as many points as 16 levels and a 16-bit scale |
 | `EB128@128:16`, `ZB128@128:16` | the same per group of 128 |
-| `EB128@R:16`, `ZB128@R:16` | a ball over 128 weights, one scale per row |
+| `EB128@R:16`, `ZB128@R:16`, `EC128@R:16`, `EB128@R:32` | a ball or a cross-polytope over 128 weights, one scale per row, with as many points as 16 or 32 levels |
+| `EB8@32:16`, `PaB8@32:16`, `SEB8@32:16` | E8 in a region over 8 weights, one scale per 32: a ball, the ball of the 3/2-norm, and a ball at the closed-form scale of the record for issue #10, which never shrinks a block |
 | `EBG128:b560s16` | E8 in one ball per group of 128, 560 bits for the point and 16 for the scale |
 | `EBG32:b136s8`, `EBG128:b504s8` | the same with an 8-bit scale: the scale is rounded up to a grid of 16 steps per factor of two |
 | `ZBG128:b560s16` | integer levels in place of E8 |
@@ -157,6 +159,21 @@ Read down the last column. Whatever the bits, the group and the lattice, a decib
 
 The two large steps are the ball and the bits. An arm with 16 levels and a 16-bit scale per 32 weights spends half a bit a weight on the scale. The lattice is worth a third to two thirds of a decibel.
 
+### Regions over 8 weights with one scale per 32
+
+The last three arms of the second plan. Each block of 8 weights is rounded to E8 inside a region, and four blocks share a scale.
+
+| Arm | Bits | Weight error, dB | Mean KL | First choice kept | KL gain over `X32:16`, dB | Weight error gain, dB | Ratio |
+|---|---|---|---|---|---|---|---|
+| `EB8@32:16`, a ball | 4.494 | -22.49 | 0.0462 | 89.43% | 1.28 | 1.82 | 0.71 |
+| `PaB8@32:16`, the ball of the 3/2-norm | 4.500 | -22.62 | 0.0424 | 89.51% | 1.65 | 1.95 | 0.85 |
+| `SEB8@32:16`, a ball at the safe scale | 4.494 | -22.10 | 0.0426 | 89.75% | 1.63 | 1.43 | 1.14 |
+| for scale: `EB32@32:16`, one ball over the 32 | 4.498 | -23.55 | 0.0339 | 90.85% | 2.62 | 2.88 | 0.91 |
+
+- **All three are behind one ball over the 32 weights**, by 9.7 errors for the ball over 8. They are level with the Voronoi code that has a codeword at zero (0.0434) and ahead of the code of the harness (0.0551).
+- **The safe scale did not cost output.** Its weight error is 0.39 dB worse than the fitted scale's and its KL is 2.7 errors lower. The prediction was the other way (A7) and it fails. A gap of 2.7 errors is a tie by this record's own limits, so what the rows say is that the safe scale is no worse.
+- The 3/2-norm ball and the safe-scale ball are level with each other: 0.2 errors.
+
 ### The size of the group
 
 | Group | Scalar rule | E8 Voronoi code of the harness | E8 in one ball per group | Integer levels in one ball per group |
@@ -168,15 +185,17 @@ For the scalar rule and the Voronoi code a larger group costs more than the bits
 
 **One scale per row.** With a ball over 128 weights and one scale per row, E8 scores 0.0577 and integer levels 0.0683 at 4.008 bits. The scalar rule per row scores 0.632 and the Voronoi code with a codeword at zero 0.209. These arms gain 1.5 times their weight-error gain in KL, where the arms with one ball per group gain 1.0 times.
 
+Two more arms per row, scored last. **A cross-polytope in place of the ball**, `EC128@R:16`, scores 0.0487: 5.5 errors under the ball at the same bits, with a weight error 0.14 dB lower. With groups of 32 the two regions tied. **At 32 levels**, `EB128@R:32` scores 0.0163 at 5.008 bits, the lowest KL of the run, and keeps the first choice on 93.9 percent of positions. It is 20.3 errors under `Q4_K_M` at 4.81 bits. The Voronoi code of the harness at the same bits scores 1.041.
+
 ### Weight error against the output
 
 Not planned. Spearman's rank correlation between mean weight error and mean KL:
 
 | Variants | How many | Correlation |
 |---|---|---|
-| all that have both | 25 | 0.810 |
-| at 4.49 to 4.50 bits | 9 | 0.983 |
-| under 4.2 bits | 10 | 0.976 |
+| all that have both | 30 | 0.829 |
+| at 4.49 to 4.50 bits | 12 | 0.937 |
+| under 4.2 bits | 11 | 0.982 |
 
 Within one bit point weight error ranks the arms nearly as the output does, with the code of the harness per row as the exception. Across group sizes it does not: `XR:32` and `X32:16` have the same weight error, -20.7 dB, and KL of 0.129 and 0.062.
 
@@ -205,7 +224,7 @@ Of the 18 predictions of the gemma record, five have a counterpart here: B1 is P
 | A4 | `EB128@128:16` at 4.124 bits is under `X32:16` at 4.5 | 0.0331 against 0.0620 | yes |
 | A5 | `EB128@R:16` is under `VE8R:16` by 2 errors | 0.0577 against 3.6580 | yes |
 | A6 | With groups of 128 the scalar rule and the Voronoi code have a higher KL than with 32 | 0.1003 over 0.0620, and 0.1014 over 0.0551 | yes |
-| A7 | `SEB8@32:16` is above `EB8@32:16` | | not reached |
+| A7 | `SEB8@32:16` is above `EB8@32:16` | 0.0426 against 0.0462: lower, by 2.7 errors | **no** |
 
 A5 is true and says little: `VE8R:16` is the broken arm. Against the code with a codeword at zero, `EB128@R:16` is still lower by 43.7 errors.
 
@@ -223,18 +242,18 @@ A5 is true and says little: `VE8R:16` is the broken arm. Against the code with a
 
 ## Deviations from the plans
 
-- **The run was started four times.** A launch on this machine is cut at two hours, the machine restarted once, and two starts were to change the order of what was left. `run.py` skips variants already in `results.jsonl`. `results.start` lists every start with its commit. One variant, `EC32@32:16`, was cut during scoring and built again from the start.
-- **The order of the second plan's arms was changed**, by extension 1, before any of the arms concerned was scored. The five arms that decide least were put last and are not scored yet.
-- **`run.py` was changed after the first data**, at `7ba09a0`, to add the arms of the extension. The code of the planned arms was not changed. `summary.py` was written after 3 variants and changed four times: for one table that no plan asked for, for the order of its tables, for the extension's predictions, and for two labels.
+- **The run was started eight times.** A launch on this machine is cut at two hours, the machine restarted once, two starts were to change the order of what was left, and four were to let other records' runs go first. `run.py` skips variants already in `results.jsonl`. `results.start` lists every start with its commit. One variant, `EC32@32:16`, was cut during scoring and built again from the start.
+- **The order of the second plan's arms was changed**, by extension 1, before any of the arms concerned was scored. The five arms that decide least were put last. They were scored on 2026-11-18, after the runs of the third model and of the importance-matrix record.
+- **`run.py` was changed after the first data**, at `7ba09a0`, to add the arms of the extension, and three times more for the record imatrix-baseline-2026-11-17 (`79fb0cc`, `84b38d0`, `b148352`): that record's arms, and a results file that can hold two models. The code of the planned arms was not changed. `summary.py` was written after 3 variants and changed four times: for one table that no plan asked for, for the order of its tables, for the extension's predictions, and for two labels.
 - **Three analyses were not planned**: `rows.py`, `centre.py`, and the rank table. Each is marked where it is used. `rows.py` was written with 13 variants seen and its output was read only after the extension's predictions were committed.
 - **A second scoring process was started by mistake** while a variant was being scored, for another model. The machine killed it for lack of memory after five seconds. The variant being scored finished, and its row is `EBG32:b136s8`.
 - **Other work shared the machine.** A weight-error study and the programs above ran at low priority beside this run. They change build times and nothing else.
 
 ## Limits
 
-- **One model and one text.** No ball arm was scored on gemma, whose file is not on this machine. A third model is planned in the record model-output-smollm2-2026-11-17.
+- **One model and one text.** No ball arm was scored on gemma, whose file is not on this machine. A third model is in the record model-output-smollm2-2026-11-17: result 3 holds there, and results 2, 4 and 6 do not carry as they stand.
 - **Counted bits.** No arm of this repository has a packed file. `shape/ballindex.py` numbers the points of a ball-cut codebook one to one, so the bits can be stored. Reading a block back takes 6 to 11 look-ups a weight in numbers as long as the block's index, each waiting on the one before. Nothing here says how fast that can be made, or that a kernel could compute from it. As things stand the saving is in the file and not in memory.
-- **No calibration on either side.** llama.cpp's files were made without an importance matrix, as in the gemma record. With one they would score better. That comparison is issue #14 and has its own plan, `experiments/imatrix-baseline-2026-11-17`.
+- **No calibration on either side.** llama.cpp's files were made without an importance matrix, as in the gemma record. With one they score better: 0.0282 for `Q4_K_M` on this model, still behind the ball arms. That comparison is the record imatrix-baseline-2026-11-17.
 - **The standard errors are too small.** They treat 10,200 positions of 40 passages as independent. Gaps of 2 or 3 errors should be read as ties. The findings above rest on gaps of 10 errors or more, except E8's win with groups of 32 as the harness has it, which is 2.8.
 - **The reference is the 16-bit file**, and rounded weights are stored as 16-bit floats. In the gemma record the reference was an 8-bit file.
 - **The backend differs from the gemma run**: CPU here, Metal there. The tool is the same. Model, text, reference and backend all changed, so a difference between the two records cannot be put down to one of them.
@@ -250,12 +269,12 @@ Nothing is closed by a certificate. These are measurements on one model.
 - The finding of the records of 2026-11-17, that the gain under this rule is in the region and the length of the block more than in the lattice, carries to the output of this model, one for one in decibels.
 - "Weight error does not say what the output does" needs a qualifier. For one family of arms on this model it does, to a tenth of a decibel. For others it does not, by a factor of 17.
 
-**What follows.**
+**What followed.**
 
-1. The third model, to see whether result 3 is a property of this one.
-2. Issue #14: llama.cpp's files with an importance matrix.
-3. A change to the harness, proposed and not made here: a codeword at zero as the default of `tq.maxscale_voronoi`, with the gemma arms scored again by whoever has the file.
-4. Only then a packed format. The limits above say what it would have to settle first.
+1. The third model, `SmolLM2-1.7B-Instruct`: record model-output-smollm2-2026-11-17. One ball per group beats `Q4_K_M` there too. Integer levels are ahead of E8 there, and the harness's code is not broken per row.
+2. Issue #14, llama.cpp's files with an importance matrix: record imatrix-baseline-2026-11-17.
+3. The codeword at zero is proposed for the harness in issue #16, and not as its default: on the third model it is level per row and a little worse with groups of 32. The gemma arms have not been scored both ways.
+4. A packed format for the integer arm: `shape/ballpack.py`, with a plan to score a model read back from the file in `experiments/packed-ball-format-2026-11-18`.
 
 ## How to rerun
 
@@ -277,4 +296,4 @@ A variant takes 5 minutes to score on 4 CPU cores and up to 12 to build. `rows.p
 
 ## Disclosure
 
-Written by an AI agent session under the owner's direction, on 2026-11-17. The plans, the programs, the run and this record are the session's.
+Written by an AI agent session under the owner's direction, on 2026-11-17 and 2026-11-18. The plans, the programs, the run and this record are the session's.
