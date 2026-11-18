@@ -2,7 +2,7 @@
 """Tables and verdicts for the third model, Llama-3.2-1B-Instruct, from the two results files and forecast.out.
 
 results-wikitext.jsonl holds the variants scored on the wikitext-2 test text and results-python.jsonl the same variants
-scored on the Python text of the record second-text-python-2026-11-18. Scores the predictions L1 to L6 of PREREG.md by
+scored on the Python text of the record second-text-python-2026-11-18. Scores the predictions L1 to L6 of PREREG.md, and X1 and X2 of its extension 1, by
 the rules written there. Every number is a field of one of those files or arithmetic on two of them.
 
 Usage, from the root of a checkout:
@@ -82,6 +82,8 @@ def main():
             print(f"the ball arm: the training text's matrix is under no matrix by {gap(bi, b):.1f} errors")
         if b and br:
             print(f"the ball arm: the matrix of no meaning is under no matrix by {gap(br, b):.1f} errors")
+        if b and bi and br:
+            print(f"the ball arm: the matrix of no meaning buys {100 * (b['kl_mean'] - br['kl_mean']) / (b['kl_mean'] - bi['kl_mean']):.1f} percent of what the training text's matrix buys")
         if q and qi:
             print(f"Q4_K_M: the training text's matrix is under no matrix by {gap(qi, q):.1f} errors")
         if q and qr:
@@ -103,10 +105,29 @@ def main():
             print(f"L5: the share is {share:.1f}, 20 or less, so the prediction is that neither matrix puts the ball arm under the plain arm by 2 errors on the Python text")
         else:
             print(f"L5: the share is {share:.1f}, between 20 and 40, where the plan makes no prediction")
+    rows = load(HERE / "results-wikitext.jsonl")
+    parts = (("the attention's readers", "ZBG128:b560s16+h@attn_q,attn_k,attn_v"), ("the feed-forward readers", "ZBG128:b560s16+h@ffn_gate,ffn_up"),
+             ("the writers", "ZBG128:b560s16+h@attn_output,ffn_down"))
+    b, bi = w.get(key("none")), w.get(key("wikitext-2 training text"))
+    if b and bi and any(v in rows for _, v in parts):
+        print()
+        print("Extension 1, on the wikitext-2 test text: the ball arm with columns weighted by the training text's matrix on some kinds of matrix only")
+        print("weighted | mean KL | its standard error | under the plain arm by, percent | in errors of the gap | share of the whole gain, percent")
+        shares = {}
+        for label, v in parts:
+            if v in rows:
+                r = rows[v]
+                shares[label] = (b["kl_mean"] - r["kl_mean"]) / (b["kl_mean"] - bi["kl_mean"])
+                print(f"{label} | {r['kl_mean']:.6f} | {r['kl_mean_se']:.6f} | {100 * (1 - r['kl_mean'] / b['kl_mean']):.1f} | {gap(r, b):.1f} | {100 * shares[label]:.1f}")
+        if len(shares) == 3:
+            total = sum(shares.values())
+            print(f"the three shares add up to {100 * total:.1f} percent of the whole gain. On SmolLM2 they were 68.5, 9.5 and 21.9, together 99.9")
+            verdict["X1"] = shares["the writers"] == max(shares.values())
+            verdict["X2"] = 0.75 <= total <= 1.25
     print()
-    print("The predictions of PREREG.md")
+    print("The predictions of PREREG.md and of its extension 1")
     print("prediction | holds")
-    names = ("L1", "L2", "L3", "L4", "L5", "L6")
+    names = ("L1", "L2", "L3", "L4", "L5", "L6", "X1", "X2")
     for n in names:
         print(f"{n} | {'not scored' if n not in verdict else ('yes' if verdict[n] else 'NO')}")
     print(f"hold: {sum(1 for v in verdict.values() if v)} of {len(names)}")

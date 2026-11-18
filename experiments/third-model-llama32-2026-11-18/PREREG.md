@@ -62,3 +62,22 @@ My confidence: fair in L1 and L2. The same comparison was 9 to 15 errors on the 
 ## Order and time
 
 One process at a time: the two reference passes, the two matrices, the forecast, the three `Q4_K_M` files, then six variants on the wikitext text and six on the Python text. About an hour and a quarter.
+
+## Extension 1: which matrices the gain is in, on this model
+
+Written 2026-11-18 with all twelve rows of the plan in, and before any variant of this extension was scored.
+
+**What the plan found, in short.** With no matrix the ball arm is behind `Q4_K_M` on this model, on both texts: L1 and L2 fail. With a matrix on its side, from Wikipedia or from noise, it is far ahead, and the matrix halves its KL. The share that L5 is keyed on is 13.8 percent, so the rule said the matrix would not help on Python. It helps by 24 to 27 errors: L5 fails.
+
+So the rule was wrong, and the question is why. On SmolLM2 the gain was in the three matrices through which the attention reads the stream, 68.5 percent of it, and the share measures exactly that input. If on this model the gain is somewhere else, the share was the wrong figure to look at.
+
+**What the forecast says** (`forecast.out`, committed before any score). Counted by the training text's activity, the weighted arm gains 1.0 to 1.8 dB on the attention's readers, 0.4 and 0.5 dB on the feed-forward readers, and 1.19 and 2.04 dB on the two writers, `attn_output` and `ffn_down`. On SmolLM2 it was 3.8 to 4.5, 0.8 and 0.9, and 1.0 and 1.4. So here the forecast puts most on a writer, `ffn_down`.
+
+**Three variants**, on the wikitext-2 test text, as Part A of the record imatrix-gain-parts-2026-11-18: the weighted arm on the attention's readers only, on the feed-forward readers only, and on the writers only, with the plain arm on the rest. By that record's program through `run_rand.py`. `summary.py` was extended to print them, and to print the noise matrix's share for the ball arm.
+
+| | Prediction | It fails if |
+|---|---|---|
+| X1 | The writers hold the largest of the three shares of the whole gain | another part holds more |
+| X2 | The three shares sum to between 0.75 and 1.25 of the whole gain | the sum is outside |
+
+My confidence: low in X1. The forecast was right about which part on SmolLM2 and wrong about sizes, and on this model it under-called the whole gain. Fair in X2: on SmolLM2 the parts summed to 0.999.
