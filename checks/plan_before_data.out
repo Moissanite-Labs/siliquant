@@ -1,16 +1,18 @@
 Plans and data in the order git has them, for every record under experiments/
-head 54f45c1
+head 115cb9e
 
 record | first plan | data files committed with it | first data after it | plan before data | plan changed before first data | plan changed after first data | of those, followed by new data | named in the README | programs changed after first data
 ball-dimension-no-clip-rule-2026-11-17 | 5398096 | 0 | 801a4c6 | yes | 0 | 0 | 0 | 0 of 0 | 0
 bit-split-held-out-qwen25-2026-11-18 | 4ce900b | 0 | 07c66d9 | yes | 0 | 0 | 0 | 0 of 0 | 0
 clip-by-layer-qwen25-2026-11-18 | 4ce900b | 1 | 681972b | yes | 0 | 0 | 0 | 0 of 0 | 0
+clip-by-layer-smollm2-2026-11-18 | a6598fa | 2 | edbf5bb | yes | 0 | 0 | 0 | 0 of 0 | 0
 e8-gain-largest-entry-rule-2026-11-17 | 61c552b | 0 | affbdfd | yes | 0 | 0 | 0 | 0 of 0 | 1
 fold-path-codebooks-2026-11-17 | cae753e | 0 | cda52eb | yes | 0 | 1 | 1 | 1 of 1 | 0
 imatrix-baseline-2026-11-17 | 86a18b5 | 0 | ee48f57 | yes | 0 | 2 | 2 | 2 of 2 | 2
 incentre-vortex-codebooks-2026-11-17 | 61c552b | 0 | 8d709ad | yes | 2 | 0 | 0 | 0 of 0 | 0
 lattice-split-smollm2-2026-11-17 | eac2ef2 | 0 | 0355136 | yes | 0 | 3 | 3 | 3 of 3 | 6
 lattice-vs-scalar-rounding-2026-11-15 | 195f06e | 0 | 1c3d4c9 | yes | 0 | 0 | 0 | 0 of 0 | 1
+loud-columns-2026-11-18 | none | - | none | no plan file | - | - | - | - | -
 mmlu-subset-2026-11-18 | e81eafa | 0 | 968ddbb | yes | 0 | 0 | 0 | 0 of 0 | 0
 model-output-gemma-e4b-2026-11-15 | 60ec5aa | 0 | eac9d89 | yes | 6 | 2 | 2 | 2 of 2 | 5
 model-output-qwen25-2026-11-17 | 81b83d2 | 0 | 8de998d | yes | 0 | 1 | 1 | 1 of 1 | 8
@@ -22,6 +24,7 @@ shape-formula-held-out-2026-11-17 | 41e4480 | 3 | 997a182 | yes | 0 | 1 | 1 | 1 
 
 Data committed with a plan, each change to a plan, and each program changed after the first data
   clip-by-layer-qwen25-2026-11-18: 1 data files were committed with the first plan: weights_only.jsonl
+  clip-by-layer-smollm2-2026-11-18: 2 data files were committed with the first plan: columns.out, weights_only.jsonl
   e8-gain-largest-entry-rule-2026-11-17: program detail.py changed at 3bc2de2 after the first data
   fold-path-codebooks-2026-11-17: plan changed at cda52eb (2026-11-17T10:27), new data followed, named in the README. Fold study: amendment 1 of the plan, before any matrix is rounded
   imatrix-baseline-2026-11-17: plan changed at 79fb0cc (2026-11-17T22:16), new data followed, named in the README. Importance-matrix baseline: extension 1, the ball arm given the same matrix
@@ -40,6 +43,7 @@ Data committed with a plan, each change to a plan, and each program changed afte
   lattice-split-smollm2-2026-11-17: program run.py changed at 07ffdaf after the first data
   lattice-split-smollm2-2026-11-17: program summary.py changed at 07ffdaf after the first data
   lattice-vs-scalar-rounding-2026-11-15: program detail.py changed at 7815d19 after the first data
+  loud-columns-2026-11-18: no PREREG file. The record has to say it was not preregistered.
   model-output-gemma-e4b-2026-11-15: plan changed at d864dee (2026-11-15T18:46), before the first data was committed. Model output run: round 2 plan, before round 2 is scored
   model-output-gemma-e4b-2026-11-15: plan changed at 7d53f77 (2026-11-15T18:47), before the first data was committed. Plan: correct the time stated for round 2 to the commit's own
   model-output-gemma-e4b-2026-11-15: plan changed at d7764c9 (2026-11-15T19:00), before the first data was committed. Model output run: round 3 plan, before round 3 is scored
