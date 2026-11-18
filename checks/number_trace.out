@@ -23,9 +23,10 @@ model-output-smollm2-2026-11-17 | 218 | 206 | 0 | 3 | 9 | 0 | 0 | 181 | 25
 output-budget-gemma-e4b-2026-11-17 | 424 | 423 | 0 | 1 | 0 | 0 | 0 | 349 | 129
 packed-ball-format-2026-11-18 | 138 | 124 | 1 | 5 | 8 | 0 | 0 | 84 | 6
 region-shapes-no-clip-rule-2026-11-17 | 200 | 199 | 0 | 0 | 1 | 0 | 0 | 180 | 139
+second-text-python-2026-11-18 | 126 | 117 | 1 | 0 | 8 | 0 | 0 | 57 | 6
 shape-formula-held-out-2026-11-17 | 310 | 305 | 4 | 0 | 1 | 0 | 0 | 226 | 223
 
-in all: 4623 numbers, 1 not found
+in all: 4749 numbers, 1 not found
 
 Not found, with two decimals or more: the line of the README, the number, and where it stands
   incentre-vortex-codebooks-2026-11-17
@@ -52,6 +53,7 @@ model-output-smollm2-2026-11-17 | 43 | 32 | 11 | 25 of 32
 output-budget-gemma-e4b-2026-11-17 | 75 | 61 | 14 | 45 of 61
 packed-ball-format-2026-11-18 | 22 | 7 | 15 | 7 of 7
 region-shapes-no-clip-rule-2026-11-17 | 38 | 9 | 29 | 5 of 9
+second-text-python-2026-11-18 | 24 | 18 | 6 | 18 of 18
 shape-formula-held-out-2026-11-17 | 61 | 43 | 18 | 5 of 43
 
 Lines not covered by two output lines: the line of the README, how many of its numbers the best two lines hold, and its numbers
@@ -306,6 +308,13 @@ Lines not covered by two output lines: the line of the README, how many of its n
     line 100: 3 of 11   0.3 0.22 0.62 0.06 0.34 1.58 1.64 2.82 2.48 0.80 0.92
     line 102: 4 of 8   0.59 0.80 0.81 0.76 0.89 0.3 0.6 0.65
     line 112: 5 of 9   0.650 +0.91 +0.77 0.651 0.662 0.07 3.18 2.19 1.04
+  second-text-python-2026-11-18
+    line 23: 2 of 6   13.2 9.3 11.2 5.0 8.7 3.6
+    line 24: 3 of 4   99.3 95.1 1.6 3.5
+    line 25: 2 of 6   0.0140 0.0154 0.0162 2.2 3.0 2.3
+    line 27: 2 of 5   0.56 0.74 4.1 9.4 9.2
+    line 83: 2 of 4   2.3 2.2 2.8 5.5
+    line 108: 2 of 3   3.6 2.2 3.0
   shape-formula-held-out-2026-11-17
     line 30: 2 of 3   0.3 96.6 0.085
     line 91: 7 of 9   0.75 0.75 0.61 0.56 2.43 0.75 0.61 0.56 2.43
