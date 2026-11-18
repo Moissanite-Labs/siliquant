@@ -61,7 +61,7 @@ The conventions are those of [weft-loom's CONTRIBUTING.md](https://github.com/Mo
 
 ## Status
 
-Nineteen studies so far. The newest results are at the end of this section.
+Twenty studies so far. The newest results are at the end of this section.
 
 The first measured weight error only: at 2 bits per weight the lattice E8 beats scalar rounding on every matrix tried, and the lattice the starting briefs proposed, A8\*, gains less than half as much in the mean of each family of data.
 
@@ -156,6 +156,13 @@ The nineteenth, of 2026-11-18, asks what those matrices have that a clip must no
 - **On SmolLM2 it is a handful of weights.** The clip in ten columns of layer 1, 41 entries, costs a mean KL of 1.449. The clip everywhere else in that matrix costs 0.0003. Two weights of one hidden unit cost 1.175 by themselves.
 - **On Qwen2.5 it is ten columns in layer 1 and not in the last layer.** On gemma it was not the ten units either.
 - **It hardly matters to rounding.** With those columns left whole the ball arm on SmolLM2 scores 0.0528 against 0.0560, where I predicted a gain of at least 20 percent. They are a ninth of what an importance matrix gains on that model.
+
+The twentieth, of 2026-11-18, asks what an importance matrix's gain is made of. It belongs to issue #14.
+
+- **On SmolLM2 two thirds of it is in three matrices.** With only the matrices through which the attention reads the stream weighted, 18.75 percent of the weights, the ball arm gets 68.5 percent of the whole gain. What the attention reads there sits in ten dimensions of 2,048.
+- **The matrix does not need a text with a meaning.** Made from random pieces of the model's own vocabulary, it buys the ball arm 88.6 percent of what the wikitext matrix buys on SmolLM2, and llama.cpp's `Q4_K_M` 95.5 percent. On Qwen2.5 it does the ball arm neither good nor harm.
+- **So with no text read, the ball arm at 4.5 bits is under `Q4_K_M` made with real text on both models**: 0.0314 against 0.0378 and 0.0228 against 0.0282. As a packed file it is ahead on Qwen2.5 and level on SmolLM2, where I predicted ahead on both.
+- The model is still run, on 51,200 tokens of noise. No dataset is needed. Forward passes are.
 
 ## Licence
 

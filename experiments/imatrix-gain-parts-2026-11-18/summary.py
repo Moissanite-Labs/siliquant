@@ -97,10 +97,10 @@ def main():
             share = (b["kl_mean"] - br["kl_mean"]) / (b["kl_mean"] - bi["kl_mean"])
             if m == SMOL:
                 verdict["R1"] = share >= 0.5
-                print(f"{SHORT[m]}, not predicted: the ball arm with the matrix of no meaning against llama.cpp Q4_K_M with the matrix of the training text: "
-                      f"{br['kl_mean']:.6f} against {qi['kl_mean']:.6f}, under it by {gap(br, qi):.1f} errors")
             else:
                 verdict["R2"] = -gap(br, b) < 2
+            print(f"{SHORT[m]}, not predicted: the ball arm with the matrix of no meaning against llama.cpp Q4_K_M with the matrix of the training text: "
+                  f"{br['kl_mean']:.6f} against {qi['kl_mean']:.6f}, under it by {gap(br, qi):.1f} errors")
         rd = mine[m].get(READERS)
         if rd and m == SMOL and br:
             print(f"{SHORT[m]}, extension 1: the matrix of no meaning on the readers only against on every kind: {rd['kl_mean']:.6f} against {br['kl_mean']:.6f}, above it by {-gap(rd, br):.1f} errors")
@@ -118,11 +118,14 @@ def main():
     print("model | matrix | bytes of the file | bits a weight | mean KL | its standard error | first choice kept, percent | under llama.cpp Q4_K_M with the training text's matrix by, in errors")
     for m in (SMOL, QWEN):
         qi = imat[m].get(f"file:{TAG[m]}-Q4_K_M-imat.gguf")
-        for label, r in (("wikitext-2 training text, from the packed-format record", load(PACKED, m).get(FILE)), ("no meaning", load(HERE / "packed.jsonl", m).get(FILE))):
+        for label, r in (("none, from the packed-format record", load(PACKED, m).get(FILE[1:])), ("wikitext-2 training text, from the packed-format record", load(PACKED, m).get(FILE)),
+                         ("no meaning", load(HERE / "packed.jsonl", m).get(FILE))):
             if r:
                 print(f"{SHORT[m]} | {label} | {r['file_bytes']} | {r['stored_bits_per_weight']:.5f} | {r['kl_mean']:.6f} | {r['kl_mean_se']:.6f} | {r['same_top']:.2f} | {gap(r, qi):.1f}")
                 if label == "no meaning":
                     verdict["F1" if m == SMOL else "F2"] = gap(r, qi) >= 2
+                    none = load(PACKED, m).get(FILE[1:])
+                    print(f"{SHORT[m]}, not predicted: the file made with the matrix of no meaning against the file made with no matrix: {r['kl_mean']:.6f} against {none['kl_mean']:.6f}, under it by {gap(r, none):.1f} errors")
     print()
     print("The predictions of PREREG.md and of its extensions 1 and 2")
     print("prediction | holds")
