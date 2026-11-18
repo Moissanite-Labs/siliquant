@@ -1,5 +1,5 @@
 Plans and data in the order git has them, for every record under experiments/
-head f3fe7bf
+head 330979f
 
 record | first plan | data files committed with it | first data after it | plan before data | plan changed before first data | plan changed after first data | of those, followed by new data | named in the README | programs changed after first data
 ball-dimension-no-clip-rule-2026-11-17 | 5398096 | 0 | 801a4c6 | yes | 0 | 0 | 0 | 0 of 0 | 0
@@ -9,7 +9,7 @@ clip-by-layer-smollm2-2026-11-18 | a6598fa | 2 | edbf5bb | yes | 0 | 0 | 0 | 0 o
 e8-gain-largest-entry-rule-2026-11-17 | 61c552b | 0 | affbdfd | yes | 0 | 0 | 0 | 0 of 0 | 1
 fold-path-codebooks-2026-11-17 | cae753e | 0 | cda52eb | yes | 0 | 1 | 1 | 1 of 1 | 0
 imatrix-baseline-2026-11-17 | 86a18b5 | 0 | ee48f57 | yes | 0 | 2 | 2 | 2 of 2 | 2
-imatrix-gain-parts-2026-11-18 | 453d907 | 1 | 0cdc5f4 | yes | 0 | 2 | 2 | 2 of 2 | 5
+imatrix-gain-parts-2026-11-18 | 453d907 | 1 | 0cdc5f4 | yes | 0 | 2 | 2 | 2 of 2 | 6
 incentre-vortex-codebooks-2026-11-17 | 61c552b | 0 | 8d709ad | yes | 2 | 0 | 0 | 0 of 0 | 0
 lattice-split-smollm2-2026-11-17 | eac2ef2 | 0 | 0355136 | yes | 0 | 3 | 3 | 3 of 3 | 6
 lattice-vs-scalar-rounding-2026-11-15 | 195f06e | 0 | 1c3d4c9 | yes | 0 | 0 | 0 | 0 of 0 | 1
@@ -40,6 +40,7 @@ Data committed with a plan, each change to a plan, and each program changed afte
   imatrix-gain-parts-2026-11-18: program summary.py changed at 932781d after the first data
   imatrix-gain-parts-2026-11-18: program run.py changed at 2edd30c after the first data
   imatrix-gain-parts-2026-11-18: program summary.py changed at f3fe7bf after the first data
+  imatrix-gain-parts-2026-11-18: program summary.py changed at 330979f after the first data
   incentre-vortex-codebooks-2026-11-17: plan changed at fb54260 (2026-11-17T04:16), before the first data was committed. Codebook study: extension 1 of the plan, before it is scored
   incentre-vortex-codebooks-2026-11-17: plan changed at b56c08e (2026-11-17T04:46), before the first data was committed. Codebook study: amendment 1 of the plan, a smaller run, before any result
   lattice-split-smollm2-2026-11-17: plan changed at e1f4dac (2026-11-17T22:32), new data followed, named in the README. Lattice split on SmolLM2, extension 1: is it the weights rounded to zero? The plan, before
