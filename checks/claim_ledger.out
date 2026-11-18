@@ -3,6 +3,7 @@ kinds: recomputed, proved, derived, checked, reported, record, source, search, r
 
 note | rows | of them recomputed or proved | name a file that exists | name a record only | name neither | parts of a Basis outside the list | rows that could not be read
 notes/brief-check.md | 19 | 7 | 7 | 0 | 0 | 0 | 0
+notes/issue10-followup.md | 0 | 0 | 0 | 0 | 0 | 0 | 0
 notes/issue10-proposal-check.md | 43 | 15 | 1 | 14 | 0 | 0 | 0
 notes/issue15-proposal-check.md | 15 | 10 | 10 | 0 | 0 | 0 | 0
 notes/pr6-proposal-check.md | 43 | 10 | 10 | 0 | 0 | 0 | 0

@@ -113,6 +113,67 @@ def main():
     else:
         print(f"J4 | iZBG128:b560s16 no worse than hZBG128:b560s16 by 2 errors, on Qwen2.5 and SmolLM2: {zs[0]:+.1f}, {zs[1]:+.1f} errors | {'yes' if all(z > -2.0 for z in zs) else 'NO'}")
 
+    validation(verdicts)
+
+
+def validation(verdicts):
+    """Extension 2: the five strengths on the validation text, the choice by the plan's rule, and K1 to K3."""
+    path = HERE / "validation.jsonl"
+    if not path.exists():
+        return
+    print()
+    print("Extension 2: the strength of the weighting on the wikitext-2 validation text, 10,200 positions")
+    strengths = ("0", "15", "25", "35", "50")
+    table = {}
+    for title, key, _, short in MODELS:
+        rows = load(path, key)
+        for p in strengths:
+            table[(short, p)] = rows.get(f"wZBG128:b560s16p{p}")
+        table[(short, "file")] = rows.get(f"file:{short}-Q4_K_M-imat.gguf")
+    print("strength | Qwen2.5: mean KL | its standard error | first choice kept | SmolLM2: mean KL | its standard error | first choice kept | product of the two mean KL, times 10,000")
+    products = {}
+    for p in strengths:
+        a, b = table[("qwen15", p)], table[("smollm2", p)]
+        cells = []
+        for r in (a, b):
+            cells.append(f"{r['kl_mean']:.6f} | {r['kl_mean_se']:.6f} | {r['same_top']:.2f}" if r else "not scored | - | -")
+        if a and b:
+            products[p] = a["kl_mean"] * b["kl_mean"]
+        print(f"0.{p if p != '0' else '00'} | {cells[0]} | {cells[1]} | " + (f"{1e4 * products[p]:.3f}" if p in products else "-"))
+    a, b = table[("qwen15", "file")], table[("smollm2", "file")]
+    if a and b:
+        print(f"Q4_K_M with the matrix | {a['kl_mean']:.6f} | {a['kl_mean_se']:.6f} | {a['same_top']:.2f} | {b['kl_mean']:.6f} | {b['kl_mean_se']:.6f} | {b['same_top']:.2f} | -")
+    if len(products) < len(strengths):
+        print("not all strengths are scored: no choice yet")
+        return
+    chosen = min(products, key=products.get)
+    print(f"the choice by the plan's rule, the lowest product: strength 0.{chosen}")
+    for short, title in (("qwen15", "Qwen2.5"), ("smollm2", "SmolLM2")):
+        if table[(short, chosen)] and table[(short, "file")]:
+            r, f = table[(short, chosen)], table[(short, "file")]
+            d = f["kl_mean"] - r["kl_mean"]
+            print(f"   on the validation text, {title}: strength 0.{chosen} {r['kl_mean']:.4f} against Q4_K_M with the matrix {f['kl_mean']:.4f}, lower by {d / math.hypot(r['kl_mean_se'], f['kl_mean_se']):.1f} errors")
+    print()
+    print("The predictions of extension 2")
+    print("prediction | what was measured | holds")
+    print(f"K1 | the chosen strength is 0.{chosen} | {'yes' if chosen in ('15', '25', '35') else 'NO'}")
+    test = {"qwen15": load(HERE / "results.jsonl", MODELS[0][1]), "smollm2": load(HERE / "results.jsonl", MODELS[1][1])}
+    base = {"qwen15": load(MODELS[0][2]), "smollm2": load(MODELS[1][2])}
+    same, parts = True, []
+    for short, title in (("qwen15", "Qwen2.5"), ("smollm2", "SmolLM2")):
+        on_test = {"0": base[short]["ZBG128:b560s16"]["kl_mean"], "25": test[short]["hZBG128:b560s16"]["kl_mean"], "50": test[short]["iZBG128:b560s16"]["kl_mean"]}
+        on_valid = {p: table[(short, p)]["kl_mean"] for p in ("0", "25", "50")}
+        o1, o2 = sorted(on_test, key=on_test.get), sorted(on_valid, key=on_valid.get)
+        same = same and o1 == o2
+        parts.append(f"{title}: on the test text 0.{' < 0.'.join(o1)}, on the validation text 0.{' < 0.'.join(o2)}")
+    print(f"K2 | {'. '.join(parts)} | {'yes' if same else 'NO'}")
+    name = {"0": "ZBG128:b560s16", "25": "hZBG128:b560s16", "50": "iZBG128:b560s16"}.get(chosen, f"wZBG128:b560s16p{chosen}")
+    zs = [verdicts.get((short, name, "Q4_K_M with the matrix")) for short in ("qwen15", "smollm2")]
+    if any(z is None for z in zs):
+        print(f"K3 | {name} against Q4_K_M with the matrix on the test text | not all scored")
+    else:
+        print(f"K3 | on the test text {name} under Q4_K_M with the matrix, on Qwen2.5 and SmolLM2: {zs[0]:+.1f}, {zs[1]:+.1f} errors | {'yes' if all(z >= 2.0 for z in zs) else 'NO'}")
+
 
 if __name__ == "__main__":
     main()

@@ -147,7 +147,7 @@ Nothing is closed by a certificate. These are measurements on one more model.
 **What follows.**
 
 1. The arm to carry forward is the integer one, `ZBG128:b560s16`. It needs no lattice, it is ahead of `Q4_K_M` by more than ten errors on both models, and it is the only arm whose output followed its weight error on both.
-2. The cost of E8 on this model is an open question with a cheap first test: the same ball with a lattice whose rounding moves a weight by less, and the tail of the error of single weights under each rule.
+2. The cost of E8 on this model was an open question when this record was written. Added 2026-11-18: the record lattice-split-smollm2-2026-11-17, from the lane of issue #10, answers it. E8's error costs what noise of its size costs. Integer rounding costs less than noise, because it sends the smallest weights to exactly zero and E8 cannot. The guess above, about a whole step on one weight, was not the cause.
 3. Issue #16 proposes a codeword at zero as the default of the harness. This record qualifies it: it is the safer form per row on the two models scored, and with groups of 32 it is better on one and worse on the other.
 
 ## How to rerun

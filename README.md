@@ -100,7 +100,7 @@ The tenth scores the same arms on a third model, `SmolLM2-1.7B-Instruct`, on the
 The eleventh answers issue #14: llama.cpp's files made with an importance matrix, beside the ball arms, on both models.
 
 - **The matrix helps llama.cpp's files, by 15 percent of KL on Qwen2.5 and 55 percent on SmolLM2.** With it, `Q4_K_M` is ahead of the ball arm with no data on SmolLM2 and still behind it on Qwen2.5.
-- **Given the same matrix at half strength, the ball arm is ahead on both**: 0.0209 and 0.0282 at 4.5 bits, against 0.0282 and 0.0378 for `Q4_K_M` with the matrix at 4.8 bits. At full strength it does worse. The half-strength arm was planned and not predicted to win, and its strength was not chosen on held-out text.
+- **Given the same matrix at half strength, the ball arm is ahead on both**: 0.0209 and 0.0282 at 4.5 bits, against 0.0282 and 0.0378 for `Q4_K_M` with the matrix at 4.8 bits. At full strength it does worse. The half-strength arm was planned and not predicted to win. A sweep of five strengths on the validation text then chose that strength by a rule fixed beforehand.
 
 What these do not show: accuracy on a task, a matrix from other text, and anything about a packed format or speed. The bits are counted from the codebook, and the saving is in the file, not in memory.
 

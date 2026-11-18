@@ -10,19 +10,19 @@ The model-output records of this date compare rounding rules that read no data. 
 
 ## Status
 
-`complete` for what the plan and its extension cover: eight runs, four on each of two models. Mean KL and first-choice agreement on one text. MMLU, HumanEval and GSM8K, which the issue also asks for, are not in this record. No arm has a packed format.
+`complete` for what the plan and its two extensions cover: eight runs on the test text and twelve on the validation text, on two models. Mean KL and first-choice agreement on one text. MMLU, HumanEval and GSM8K, which the issue also asks for, are not in this record. No arm has a packed format.
 
 ## Preregistration
 
-[PREREG.md](PREREG.md), committed and pushed at `86a18b5` before any importance matrix was computed. Extension 1 at `79fb0cc`, with the plan's four files scored on both models and before any arm of the extension was scored.
+[PREREG.md](PREREG.md), committed and pushed at `86a18b5` before any importance matrix was computed. Extension 1 at `79fb0cc`, with the plan's four files scored on both models and before any arm of the extension was scored. Extension 2 at `b148352`, before anything was scored on the validation text.
 
-5 of the plan's 6 predictions hold. **None of the extension's 4 holds.** The arm that does best was in the extension as the arm to compare against, with no prediction of its own that it would win.
+5 of the plan's 6 predictions hold. **None of extension 1's 4 holds.** The arm that does best was in that extension as the arm to compare against, with no prediction of its own that it would win. All 3 of extension 2's hold: it chose the strength on text that is not the test text, and the choice is that arm.
 
 ## Result in short
 
 1. **The matrix helps llama.cpp's files on both models, and by very different amounts.** On Qwen2.5 it cuts the mean KL of `Q4_K_M` by 15 percent, from 0.0333 to 0.0282. On SmolLM2 by 55 percent, from 0.0838 to 0.0378.
 2. **With no data, the ball arm stays ahead of `Q4_K_M` with the matrix on Qwen2.5 and falls behind it on SmolLM2.** Integer levels in one ball per group of 128, at 4.5 bits: 0.0227 against 0.0282 on Qwen2.5, 0.0560 against 0.0378 on SmolLM2.
-3. **Given the same matrix at half strength, the ball arm is ahead on both.** `hZBG128:b560s16` at 4.51 bits scores 0.0209 on Qwen2.5 and 0.0282 on SmolLM2. `Q4_K_M` with the matrix at 4.81 and 4.82 bits scores 0.0282 and 0.0378. The gaps are 9.2 and 10.0 errors.
+3. **Given the same matrix at half strength, the ball arm is ahead on both.** `hZBG128:b560s16` at 4.51 bits scores 0.0209 on Qwen2.5 and 0.0282 on SmolLM2. `Q4_K_M` with the matrix at 4.81 and 4.82 bits scores 0.0282 and 0.0378. The gaps are 9.2 and 10.0 errors. **A sweep of five strengths on the validation text picks the same strength**, by a rule fixed before the sweep, so the figures on the test text were not what chose it.
 4. **Given the matrix at full strength, the ball arm is worse than at half strength on both models**, and on Qwen2.5 worse than with no matrix at all. Full strength is the measure llama.cpp's quantisers minimise, and it was what I predicted would work.
 5. **The tie at 4.12 bits does not survive calibration.** On Qwen2.5 `Q4_K_M` with the matrix is 5.2 errors ahead of `EB128@128:16`.
 6. **An E8 arm cannot be weighted this way.** In a test build it broke on two of four matrices. Where an input is nearly unused, integer rounding sends its weights to zero and E8 cannot.
@@ -86,6 +86,27 @@ On SmolLM2 the matrix is worth about as much to the ball arm at half strength as
 
 The ball arms have 0.31 fewer bits than `Q4_K_M` in every row.
 
+### The strength, chosen on the validation text
+
+Extension 2. The wikitext-2 validation text, which no earlier run had read, scored as the test text is. The matrix is still the one from the training text.
+
+| Strength | Qwen2.5: mean KL | SmolLM2: mean KL | Product of the two, times 10,000 |
+|---|---|---|---|
+| 0, no weighting | 0.0211 | 0.0501 | 10.592 |
+| 0.15 | 0.0186 | 0.0263 | 4.903 |
+| 0.25 | 0.0203 | 0.0239 | 4.834 |
+| 0.35 | 0.0208 | 0.0255 | 5.303 |
+| 0.50 | 0.0274 | 0.0404 | 11.085 |
+| `Q4_K_M` with the matrix | 0.0265 | 0.0328 | |
+
+The rule of the plan was one strength for both models, the one with the lowest product. That is 0.25, the half strength of extension 1. Its rows on the test text were scored before the sweep, and they are result 3.
+
+What the table also says:
+
+- **The curve is flat from 0.15 to 0.35 and steep outside it.** Any strength in that range is ahead of `Q4_K_M` with the matrix on both models, on this text too: by 7.7 and 9.9 errors at 0.25.
+- **0.15 and 0.25 are not told apart.** Their products differ by 1.4 percent. Qwen2.5 is best at 0.15 and SmolLM2 at 0.25. The rule picked 0.25, and a rule that picked 0.15 would be as good on this evidence.
+- **The three strengths that were scored on both texts come in the same order on both**, on each model.
+
 ### Why full strength loses
 
 Not tested, so this is a reading and not a finding. At full strength a column whose input is a tenth as large as the mean gets a rounding error ten times as large in its weights. The matrix was measured on 100 passages. An input that is small there is not unused: on the test text it carries more than the matrix says, and its weights have been rounded coarsely. Half strength keeps most of the benefit and risks less. llama.cpp does not weight columns this way either. It uses the matrix when it picks the scale of a block, and still rounds each weight to its nearest level.
@@ -116,17 +137,25 @@ The plain weight error shows the trade. On Qwen2.5 it is -24.94 dB with no matri
 
 All four of the extension's predictions were about full strength, and all four were wrong. What I expected of full strength is what half strength did.
 
+**Extension 2.**
+
+| | Prediction | Result | Holds |
+|---|---|---|---|
+| K1 | The strength chosen on the validation text is 0.15, 0.25 or 0.35 | 0.25 | yes |
+| K2 | On each model the three strengths scored on the test text come in the same order on the validation text | the same order on both models | yes |
+| K3 | At the chosen strength the ball arm is under `Q4_K_M` with the matrix on the test text, by 2 errors, on both models | by 9.2 and 10.0 errors | yes |
+
 ## Deviations from the plan
 
-- **Extension 1** was added after the plan's files were scored. It says what had been seen.
-- **The program was changed twice after the first data**, both times before the runs that use the change: at `79fb0cc` to add the weighted arms, and at `84b38d0` so that its check for rows already scored looks at the model, since this record keeps two models in one file.
+- **Extension 1** was added after the plan's files were scored, and **extension 2** after extension 1's. Each says what had been seen.
+- **The program was changed three times after the first data**, each time before the runs that use the change: at `79fb0cc` to add the weighted arms, at `84b38d0` so that its check for rows already scored looks at the model, since this record keeps two models in one file, and at `b148352` to add a weighting of any strength.
 - **The E8 arm of the extension was dropped before it was scored**, on the evidence of a test build of four matrices. The extension says so.
 - **The runs were started several times** as launches on this machine are cut at two hours. `results.start` lists each start. One line there is a start that scored nothing: every file it was given was already in the results.
-- `summary.py` was written with two rows scored and extended for the extension after its rows were in.
+- `summary.py` was written with two rows scored and extended for each extension after its rows were in.
 
 ## Limits
 
-- **The winning arm was not predicted to win, and it is one of two strengths tried.** A choice between two after the fact is a small selection. The gaps are 9 and 10 errors on two models, which a choice of two does not explain. But the strength is a knob, and it was not tuned on held-out text: it was scored on the test text.
+- **The winning arm was not predicted to win.** Extension 1 tried two strengths on the test text and I had predicted the other. Extension 2 then chose the strength on the validation text by a rule fixed beforehand, and it chose the same one. So the test figures did not choose it. But the validation text is from the same source as the test text and the calibration text, and the sweep says only that the strength transfers within that source.
 - **The calibration text is the training half of the test text's source.** That is the best case for any use of the matrix, llama.cpp's and this one. A matrix from other text would help both less. Nothing here says which would lose more.
 - **Two models and one text.** The two models disagree on how much a matrix is worth, by a factor of nearly four. A third could disagree again.
 - **Mean KL and first-choice agreement, not task accuracy.** The issue asks for MMLU, HumanEval and GSM8K. They are not here.
@@ -144,14 +173,13 @@ Nothing is closed by a certificate. These are measurements.
 - When `Q4_K_M` reads data and the ball arm does not, the ball arm wins on Qwen2.5 and loses on SmolLM2.
 - When both read the same data, and the ball arm uses it at half strength, the ball arm wins on both, by 9 and 10 errors, with 0.31 fewer bits.
 
-The third line is the one that compares like with like. It rests on an arm that was planned and not predicted.
+The third line is the one that compares like with like. It rests on an arm that was planned and not predicted, at a strength that a sweep on other text then chose.
 
 **What follows.**
 
-1. The strength of the weighting should be chosen on text that is not the test text. The wikitext-2 validation text is in the same archive and unused. A sweep of four or five strengths scored there, and the chosen one then scored once on the test text, would turn result 3 from a finding into a test.
-2. A matrix from other text, on both sides.
-3. Reading how llama.cpp uses the matrix in its search for a scale. The ball arm has no such search: its scale is the smallest that clips nothing.
-4. The benchmarks the issue names, on a machine that can run them.
+1. A matrix from other text, on both sides, and a test text of another kind. Calibration, validation and test are all one source here.
+2. Reading how llama.cpp uses the matrix in its search for a scale. The ball arm has no such search: its scale is the smallest that clips nothing.
+3. The benchmarks the issue names, on a machine that can run them.
 
 ## How to rerun
 
