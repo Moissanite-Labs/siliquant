@@ -8,12 +8,15 @@ Variants:
   clip:5@ffn_down#L/only10   the clip of the record clip-by-layer-qwen25-2026-11-18 on the ffn_down of layer L,
                              applied in its ten loud columns only
   clip:5@ffn_down#L/but10    the same clip applied everywhere but in those ten columns
+  clip:5@ffn_down#L/act1     extension 1: the same clip applied in one column only, the most active one by
+                             llama.cpp's importance matrix
   ARM+K10                    a ball arm of the model-output records with, in every ffn_down, the ten loud columns
                              left as in the reference: 16 bits an entry and 16 bits for each column's number, counted
   ARM+K10#1,7                the same in the ffn_down of the named layers only
   ARM+A10                    the same with the ten most active columns, by llama.cpp's importance matrix, in place
                              of the loud ones. This arm uses calibration data.
   ARM+S#1,7                  the arm with the ffn_down of the named layers left whole, as in the reference, counted at 16 bits
+  ARM+A1#1,7                 extension 1: one column kept in the ffn_down of the named layers, the most active one
 
 ARM is ZBG128:b560s16 or hZBG128:b560s16, built by the code of the record model-output-qwen25-2026-11-17.
 A kept column is set to zero before the rest of the matrix is rounded, so it takes no room in a ball, and put back after.
@@ -52,21 +55,21 @@ ACCEPTED = ("qwen2.5-1.5b-instruct-fp16.gguf", "SmolLM2-1.7B-Instruct-f16.gguf")
 
 K = 10
 LIMIT = 5.0
-CLIPCOLS = re.compile(r"^clip:5@ffn_down#(?P<layer>\d+)/(?P<part>only|but)10$")
-KEEP = re.compile(r"^(?P<arm>h?ZBG128:b560s16)\+(?:(?P<pick>[KA])10(?:#(?P<layers>\d+(?:,\d+)*))?|S#(?P<whole>\d+(?:,\d+)*))$")
+CLIPCOLS = re.compile(r"^clip:5@ffn_down#(?P<layer>\d+)/(?P<part>only10|but10|act1)$")
+KEEP = re.compile(r"^(?P<arm>h?ZBG128:b560s16)\+(?:(?P<pick>[KA])(?P<count>10|1)(?:#(?P<layers>\d+(?:,\d+)*))?|S#(?P<whole>\d+(?:,\d+)*))$")
 
 
-def loud(W):
-    """The numbers of the K columns in which the clip at LIMIT standard deviations of a row removes the most squared weight, in rising order."""
+def loud(W, k=K):
+    """The numbers of the k columns in which the clip at LIMIT standard deviations of a row removes the most squared weight, in rising order."""
     W64 = W.astype(np.float64)
     lim = LIMIT * W64.std(axis=1, keepdims=True)
     lost = ((W64 - np.clip(W64, -lim, lim)) ** 2).sum(axis=0)
-    return np.sort(np.argsort(-lost, kind="stable")[:K])
+    return np.sort(np.argsort(-lost, kind="stable")[:k])
 
 
-def active(name, cols):
-    """The numbers of the K columns whose inputs are largest in mean square over the calibration text, in rising order."""
-    return np.sort(np.argsort(-Q.column_weights(name, cols, 1.0), kind="stable")[:K])
+def active(name, cols, k=K):
+    """The numbers of the k columns whose inputs are largest in mean square over the calibration text, in rising order."""
+    return np.sort(np.argsort(-Q.column_weights(name, cols, 1.0), kind="stable")[:k])
 
 
 def tensor(name):
@@ -74,13 +77,13 @@ def tensor(name):
 
 
 def clip_part(task):
-    """The clip of one matrix, in its loud columns only or everywhere else."""
+    """The clip of one matrix: in its loud columns only, everywhere else, or in its most active column only."""
     name, part = task
     W = Q.matrix_of(tensor(name))
     lim = LIMIT * W.std(axis=1, keepdims=True)                      # as in change_one of the clip record
     inside = np.zeros(W.shape[1], dtype=bool)
-    inside[loud(W)] = True
-    where = inside[None, :] if part == "only" else ~inside[None, :]
+    inside[active(name, W.shape[1], 1) if part == "act1" else loud(W)] = True
+    where = ~inside[None, :] if part == "but10" else inside[None, :]
     Wh = np.where(where, np.clip(W, -lim, lim), W).astype(np.float16)
     W64 = W.astype(np.float64)
     energy = float(np.sum(W64 ** 2))
@@ -109,7 +112,7 @@ def keep_one(task):
     if kind == "ffn_down" and m.group("whole") is not None and named(m.group("whole")):
         return name, W.astype(np.float16), {"rel_err": 0.0, "bits": 16.0, "overload": 0.0, "energy": energy, "size": int(W.size), "kept_columns": int(W.shape[1])}
     if kind == "ffn_down" and m.group("pick") is not None and named(m.group("layers")):
-        cols = loud(W) if m.group("pick") == "K" else active(name, W.shape[1])
+        cols = loud(W, int(m.group("count"))) if m.group("pick") == "K" else active(name, W.shape[1], int(m.group("count")))
         rest = W.copy()
         rest[:, cols] = 0.0
         Wh, info = ball(m.group("arm"), name, rest)
@@ -190,7 +193,7 @@ def main():
             print(f"{v}: already in the results file", file=sys.stderr, flush=True)
             continue
         worker, tasks = tasks_of(v, names)
-        if ("+A10" in v or v.startswith("h")) and not args.imatrix:
+        if ("+A1" in v or "/act1" in v or v.startswith("h")) and not args.imatrix:
             raise SystemExit(f"{v} needs --imatrix")
         t0 = time.time()
         replace, infos = {}, {}

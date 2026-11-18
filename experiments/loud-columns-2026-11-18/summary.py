@@ -3,7 +3,7 @@
 
 Reads results.jsonl of this folder, the single-layer clips of the two clip-by-layer records, and the ball arms and
 llama.cpp's files of the model-output and imatrix-baseline records. Scores the predictions A1 to A4 and B1 to B6 of
-PREREG.md by the rules written there. Every number is a field of one of those files or arithmetic on two of them.
+PREREG.md, and X1 and X2 of its extension 1, by the rules written there. Every number is a field of one of those files or arithmetic on two of them.
 
 Usage, from the root of a checkout:
   python3 experiments/loud-columns-2026-11-18/summary.py > experiments/loud-columns-2026-11-18/results.out
@@ -61,8 +61,8 @@ def main():
             w = whole.get(f"clip:5@ffn_down#{l}")
             if w:
                 print(f"{SHORT[m]} | {l} | everywhere | {w['clipped_entries']} | {w['weight_err_db_mean']:.2f} | {w['kl_mean']:.6f} | {w['kl_mean_se']:.6f} | 1.0000 | {w['same_top']:.2f}")
-            for part, label in (("only", "the ten loud columns only"), ("but", "everywhere but the ten")):
-                r = mine[m].get(f"clip:5@ffn_down#{l}/{part}10")
+            for part, label in (("only", "the ten loud columns only"), ("but", "everywhere but the ten"), ("act", "extension 1: the most active column only")):
+                r = mine[m].get(f"clip:5@ffn_down#{l}/{part}" + ("1" if part == "act" else "10"))
                 if r and w:
                     ratio[(m, l, part)] = r["kl_mean"] / w["kl_mean"]
                     print(f"{SHORT[m]} | {l} | {label} | {r['clipped_entries']} | {r['weight_err_db_mean']:.2f} | {r['kl_mean']:.6f} | {r['kl_mean_se']:.6f} | "
@@ -93,7 +93,7 @@ def main():
             if "+" not in v:
                 continue
             b = base[m][v.split("+")[0]]
-            data = "yes" if v.startswith("h") or "+A10" in v else "no"
+            data = "yes" if v.startswith("h") or "+A1" in v else "no"
             print(f"{SHORT[m]} | {v} | {data} | {r['bits_per_weight_changed']:.4f} | {r['kept_columns']} | {fmt(r['weight_err_db_ffn_down'])} | {r['kl_mean']:.6f} | {r['kl_mean_se']:.6f} | "
                   f"{100 * (1 - r['kl_mean'] / b['kl_mean']):.1f} | {gap(r, b):.1f} | {r['same_top']:.2f}")
     s, q = mine[SMOL], mine[QWEN]
@@ -118,10 +118,18 @@ def main():
         verdict["B5"] = gap(hk, hb) >= 2
     if q.get(ARM + "+K10"):
         verdict["B6"] = abs(gap(q[ARM + "+K10"], base[QWEN][ARM])) < 2
+    if all((SMOL, l, part) in ratio for l in (1, 7) for part in ("act", "only")):
+        one = {l: ratio[(SMOL, l, "act")] / ratio[(SMOL, l, "only")] for l in (1, 7)}
+        print(f"SmolLM2-1.7B, extension 1: the clip in the most active column over the clip in the ten loud columns: layer 1 {one[1]:.3f}, layer 7 {one[7]:.3f}")
+        verdict["X1"] = one[1] >= 0.8 and one[7] >= 0.5
+    a1 = s.get(ARM + "+A1#1,7")
+    if a1 and k17:
+        print(f"SmolLM2-1.7B, extension 1: one column kept in layers 1 and 7 against ten: {a1['kl_mean']:.6f} against {k17['kl_mean']:.6f}, above it by {-gap(a1, k17):.1f} errors")
+        verdict["X2"] = abs(gap(a1, k17)) < 2
     print()
-    print("The predictions of PREREG.md")
+    print("The predictions of PREREG.md and of its extension 1")
     print("prediction | holds")
-    names = ("A1", "A2", "A3", "A4", "B1", "B2", "B3", "B4", "B5", "B6")
+    names = ("A1", "A2", "A3", "A4", "B1", "B2", "B3", "B4", "B5", "B6", "X1", "X2")
     for n in names:
         print(f"{n} | {'not scored' if n not in verdict else ('yes' if verdict[n] else 'NO')}")
     print(f"hold: {sum(1 for v in verdict.values() if v)} of {len(names)}")

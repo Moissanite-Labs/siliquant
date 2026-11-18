@@ -95,3 +95,38 @@ My confidence: high in A1 and A2. Fair in A3, B1, B2, B3 and B6. Low in A4, B4 a
 ## Order and time
 
 One scoring process at a time. SmolLM2 first: Part A, then Part B. Then Qwen2.5. About five minutes a variant, and under two more to build a ball arm: an hour and a half for 14.
+
+## Extension 1: one column
+
+Written 2026-11-18 after the plan above was committed at `566c318`, and before any variant of this extension was scored. One row of the plan was in when this was written: the clip in the ten loud columns of SmolLM2's layer 1 scores 1.449, which is 0.83 of the whole clip's 1.741.
+
+**What prompted it.** `units-smollm2.out`, made by `units.py` after the plan and before any score. It was not planned and nothing in it is scored. It lists the ten loud columns one by one.
+
+- In layer 1 of SmolLM2 **one column, 4987, holds 98.19 percent of the matrix's input activity**. It is 8,052 times as active as the mean column. The clip touches two of its 2,048 entries: its weights into dimensions 749 and 161 of the stream, at 26.7 and 17.5 standard deviations of their rows.
+- In layer 7 one column, 7758, holds 95.68 percent. The clip touches two of its entries, into dimensions 227 and 423.
+- The other nine loud columns hold 0.3 percent of the activity between them in layer 1 and 3.3 percent in layer 7.
+- The same few dimensions of the stream come up again and again as where the large entries point: 227, 749, 161, 209, 737, 277 and 423.
+- Qwen2.5 has nothing like it (`units-qwen25.out`): its most active column of layer 1 holds 3.31 percent. Its loud columns are large columns, up to 61 times the mean column's size, with hundreds of entries beyond the limit each.
+
+So on SmolLM2 "ten columns" may be one. The weights alone do not single that one out among the ten. The importance matrix does.
+
+**Three variants, all on SmolLM2.**
+
+| Variant | What |
+|---|---|
+| `clip:5@ffn_down#1/act1` | the clip in the most active column of layer 1 only: two entries of 16.8 million, a weight error of -36.9 dB |
+| `clip:5@ffn_down#7/act1` | the same in layer 7: two entries, -37.6 dB |
+| `ZBG128:b560s16+A1#1,7` | the ball arm with one column kept in each of layers 1 and 7, the most active one. 4.4998 bits a weight, as the plain arm to four places. This arm reads calibration data |
+
+`run.py` and `summary.py` were extended for these, and `weights_only.jsonl` has what each changes. The code of the planned variants is not changed: the test on single matrices was run again and gives the same matrices.
+
+| | Prediction | It fails if |
+|---|---|---|
+| X1 | The one column is most of the ten: the clip in it alone costs at least 0.8 of the clip in the ten loud columns in layer 1, and at least 0.5 in layer 7 | either is lower |
+| X2 | One kept column does what ten do: `ZBG128:b560s16+A1#1,7` is within 2 errors of `ZBG128:b560s16+K10#1,7` | it is not |
+
+My confidence: fair in X1 for layer 1, low for layer 7, where four other loud columns are 30 to 106 times as active as the mean and point into the same dimensions. Fair in X2.
+
+**What it would mean.** If X1 holds, changing two weights of 1.7 billion is enough to wreck this model, and those two can be found with an importance matrix and not, so far, without one. If X2 holds, whatever `+K10#1,7` gains is the gain of one hidden unit in each of two layers.
+
+**Order.** After the 14 variants of the plan.
