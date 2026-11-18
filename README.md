@@ -61,7 +61,7 @@ The conventions are those of [weft-loom's CONTRIBUTING.md](https://github.com/Mo
 
 ## Status
 
-Seventeen studies so far. The newest results are at the end of this section.
+Eighteen studies so far. The newest results are at the end of this section.
 
 The first measured weight error only: at 2 bits per weight the lattice E8 beats scalar rounding on every matrix tried, and the lattice the starting briefs proposed, A8\*, gains less than half as much in the mean of each family of data.
 
@@ -144,6 +144,12 @@ The seventeenth, of 2026-11-18, is the task benchmark of issue #14: 2,000 questi
 - **Accuracy does not separate the ball arms from the 16-bit model.** Their differences are -0.70 to +0.15 points, and the run can see a loss of 1.1 to 1.3. So the result for accuracy is a bound.
 - **How often a variant keeps the 16-bit model's answer follows its KL**, in order, through all five variants on both models. By that measure the ball arm with the matrix is ahead of `Q4_K_M` with the matrix on both: a tie on Qwen2.5, 2.3 errors on SmolLM2.
 - It is not MMLU as published: bare questions and answers scored as continuations. HumanEval and GSM8K were not run.
+
+The eighteenth, of 2026-11-18, is the clip of the fifteenth study on a third model, SmolLM2.
+
+- **Neither picture.** Two matrices, layers 1 and 7 of 24, hold 56.9 and 40.9 percent of the summed damage. gemma had one matrix in the middle and Qwen2.5 two at the ends.
+- **The clip costs most where it removes almost nothing.** In layer 1 it changes 387 entries of 16.8 million, and that alone costs a mean KL of 1.74. All 24 layers at once cost 4.12, where I predicted under 0.06.
+- **The weights do not say which matrix here.** The clip's weight error ranks the layers at 0.39, against 0.77 on Qwen2.5. The activity of the columns the clip removes ranks them at 0.90, and that figure needs calibration text.
 
 ## Licence
 
