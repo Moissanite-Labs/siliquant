@@ -7,3 +7,12 @@ compute_imatrix: computing over 100 chunks, n_ctx=512, batch_size=2048, n_seq=4
 Final estimate: PPL = 15.0358 +/- 0.26501
 time: real 9m41.442s
 matrix: 6cc2faf504dd821e17b475f9a01cdd3b8eaa1c9dc4018f5caeadd068ac7d3114, 2659392 bytes
+
+rimatrix
+text: fa60e163964c37ba81e5c76a6b2c13c532e471a689bfc037fb52b0ad8a3b1067, 516419 bytes
+vocabulary 128256, ordinary pieces 128000, pieces drawn 80000, seed 1, bytes 516419, sha256 fa60e163964c37ba81e5c76a6b2c13c532e471a689bfc037fb52b0ad8a3b1067
+command: llama-imatrix -m MODEL -f TEXT --chunks 100 -c 512 -t 4 -o OUT
+compute_imatrix: computing over 100 chunks, n_ctx=512, batch_size=2048, n_seq=4
+Final estimate: PPL = 165295.8248 +/- 1695.55186
+time: real 9m26.725s
+matrix: 0850c974458921420d863bf86a4cd32b96fd5b03354fc04307384e4f06e36ff5, 2659392 bytes
