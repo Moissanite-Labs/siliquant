@@ -6,3 +6,10 @@ command: llama-perplexity -m MODEL -f TEXT --chunks 40 -c 512 -t 4 --kl-divergen
 perplexity: calculating perplexity over 40 chunks, n_ctx=512, batch_size=2048, n_seq=4
 Final estimate: PPL = 14.3430 +/- 0.40368
 time: real 3m13.839s
+
+python
+text: 05023c54ce873397cf1f7607d03bd854abdc00f6f890a36a791ecb8c6946d31b, 183074 bytes
+command: llama-perplexity -m MODEL -f TEXT --chunks 40 -c 512 -t 4 --kl-divergence-base OUT
+perplexity: calculating perplexity over 40 chunks, n_ctx=512, batch_size=2048, n_seq=4
+Final estimate: PPL = 6.3817 +/- 0.18021
+time: real 3m8.705s
