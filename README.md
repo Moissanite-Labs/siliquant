@@ -61,7 +61,7 @@ The conventions are those of [weft-loom's CONTRIBUTING.md](https://github.com/Mo
 
 ## Status
 
-Fifteen studies so far, and two more planned or running. The newest results are at the end of this section.
+Sixteen studies so far, and one more running. The newest results are at the end of this section.
 
 The first measured weight error only: at 2 bits per weight the lattice E8 beats scalar rounding on every matrix tried, and the lattice the starting briefs proposed, A8\*, gains less than half as much in the mean of each family of data.
 
@@ -132,6 +132,12 @@ The fifteenth, of 2026-11-18, is run 3 of issue #20: the clip of `ffn_down` on e
 - **Not one matrix as on gemma: two, at the ends of the model.** Layer 1 holds 40.6 percent of the summed damage and the last layer 29.8. With their neighbours, 83.3 percent in four matrices of 28.
 - **Here the weights say which.** The four matrices the clip changes most are the four that cost most. On gemma no figure of the weights found the matrix.
 - **The damage does not add.** All layers at once cost a mean KL of 0.593, five times the sum of the 28 alone.
+
+The sixteenth, of 2026-11-18, is run 1 of issue #20: the split of bits by kind of matrix of the twelfth study, fitted on one text and scored on another, on Qwen2.5.
+
+- **The split holds on the text it never read.** At 4.5 bits it is 17.4 percent under equal bits on the validation text it was fitted on, and 17.9 percent under on the test text. At 3.5 bits, 25.8 and 20.4 percent.
+- **The gain is smaller than on gemma**, where it was 31.4 percent, and small beside what one ball per group gains on this model with no fit: 63 percent.
+- Both texts are Wikipedia prose of one source. A text of another kind is not tested.
 
 ## Licence
 
