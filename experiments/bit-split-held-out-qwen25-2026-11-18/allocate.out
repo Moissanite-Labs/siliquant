@@ -1,0 +1,21 @@
+Part A: KL of each kind alone at 8, 16 and 32 levels, and its weights
+   attn_q: 0.007493 0.001859 0.000451   weights 66060288   rows 43008
+   attn_k: 0.013860 0.003255 0.000780   weights 11010048   rows 7168
+   attn_v: 0.022935 0.006194 0.001638   weights 11010048   rows 7168
+   attn_output: 0.046070 0.007851 0.001887   weights 66060288   rows 43008
+   ffn_gate: 0.037698 0.009404 0.002260   weights 385351680   rows 250880
+   ffn_up: 0.046503 0.011790 0.002852   weights 385351680   rows 250880
+   ffn_down: 0.057442 0.014531 0.003622   weights 385351680   rows 43008
+   scales stored in 16 bits
+
+Budget 4.5 bits per weight over all 1310195712 block weights
+   best arm: attn_q=16 attn_k=64 attn_v=64 attn_output=46 ffn_gate=12 ffn_up=16 ffn_down=16 | mean bits 4.4884 | predicted KL 0.046428
+JSON {"budget": 4.5, "role": "best", "variant": "X32mix:attn_q=16,attn_k=64,attn_v=64,attn_output=46,ffn_gate=12,ffn_up=16,ffn_down=16", "levels": {"attn_q": 16, "attn_k": 64, "attn_v": 64, "attn_output": 46, "ffn_gate": 12, "ffn_up": 16, "ffn_down": 16}, "mean_bits": 4.4883618425343075, "predicted_kl": 0.046427973774478104, "scale_bits": 16, "score": true}
+   reversed arm: attn_q=46 attn_k=64 attn_v=64 attn_output=16 ffn_gate=16 ffn_up=16 ffn_down=12 | mean bits 4.4884 | predicted KL 0.055587
+JSON {"budget": 4.5, "role": "reversed", "variant": "X32mix:attn_q=46,attn_k=64,attn_v=64,attn_output=16,ffn_gate=16,ffn_up=16,ffn_down=12", "levels": {"attn_q": 46, "attn_k": 64, "attn_v": 64, "attn_output": 16, "ffn_gate": 16, "ffn_up": 16, "ffn_down": 12}, "mean_bits": 4.4883618425343075, "predicted_kl": 0.0555865810344761, "window": 0.05, "scale_bits": 16, "score": true, "same_as_best": false}
+
+Budget 3.5 bits per weight over all 1310195712 block weights
+   best arm: attn_q=8 attn_k=46 attn_v=64 attn_output=22 ffn_gate=6 ffn_up=8 ffn_down=8 | mean bits 3.4979 | predicted KL 0.183398
+JSON {"budget": 3.5, "role": "best", "variant": "X32mix:attn_q=8,attn_k=46,attn_v=64,attn_output=22,ffn_gate=6,ffn_up=8,ffn_down=8", "levels": {"attn_q": 8, "attn_k": 46, "attn_v": 64, "attn_output": 22, "ffn_gate": 6, "ffn_up": 8, "ffn_down": 8}, "mean_bits": 3.497931421790935, "predicted_kl": 0.18339779994211824, "scale_bits": 16, "score": true}
+   reversed arm: attn_q=22 attn_k=64 attn_v=46 attn_output=8 ffn_gate=8 ffn_up=8 ffn_down=6 | mean bits 3.4979 | predicted KL 0.233864
+JSON {"budget": 3.5, "role": "reversed", "variant": "X32mix:attn_q=22,attn_k=64,attn_v=46,attn_output=8,ffn_gate=8,ffn_up=8,ffn_down=6", "levels": {"attn_q": 22, "attn_k": 64, "attn_v": 46, "attn_output": 8, "ffn_gate": 8, "ffn_up": 8, "ffn_down": 6}, "mean_bits": 3.497931421790935, "predicted_kl": 0.23386414610593947, "window": 0.05, "scale_bits": 16, "score": true, "same_as_best": false}
