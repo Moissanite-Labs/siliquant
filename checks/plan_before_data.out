@@ -1,5 +1,5 @@
 Plans and data in the order git has them, for every record under experiments/
-head ecfc3e0
+head 54f45c1
 
 record | first plan | data files committed with it | first data after it | plan before data | plan changed before first data | plan changed after first data | of those, followed by new data | named in the README | programs changed after first data
 ball-dimension-no-clip-rule-2026-11-17 | 5398096 | 0 | 801a4c6 | yes | 0 | 0 | 0 | 0 of 0 | 0

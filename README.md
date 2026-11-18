@@ -61,7 +61,7 @@ The conventions are those of [weft-loom's CONTRIBUTING.md](https://github.com/Mo
 
 ## Status
 
-Sixteen studies so far, and one more running. The newest results are at the end of this section.
+Seventeen studies so far. The newest results are at the end of this section.
 
 The first measured weight error only: at 2 bits per weight the lattice E8 beats scalar rounding on every matrix tried, and the lattice the starting briefs proposed, A8\*, gains less than half as much in the mean of each family of data.
 
@@ -107,7 +107,7 @@ The eleventh answers issue #14: llama.cpp's files made with an importance matrix
 - **The matrix helps llama.cpp's files, by 15 percent of KL on Qwen2.5 and 55 percent on SmolLM2.** With it, `Q4_K_M` is ahead of the ball arm with no data on SmolLM2 and still behind it on Qwen2.5.
 - **Given the same matrix at half strength, the ball arm is ahead on both**: 0.0209 and 0.0282 at 4.5 bits, against 0.0282 and 0.0378 for `Q4_K_M` with the matrix at 4.8 bits. At full strength it does worse. The half-strength arm was planned and not predicted to win. A sweep of five strengths on the validation text then chose that strength by a rule fixed beforehand.
 
-What these do not show: accuracy on a task, and a matrix from other text. Their bits are counted from the codebook. The fourteenth study, below, puts one arm in a file.
+What these do not show: a matrix from other text. Their bits are counted from the codebook. The fourteenth study, below, puts one arm in a file, and the seventeenth scores a task.
 
 The twelfth, also of 2026-11-17 and from another lane of work, goes back to the output of `gemma-4-E4B-it` and treats the loss as a budget with parts. One model and one text, with no packed format.
 
@@ -138,6 +138,12 @@ The sixteenth, of 2026-11-18, is run 1 of issue #20: the split of bits by kind o
 - **The split holds on the text it never read.** At 4.5 bits it is 17.4 percent under equal bits on the validation text it was fitted on, and 17.9 percent under on the test text. At 3.5 bits, 25.8 and 20.4 percent.
 - **The gain is smaller than on gemma**, where it was 31.4 percent, and small beside what one ball per group gains on this model with no fit: 63 percent.
 - Both texts are Wikipedia prose of one source. A text of another kind is not tested.
+
+The seventeenth, of 2026-11-18, is the task benchmark of issue #14: 2,000 questions of MMLU in llama.cpp's multiple-choice mode, six variants on two models, compared question by question.
+
+- **Accuracy does not separate the ball arms from the 16-bit model.** Their differences are -0.70 to +0.15 points, and the run can see a loss of 1.1 to 1.3. So the result for accuracy is a bound.
+- **How often a variant keeps the 16-bit model's answer follows its KL**, in order, through all five variants on both models. By that measure the ball arm with the matrix is ahead of `Q4_K_M` with the matrix on both: a tie on Qwen2.5, 2.3 errors on SmolLM2.
+- It is not MMLU as published: bare questions and answers scored as continuations. HumanEval and GSM8K were not run.
 
 ## Licence
 
