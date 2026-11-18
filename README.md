@@ -61,7 +61,7 @@ The conventions are those of [weft-loom's CONTRIBUTING.md](https://github.com/Mo
 
 ## Status
 
-Twenty studies so far. The newest results are at the end of this section.
+Twenty-one studies so far. The newest results are at the end of this section.
 
 The first measured weight error only: at 2 bits per weight the lattice E8 beats scalar rounding on every matrix tried, and the lattice the starting briefs proposed, A8\*, gains less than half as much in the mean of each family of data.
 
@@ -107,7 +107,7 @@ The eleventh answers issue #14: llama.cpp's files made with an importance matrix
 - **The matrix helps llama.cpp's files, by 15 percent of KL on Qwen2.5 and 55 percent on SmolLM2.** With it, `Q4_K_M` is ahead of the ball arm with no data on SmolLM2 and still behind it on Qwen2.5.
 - **Given the same matrix at half strength, the ball arm is ahead on both**: 0.0209 and 0.0282 at 4.5 bits, against 0.0282 and 0.0378 for `Q4_K_M` with the matrix at 4.8 bits. At full strength it does worse. The half-strength arm was planned and not predicted to win. A sweep of five strengths on the validation text then chose that strength by a rule fixed beforehand.
 
-What these do not show: a matrix from other text. Their bits are counted from the codebook. The fourteenth study, below, puts one arm in a file, and the seventeenth scores a task.
+What these do not show: a matrix from other text, or a score on another kind of text. The twentieth and twenty-first studies, below, take those up. Their bits are counted from the codebook. The fourteenth study, below, puts one arm in a file, and the seventeenth scores a task.
 
 The twelfth, also of 2026-11-17 and from another lane of work, goes back to the output of `gemma-4-E4B-it` and treats the loss as a budget with parts. One model and one text, with no packed format.
 
@@ -163,6 +163,12 @@ The twentieth, of 2026-11-18, asks what an importance matrix's gain is made of. 
 - **The matrix does not need a text with a meaning.** Made from random pieces of the model's own vocabulary, it buys the ball arm 88.6 percent of what the wikitext matrix buys on SmolLM2, and llama.cpp's `Q4_K_M` 95.5 percent. On Qwen2.5 it does the ball arm neither good nor harm.
 - **So with no text read, the ball arm at 4.5 bits is under `Q4_K_M` made with real text on both models**: 0.0314 against 0.0378 and 0.0228 against 0.0282. As a packed file it is ahead on Qwen2.5 and level on SmolLM2, where I predicted ahead on both.
 - The model is still run, on 51,200 tokens of noise. No dataset is needed. Forward passes are.
+
+The twenty-first, of 2026-11-18, scores the headline comparisons on a second text: Python source in place of Wikipedia prose.
+
+- **All three hold on both models.** The ball arm at 4.5 bits is under `Q4_K_M` at 4.8 bits by 13.2 and 9.3 errors with no matrix on either side, by 11.2 and 5.0 with the wikitext matrix on both, and by 8.7 and 3.6 with a matrix from noise on its side against the wikitext matrix on the other.
+- **On SmolLM2 a matrix from noise is as good as one from Wikipedia on a text neither has read**: it buys 99.3 percent of the gain for `Q4_K_M` and 95.1 for the ball arm.
+- **On Qwen2.5 the ball arm is best with no matrix on this text.** Both matrices cost it 2 to 3 errors. Its gain from the wikitext matrix on prose was a gain on the kind of text the matrix was made from.
 
 ## Licence
 

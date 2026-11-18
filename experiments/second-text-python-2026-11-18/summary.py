@@ -82,6 +82,7 @@ def main():
             share = (b["kl_mean"] - br["kl_mean"]) / (b["kl_mean"] - bi["kl_mean"])
             print(f"{SHORT[m]}: the ball arm: the matrix of no meaning buys {100 * share:.1f} percent of what the training text's matrix buys. "
                   f"The training text's matrix is under the matrix of no meaning by {gap(bi, br):.1f} errors. Under no matrix by {gap(bi, b):.1f}")
+            print(f"{SHORT[m]}: the ball arm: the matrix of no meaning is under no matrix by {gap(br, b):.1f} errors")
             if m == SMOL:
                 verdict["C4"], verdict["C5"] = share >= 0.5, gap(bi, br) < 2
         if q and qi:
