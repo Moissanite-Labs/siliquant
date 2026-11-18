@@ -1,0 +1,61 @@
+The loud columns of ffn_down: wikitext-2 test text, 10,200 positions. A loud column is one of the ten in which the clip at 5 standard deviations of a row removes the most squared weight.
+An error of a gap is the root of the sum of the squares of the two standard errors.
+
+Part A: the clip of one ffn_down, whole (from the clip-by-layer records), in its ten loud columns only, and everywhere but in them
+model | layer | where the clip is applied | entries clipped | weight error, dB | mean KL | its standard error | over the KL of the whole clip | first choice kept, percent
+SmolLM2-1.7B | 1 | everywhere | 387 | -29.75 | 1.740615 | 0.019683 | 1.0000 | 44.47
+SmolLM2-1.7B | 1 | the ten loud columns only | 41 | -31.41 | 1.449157 | 0.016031 | 0.8326 | 48.85
+SmolLM2-1.7B | 1 | everywhere but the ten | 346 | -34.71 | 0.000261 | 0.000011 | 0.0001 | 99.29
+SmolLM2-1.7B | 1 | extension 1: the most active column only | 2 | -36.86 | 1.175195 | 0.015268 | 0.6752 | 52.90
+SmolLM2-1.7B | 7 | everywhere | 533 | -28.45 | 1.251856 | 0.013935 | 1.0000 | 49.99
+SmolLM2-1.7B | 7 | the ten loud columns only | 37 | -29.32 | 1.231901 | 0.013761 | 0.9841 | 50.27
+SmolLM2-1.7B | 7 | everywhere but the ten | 496 | -35.90 | 0.000129 | 0.000004 | 0.0001 | 99.37
+SmolLM2-1.7B | 7 | extension 1: the most active column only | 2 | -37.63 | 0.347247 | 0.005606 | 0.2774 | 72.72
+Qwen2.5-1.5B | 1 | everywhere | 21171 | -3.19 | 0.047767 | 0.001805 | 1.0000 | 90.81
+Qwen2.5-1.5B | 1 | the ten loud columns only | 5097 | -3.21 | 0.047651 | 0.001800 | 0.9976 | 90.83
+Qwen2.5-1.5B | 1 | everywhere but the ten | 16074 | -26.40 | 0.000187 | 0.000007 | 0.0039 | 99.30
+Qwen2.5-1.5B | 27 | everywhere | 4861 | -14.36 | 0.035107 | 0.000353 | 1.0000 | 90.66
+Qwen2.5-1.5B | 27 | the ten loud columns only | 448 | -15.90 | 0.006071 | 0.000063 | 0.1729 | 97.22
+Qwen2.5-1.5B | 27 | everywhere but the ten | 4413 | -19.62 | 0.021176 | 0.000231 | 0.6032 | 91.33
+
+Part B: one ball per group of 128 weights at 4.5 bits, with columns of ffn_down left as in the reference
+model | arm | reads calibration data | bits a weight | columns kept | weight error of ffn_down, dB | mean KL | its standard error | under its plain arm by, percent | in errors of the gap | first choice kept, percent
+SmolLM2-1.7B | llama.cpp Q4_K_M | no | 4.8223 | 0 | | 0.083761 | 0.001559 | | | 85.52
+SmolLM2-1.7B | llama.cpp Q4_K_M with the matrix | yes | 4.8223 | 0 | | 0.037827 | 0.000739 | | | 89.56
+SmolLM2-1.7B | ZBG128:b560s16 | no | 4.4998 | 0 | | 0.055962 | 0.001060 | | | 88.25
+SmolLM2-1.7B | hZBG128:b560s16 | yes | 4.5047 | 0 | | 0.028205 | 0.000610 | | | 91.35
+SmolLM2-1.7B | ZBG128:b560s16+K10 | no | 4.5047 | 240 | -24.94 | 0.052838 | 0.000980 | 5.6 | 2.2 | 88.46
+SmolLM2-1.7B | ZBG128:b560s16+K10#1,7 | no | 4.5002 | 20 | -24.93 | 0.053644 | 0.001005 | 4.1 | 1.6 | 88.37
+SmolLM2-1.7B | ZBG128:b560s16+S#1,7 | no | 4.7394 | 16384 | two left whole | 0.053105 | 0.000992 | 5.1 | 2.0 | 88.31
+SmolLM2-1.7B | ZBG128:b560s16+A10 | yes | 4.5047 | 240 | -24.94 | 0.052606 | 0.000985 | 6.0 | 2.3 | 87.99
+SmolLM2-1.7B | hZBG128:b560s16+K10 | yes | 4.5096 | 240 | -24.60 | 0.027900 | 0.000601 | 1.1 | 0.4 | 91.41
+SmolLM2-1.7B | ZBG128:b560s16+A1#1,7 | yes | 4.4998 | 2 | -24.93 | 0.053721 | 0.000993 | 4.0 | 1.5 | 88.37
+Qwen2.5-1.5B | llama.cpp Q4_K_M | no | 4.8120 | 0 | | 0.033348 | 0.000682 | | | 91.11
+Qwen2.5-1.5B | llama.cpp Q4_K_M with the matrix | yes | 4.8120 | 0 | | 0.028205 | 0.000634 | | | 91.84
+Qwen2.5-1.5B | ZBG128:b560s16 | no | 4.4998 | 0 | | 0.022750 | 0.000632 | | | 92.75
+Qwen2.5-1.5B | hZBG128:b560s16 | yes | 4.5060 | 0 | | 0.020898 | 0.000479 | | | 92.64
+Qwen2.5-1.5B | ZBG128:b560s16+K10 | no | 4.5051 | 280 | -25.15 | 0.022241 | 0.000569 | 2.2 | 0.6 | 92.77
+
+SmolLM2-1.7B, not predicted: ZBG128:b560s16+K10, which reads no data, against llama.cpp Q4_K_M with the matrix: 0.052838 against 0.037827, under it by -12.2 errors
+SmolLM2-1.7B, not predicted: ZBG128:b560s16+K10, which reads no data, against hZBG128:b560s16: 0.052838 against 0.028205, under it by -21.3 errors
+SmolLM2-1.7B: keeping the columns in layers 1 and 7 only gains 0.742 of what keeping them in every layer gains
+SmolLM2-1.7B: ten columns kept in layers 1 and 7 against those two matrices left whole: 0.053644 against 0.053105, above it by 0.4 errors
+SmolLM2-1.7B: the ten most active columns against the ten loud ones: 0.052606 against 0.052838, under it by 0.2 errors
+SmolLM2-1.7B, extension 1: the clip in the most active column over the clip in the ten loud columns: layer 1 0.811, layer 7 0.282
+SmolLM2-1.7B, extension 1: one column kept in layers 1 and 7 against ten: 0.053721 against 0.053644, above it by 0.1 errors
+
+The predictions of PREREG.md and of its extension 1
+prediction | holds
+A1 | yes
+A2 | yes
+A3 | yes
+A4 | yes
+B1 | NO
+B2 | yes
+B3 | yes
+B4 | yes
+B5 | NO
+B6 | yes
+X1 | NO
+X2 | yes
+hold: 9 of 12

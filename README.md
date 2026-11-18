@@ -61,7 +61,7 @@ The conventions are those of [weft-loom's CONTRIBUTING.md](https://github.com/Mo
 
 ## Status
 
-Eighteen studies so far. The newest results are at the end of this section.
+Nineteen studies so far. The newest results are at the end of this section.
 
 The first measured weight error only: at 2 bits per weight the lattice E8 beats scalar rounding on every matrix tried, and the lattice the starting briefs proposed, A8\*, gains less than half as much in the mean of each family of data.
 
@@ -150,6 +150,12 @@ The eighteenth, of 2026-11-18, is the clip of the fifteenth study on a third mod
 - **Neither picture.** Two matrices, layers 1 and 7 of 24, hold 56.9 and 40.9 percent of the summed damage. gemma had one matrix in the middle and Qwen2.5 two at the ends.
 - **The clip costs most where it removes almost nothing.** In layer 1 it changes 387 entries of 16.8 million, and that alone costs a mean KL of 1.74. All 24 layers at once cost 4.12, where I predicted under 0.06.
 - **The weights do not say which matrix here.** The clip's weight error ranks the layers at 0.39, against 0.77 on Qwen2.5. The activity of the columns the clip removes ranks them at 0.90, and that figure needs calibration text.
+
+The nineteenth, of 2026-11-18, asks what those matrices have that a clip must not touch, and whether rounding must protect it too.
+
+- **On SmolLM2 it is a handful of weights.** The clip in ten columns of layer 1, 41 entries, costs a mean KL of 1.449. The clip everywhere else in that matrix costs 0.0003. Two weights of one hidden unit cost 1.175 by themselves.
+- **On Qwen2.5 it is ten columns in layer 1 and not in the last layer.** On gemma it was not the ten units either.
+- **It hardly matters to rounding.** With those columns left whole the ball arm on SmolLM2 scores 0.0528 against 0.0560, where I predicted a gain of at least 20 percent. They are a ninth of what an importance matrix gains on that model.
 
 ## Licence
 
