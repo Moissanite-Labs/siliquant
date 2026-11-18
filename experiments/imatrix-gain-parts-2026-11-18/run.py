@@ -11,6 +11,7 @@ Variants:
                                     The weights are from --imatrix, the matrix of the wikitext-2 training text
   hZBG128:b560s16~rand              the weighted arm on every block matrix, with weights from --imatrix-rand, a matrix
                                     made by llama-imatrix from the text of randtext.py
+  ZBG128:b560s16+h~rand@KIND[,...]  extension 1: the weighted arm with that matrix on the named kinds only
 
 Rows are keyed by model, variant and the label of the text.
 
@@ -46,7 +47,7 @@ Q.MODELS["cf3f0569a9d0b56d5d3b5b7944768c71bd2fef789f8b36b1b85a05d390850852"] = "
 ACCEPTED = ("qwen2.5-1.5b-instruct-fp16.gguf", "SmolLM2-1.7B-Instruct-f16.gguf")
 ARM, HARM = "ZBG128:b560s16", "hZBG128:b560s16"
 RARM = "hZBG128:b560s16~rand"
-PART = re.compile(r"^ZBG128:b560s16\+h@(?P<kinds>\w+(?:,\w+)*)$")
+PART = re.compile(r"^ZBG128:b560s16\+h(?P<rand>~rand)?@(?P<kinds>\w+(?:,\w+)*)$")
 _paths = {}
 
 
@@ -168,9 +169,10 @@ def main():
             print(f"{v}: already in the results file", file=sys.stderr, flush=True)
             continue
         kinds_of(v)
-        if v == RARM and "rand" not in _paths:
+        rand = v == RARM or PART.match(v).group("rand") is not None
+        if rand and "rand" not in _paths:
             raise SystemExit(f"{v} needs --imatrix-rand")
-        use_matrix("rand" if v == RARM else "real")
+        use_matrix("rand" if rand else "real")
         t0 = time.time()
         replace, infos = {}, {}
         with Pool(args.workers) as pool:
@@ -179,7 +181,7 @@ def main():
                 if not args.metrics_only:
                     replace[name] = Wh
         stats = Q.stats_of(infos)
-        row = {"variant": v, "model": model, "text": args.text, "matrix": "no meaning" if v == RARM else "wikitext-2 training text",
+        row = {"variant": v, "model": model, "text": args.text, "matrix": "no meaning" if rand else "wikitext-2 training text",
                "matrices": stats["matrices"], "weights": stats["weights"],
                "matrices_weighted": sum(1 for i in infos.values() if i["weighted"]),
                "weights_weighted": sum(i["size"] for i in infos.values() if i["weighted"]),

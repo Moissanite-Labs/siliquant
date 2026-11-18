@@ -2,7 +2,7 @@
 """Tables and verdicts for what the gain of an importance matrix is made of, from results.jsonl and the rows of three earlier records.
 
 Reads results.jsonl of this folder, and the plain arm, the weighted arm and llama.cpp's files of the model-output and
-imatrix-baseline records. Scores the predictions P1 to P4 and R1 to R4 of PREREG.md by the rules written there.
+imatrix-baseline records. Scores the predictions P1 to P4 and R1 to R4 of PREREG.md, and E1 and E2 of its extension 1, by the rules written there.
 Every number is a field of one of those files or arithmetic on two of them.
 
 Usage, from the root of a checkout:
@@ -22,6 +22,7 @@ TAG = {SMOL: "smollm2", QWEN: "qwen15"}
 PLAIN = {SMOL: EXP / "model-output-smollm2-2026-11-17" / "results.jsonl", QWEN: EXP / "model-output-qwen25-2026-11-17" / "results.jsonl"}
 IMAT = EXP / "imatrix-baseline-2026-11-17" / "results.jsonl"
 ARM, HARM, RARM = "ZBG128:b560s16", "hZBG128:b560s16", "hZBG128:b560s16~rand"
+READERS = "ZBG128:b560s16+h~rand@attn_q,attn_k,attn_v,ffn_gate,ffn_up"
 PARTS = (("the attention's readers", "ZBG128:b560s16+h@attn_q,attn_k,attn_v"), ("the feed-forward readers", "ZBG128:b560s16+h@ffn_gate,ffn_up"),
          ("the writers", "ZBG128:b560s16+h@attn_output,ffn_down"))
 
@@ -82,7 +83,10 @@ def main():
         q, qi, qr = plain[m].get(f"file:{TAG[m]}-Q4_K_M.gguf"), imat[m].get(f"file:{TAG[m]}-Q4_K_M-imat.gguf"), mine[m].get(f"file:{TAG[m]}-Q4_K_M-rimat.gguf")
         b, bi, br = plain[m][ARM], imat[m][HARM], mine[m].get(RARM)
         for name, none, real, rand in (("llama.cpp Q4_K_M", q, qi, qr), ("one ball per group of 128", b, bi, br)):
-            for label, r in (("none", none), ("wikitext-2 training text", real), ("no meaning", rand)):
+            rows = [("none", none), ("wikitext-2 training text", real), ("no meaning", rand)]
+            if name.startswith("one ball"):
+                rows.append(("no meaning, on the five kinds that read the stream only (extension 1)", mine[m].get(READERS)))
+            for label, r in rows:
                 if r:
                     share = "" if r is none else f"{(none['kl_mean'] - r['kl_mean']) / (none['kl_mean'] - real['kl_mean']):.3f}"
                     over = "" if r is none else f"{-gap(r, none):.1f}"
@@ -95,6 +99,12 @@ def main():
                       f"{br['kl_mean']:.6f} against {qi['kl_mean']:.6f}, under it by {gap(br, qi):.1f} errors")
             else:
                 verdict["R2"] = -gap(br, b) < 2
+        rd = mine[m].get(READERS)
+        if rd and m == SMOL and br:
+            print(f"{SHORT[m]}, extension 1: the matrix of no meaning on the readers only against on every kind: {rd['kl_mean']:.6f} against {br['kl_mean']:.6f}, above it by {-gap(rd, br):.1f} errors")
+            verdict["E1"] = -gap(rd, br) < 2
+        if rd and m == QWEN:
+            verdict["E2"] = -gap(rd, b) < 2
         if qr:
             share = (q["kl_mean"] - qr["kl_mean"]) / (q["kl_mean"] - qi["kl_mean"])
             if m == SMOL:
@@ -102,9 +112,9 @@ def main():
             else:
                 verdict["R4"] = -gap(qr, q) < 2
     print()
-    print("The predictions of PREREG.md")
+    print("The predictions of PREREG.md and of its extension 1")
     print("prediction | holds")
-    names = ("P1", "P2", "P3", "P4", "R1", "R2", "R3", "R4")
+    names = ("P1", "P2", "P3", "P4", "R1", "R2", "R3", "R4", "E1", "E2")
     for n in names:
         print(f"{n} | {'not scored' if n not in verdict else ('yes' if verdict[n] else 'NO')}")
     print(f"hold: {sum(1 for v in verdict.values() if v)} of {len(names)}")

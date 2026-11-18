@@ -96,3 +96,37 @@ My confidence: fair in P1 and P3. Low in P2 and P4: half of the weights are the 
 ## Order and time
 
 One process at a time, after the loud-columns run and its extension. For SmolLM2: the meaningless matrix, about 12 minutes. Its forecast, committed. Part A, three variants. Then `hZBG128:b560s16~rand` and `Q4_K_M-rimat`. For Qwen2.5: the matrix, about 16 minutes, its forecast, and the two variants. About seven minutes a variant: an hour and a half in all.
+
+## Extension 1: the matrix of no meaning on the readers only
+
+Written 2026-11-18 after the plan above was committed at `453d907` and after `forecast-smollm2-rand.out` was committed at `0cdc5f4`. No variant of this plan or of this extension was scored when it was written.
+
+**What prompted it.** The forecast. Counted by the training text's activity, the arm weighted by the matrix of no meaning gains, on SmolLM2:
+
+| Kind | Gain with the training text's matrix, dB | With the matrix of no meaning, dB |
+|---|---|---|
+| `attn_q` | 3.99 | 3.73 |
+| `attn_k` | 3.79 | 3.53 |
+| `attn_v` | 4.51 | 4.24 |
+| `ffn_gate` | 0.77 | 0.56 |
+| `ffn_up` | 0.88 | 0.68 |
+| `attn_output` | 1.02 | -0.41 |
+| `ffn_down` | 1.41 | 0.49 |
+
+- **On the five kinds that read the stream the meaningless matrix does nearly what the real one does.** The ten columns it puts first hold 57.5 percent of the attention's input, where the real matrix's own ten hold 61.8.
+- **On the two writers it does not.** For `attn_output` it is worse than no matrix. What the stream carries shows whatever is read. What the heads and the hidden units do depends on what is read.
+
+So an arm that needs no text may do best to weight the readers and leave the writers alone.
+
+**Two variants.** `ZBG128:b560s16+h~rand@attn_q,attn_k,attn_v,ffn_gate,ffn_up` on SmolLM2 and on Qwen2.5: the five reading kinds weighted by the matrix of no meaning, the two writers by the plain arm. `run.py` and `summary.py` were extended for it. The planned variants come out bit for bit as before on the single-matrix test.
+
+| | Prediction | It fails if |
+|---|---|---|
+| E1 | On SmolLM2, leaving the writers plain loses nothing: the readers-only arm is not above `hZBG128:b560s16~rand` by 2 errors | it is |
+| E2 | On Qwen2.5 the readers-only arm is not above the plain arm by 2 errors | it is |
+
+My confidence: fair in both.
+
+**What it would mean.** If E1 holds, the part of an importance matrix that a meaningless text can supply is the part about the stream, and that is the part worth having.
+
+**Order.** After the seven variants of the plan.
