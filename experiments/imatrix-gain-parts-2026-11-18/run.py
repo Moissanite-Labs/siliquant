@@ -161,7 +161,7 @@ def main():
     done = set()
     if os.path.exists(args.out):
         with open(args.out) as f:
-            done = {(r["model"], r["variant"], r["text"]) for r in map(json.loads, filter(str.strip, f))}
+            done = {(r["model"], r["variant"], r.get("text", "test")) for r in map(json.loads, filter(str.strip, f))}     # a row of a llama.cpp file, written by the earlier record's program, names no text
     if not args.metrics_only:
         os.makedirs(args.work, exist_ok=True)
     for v in args.variants:
