@@ -10,7 +10,7 @@ The model-output records of this date compare rounding rules that read no data. 
 
 ## Status
 
-`complete` for what the plan and its two extensions cover: eight runs on the test text and twelve on the validation text, on two models. Mean KL and first-choice agreement on one text. MMLU, HumanEval and GSM8K, which the issue also asks for, are not in this record. No arm has a packed format.
+`complete` for what the plan and its two extensions cover: eight runs on the test text and twelve on the validation text, on two models. Mean KL and first-choice agreement on one text. MMLU, HumanEval and GSM8K, which the issue also asks for, are not in this record. No arm has a packed format. Since this was written, an MMLU subset has been scored in the record mmlu-subset-2026-11-18, and the integer arm has a file in the record packed-ball-format-2026-11-18.
 
 ## Preregistration
 
@@ -158,7 +158,7 @@ All four of the extension's predictions were about full strength, and all four w
 - **The winning arm was not predicted to win.** Extension 1 tried two strengths on the test text and I had predicted the other. Extension 2 then chose the strength on the validation text by a rule fixed beforehand, and it chose the same one. So the test figures did not choose it. But the validation text is from the same source as the test text and the calibration text, and the sweep says only that the strength transfers within that source.
 - **The calibration text is the training half of the test text's source.** That is the best case for any use of the matrix, llama.cpp's and this one. A matrix from other text would help both less. Nothing here says which would lose more.
 - **Two models and one text.** The two models disagree on how much a matrix is worth, by a factor of nearly four. A third could disagree again.
-- **Mean KL and first-choice agreement, not task accuracy.** The issue asks for MMLU, HumanEval and GSM8K. They are not here.
+- **Mean KL and first-choice agreement, not task accuracy.** The issue asks for MMLU, HumanEval and GSM8K. They are not here. An MMLU subset is in the record mmlu-subset-2026-11-18. The other two were not run.
 - **Counted bits.** No ball arm has a packed file. The saving of 0.31 bits is in the file and not in memory.
 - **This is the plainest use of the matrix.** Nothing uses second-order statistics of the inputs, as GPTQ does, or a search over the scale with the matrix, as llama.cpp does.
 - **The standard errors are too small.** They treat positions as independent.
