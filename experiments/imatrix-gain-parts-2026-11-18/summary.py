@@ -2,7 +2,7 @@
 """Tables and verdicts for what the gain of an importance matrix is made of, from results.jsonl and the rows of three earlier records.
 
 Reads results.jsonl of this folder, and the plain arm, the weighted arm and llama.cpp's files of the model-output and
-imatrix-baseline records. Scores the predictions P1 to P4 and R1 to R4 of PREREG.md, and E1 and E2 of its extension 1, by the rules written there.
+imatrix-baseline records. Scores the predictions P1 to P4 and R1 to R4 of PREREG.md, E1 and E2 of its extension 1 and F1 and F2 of its extension 2, by the rules written there.
 Every number is a field of one of those files or arithmetic on two of them.
 
 Usage, from the root of a checkout:
@@ -23,6 +23,8 @@ PLAIN = {SMOL: EXP / "model-output-smollm2-2026-11-17" / "results.jsonl", QWEN: 
 IMAT = EXP / "imatrix-baseline-2026-11-17" / "results.jsonl"
 ARM, HARM, RARM = "ZBG128:b560s16", "hZBG128:b560s16", "hZBG128:b560s16~rand"
 READERS = "ZBG128:b560s16+h~rand@attn_q,attn_k,attn_v,ffn_gate,ffn_up"
+PACKED = EXP / "packed-ball-format-2026-11-18" / "results.jsonl"
+FILE = "hPZ32:b136s8"
 PARTS = (("the attention's readers", "ZBG128:b560s16+h@attn_q,attn_k,attn_v"), ("the feed-forward readers", "ZBG128:b560s16+h@ffn_gate,ffn_up"),
          ("the writers", "ZBG128:b560s16+h@attn_output,ffn_down"))
 
@@ -112,9 +114,19 @@ def main():
             else:
                 verdict["R4"] = -gap(qr, q) < 2
     print()
-    print("The predictions of PREREG.md and of its extension 1")
+    print("Extension 2: the arm as a file. Integer levels in one ball per 32 weights with columns weighted, 18 bytes a block, written by shape/ballpack.py, read back from disk and scored")
+    print("model | matrix | bytes of the file | bits a weight | mean KL | its standard error | first choice kept, percent | under llama.cpp Q4_K_M with the training text's matrix by, in errors")
+    for m in (SMOL, QWEN):
+        qi = imat[m].get(f"file:{TAG[m]}-Q4_K_M-imat.gguf")
+        for label, r in (("wikitext-2 training text, from the packed-format record", load(PACKED, m).get(FILE)), ("no meaning", load(HERE / "packed.jsonl", m).get(FILE))):
+            if r:
+                print(f"{SHORT[m]} | {label} | {r['file_bytes']} | {r['stored_bits_per_weight']:.5f} | {r['kl_mean']:.6f} | {r['kl_mean_se']:.6f} | {r['same_top']:.2f} | {gap(r, qi):.1f}")
+                if label == "no meaning":
+                    verdict["F1" if m == SMOL else "F2"] = gap(r, qi) >= 2
+    print()
+    print("The predictions of PREREG.md and of its extensions 1 and 2")
     print("prediction | holds")
-    names = ("P1", "P2", "P3", "P4", "R1", "R2", "R3", "R4", "E1", "E2")
+    names = ("P1", "P2", "P3", "P4", "R1", "R2", "R3", "R4", "E1", "E2", "F1", "F2")
     for n in names:
         print(f"{n} | {'not scored' if n not in verdict else ('yes' if verdict[n] else 'NO')}")
     print(f"hold: {sum(1 for v in verdict.values() if v)} of {len(names)}")

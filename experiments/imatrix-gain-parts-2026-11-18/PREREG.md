@@ -130,3 +130,22 @@ My confidence: fair in both.
 **What it would mean.** If E1 holds, the part of an importance matrix that a meaningless text can supply is the part about the stream, and that is the part worth having.
 
 **Order.** After the seven variants of the plan.
+
+## Extension 2: the arm with the matrix of no meaning, as a file
+
+Written 2026-11-18, before any variant of this extension was scored. Four rows of the plan were in when it was written: the three of Part A, and the ball arm with the matrix of no meaning on SmolLM2, which scores 0.0314. That is 0.886 of what the training text's matrix gains, and it is under llama.cpp's `Q4_K_M` made with the training text's matrix, 0.0378. No Qwen2.5 row of Part B was in.
+
+**Why.** The arms above are counted: their bits are those of a codebook and no file holds them. The record packed-ball-format-2026-11-18 wrote such an arm to a file of 18 bytes for 32 weights and read it back. With the training text's matrix that file scores 0.0309 on SmolLM2 and 0.0227 on Qwen2.5. If the matrix needs no text, the file needs none either.
+
+**Two variants.** `hPZ32:b136s8` on SmolLM2 and on Qwen2.5, by the program of the packed-format record, unchanged, given the matrix of no meaning in place of the training text's. It packs every block matrix, writes the file, reads it back from disk, stops if any matrix read back is not bit for bit the one the encoder gave, and scores the model the file holds. Its rows go to `packed.jsonl` of this folder: every row of that file is made with the matrix of no meaning. The columns of all seven kinds are weighted, as in that record.
+
+| | Prediction | It fails if |
+|---|---|---|
+| F1 | On SmolLM2 the file made with no text, at 4.5 bits a weight, is under llama.cpp's `Q4_K_M` at 4.8 bits made with the training text's matrix (0.0378), by 2 errors | it is not |
+| F2 | On Qwen2.5 the same, against 0.0282 | it is not |
+
+My confidence: fair in F1. With the training text's matrix the file scored 1.10 times the counted arm on SmolLM2, and 1.10 times 0.0314 is 0.0344, which would be about 3 errors under. Fair in F2, with nothing of Part B on Qwen2.5 seen yet.
+
+**What it would mean.** If both hold: a file with 7 percent fewer bits a weight than `Q4_K_M`, made without reading any text, gives an output closer to the 16-bit model's than `Q4_K_M` made with real text, on both models tried. What it would not mean is said in the plan: the model is still run on 51,200 tokens of noise to make the matrix.
+
+**Order.** After extension 1.
