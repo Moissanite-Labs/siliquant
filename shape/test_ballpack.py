@@ -1,4 +1,4 @@
-"""Tests of shape/ballpack.py: the C coder against ballindex.py, exact round trips, and the bytes of a file.
+"""Tests of shape/ballpack.py: the C coder against ballindex.py, exact round trips, kept columns, and the bytes of a file.
 
 Run: python3 -m unittest shape/test_ballpack.py
 """
@@ -159,6 +159,60 @@ class Format32(unittest.TestCase):
                 f.write(b"x")
             with self.assertRaises(ValueError):
                 ballpack.Format.read(path)
+
+    def test_kept_columns_come_back_as_they_were(self):
+        fmt = self.fmt
+        keep = np.array([0, 17, 100, 255])
+        cols = np.exp(self.rng.standard_normal(256) * 0.5)
+        for name in ("gauss", "heavy", "spike"):
+            W = self.matrices()[name]
+            for c in (None, cols):
+                stored, Wh, _ = fmt.encode(W, c, keep=keep)
+                self.assertTrue(np.array_equal(Wh[:, keep], W[:, keep].astype(np.float16)), name)      # as stored: 16-bit floats of the input
+                self.assertTrue(np.array_equal(fmt.decode(stored), Wh), name)
+                Y = fmt.unrank(stored["records"][:, 1:]).reshape(W.shape)
+                self.assertTrue(np.all(Y[:, keep] == 0), name)                                         # a kept column takes no room in a block
+                self.assertEqual(stored["records"].shape, (W.size // 32, 18))
+        W = self.matrices()["spike"]                                                                   # the large entry is in column 17
+        plain, kept = fmt.encode(W)[1].astype(np.float64), fmt.encode(W, keep=np.array([17]))[1].astype(np.float64)
+        err = lambda A: float(((W.astype(np.float64) - A)[3] ** 2).sum())
+        self.assertLess(err(kept), 0.1 * err(plain))                                                   # with it kept, its row is rounded at the scale of the rest
+
+    def test_bytes_and_file_with_kept_columns(self):
+        fmt = self.fmt
+        W = self.matrices()["heavy"]
+        keep = np.array([3, 64, 65])
+        cols = np.exp(self.rng.standard_normal(256) * 0.5)
+        packed, want, size = [], {}, 28
+        for name, c, k in (("plain", None, None), ("kept", None, keep), ("both", cols, keep)):
+            stored, Wh, _ = fmt.encode(W, c, keep=k)
+            packed.append((name, stored))
+            want[name] = Wh
+            size += 2 + len(name) + 9 + 2 + (2 * 256 if c is not None else 0) + (4 + 4 * 3 + 2 * 24 * 3 if k is not None else 0) + 18 * (W.size // 32)
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "k.sqbp")
+            self.assertEqual(fmt.write(path, packed), size)
+            fmt2, tensors = ballpack.Format.read(path)
+            for name, stored in tensors:
+                self.assertTrue(np.array_equal(fmt2.decode(stored), want[name]), name)
+            self.assertIsNone(tensors[0][1]["keep"])
+            self.assertTrue(np.array_equal(tensors[1][1]["keep"], keep))
+
+    def test_kept_columns_must_be_columns_in_rising_order(self):
+        W = self.matrices()["gauss"]
+        for bad in (np.array([5, 5]), np.array([9, 3]), np.array([256]), np.array([-1]), np.array([], dtype=np.int64), np.array([1.5])):
+            with self.assertRaises(ValueError):
+                self.fmt.encode(W, keep=bad)
+
+    def test_bytes_without_kept_columns_are_as_before(self):
+        import hashlib
+        fmt = self.fmt
+        rng = np.random.default_rng(7)
+        W = (rng.standard_normal((16, 256)) * 0.02).astype(np.float32)
+        c = np.exp(rng.standard_normal(256) * 0.5)
+        sha = lambda stored: hashlib.sha256(fmt.tensor_bytes("m", stored)).hexdigest()
+        self.assertEqual(sha(fmt.encode(W)[0]), "998404863c3f766a7941e3034c2b2d9652593ec0e8b690e209914d48b1903a91")     # the bytes before kept columns existed
+        self.assertEqual(sha(fmt.encode(W, c)[0]), "73883d41b04521a0222a22a81c4ddbf63a8f42ff9d3445ee389699aa06808ee9")
 
     def test_a_row_that_blocks_do_not_tile_is_refused(self):
         with self.assertRaises(ValueError):

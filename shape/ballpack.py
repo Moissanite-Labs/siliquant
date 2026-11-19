@@ -8,6 +8,7 @@ The format, for a matrix of rows by cols with cols a multiple of n:
 
   for the matrix   the largest scale `top`, as a 16-bit float
                    optionally a weight for every column, as 16-bit floats
+                   optionally some columns kept whole: their numbers, and their entries as 16-bit floats
   for every block  one byte `code`: the block's scale is top * 2^(-code / steps)
                    the number of the block's point among the points of the ball, in bits / 8 bytes
 
@@ -16,8 +17,9 @@ back as
 
   float16( y * top * 2^(-code / steps) / column weight )
 
-in 64-bit arithmetic, with y the entry of the point. encode() returns the matrix as decode()
-will give it, so what a model is scored on can be what the file holds, bit for bit.
+in 64-bit arithmetic, with y the entry of the point. An entry of a kept column is read back as it
+was stored, and takes no room in any block: it is zero there. encode() returns the matrix as
+decode() will give it, so what a model is scored on can be what the file holds, bit for bit.
 
 With n = 32, bits = 136 and one byte of scale a block takes 18 bytes: 4.5 bits a weight.
 
@@ -148,19 +150,25 @@ class Format:
             lo = np.where(ok, lo, mid)
         return hi
 
-    def values(self, Y, codes, top, colscale, rows, cols):
+    def values(self, Y, codes, top, colscale, rows, cols, keep=None, kept=None):
         """The matrix a file holds: the one rule for reading weights back, used by encode and by decode."""
         t = float(top) * 2.0 ** (-codes.astype(np.float64) / self.steps)
         Wh = (Y.astype(np.float64) * t[:, None]).reshape(rows, cols)
         if colscale is not None:
             Wh = Wh / colscale.astype(np.float64)[None, :]
-        return Wh.astype(np.float16)
+        Wh = Wh.astype(np.float16)
+        if keep is not None:
+            Wh[:, keep.astype(np.int64)] = kept
+        return Wh
 
-    def encode(self, W, colscale=None):
+    def encode(self, W, colscale=None, keep=None):
         """Round a matrix and pack it. Returns (what is stored, the matrix as decode will give it, share of blocks shrunk).
 
         With colscale every column is multiplied by its weight before rounding and divided by it
         after. The weights are stored as 16-bit floats, and it is the stored values that are used.
+
+        With keep, the numbers of some columns in rising order, those columns are not rounded.
+        Their entries are stored as 16-bit floats and read back as stored. In the blocks they are zero.
         """
         rows, cols = W.shape
         if cols % self.n:
@@ -172,6 +180,18 @@ class Format:
             if not np.all(np.isfinite(c16)) or np.any(c16 <= 0):
                 raise ValueError("a column weight is not a positive 16-bit float")
             X = X * c16.astype(np.float64)[None, :]
+        k32, kept = None, None
+        if keep is not None:
+            k32 = np.asarray(keep)
+            if k32.ndim != 1 or len(k32) == 0 or not np.issubdtype(k32.dtype, np.integer):
+                raise ValueError("the kept columns are a list of whole numbers, and not an empty one")
+            if k32.min() < 0 or k32.max() >= cols or np.any(np.diff(k32) <= 0):
+                raise ValueError("a kept column is outside the matrix, or the columns are not in rising order")
+            k32 = k32.astype(np.uint32)
+            kept = np.ascontiguousarray(W[:, k32.astype(np.int64)]).astype(np.float16)
+            if not np.all(np.isfinite(kept)):
+                raise ValueError("an entry of a kept column does not fit a 16-bit float")
+            X[:, k32.astype(np.int64)] = 0.0
         X = X.reshape(-1, self.n)
         t = self._scales(X)
         top = np.float16(t.max())
@@ -198,13 +218,13 @@ class Format:
         Yi = Y.astype(np.int8)
         codes = k.astype(np.uint8)
         records = np.concatenate([codes[:, None], self.rank(Yi)], axis=1)
-        stored = {"rows": rows, "cols": cols, "top": top, "colscale": c16, "records": records}
-        return stored, self.values(Yi, codes, top, c16, rows, cols), float(np.mean(out))
+        stored = {"rows": rows, "cols": cols, "top": top, "colscale": c16, "records": records, "keep": k32, "kept": kept}
+        return stored, self.values(Yi, codes, top, c16, rows, cols, k32, kept), float(np.mean(out))
 
     def decode(self, stored):
         records = stored["records"]
         Y = self.unrank(records[:, 1:])
-        return self.values(Y, records[:, 0], stored["top"], stored["colscale"], stored["rows"], stored["cols"])
+        return self.values(Y, records[:, 0], stored["top"], stored["colscale"], stored["rows"], stored["cols"], stored.get("keep"), stored.get("kept"))
 
     # -- a file ----------------------------------------------------------------------------------
 
@@ -214,11 +234,14 @@ class Format:
     def tensor_bytes(self, name, stored):
         """One matrix as it stands in a file."""
         raw = name.encode("utf-8")
-        c = stored["colscale"]
-        head = struct.pack("<H", len(raw)) + raw + struct.pack("<IIB", stored["rows"], stored["cols"], 0 if c is None else 1)
+        c, keep = stored["colscale"], stored.get("keep")
+        flag = (0 if c is None else 1) | (0 if keep is None else 2)
+        head = struct.pack("<H", len(raw)) + raw + struct.pack("<IIB", stored["rows"], stored["cols"], flag)
         head += np.asarray(stored["top"], dtype="<f2").tobytes()
         if c is not None:
             head += c.astype("<f2").tobytes()
+        if keep is not None:                             # how many, which, and their entries row by row
+            head += struct.pack("<I", len(keep)) + keep.astype("<u4").tobytes() + np.ascontiguousarray(stored["kept"]).astype("<f2").tobytes()
         return head + stored["records"].tobytes()
 
     def write(self, path, tensors):
@@ -249,14 +272,25 @@ class Format:
             at += 9
             top = np.frombuffer(blob, dtype="<f2", count=1, offset=at)[0]
             at += 2
-            c = None
+            if flag & ~3:
+                raise ValueError("a matrix of the file has a flag this reader does not know")
+            c, keep, kept = None, None, None
             if flag & 1:
                 c = np.frombuffer(blob, dtype="<f2", count=cols, offset=at).copy()
                 at += 2 * cols
+            if flag & 2:
+                (count_kept,) = struct.unpack_from("<I", blob, at)
+                at += 4
+                keep = np.frombuffer(blob, dtype="<u4", count=count_kept, offset=at).copy()
+                at += 4 * count_kept
+                if count_kept == 0 or keep.max() >= cols or np.any(np.diff(keep.astype(np.int64)) <= 0):
+                    raise ValueError("the kept columns of a matrix are not columns of it in rising order")
+                kept = np.frombuffer(blob, dtype="<f2", count=rows * count_kept, offset=at).reshape(rows, count_kept).copy()
+                at += 2 * rows * count_kept
             blocks, width = rows * cols // n, fmt.bytes + 1
             records = np.frombuffer(blob, dtype=np.uint8, count=blocks * width, offset=at).reshape(blocks, width).copy()
             at += blocks * width
-            tensors.append((name, {"rows": rows, "cols": cols, "top": top, "colscale": c, "records": records}))
+            tensors.append((name, {"rows": rows, "cols": cols, "top": top, "colscale": c, "records": records, "keep": keep, "kept": kept}))
         if at != len(blob):
             raise ValueError("the file has bytes after its last matrix")
         return fmt, tensors
