@@ -61,7 +61,7 @@ The conventions are those of [weft-loom's CONTRIBUTING.md](https://github.com/Mo
 
 ## Status
 
-Twenty-two studies so far. The newest results are at the end of this section. The last of them changes how the earlier ones should be read: the lead of the ball arm with no data and no kept columns holds on two models of three.
+Twenty-three studies so far. The newest results are at the end of this section. The last of them changes how the earlier ones should be read: the lead of the ball arm with no data and no kept columns holds on two models of three.
 
 The first measured weight error only: at 2 bits per weight the lattice E8 beats scalar rounding on every matrix tried, and the lattice the starting briefs proposed, A8\*, gains less than half as much in the mean of each family of data.
 
@@ -177,6 +177,12 @@ The twenty-second, of 2026-11-19, runs the comparisons on a third model of anoth
 - **This model's loss is two hidden units.** 92.6 percent of what a matrix gains here is in the two writing matrices, and one column of `ffn_down` left whole in each of the first two layers takes the ball arm from 0.0478 to 0.0302.
 - **The weights alone find them.** With the ten loud columns of every `ffn_down` left whole, at 4.505 bits, no data and no forward pass, the ball arm is under `Q4_K_M` with no matrix on all three models: by 12.5, 16.8 and 17.3 errors.
 - A rule I had drawn from the first two models, keyed on how much of the attention's input sits in ten dimensions, is refuted by this one.
+
+The twenty-third, of 2026-11-19, gives that arm a file. The packed format of the fourteenth study now stores columns kept whole.
+
+- **A file of 4.5 bits a weight, made from the weights alone, is ahead of `Q4_K_M` at 4.8 bits with no matrix on all three models**: mean KL 0.0247 against 0.0333, 0.0581 against 0.0838 and 0.0340 against 0.0432, which is 10.2, 13.5 and 11.9 errors. No data is read and the model is never run. Each file was read back from disk bit for bit.
+- **On Llama-3.2 the kept columns are what the file needs**: 0.0519 without them, 9.0 errors behind `Q4_K_M`, and 0.0340 with them. On the other two models they cost nothing.
+- It is not ahead of `Q4_K_M` made with an importance matrix on SmolLM2. And no engine reads the file: it is decoded to floats first.
 
 ## Licence
 
