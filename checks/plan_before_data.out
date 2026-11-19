@@ -1,5 +1,5 @@
 Plans and data in the order git has them, for every record under experiments/
-head 36c09dc
+head 15383d5
 
 record | first plan | data files committed with it | first data after it | plan before data | plan changed before first data | plan changed after first data | of those, followed by new data | named in the README | programs changed after first data
 ball-dimension-no-clip-rule-2026-11-17 | 5398096 | 0 | 801a4c6 | yes | 0 | 0 | 0 | 0 of 0 | 0
@@ -23,6 +23,7 @@ packed-ball-format-2026-11-18 | 4d3995c | 0 | 170806c | yes | 0 | 0 | 0 | 0 of 0
 region-shapes-no-clip-rule-2026-11-17 | 6964d05 | 0 | dfe9da0 | yes | 0 | 0 | 0 | 0 of 0 | 0
 second-text-python-2026-11-18 | 66acffb | 0 | bb02a8d | yes | 0 | 0 | 0 | 0 of 0 | 1
 shape-formula-held-out-2026-11-17 | 41e4480 | 3 | 997a182 | yes | 0 | 1 | 1 | 1 of 1 | 1
+third-model-llama32-2026-11-18 | b6da101 | 0 | 535c830 | yes | 0 | 2 | 2 | 2 of 2 | 3
 
 Data committed with a plan, each change to a plan, and each program changed after the first data
   clip-by-layer-qwen25-2026-11-18: 1 data files were committed with the first plan: weights_only.jsonl
@@ -96,5 +97,10 @@ Data committed with a plan, each change to a plan, and each program changed afte
   shape-formula-held-out-2026-11-17: 3 data files were committed with the first plan: pilot.detail.json, pilot.json, pilot.out
   shape-formula-held-out-2026-11-17: plan changed at 8331606 (2026-11-17T07:56), new data followed, named in the README. Study on issue #10: extension 1 of the plan, a rule with a proved guarantee, before it is 
   shape-formula-held-out-2026-11-17: program detail.py changed at eb44099 after the first data
+  third-model-llama32-2026-11-18: plan changed at 10d0b93 (2026-11-18T23:52), new data followed, named in the README. Extension 1 of the third-model plan: which matrices the gain is in, before its variants ar
+  third-model-llama32-2026-11-18: plan changed at f0ddca3 (2026-11-19T00:07), new data followed, named in the README. Extension 2 of the third-model plan: a few columns left whole, before its variants are sco
+  third-model-llama32-2026-11-18: program summary.py changed at 10d0b93 after the first data
+  third-model-llama32-2026-11-18: program summary.py changed at f0ddca3 after the first data
+  third-model-llama32-2026-11-18: program summary.py changed at 15383d5 after the first data
 
 records with data from before their first plan, or first data that does not descend from it: 0
