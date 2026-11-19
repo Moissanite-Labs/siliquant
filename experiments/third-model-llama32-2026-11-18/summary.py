@@ -83,6 +83,31 @@ def three_models(got):
                       + f" | {gap(b, q):.1f} | {gap(bi, qi):.1f} | {gap(br, qi):.1f} | {gap(bi, b):.1f} | {gap(br, b):.1f}")
 
 
+def kept(got, loud_rows):
+    """The ball arm with no matrix and the ten loud columns of every ffn_down kept, on three models, wikitext-2 test text. Not part of any prediction."""
+    exp = HERE.parent
+    def row(path, model, variant):
+        if path.exists():
+            for line in path.read_text().splitlines():
+                if line.strip():
+                    r = json.loads(line)
+                    if r.get("model") == model and r["variant"] == variant and "kl_mean" in r and r.get("text", "test") in ("test", "wikitext"):
+                        return r
+    table = []
+    for name, model, tag, folder in (("Qwen2.5-1.5B", "qwen2.5-1.5b-instruct-fp16.gguf", "qwen15", "model-output-qwen25-2026-11-17"),
+                                     ("SmolLM2-1.7B", "SmolLM2-1.7B-Instruct-f16.gguf", "smollm2", "model-output-smollm2-2026-11-17")):
+        table.append((name, row(exp / "loud-columns-2026-11-18" / "results.jsonl", model, "ZBG128:b560s16+K10"), row(exp / folder / "results.jsonl", model, "ZBG128:b560s16"),
+                      row(exp / folder / "results.jsonl", model, f"file:{tag}-Q4_K_M.gguf"), row(exp / "imatrix-baseline-2026-11-17" / "results.jsonl", model, f"file:{tag}-Q4_K_M-imat.gguf")))
+    w = got["wikitext-2 test text"]
+    table.append(("Llama-3.2-1B", loud_rows.get(("ZBG128:b560s16+K10", "wikitext")), w.get(("o", "none")), w.get(("l", "none")), w.get(("l", "wikitext-2 training text"))))
+    if all(all(t[1:]) for t in table):
+        print()
+        print("Three models on the wikitext-2 test text: the ball arm with no matrix, no forward pass, and the ten loud columns of every ffn_down left whole")
+        print("model | bits a weight | mean KL | the plain ball arm | under it by, errors | Q4_K_M with no matrix | under it by, errors | Q4_K_M with the wikitext matrix | under it by, errors")
+        for name, k, b, q, qi in table:
+            print(f"{name} | {k['bits_per_weight_changed']:.4f} | {k['kl_mean']:.4f} | {b['kl_mean']:.4f} | {gap(k, b):.1f} | {q['kl_mean']:.4f} | {gap(k, q):.1f} | {qi['kl_mean']:.4f} | {gap(k, qi):.1f}")
+
+
 def main():
     verdict = {}
     share = loud()
@@ -191,6 +216,7 @@ def main():
             print(f"wikitext: one column kept in layers 0 and 1 against ten: {a01['kl_mean']:.6f} against {k01['kl_mean']:.6f}, above it by {-gap(a01, k01):.1f} errors")
             verdict["Y5"] = abs(gap(a01, k01)) < 2
     three_models(got)
+    kept(got, loud_rows)
     print()
     print("The predictions of PREREG.md and of its extensions 1 and 2")
     print("prediction | holds")

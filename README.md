@@ -61,7 +61,7 @@ The conventions are those of [weft-loom's CONTRIBUTING.md](https://github.com/Mo
 
 ## Status
 
-Twenty-one studies so far. The newest results are at the end of this section.
+Twenty-two studies so far. The newest results are at the end of this section. The last of them changes how the earlier ones should be read: the lead of the ball arm with no data and no kept columns holds on two models of three.
 
 The first measured weight error only: at 2 bits per weight the lattice E8 beats scalar rounding on every matrix tried, and the lattice the starting briefs proposed, A8\*, gains less than half as much in the mean of each family of data.
 
@@ -169,6 +169,14 @@ The twenty-first, of 2026-11-18, scores the headline comparisons on a second tex
 - **All three hold on both models.** The ball arm at 4.5 bits is under `Q4_K_M` at 4.8 bits by 13.2 and 9.3 errors with no matrix on either side, by 11.2 and 5.0 with the wikitext matrix on both, and by 8.7 and 3.6 with a matrix from noise on its side against the wikitext matrix on the other.
 - **On SmolLM2 a matrix from noise is as good as one from Wikipedia on a text neither has read**: it buys 99.3 percent of the gain for `Q4_K_M` and 95.1 for the ball arm.
 - **On Qwen2.5 the ball arm is best with no matrix on this text.** Both matrices cost it 2 to 3 errors. Its gain from the wikitext matrix on prose was a gain on the kind of text the matrix was made from.
+
+The twenty-second, of 2026-11-19, runs the comparisons on a third model of another family, `Llama-3.2-1B-Instruct`, on both texts.
+
+- **With no matrix on either side the ball arm is behind `Q4_K_M` on this model**: 0.0478 against 0.0432 on the wikitext text, 4.9 errors, and 8.3 errors behind on Python. On the two earlier models it was 9 to 15 errors ahead.
+- **With a matrix it is far ahead, as on the other two**: 18.2 and 17.0 errors with the wikitext matrix on both sides, 11.1 and 13.7 with a matrix from noise against the wikitext matrix. Those two comparisons now hold on three models and two texts.
+- **This model's loss is two hidden units.** 92.6 percent of what a matrix gains here is in the two writing matrices, and one column of `ffn_down` left whole in each of the first two layers takes the ball arm from 0.0478 to 0.0302.
+- **The weights alone find them.** With the ten loud columns of every `ffn_down` left whole, at 4.505 bits, no data and no forward pass, the ball arm is under `Q4_K_M` with no matrix on all three models: by 12.5, 16.8 and 17.3 errors.
+- A rule I had drawn from the first two models, keyed on how much of the attention's input sits in ten dimensions, is refuted by this one.
 
 ## Licence
 
