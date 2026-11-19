@@ -1,0 +1,17 @@
+Blocks: one in every 3. Matrices: 56. Positions: 1024. lift = output error over weight error, dB.
+The inputs: the part of their squared size in the largest hundredth of the coordinates, by kind: attn_q 0.665, attn_k 0.665, attn_v 0.665, attn_output 0.233, ffn_gate 0.170, ffn_up 0.170, ffn_down 0.200
+
+arm | weight error, dB | output error, dB | lift, dB: all | attn_q | attn_k | attn_v | attn_output | ffn_gate | ffn_up | ffn_down
+ZBG128:b560s16 | -24.927 | -26.575 | -1.65 | -4.01 | -5.29 | +3.84 | -2.49 | -2.39 | -0.46 | -0.74
+EBG128:b560s16 | -25.585 | -27.248 | -1.66 | -4.08 | -5.33 | +3.87 | -2.49 | -2.40 | -0.46 | -0.74
+noise(ZBG128:b560s16)#1 | -24.927 | -26.581 | -1.65 | -4.06 | -5.37 | +3.94 | -2.49 | -2.40 | -0.46 | -0.74
+shuffle(ZBG128:b560s16)#1 | -24.927 | -26.574 | -1.65 | -3.99 | -5.37 | +3.97 | -2.53 | -2.41 | -0.46 | -0.75
+noisepart(ZBG128:b560s16)@small#1 | -24.927 | -26.552 | -1.62 | -3.96 | -5.29 | +3.94 | -2.48 | -2.40 | -0.46 | -0.74
+noisepart(ZBG128:b560s16)@big#1 | -24.927 | -26.616 | -1.69 | -4.07 | -5.38 | +3.75 | -2.53 | -2.40 | -0.46 | -0.73
+
+Output error of an arm over that of ZBG128:b560s16, dB, mean over the matrices: all | attn_q | attn_k | attn_v | attn_output | ffn_gate | ffn_up | ffn_down | feed-forward matrices | attention matrices
+EBG128:b560s16 | -0.67 | -0.73 | -0.71 | -0.63 | -0.67 | -0.67 | -0.66 | -0.66 | -0.66 | -0.68
+noise(ZBG128:b560s16)#1 | -0.01 | -0.06 | -0.08 | +0.11 | -0.01 | -0.00 | -0.00 | -0.00 | -0.00 | -0.01
+shuffle(ZBG128:b560s16)#1 | +0.00 | +0.02 | -0.08 | +0.13 | -0.05 | -0.01 | +0.00 | -0.01 | -0.01 | +0.01
+noisepart(ZBG128:b560s16)@small#1 | +0.02 | +0.05 | -0.00 | +0.10 | +0.01 | -0.00 | +0.00 | +0.00 | -0.00 | +0.04
+noisepart(ZBG128:b560s16)@big#1 | -0.04 | -0.06 | -0.09 | -0.09 | -0.04 | -0.01 | +0.00 | +0.01 | -0.00 | -0.07

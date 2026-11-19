@@ -1,0 +1,29 @@
+The packed file with the ten loud columns of every ffn_down kept whole: integer levels in one ball per 32 weights, 18 bytes a block, written, read back from disk and scored.
+wikitext-2 test text, 10,200 positions. An error of a gap is the root of the sum of the squares of the two standard errors.
+
+model | file | reads data | runs the model | bytes of the file | bits a weight | mean KL | its standard error | first choice kept, percent | under Q4_K_M with no matrix by, errors | under Q4_K_M with the wikitext matrix by, errors
+Qwen2.5-1.5B | no matrix, nothing kept, from the packed-format record | no | no | 736991766 | 4.50004 | 0.024517 | 0.000495 | 92.36 | 10.5 | 4.6
+Qwen2.5-1.5B | no matrix, loud columns kept | no | no | 737853158 | 4.50530 | 0.024719 | 0.000504 | 92.31 | 10.2 | 4.3
+Qwen2.5-1.5B | llama.cpp Q4_K_M, no matrix | no | no | | 4.8120 | 0.033348 | 0.000682 | 91.11 | | 
+Qwen2.5-1.5B | llama.cpp Q4_K_M, the wikitext matrix | yes | yes | | 4.8120 | 0.028205 | 0.000634 | 91.84 | | 
+Qwen2.5-1.5B: the kept columns put the file under the file with nothing kept by -0.8 percent, -0.3 errors
+SmolLM2-1.7B | no matrix, nothing kept, from the packed-format record | no | no | 905975382 | 4.50003 | 0.058855 | 0.001066 | 87.69 | 13.2 | -16.2
+SmolLM2-1.7B | no matrix, loud columns kept | no | no | 906959478 | 4.50492 | 0.058117 | 0.001082 | 87.61 | 13.5 | -15.5
+SmolLM2-1.7B | llama.cpp Q4_K_M, no matrix | no | no | | 4.8223 | 0.083761 | 0.001559 | 85.52 | | 
+SmolLM2-1.7B | llama.cpp Q4_K_M, the wikitext matrix | yes | yes | | 4.8223 | 0.037827 | 0.000739 | 89.56 | | 
+SmolLM2-1.7B: the kept columns put the file under the file with nothing kept by 1.3 percent, 0.5 errors
+Llama-3.2-1B | no matrix, nothing kept | no | no | 547360470 | 4.50003 | 0.051877 | 0.000755 | 88.50 | -9.0 | -17.2
+Llama-3.2-1B | no matrix, loud columns kept | no | no | 548016534 | 4.50542 | 0.033987 | 0.000478 | 90.31 | 11.9 | 2.7
+Llama-3.2-1B | the matrix of no meaning, loud columns kept | no | yes | 548671894 | 4.51081 | 0.029753 | 0.000414 | 90.88 | 18.3 | 9.1
+Llama-3.2-1B | llama.cpp Q4_K_M, no matrix | no | no | | 4.8023 | 0.043179 | 0.000604 | 89.03 | | 
+Llama-3.2-1B | llama.cpp Q4_K_M, the wikitext matrix | yes | yes | | 4.8023 | 0.035923 | 0.000538 | 90.02 | | 
+Llama-3.2-1B: the kept columns put the file under the file with nothing kept by 34.5 percent, 20.0 errors
+
+The predictions of PREREG.md
+prediction | holds
+F1 | yes
+F2 | yes
+F3 | yes
+F4 | yes
+F5 | yes
+hold: 5 of 5

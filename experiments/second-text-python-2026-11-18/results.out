@@ -1,0 +1,40 @@
+The headline comparisons on a second text: Python source, conversion/base.py of llama.cpp at eada89c, 10,200 positions.
+Beside each, the same variant on the wikitext-2 test text, from the record that scored it.
+An error of a gap is the root of the sum of the squares of the two standard errors.
+
+model | arm | matrix | bits a weight | mean KL on Python | its standard error | first choice kept, percent | mean KL on wikitext-2 | Python over wikitext-2
+SmolLM2-1.7B | llama.cpp Q4_K_M | none | 4.8223 | 0.052163 | 0.000969 | 91.18 | 0.083761 | 0.623
+SmolLM2-1.7B | llama.cpp Q4_K_M | wikitext-2 training text | 4.8223 | 0.023435 | 0.000462 | 93.95 | 0.037827 | 0.620
+SmolLM2-1.7B | llama.cpp Q4_K_M | no meaning | 4.8223 | 0.023630 | 0.000457 | 93.81 | 0.039882 | 0.592
+SmolLM2-1.7B | one ball per group of 128 | none | 4.4998 | 0.036447 | 0.000692 | 92.48 | 0.055962 | 0.651
+SmolLM2-1.7B | one ball per group of 128 | wikitext-2 training text | 4.5047 | 0.016664 | 0.000388 | 94.89 | 0.028205 | 0.591
+SmolLM2-1.7B | one ball per group of 128 | no meaning | 4.5047 | 0.017643 | 0.000479 | 94.82 | 0.031360 | 0.563
+Qwen2.5-1.5B | llama.cpp Q4_K_M | none | 4.8120 | 0.022319 | 0.000845 | 94.52 | 0.033348 | 0.669
+Qwen2.5-1.5B | llama.cpp Q4_K_M | wikitext-2 training text | 4.8120 | 0.019446 | 0.000611 | 94.84 | 0.028205 | 0.689
+Qwen2.5-1.5B | llama.cpp Q4_K_M | no meaning | 4.8120 | 0.020809 | 0.000984 | 94.84 | 0.029415 | 0.707
+Qwen2.5-1.5B | one ball per group of 128 | none | 4.4998 | 0.013971 | 0.000311 | 95.37 | 0.022750 | 0.614
+Qwen2.5-1.5B | one ball per group of 128 | wikitext-2 training text | 4.5060 | 0.015366 | 0.000542 | 95.48 | 0.020898 | 0.735
+Qwen2.5-1.5B | one ball per group of 128 | no meaning | 4.5060 | 0.016164 | 0.000674 | 95.40 | 0.022833 | 0.708
+
+SmolLM2-1.7B: no matrix on either side: the ball arm 0.036447 against Q4_K_M 0.052163, under it by 13.2 errors
+SmolLM2-1.7B: the training text's matrix on both sides: the ball arm 0.016664 against Q4_K_M 0.023435, under it by 11.2 errors
+SmolLM2-1.7B: the ball arm with the matrix of no meaning 0.017643 against Q4_K_M with the training text's matrix 0.023435, under it by 8.7 errors
+SmolLM2-1.7B: the ball arm: the matrix of no meaning buys 95.1 percent of what the training text's matrix buys. The training text's matrix is under the matrix of no meaning by 1.6 errors. Under no matrix by 24.9
+SmolLM2-1.7B: the ball arm: the matrix of no meaning is under no matrix by 22.3 errors
+SmolLM2-1.7B: Q4_K_M: the training text's matrix is under no matrix by 26.8 errors. The matrix of no meaning buys 99.3 percent of what it buys, and is under no matrix by 26.6 errors
+Qwen2.5-1.5B: no matrix on either side: the ball arm 0.013971 against Q4_K_M 0.022319, under it by 9.3 errors
+Qwen2.5-1.5B: the training text's matrix on both sides: the ball arm 0.015366 against Q4_K_M 0.019446, under it by 5.0 errors
+Qwen2.5-1.5B: the ball arm with the matrix of no meaning 0.016164 against Q4_K_M with the training text's matrix 0.019446, under it by 3.6 errors
+Qwen2.5-1.5B: the ball arm: the matrix of no meaning buys 157.2 percent of what the training text's matrix buys. The training text's matrix is under the matrix of no meaning by 0.9 errors. Under no matrix by -2.2
+Qwen2.5-1.5B: the ball arm: the matrix of no meaning is under no matrix by -3.0 errors
+Qwen2.5-1.5B: Q4_K_M: the training text's matrix is under no matrix by 2.8 errors. The matrix of no meaning buys 52.6 percent of what it buys, and is under no matrix by 1.2 errors
+
+The predictions of PREREG.md
+prediction | holds
+C1 | yes
+C2 | yes
+C3 | yes
+C4 | yes
+C5 | yes
+C6 | yes
+hold: 6 of 6

@@ -221,6 +221,7 @@ The spectral and activation-weighted errors were computed on the matrices of six
 ## What was not in the plan
 
 - The plan was extended five times. The extensions are sections of [PREREG.md](PREREG.md).
+- Added 2026-11-17, from `checks/plan_before_data.out`: the plan file was changed eight times after its first commit. Six changes came before the first results were committed at `eac9d89`, where rounds 1 to 5 were committed together. Two came after: `e2ff142`, the plan of round 6, and `7961368`, the fixes after the second read with round 6 folded in.
 - `flip:3.45` was started a minute before its prediction was committed and was scored four minutes after. The clip probes at 5 and 8 were running when round 5 was committed. Their scores were read after it and are not in its table.
 - `results.jsonl` joins the files of the separate runs in the order the runs were started. Up to five ran at once, so the order of its rows is not the order in time.
 - The zeroing of unread keys and values, the random move along the symmetries, the clip probes and the step-factor control on `X32` were run with no prediction written.

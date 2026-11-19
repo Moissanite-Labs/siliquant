@@ -1,0 +1,35 @@
+1. Predictions 6 to 8 on the real matrices, in dB. n is the largest block of the cell: 32 with groups of 32, 128 otherwise.
+   family | group | q | EB at n over EB at 8: mean (min, max) | ahead on | EB at n over VE8: mean (min, max) | ahead on | ZB at n over VE8: mean (min, max) | ahead on | matrices
+   whisper |  32 | 16 | +1.17 (+0.76, +2.21) | 32 | +1.30 (+0.84, +2.65) | 32 | +0.73 (+0.20, +3.47) | 32 | 32
+   whisper | 128 | 16 | +2.68 (+1.86, +5.42) | 32 | +2.85 (+1.99, +5.96) | 32 | +2.29 (+1.35, +5.72) | 32 | 32
+   whisper |   R | 16 | +3.42 (+2.31, +5.96) | 32 | +3.62 (+2.41, +6.52) | 32 | +3.06 (+1.78, +6.31) | 32 | 32
+   whisper |   R | 32 | +3.44 (+2.28, +6.18) | 32 | +3.61 (+2.40, +6.48) | 32 | +3.04 (+1.75, +6.20) | 32 | 32
+      qwen |  32 | 16 | +1.11 (+0.71, +2.81) | 21 | +1.17 (+0.80, +2.88) | 21 | +0.51 (+0.13, +2.22) | 21 | 21
+      qwen | 128 | 16 | +2.36 (+1.45, +5.14) | 21 | +2.45 (+1.59, +5.38) | 21 | +1.79 (+0.92, +4.72) | 21 | 21
+      qwen |   R | 16 | +3.65 (+1.58, +8.71) | 21 | +3.74 (+1.78, +8.14) | 21 | +3.09 (+1.13, +7.46) | 21 | 21
+      qwen |   R | 32 | +3.63 (+1.58, +9.02) | 21 | +3.73 (+1.76, +8.08) | 21 | +3.08 (+1.11, +7.41) | 21 | 21
+
+2. One ball for each group: the relative squared error in dB over all the matrices of a family, mean (min, max)
+   With one block to a group the scale divides each group by its own length, so the error of a group is a share of its own size.
+   family | EB, n = 32, groups of 32, q = 16 | EB, n = 128, groups of 128, q = 16 | ZB, n = 128, groups of 128, q = 16 | X, groups of 32 | X, groups of 128 | matrices
+         G | -23.54 (-23.54, -23.54) | -23.32 (-23.32, -23.32) | -22.66 (-22.67, -22.66) | -21.32 (-21.33, -21.31) | -19.73 (-19.75, -19.71) | 3
+         T | -23.54 (-23.54, -23.54) | -23.31 (-23.32, -23.31) | -22.66 (-22.66, -22.66) | -18.74 (-18.75, -18.73) | -15.44 (-15.48, -15.41) | 3
+   whisper | -23.57 (-24.16, -23.53) | -23.35 (-24.11, -23.30) | -22.79 (-24.96, -22.65) | -20.49 (-21.44, -19.10) | -18.15 (-19.24, -15.39) | 32
+      qwen | -23.54 (-23.55, -23.53) | -23.31 (-23.33, -23.31) | -22.66 (-22.67, -22.64) | -20.57 (-21.54, -16.85) | -18.61 (-20.48, -14.01) | 21
+
+3. Ball against cross-polytope with E8, at the largest block of each cell, on the real matrices: EC over EB in dB
+   family | group | q | mean (min, max) | the cross-polytope is ahead on | matrices
+   whisper |  32 | 16 | +0.01 (-0.46, +1.96) | 9 | 32
+   whisper | 128 | 16 | +0.13 (-0.33, +2.13) | 10 | 32
+   whisper |   R | 16 | +0.23 (-0.34, +2.13) | 16 | 32
+   whisper |   R | 32 | +0.24 (-0.32, +2.13) | 16 | 32
+      qwen |  32 | 16 | -0.11 (-0.48, +2.44) | 4 | 21
+      qwen | 128 | 16 | -0.06 (-0.44, +2.63) | 4 | 21
+      qwen |   R | 16 | +0.25 (-0.46, +3.83) | 6 | 21
+      qwen |   R | 32 | +0.26 (-0.44, +3.81) | 6 | 21
+
+4. Blocks shrunk, by arm: runs with any, and the largest share of blocks
+   ZB: 0 of 1062 runs
+   EB: 0 of 1062 runs
+   ZC: 0 of 1062 runs
+   EC: 339 of 1062 runs, largest share 9.8e-04

@@ -1,0 +1,107 @@
+Plans and data in the order git has them, for every record under experiments/
+head f265c15
+
+record | first plan | data files committed with it | first data after it | plan before data | plan changed before first data | plan changed after first data | of those, followed by new data | named in the README | programs changed after first data
+ball-dimension-no-clip-rule-2026-11-17 | 5398096 | 0 | 801a4c6 | yes | 0 | 0 | 0 | 0 of 0 | 0
+bit-split-held-out-qwen25-2026-11-18 | 4ce900b | 0 | 07c66d9 | yes | 0 | 0 | 0 | 0 of 0 | 0
+clip-by-layer-qwen25-2026-11-18 | 4ce900b | 1 | 681972b | yes | 0 | 0 | 0 | 0 of 0 | 0
+clip-by-layer-smollm2-2026-11-18 | a6598fa | 2 | edbf5bb | yes | 0 | 0 | 0 | 0 of 0 | 0
+e8-gain-largest-entry-rule-2026-11-17 | 61c552b | 0 | affbdfd | yes | 0 | 0 | 0 | 0 of 0 | 1
+fold-path-codebooks-2026-11-17 | cae753e | 0 | cda52eb | yes | 0 | 1 | 1 | 1 of 1 | 0
+imatrix-baseline-2026-11-17 | 86a18b5 | 0 | ee48f57 | yes | 0 | 2 | 2 | 2 of 2 | 2
+imatrix-gain-parts-2026-11-18 | 453d907 | 1 | 0cdc5f4 | yes | 0 | 2 | 2 | 2 of 2 | 6
+incentre-vortex-codebooks-2026-11-17 | 61c552b | 0 | 8d709ad | yes | 2 | 0 | 0 | 0 of 0 | 0
+lattice-split-smollm2-2026-11-17 | eac2ef2 | 0 | 0355136 | yes | 0 | 3 | 3 | 3 of 3 | 6
+lattice-vs-scalar-rounding-2026-11-15 | 195f06e | 0 | 1c3d4c9 | yes | 0 | 0 | 0 | 0 of 0 | 1
+loud-columns-2026-11-18 | 566c318 | 3 | d6e7752 | yes | 0 | 1 | 1 | 1 of 1 | 2
+mmlu-subset-2026-11-18 | e81eafa | 0 | 968ddbb | yes | 0 | 0 | 0 | 0 of 0 | 0
+model-output-gemma-e4b-2026-11-15 | 60ec5aa | 0 | eac9d89 | yes | 6 | 2 | 2 | 2 of 2 | 5
+model-output-qwen25-2026-11-17 | 81b83d2 | 0 | 8de998d | yes | 0 | 1 | 1 | 1 of 1 | 8
+model-output-smollm2-2026-11-17 | 14726fd | 0 | acc5c55 | yes | 0 | 0 | 0 | 0 of 0 | 0
+output-budget-gemma-e4b-2026-11-17 | ec636b1 | 0 | c253666 | yes | 0 | 2 | 2 | 2 of 2 | 10
+packed-ball-format-2026-11-18 | 4d3995c | 0 | 170806c | yes | 0 | 0 | 0 | 0 of 0 | 0
+packed-kept-columns-2026-11-19 | d93fccd | 0 | 200e3e6 | yes | 0 | 0 | 0 | 0 of 0 | 0
+region-shapes-no-clip-rule-2026-11-17 | 6964d05 | 0 | dfe9da0 | yes | 0 | 0 | 0 | 0 of 0 | 0
+second-text-python-2026-11-18 | 66acffb | 0 | bb02a8d | yes | 0 | 0 | 0 | 0 of 0 | 1
+shape-formula-held-out-2026-11-17 | 41e4480 | 3 | 997a182 | yes | 0 | 1 | 1 | 1 of 1 | 1
+third-model-llama32-2026-11-18 | b6da101 | 0 | 535c830 | yes | 0 | 2 | 2 | 2 of 2 | 3
+
+Data committed with a plan, each change to a plan, and each program changed after the first data
+  clip-by-layer-qwen25-2026-11-18: 1 data files were committed with the first plan: weights_only.jsonl
+  clip-by-layer-smollm2-2026-11-18: 2 data files were committed with the first plan: columns.out, weights_only.jsonl
+  e8-gain-largest-entry-rule-2026-11-17: program detail.py changed at 3bc2de2 after the first data
+  fold-path-codebooks-2026-11-17: plan changed at cda52eb (2026-11-17T10:27), new data followed, named in the README. Fold study: amendment 1 of the plan, before any matrix is rounded
+  imatrix-baseline-2026-11-17: plan changed at 79fb0cc (2026-11-17T22:16), new data followed, named in the README. Importance-matrix baseline: extension 1, the ball arm given the same matrix
+  imatrix-baseline-2026-11-17: plan changed at b148352 (2026-11-17T22:48), new data followed, named in the README. Importance-matrix baseline: extension 2, the strength chosen on validation text
+  imatrix-baseline-2026-11-17: program summary.py changed at 76904f3 after the first data
+  imatrix-baseline-2026-11-17: program summary.py changed at 10e2677 after the first data
+  imatrix-gain-parts-2026-11-18: 1 data files were committed with the first plan: forecast-smollm2.out
+  imatrix-gain-parts-2026-11-18: plan changed at a68145f (2026-11-18T19:22), new data followed, named in the README. Extension 1 of the imatrix-gain-parts plan: the matrix of no meaning on the readers only
+  imatrix-gain-parts-2026-11-18: plan changed at 932781d (2026-11-18T19:49), new data followed, named in the README. Extension 2 of the imatrix-gain-parts plan: the no-text arm as a packed file, before its v
+  imatrix-gain-parts-2026-11-18: program run.py changed at a68145f after the first data
+  imatrix-gain-parts-2026-11-18: program summary.py changed at a68145f after the first data
+  imatrix-gain-parts-2026-11-18: program summary.py changed at 932781d after the first data
+  imatrix-gain-parts-2026-11-18: program run.py changed at 2edd30c after the first data
+  imatrix-gain-parts-2026-11-18: program summary.py changed at f3fe7bf after the first data
+  imatrix-gain-parts-2026-11-18: program summary.py changed at 330979f after the first data
+  incentre-vortex-codebooks-2026-11-17: plan changed at fb54260 (2026-11-17T04:16), before the first data was committed. Codebook study: extension 1 of the plan, before it is scored
+  incentre-vortex-codebooks-2026-11-17: plan changed at b56c08e (2026-11-17T04:46), before the first data was committed. Codebook study: amendment 1 of the plan, a smaller run, before any result
+  lattice-split-smollm2-2026-11-17: plan changed at e1f4dac (2026-11-17T22:32), new data followed, named in the README. Lattice split on SmolLM2, extension 1: is it the weights rounded to zero? The plan, before
+  lattice-split-smollm2-2026-11-17: plan changed at cfa99c2 (2026-11-17T22:57), new data followed, named in the README. Lattice split on SmolLM2: no single matrix sees the gain; extension 2, the plan before its
+  lattice-split-smollm2-2026-11-17: plan changed at 07ffdaf (2026-11-17T23:21), new data followed, named in the README. Lattice split on SmolLM2, extension 3: finer levels at zero against the same bits everywhe
+  lattice-split-smollm2-2026-11-17: program run.py changed at e1f4dac after the first data
+  lattice-split-smollm2-2026-11-17: program summary.py changed at 8964ab3 after the first data
+  lattice-split-smollm2-2026-11-17: program run.py changed at cfa99c2 after the first data
+  lattice-split-smollm2-2026-11-17: program summary.py changed at e75b90a after the first data
+  lattice-split-smollm2-2026-11-17: program run.py changed at 07ffdaf after the first data
+  lattice-split-smollm2-2026-11-17: program summary.py changed at 07ffdaf after the first data
+  lattice-vs-scalar-rounding-2026-11-15: program detail.py changed at 7815d19 after the first data
+  loud-columns-2026-11-18: 3 data files were committed with the first plan: picks-qwen25.out, picks-smollm2.out, weights_only.jsonl
+  loud-columns-2026-11-18: plan changed at 8f24288 (2026-11-18T17:30), new data followed, named in the README. Extension 1 of the loud-columns plan: one column, before any of its variants is scored
+  loud-columns-2026-11-18: program run.py changed at 8f24288 after the first data
+  loud-columns-2026-11-18: program summary.py changed at 8f24288 after the first data
+  model-output-gemma-e4b-2026-11-15: plan changed at d864dee (2026-11-15T18:46), before the first data was committed. Model output run: round 2 plan, before round 2 is scored
+  model-output-gemma-e4b-2026-11-15: plan changed at 7d53f77 (2026-11-15T18:47), before the first data was committed. Plan: correct the time stated for round 2 to the commit's own
+  model-output-gemma-e4b-2026-11-15: plan changed at d7764c9 (2026-11-15T19:00), before the first data was committed. Model output run: round 3 plan, before round 3 is scored
+  model-output-gemma-e4b-2026-11-15: plan changed at 223ca16 (2026-11-15T19:10), before the first data was committed. Model output run: round 4 plan, before round 4 is scored
+  model-output-gemma-e4b-2026-11-15: plan changed at aab5b32 (2026-11-15T19:32), before the first data was committed. Model output run: round 5 plan
+  model-output-gemma-e4b-2026-11-15: plan changed at 90df081 (2026-11-15T19:32), before the first data was committed. Plan: split one long paragraph of round 5 (wording only)
+  model-output-gemma-e4b-2026-11-15: plan changed at e2ff142 (2026-11-15T19:56), new data followed, named in the README. Model output run: round 6 plan, before the measure is computed
+  model-output-gemma-e4b-2026-11-15: plan changed at 7961368 (2026-11-15T20:19), new data followed, named in the README. Model output run: fixes after a second read, and round 6 folded in
+  model-output-gemma-e4b-2026-11-15: program summary.py changed at 5420a66 after the first data
+  model-output-gemma-e4b-2026-11-15: program large_entries.py changed at 7961368 after the first data
+  model-output-gemma-e4b-2026-11-15: program run.py changed at 7961368 after the first data
+  model-output-gemma-e4b-2026-11-15: program summary.py changed at 7961368 after the first data
+  model-output-gemma-e4b-2026-11-15: program checks.py changed at bad596a after the first data
+  model-output-qwen25-2026-11-17: plan changed at 7ba09a0 (2026-11-17T16:24), new data followed, named in the README. Qwen run: extension 1 of the arms plan, before any of its arms is scored
+  model-output-qwen25-2026-11-17: program summary.py changed at 0128eed after the first data
+  model-output-qwen25-2026-11-17: program summary.py changed at d7bf51e after the first data
+  model-output-qwen25-2026-11-17: program run.py changed at 7ba09a0 after the first data
+  model-output-qwen25-2026-11-17: program summary.py changed at 2d80534 after the first data
+  model-output-qwen25-2026-11-17: program summary.py changed at a05db0f after the first data
+  model-output-qwen25-2026-11-17: program run.py changed at 79fb0cc after the first data
+  model-output-qwen25-2026-11-17: program run.py changed at 84b38d0 after the first data
+  model-output-qwen25-2026-11-17: program run.py changed at b148352 after the first data
+  output-budget-gemma-e4b-2026-11-17: plan changed at bdc2b2b (2026-11-17T13:38), new data followed, named in the README. Extension 1 of the plan: where the clip's damage lives, and a closure in the budget
+  output-budget-gemma-e4b-2026-11-17: plan changed at c21dd06 (2026-11-17T14:05), new data followed, named in the README. Extension 2 of the plan: one layer carries the clip's damage
+  output-budget-gemma-e4b-2026-11-17: program allocate.py changed at 2b543c5 after the first data
+  output-budget-gemma-e4b-2026-11-17: program run.py changed at 2b543c5 after the first data
+  output-budget-gemma-e4b-2026-11-17: program run.py changed at e4c70eb after the first data
+  output-budget-gemma-e4b-2026-11-17: program summary.py changed at e4c70eb after the first data
+  output-budget-gemma-e4b-2026-11-17: program test_programs.py changed at e4c70eb after the first data
+  output-budget-gemma-e4b-2026-11-17: program run.py changed at 566fbbe after the first data
+  output-budget-gemma-e4b-2026-11-17: program summary.py changed at 566fbbe after the first data
+  output-budget-gemma-e4b-2026-11-17: program test_programs.py changed at 566fbbe after the first data
+  output-budget-gemma-e4b-2026-11-17: program run.py changed at 39ce552 after the first data
+  output-budget-gemma-e4b-2026-11-17: program detail.py changed at 71727f9 after the first data
+  second-text-python-2026-11-18: program summary.py changed at 36c09dc after the first data
+  shape-formula-held-out-2026-11-17: 3 data files were committed with the first plan: pilot.detail.json, pilot.json, pilot.out
+  shape-formula-held-out-2026-11-17: plan changed at 8331606 (2026-11-17T07:56), new data followed, named in the README. Study on issue #10: extension 1 of the plan, a rule with a proved guarantee, before it is 
+  shape-formula-held-out-2026-11-17: program detail.py changed at eb44099 after the first data
+  third-model-llama32-2026-11-18: plan changed at 10d0b93 (2026-11-18T23:52), new data followed, named in the README. Extension 1 of the third-model plan: which matrices the gain is in, before its variants ar
+  third-model-llama32-2026-11-18: plan changed at f0ddca3 (2026-11-19T00:07), new data followed, named in the README. Extension 2 of the third-model plan: a few columns left whole, before its variants are sco
+  third-model-llama32-2026-11-18: program summary.py changed at 10d0b93 after the first data
+  third-model-llama32-2026-11-18: program summary.py changed at f0ddca3 after the first data
+  third-model-llama32-2026-11-18: program summary.py changed at 15383d5 after the first data
+
+records with data from before their first plan, or first data that does not descend from it: 0

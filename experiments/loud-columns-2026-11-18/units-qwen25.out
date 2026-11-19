@@ -1,0 +1,28 @@
+The ten loud columns of an ffn_down, one by one. Not planned, nothing scored.
+An entry is measured in standard deviations of its row. A row of ffn_down is one dimension of the stream.
+
+layer 1: the five most active columns and their share of the matrix's input activity, percent: column 8314 3.31, column 284 1.78, column 8892 1.02, column 8481 1.01, column 5220 0.86
+loud column | activity over the mean column | share of the matrix's input activity, percent | its size over the mean column's | entries beyond 5 | its three largest entries: dimension of the stream and size
+2012 | 0.2 | 0.00 | 3.09 | 353 | 1395 at 20.0, 1367 at 19.4, 1200 at 17.4
+2892 | 0.0 | 0.00 | 3.06 | 368 | 575 at 18.3, 991 at 18.0, 1215 at 17.1
+3295 | 68.3 | 0.76 | 32.07 | 849 | 147 at 43.3, 940 at 43.0, 286 at 42.3
+3484 | 0.1 | 0.00 | 2.84 | 317 | 1215 at 21.2, 1301 at 21.2, 1166 at 20.3
+3562 | 0.1 | 0.00 | 3.35 | 276 | 356 at 63.6, 865 at 43.9, 752 at 43.0
+3750 | 58.4 | 0.65 | 18.95 | 533 | 147 at 26.6, 1173 at 26.3, 286 at 25.6
+3937 | 0.0 | 0.00 | 3.20 | 403 | 277 at 18.6, 947 at 17.6, 541 at 17.3
+4775 | 0.0 | 0.00 | 5.12 | 745 | 1340 at 36.5, 1215 at 35.8, 1214 at 35.3
+5601 | 71.5 | 0.80 | 61.11 | 1080 | 520 at 81.0, 408 at 80.7, 940 at 80.5
+6862 | 0.2 | 0.00 | 2.59 | 173 | 753 at 23.3, 802 at 19.3, 1278 at 18.4
+
+layer 27: the five most active columns and their share of the matrix's input activity, percent: column 3240 1.31, column 2646 1.28, column 7987 1.16, column 7926 1.01, column 174 1.00
+loud column | activity over the mean column | share of the matrix's input activity, percent | its size over the mean column's | entries beyond 5 | its three largest entries: dimension of the stream and size
+2975 | 7.6 | 0.08 | 4.47 | 46 | 901 at 33.4, 752 at 32.9, 742 at 27.9
+3057 | 0.6 | 0.01 | 10.04 | 11 | 609 at 45.0, 1421 at 45.0, 1424 at 37.0
+3062 | 67.9 | 0.76 | 5.49 | 78 | 1421 at 23.8, 609 at 23.4, 1200 at 18.5
+3866 | 3.5 | 0.04 | 4.02 | 57 | 1073 at 35.4, 1360 at 27.5, 742 at 24.7
+4857 | 0.6 | 0.01 | 10.69 | 10 | 1424 at 47.6, 609 at 47.5, 1421 at 43.7
+5641 | 5.8 | 0.06 | 3.76 | 59 | 1222 at 29.1, 865 at 27.0, 1215 at 19.5
+6710 | 4.0 | 0.04 | 3.57 | 45 | 742 at 24.0, 1073 at 24.0, 901 at 21.8
+6988 | 8.9 | 0.10 | 4.15 | 51 | 1360 at 35.2, 223 at 29.7, 1166 at 26.2
+8276 | 20.2 | 0.23 | 4.33 | 78 | 518 at 25.1, 507 at 16.5, 1421 at 15.8
+8876 | 0.8 | 0.01 | 4.25 | 13 | 1421 at 18.4, 609 at 18.2, 1424 at 11.8

@@ -1,0 +1,11 @@
+--- a/tools/perplexity/perplexity.cpp
++++ b/tools/perplexity/perplexity.cpp
+@@ -1652,7 +1652,7 @@
+             ++n_done;
+ 
+             // Print the accumulated accuracy mean x 100
+-            LOG("%d\t%.8lf\n", n_done, 100.*n_correct/n_done);
++            LOG("%d\t%.8lf\t%d\n", n_done, 100.*n_correct/n_done, (int) logprob_max_idx);
+         }
+ 
+         i0 = i1 - 1;
