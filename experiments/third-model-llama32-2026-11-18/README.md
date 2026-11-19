@@ -130,6 +130,14 @@ The same arm on three models, wikitext text, with no data and no forward pass:
 
 The rows of the two earlier models are from the record loud-columns-2026-11-18, which found the kept columns worth little there and said so. They cost nothing there either. On this model they are worth 20.7 errors.
 
+### Not planned: where `Q4_K_M` spends its extra bits
+
+`q4km-types.out`, read from the `Q4_K_M` file after all the scores were in. Nothing is scored in it.
+
+`Q4_K_M` is not one rule. It gives most matrices its 4.5-bit type and some its 6.5-bit type, by a fixed pattern of kind and layer. On this model `ffn_down` gets the 6.5-bit type in layers 0, 1, 4, 7, 10, 13, 14 and 15, and `attn_v` in the same layers.
+
+Layers 0 and 1 are where this model's two hidden units are. So `Q4_K_M` happens to spend its extra bits on the two matrices that a uniform 4.5 bits rounds worst, and that is the likely reason the plain ball arm loses to it here. It is a reading of two facts side by side, not a test: no arm was scored with those two matrices at more bits and the rest at 4.5. Leaving two columns whole does more for five thousandths of a bit than `Q4_K_M` does for the 0.3 bits it has over the ball arm.
+
 ### The predictions
 
 | | Prediction | Result | Holds |
@@ -158,6 +166,7 @@ What I got wrong.
 
 - **Two extensions were added after the plan**, each before its own variants were scored. `summary.py` was extended for each, and for three tables that set this model beside the two earlier ones. Those tables are not part of any prediction.
 - **`run_loud.py` and `picks.out` were added with extension 2.**
+- **`q4km-types.out` was not planned.** It lists tensor types read from a file, and is marked above.
 - Nothing else. Four starts, one for each text and each extension. No row was lost and no variant was scored twice.
 
 ## Limits
