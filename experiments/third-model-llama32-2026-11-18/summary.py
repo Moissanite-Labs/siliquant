@@ -2,8 +2,8 @@
 """Tables and verdicts for the third model, Llama-3.2-1B-Instruct, from the two results files and forecast.out.
 
 results-wikitext.jsonl holds the variants scored on the wikitext-2 test text and results-python.jsonl the same variants
-scored on the Python text of the record second-text-python-2026-11-18. Scores the predictions L1 to L6 of PREREG.md, and X1 and X2 of its extension 1, by
-the rules written there. Every number is a field of one of those files or arithmetic on two of them.
+scored on the Python text of the record second-text-python-2026-11-18. Scores the predictions L1 to L6 of PREREG.md, X1 and X2 of its extension 1 and Y1 to Y5 of its
+extension 2, by the rules written there. results-loud.jsonl holds the rows of extension 2, each naming its text. Every number is a field of one of those files or arithmetic on two of them.
 
 Usage, from the root of a checkout:
   python3 experiments/third-model-llama32-2026-11-18/summary.py > experiments/third-model-llama32-2026-11-18/results.out
@@ -46,6 +46,41 @@ def loud():
             if p[0] == "attn_q" and len(p) > 4:
                 return float(p[3])
     return None
+
+
+def three_models(got):
+    """The same six variants and three comparisons on the two earlier models, from the records that scored them, beside this model. Not part of any prediction."""
+    exp = HERE.parent
+    earlier = {"Qwen2.5-1.5B": ("qwen2.5-1.5b-instruct-fp16.gguf", "qwen15", "model-output-qwen25-2026-11-17"),
+               "SmolLM2-1.7B": ("SmolLM2-1.7B-Instruct-f16.gguf", "smollm2", "model-output-smollm2-2026-11-17")}
+    def rows_of(paths, model):
+        out = {}
+        for path in paths:
+            if path.exists():
+                for line in path.read_text().splitlines():
+                    if line.strip():
+                        r = json.loads(line)
+                        if r.get("model") == model and "kl_mean" in r:
+                            out[r["variant"]] = r
+        return out
+    for text in ("wikitext-2 test text", "Python text"):
+        print()
+        print(f"Three models on the {text}. The two earlier models are from the records that scored them")
+        print("model | Q4_K_M: none | wikitext matrix | noise matrix | ball arm: none | wikitext matrix | noise matrix | ball under Q4_K_M with no matrix on either side, errors | "
+              "with the wikitext matrix on both sides | ball with the noise matrix under Q4_K_M with the wikitext matrix | the wikitext matrix puts the ball arm under the plain ball arm by | the noise matrix by")
+        table = []
+        for name, (model, tag, folder) in earlier.items():
+            if text.startswith("wiki"):
+                rows = rows_of((exp / folder / "results.jsonl", exp / "imatrix-baseline-2026-11-17" / "results.jsonl", exp / "imatrix-gain-parts-2026-11-18" / "results.jsonl"), model)
+            else:
+                rows = rows_of((exp / "second-text-python-2026-11-18" / "results.jsonl",), model)
+            table.append((name, [rows.get(v) for v in (f"file:{tag}-Q4_K_M.gguf", f"file:{tag}-Q4_K_M-imat.gguf", f"file:{tag}-Q4_K_M-rimat.gguf", "ZBG128:b560s16", "hZBG128:b560s16", "hZBG128:b560s16~rand")]))
+        g = got[text]
+        table.append(("Llama-3.2-1B", [g.get((a, m)) for a in ("l", "o") for m in ("none", "wikitext-2 training text", "no meaning")]))
+        for name, (q, qi, qr, b, bi, br) in table:
+            if all((q, qi, qr, b, bi, br)):
+                print(f"{name} | " + " | ".join(f"{r['kl_mean']:.4f}" for r in (q, qi, qr, b, bi, br))
+                      + f" | {gap(b, q):.1f} | {gap(bi, qi):.1f} | {gap(br, qi):.1f} | {gap(bi, b):.1f} | {gap(br, b):.1f}")
 
 
 def main():
@@ -124,10 +159,42 @@ def main():
             print(f"the three shares add up to {100 * total:.1f} percent of the whole gain. On SmolLM2 they were 68.5, 9.5 and 21.9, together 99.9")
             verdict["X1"] = shares["the writers"] == max(shares.values())
             verdict["X2"] = 0.75 <= total <= 1.25
+    loud_rows = {}
+    path = HERE / "results-loud.jsonl"
+    if path.exists():
+        for line in path.read_text().splitlines():
+            if line.strip():
+                r = json.loads(line)
+                if "kl_mean" in r:
+                    loud_rows[(r["variant"], r["text"])] = r
+    if loud_rows:
+        print()
+        print("Extension 2: the ball arm with no matrix and columns of ffn_down left whole. K10: the ten loud columns of every ffn_down, found from the weights. A1: one column, the most active by the matrix")
+        print("text | arm | reads calibration data | bits a weight | columns kept | mean KL | its standard error | first choice kept, percent | under the plain ball arm by, percent | in errors | under Q4_K_M with no matrix by, in errors")
+        for (v, text), r in loud_rows.items():
+            t = w if text == "wikitext" else p
+            b0, q0 = t[key("none")], t[("l", "none")]
+            print(f"{text} | {v} | {'yes' if '+A' in v else 'no'} | {r['bits_per_weight_changed']:.4f} | {r['kept_columns']} | {r['kl_mean']:.6f} | {r['kl_mean_se']:.6f} | {r['same_top']:.2f} | "
+                  f"{100 * (1 - r['kl_mean'] / b0['kl_mean']):.1f} | {gap(r, b0):.1f} | {gap(r, q0):.1f}")
+        k, k01, a01, kp = (loud_rows.get(x) for x in (("ZBG128:b560s16+K10", "wikitext"), ("ZBG128:b560s16+K10#0,1", "wikitext"), ("ZBG128:b560s16+A1#0,1", "wikitext"), ("ZBG128:b560s16+K10", "python")))
+        b0, q0, bi0 = w[key("none")], w[("l", "none")], w[key("wikitext-2 training text")]
+        if k:
+            verdict["Y1"] = gap(k, b0) >= 2 and k["kl_mean"] <= 0.8 * b0["kl_mean"]
+            verdict["Y2"] = gap(k, q0) >= 2
+            print(f"wikitext: keeping the columns buys {100 * (b0['kl_mean'] - k['kl_mean']) / (b0['kl_mean'] - bi0['kl_mean']):.1f} percent of what the training text's matrix buys the ball arm")
+        if k and k01 and gap(k, b0) >= 2:
+            print(f"wikitext: keeping them in layers 0 and 1 only gains {(b0['kl_mean'] - k01['kl_mean']) / (b0['kl_mean'] - k['kl_mean']):.3f} of what keeping them in every layer gains")
+            verdict["Y3"] = (b0["kl_mean"] - k01["kl_mean"]) >= 0.5 * (b0["kl_mean"] - k["kl_mean"])
+        if kp:
+            verdict["Y4"] = gap(kp, p[("l", "none")]) >= 2
+        if k01 and a01:
+            print(f"wikitext: one column kept in layers 0 and 1 against ten: {a01['kl_mean']:.6f} against {k01['kl_mean']:.6f}, above it by {-gap(a01, k01):.1f} errors")
+            verdict["Y5"] = abs(gap(a01, k01)) < 2
+    three_models(got)
     print()
-    print("The predictions of PREREG.md and of its extension 1")
+    print("The predictions of PREREG.md and of its extensions 1 and 2")
     print("prediction | holds")
-    names = ("L1", "L2", "L3", "L4", "L5", "L6", "X1", "X2")
+    names = ("L1", "L2", "L3", "L4", "L5", "L6", "X1", "X2", "Y1", "Y2", "Y3", "Y4", "Y5")
     for n in names:
         print(f"{n} | {'not scored' if n not in verdict else ('yes' if verdict[n] else 'NO')}")
     print(f"hold: {sum(1 for v in verdict.values() if v)} of {len(names)}")

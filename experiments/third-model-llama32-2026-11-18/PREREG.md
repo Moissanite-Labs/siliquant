@@ -81,3 +81,37 @@ So the rule was wrong, and the question is why. On SmolLM2 the gain was in the t
 | X2 | The three shares sum to between 0.75 and 1.25 of the whole gain | the sum is outside |
 
 My confidence: low in X1. The forecast was right about which part on SmolLM2 and wrong about sizes, and on this model it under-called the whole gain. Fair in X2: on SmolLM2 the parts summed to 0.999.
+
+## Extension 2: a few columns left whole, with no matrix and no forward pass
+
+Written 2026-11-19 with the twelve rows of the plan and the three of extension 1 in, and before any variant of this extension was scored.
+
+**What extension 1 found.** On this model 92.6 percent of the matrix's gain is in the two writers, `attn_output` and `ffn_down`. The attention's readers, where SmolLM2's gain was, give nothing here. X1 and X2 hold.
+
+**What the weights and the matrix say** (`picks.out`, made by the program of the record loud-columns-2026-11-18 through `run_loud.py`, committed with this extension, nothing scored). A loud column of an `ffn_down` is one of the ten in which a clip at 5 standard deviations of a row removes the most squared weight. It is found from the weights alone.
+
+- In layer 1 the ten loud columns hold 99.0 percent of the matrix's input activity. In layer 0, 51.9 percent. In layer 15, the last, 31.0. In the other thirteen layers, under 5 percent.
+- SmolLM2 had the same thing in its layer 1: there the ten loud columns held 98.5 percent, nearly all of it in one hidden unit. Whether it is one unit here too, the third variant below asks.
+
+On SmolLM2 leaving those columns whole was worth 5.6 percent to the ball arm, because that model's gain from a matrix is in its attention's readers. Here the gain is in the writers. So the same fix may be worth far more, and it reads nothing but the weights.
+
+**Four variants**, by that record's program, unchanged. Rows in `results-loud.jsonl`, each naming its text.
+
+| Variant | Text | What |
+|---|---|---|
+| `ZBG128:b560s16+K10` | wikitext-2 test | the ball arm with no matrix, the ten loud columns of every `ffn_down` left as in the reference: 4.505 bits a weight |
+| `ZBG128:b560s16+K10#0,1` | wikitext-2 test | the same in layers 0 and 1 only |
+| `ZBG128:b560s16+A1#0,1` | wikitext-2 test | one column in each of layers 0 and 1, the most active by the matrix. This arm reads calibration data |
+| `ZBG128:b560s16+K10` | Python | as the first |
+
+| | Prediction | It fails if |
+|---|---|---|
+| Y1 | On the wikitext text `+K10` is under the plain ball arm by 2 errors and by at least 20 percent | either is not so |
+| Y2 | On the wikitext text `+K10`, which reads no data and runs no forward pass, is under `Q4_K_M` with no matrix by 2 errors. That is the comparison L1 lost | it is not |
+| Y3 | `+K10#0,1` gains at least half of what `+K10` gains | it gains less. Not scored if `+K10` is not under the plain arm by 2 errors |
+| Y4 | On the Python text `+K10` is under `Q4_K_M` with no matrix by 2 errors. That is the comparison L2 lost | it is not |
+| Y5 | One column is the ten: `+A1#0,1` is within 2 errors of `+K10#0,1` | it is not |
+
+My confidence: fair in Y1. Low in Y2 and Y4: they need the kept columns to be worth about a third of the matrix's whole gain, and `attn_output`, the other writer, has no column kept. Fair in Y3. Low in Y5.
+
+**What it would mean.** If Y2 and Y4 hold, the comparison with no data that this model broke is mended by a rule that reads only the weights, and that rule cost nothing on the two earlier models. If Y1 holds and Y2 fails, the columns are part of this model's trouble and not enough of it.
