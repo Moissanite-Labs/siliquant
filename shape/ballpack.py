@@ -23,6 +23,11 @@ decode() will give it, so what a model is scored on can be what the file holds, 
 
 With n = 32, bits = 136 and one byte of scale a block takes 18 bytes: 4.5 bits a weight.
 
+The scale has a floor. One byte of code and `steps` steps to a factor of two span 255 / steps
+factors of two under `top`: with 16 steps, a factor of about 63,000. A block whose own scale is
+smaller than that floor is rounded at the floor. It is rounded more coarsely than it need be,
+never wrongly: what encode() returns is still what the file holds.
+
 The arithmetic on numbers of 136 bits is in ballpack.c, compiled on first use. Its table of
 counts is built here, by ballindex.py, in whole numbers. test_ballpack.py checks the C coder
 against ballindex.py point by point.
@@ -57,13 +62,42 @@ SHRINK_STEPS = 12
 LIMBS = 3                  # of 64 bits, as in ballpack.c
 
 
+def _private(path):
+    """Is this a directory or file that only this user can have written: theirs, and closed to group and others?"""
+    try:
+        st = os.stat(path)
+    except OSError:
+        return False
+    return st.st_uid == os.getuid() and not (st.st_mode & 0o022)
+
+
+def _build_dir():
+    """A directory only this user can write to, for the compiled coder.
+
+    The library is loaded into the process, so it must not come from a place where another
+    user of the machine could have put a file of the same name. A per-user cache directory
+    is used if it is this user's and closed to others. If it is not, or cannot be made, a
+    fresh directory of mode 0700 is made for this process.
+    """
+    base = os.environ.get("XDG_CACHE_HOME") or os.path.join(os.path.expanduser("~"), ".cache")
+    d = Path(base) / "siliquant"
+    try:
+        d.mkdir(mode=0o700, parents=True, exist_ok=True)
+    except OSError:
+        d = None
+    if d is None or not _private(d):
+        d = Path(tempfile.mkdtemp(prefix="siliquant-ballpack-"))
+    return d
+
+
 def _library():
-    """ballpack.c compiled to a shared library, in the temporary directory, named by the hash of its source."""
+    """ballpack.c compiled to a shared library, in a directory of this user's alone, named by the hash of its source."""
     src = (HERE / "ballpack.c").read_bytes()
-    path = Path(tempfile.gettempdir()) / f"siliquant-ballpack-{hashlib.sha256(src).hexdigest()[:16]}.so"
-    if not path.exists():
+    path = _build_dir() / f"ballpack-{hashlib.sha256(src).hexdigest()[:16]}.so"
+    if not (path.exists() and _private(path)):
         part = path.with_suffix(f".{os.getpid()}.part")
         subprocess.run(["cc", "-O2", "-shared", "-fPIC", "-o", str(part), str(HERE / "ballpack.c"), "-lm"], check=True)
+        os.chmod(part, 0o700)
         os.replace(part, path)
     lib = ctypes.CDLL(str(path))
     lib.zb_init.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_void_p]
@@ -76,10 +110,15 @@ def _library():
     return lib
 
 
+_live = None               # the Format whose table the C coder holds now
+
+
 class Format:
     """Integer levels in one ball per block of n weights, a number of `bits` bits and a scale code of one byte.
 
-    One Format is live in a process at a time: the C coder holds one table.
+    The C coder holds one table at a time. Any number of Formats may be alive in a process:
+    each call into the coder first makes sure the table there is its own. Not for use from
+    two threads at once.
     """
 
     def __init__(self, n=32, bits=136, steps=16):
@@ -112,8 +151,15 @@ class Format:
                     table[m, r, j] = (v >> (64 * j)) & mask
         self._table = np.ascontiguousarray(table)
         self._lib = _library()
-        if self._lib.zb_init(n, self.bound, self.bytes, self._table.ctypes.data):
-            raise RuntimeError("the C coder did not take the table")
+        self._use()
+
+    def _use(self):
+        """Make the C coder's one table this Format's. It copies the table, so another Format cannot leave it wrong."""
+        global _live
+        if _live is not self:
+            if self._lib.zb_init(self.n, self.bound, self.bytes, self._table.ctypes.data):
+                raise RuntimeError("the C coder did not take the table")
+            _live = self
 
     # -- numbers ---------------------------------------------------------------------------------
 
@@ -121,6 +167,7 @@ class Format:
         """Y: (blocks, n) entries as int8. Returns (blocks, bytes) uint8, each number least byte first."""
         Y = np.ascontiguousarray(Y, dtype=np.int8)
         out = np.empty((len(Y), self.bytes), dtype=np.uint8)
+        self._use()
         bad = self._lib.zb_rank(Y.ctypes.data, len(Y), out.ctypes.data)
         if bad:
             raise ValueError(f"{bad} blocks are not points of the codebook")
@@ -130,6 +177,7 @@ class Format:
         """numbers: (blocks, bytes) uint8. Returns (blocks, n) int8."""
         numbers = np.ascontiguousarray(numbers, dtype=np.uint8)
         Y = np.empty((len(numbers), self.n), dtype=np.int8)
+        self._use()
         bad = self._lib.zb_unrank(numbers.ctypes.data, len(numbers), Y.ctypes.data)
         if bad:
             raise ValueError(f"{bad} numbers name no point of the codebook")
@@ -254,40 +302,62 @@ class Format:
 
     @staticmethod
     def read(path):
-        """A file as (Format, list of (name, stored))."""
+        """A file as (Format, list of (name, stored)). A file that is cut short or does not hold what its header says is refused with a ValueError."""
         with open(path, "rb") as f:
             blob = f.read()
         if blob[:8] != MAGIC:
             raise ValueError("not a packed file of this format")
+        if len(blob) < 28:
+            raise ValueError("the file ends inside its header")
         n, bits, bound, steps, count = struct.unpack_from("<5I", blob, 8)
+        if n < 1 or n > 4096 or steps < 1:
+            raise ValueError("the file's header names a block of no weights or of more than 4096, or a scale of no steps")
         fmt = Format(n, bits, steps)
         if fmt.bound != bound:
             raise ValueError("the file's bound is not the one its n and bits give")
         at, tensors = 28, []
+
+        def need(size, what):
+            if size < 0 or at + size > len(blob):
+                raise ValueError(f"the file ends inside {what} of matrix {len(tensors) + 1} of {count}")
+
         for _ in range(count):
+            need(2, "the name")
             (ln,) = struct.unpack_from("<H", blob, at)
-            name = blob[at + 2: at + 2 + ln].decode("utf-8")
+            need(2 + ln, "the name")
+            try:
+                name = blob[at + 2: at + 2 + ln].decode("utf-8")
+            except UnicodeDecodeError:
+                raise ValueError(f"the name of matrix {len(tensors) + 1} is not text") from None
             at += 2 + ln
+            need(9 + 2, "the header")
             rows, cols, flag = struct.unpack_from("<IIB", blob, at)
             at += 9
+            if cols % n:
+                raise ValueError(f"matrix {name}: a block of {n} does not tile a row of {cols}")
             top = np.frombuffer(blob, dtype="<f2", count=1, offset=at)[0]
             at += 2
             if flag & ~3:
                 raise ValueError("a matrix of the file has a flag this reader does not know")
             c, keep, kept = None, None, None
             if flag & 1:
+                need(2 * cols, "the column weights")
                 c = np.frombuffer(blob, dtype="<f2", count=cols, offset=at).copy()
                 at += 2 * cols
             if flag & 2:
+                need(4, "the kept columns")
                 (count_kept,) = struct.unpack_from("<I", blob, at)
                 at += 4
+                need(4 * count_kept, "the kept columns")
                 keep = np.frombuffer(blob, dtype="<u4", count=count_kept, offset=at).copy()
                 at += 4 * count_kept
                 if count_kept == 0 or keep.max() >= cols or np.any(np.diff(keep.astype(np.int64)) <= 0):
                     raise ValueError("the kept columns of a matrix are not columns of it in rising order")
+                need(2 * rows * count_kept, "the kept columns")
                 kept = np.frombuffer(blob, dtype="<f2", count=rows * count_kept, offset=at).reshape(rows, count_kept).copy()
                 at += 2 * rows * count_kept
             blocks, width = rows * cols // n, fmt.bytes + 1
+            need(blocks * width, "the blocks")
             records = np.frombuffer(blob, dtype=np.uint8, count=blocks * width, offset=at).reshape(blocks, width).copy()
             at += blocks * width
             tensors.append((name, {"rows": rows, "cols": cols, "top": top, "colscale": c, "records": records, "keep": keep, "kept": kept}))
@@ -303,6 +373,7 @@ class Format:
         out = np.empty((len(records), self.n), dtype=np.float32)
         best = None
         for _ in range(repeats):
+            self._use()
             t0 = time.process_time()
             bad = self._lib.zb_decode(records.ctypes.data, len(records), float(top), self.steps, out.ctypes.data)
             dt = time.process_time() - t0

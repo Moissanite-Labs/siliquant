@@ -7,6 +7,15 @@ of them does to the output: the model's tokenizer (byte-pair merges, as GPT-2), 
 of the changed model's next-token distribution from the reference's, at the positions
 llama-perplexity scores: the second half of each passage.
 
+The tokenizer splits every digit off as its own piece before GPT-2's expression is applied,
+where GPT-2 itself keeps a run of digits together. That is llama.cpp's rule for this model, not
+a choice made here: the file names its pre-tokenizer "smollm", and for that name llama.cpp
+(src/llama-vocab.cpp at eada89c) first applies an expression that matches one number character
+at a time, and GPT-2's expression second. Without the split the token ids, and so every KL from
+this file, would not be those the harness scores. One difference is left: the class used here
+is the decimal digits, and llama.cpp's is every number character, which also takes signs such
+as a fraction. The wikitext-2 test text has 20,679 decimal digits and one other number character.
+
 It is slow and exact enough, not fast: 32-bit floats, one passage at a time through attention.
 It handles what SmolLM2 has: as many key heads as heads, no biases, the output matrix tied to
 the token embedding. It refuses a file that has anything else.

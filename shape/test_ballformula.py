@@ -64,10 +64,6 @@ class TestClosedForm(unittest.TestCase):
         self.assertAlmostEqual(B.predicted_kl(-25.0, 0.1, -22.0), 0.1 * 10 ** -0.3)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class TestDesign(unittest.TestCase):
     def test_table_size_formula_is_that_of_the_index(self):
         import importlib.util
@@ -83,3 +79,7 @@ class TestDesign(unittest.TestCase):
             self.assertLessEqual(points, 1 << bits)
             scale = 8 if n == 32 else 16
             self.assertAlmostEqual((math.log2(points) + scale) / n, want, places=3)
+
+
+if __name__ == "__main__":
+    unittest.main()

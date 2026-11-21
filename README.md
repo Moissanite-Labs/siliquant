@@ -31,7 +31,7 @@ python3 -m unittest lattice/test_lattices.py
 ```
 
 ```bash
-python3 -m unittest shape/test_shapelib.py shape/test_certified.py shape/test_ballindex.py shape/test_ballpack.py
+python3 -m unittest shape/test_shapelib.py shape/test_certified.py shape/test_ballindex.py shape/test_ballpack.py shape/test_ballformula.py shape/test_ggufread.py shape/test_npforward.py
 ```
 
 ```bash

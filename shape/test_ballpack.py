@@ -214,6 +214,62 @@ class Format32(unittest.TestCase):
         self.assertEqual(sha(fmt.encode(W)[0]), "998404863c3f766a7941e3034c2b2d9652593ec0e8b690e209914d48b1903a91")     # the bytes before kept columns existed
         self.assertEqual(sha(fmt.encode(W, c)[0]), "73883d41b04521a0222a22a81c4ddbf63a8f42ff9d3445ee389699aa06808ee9")
 
+    def test_two_formats_alive_do_not_read_each_others_table(self):
+        fmt = self.fmt
+        W = self.matrices()["heavy"]
+        stored, Wh, _ = fmt.encode(W)
+        small = ballpack.Format(8, 16, 16)                                      # the C coder's one table is now this format's
+        Y8 = random_points(small, self.rng, 50)
+        n8 = small.rank(Y8)
+        self.assertTrue(np.array_equal(fmt.decode(stored), Wh))                 # and now the first format's again
+        self.assertTrue(np.array_equal(small.unrank(n8), Y8))
+        Y = random_points(fmt, self.rng, 20)
+        self.assertEqual([number(r) for r in fmt.rank(Y)], [fmt.index.rank(y.tolist()) for y in Y])
+        seconds, out = fmt.timing(stored["records"], top=float(stored["top"]), repeats=1)
+        self.assertEqual(out.shape, (W.size // 32, 32))
+        self.assertTrue(np.array_equal(small.unrank(n8), Y8))
+
+    def test_a_bad_file_is_refused_with_one_kind_of_error(self):
+        import struct
+        fmt = self.fmt
+        W = self.matrices()["gauss"]
+        cols = np.exp(self.rng.standard_normal(256) * 0.5)
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "b.sqbp")
+            fmt.write(path, [("a", fmt.encode(W, cols, keep=np.array([3, 9]))[0]), ("b", fmt.encode(W)[0])])
+            with open(path, "rb") as f:
+                good = f.read()
+            ballpack.Format.read(path)
+
+            def refused(blob):
+                with open(path, "wb") as f:
+                    f.write(blob)
+                with self.assertRaises(ValueError):
+                    ballpack.Format.read(path)
+
+            for cut in (0, 7, 20, 28, 30, 33, 41, 300, 560, 700, len(good) // 2, len(good) - 1):     # cut short at every kind of place
+                refused(good[:cut])
+            head = lambda n, bits, bound, steps: ballpack.MAGIC + struct.pack("<5I", n, bits, bound, steps, 2) + good[28:]
+            refused(head(32, 136, fmt.bound, 0))                                # a scale of no steps
+            refused(head(0, 136, fmt.bound, 16))                                # a block of no weights
+            refused(head(32, 136, fmt.bound + 1, 16))                           # a bound that is not the format's
+            at = 28 + 2 + 1                                                     # rows and cols of the first matrix
+            rows, cols_ = struct.unpack_from("<II", good, at)
+            refused(good[:at] + struct.pack("<II", rows, cols_ + 1) + good[at + 8:])   # a row the blocks do not tile
+            refused(good[:at + 8] + bytes([4]) + good[at + 9:])                 # a flag this reader does not know
+
+    def test_the_compiled_coder_is_loaded_from_a_directory_of_this_user_alone(self):
+        d = ballpack._build_dir()
+        st = os.stat(d)
+        self.assertEqual(st.st_uid, os.getuid())
+        self.assertEqual(st.st_mode & 0o022, 0)
+        with tempfile.TemporaryDirectory() as t:
+            os.chmod(t, 0o777)
+            self.assertFalse(ballpack._private(t))                              # open to others: not a place to load a library from
+            os.chmod(t, 0o700)
+            self.assertTrue(ballpack._private(t))
+        self.assertFalse(ballpack._private(os.path.join(str(d), "no-such-file")))
+
     def test_a_row_that_blocks_do_not_tile_is_refused(self):
         with self.assertRaises(ValueError):
             self.fmt.encode(np.zeros((2, 40), dtype=np.float32))
