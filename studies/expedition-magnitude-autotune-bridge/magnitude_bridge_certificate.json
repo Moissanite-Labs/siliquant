@@ -1,0 +1,119 @@
+{
+  "anchors": {
+    "all_anchors_matched": false,
+    "anchor_mode": "standalone",
+    "anchors_total": 19,
+    "anchors_verified": 0,
+    "pinned_commit": "d89dfffcbb2f27251e99163934c04770b453339c"
+  },
+  "canonical_sha256": "c2f7d096f48762e54e0d9aed1e10b05d8150dc589a8ce0992a939c4dbe4f1cd1",
+  "cross_pollination_targets": [
+    "Moissanite-Labs/warp-drive",
+    "Moissanite-Labs/siliquant#24",
+    "Moissanite-Labs/hillclimb#4"
+  ],
+  "novelty_class": "N1",
+  "pinned_commit": "d89dfffcbb2f27251e99163934c04770b453339c",
+  "proofs": {
+    "mag01a_localized_spike": {
+      "hardened_admitted": false,
+      "hardened_max_ulp": {
+        "den": 1,
+        "num": 147
+      },
+      "legacy_admitted": true,
+      "legacy_ratio_sq": {
+        "den": 1024,
+        "num": 64827
+      }
+    },
+    "mag01b_outlier_masking": {
+      "hardened_admitted": false,
+      "hardened_bulk_ratio_sq": {
+        "den": 3,
+        "num": 1048576
+      },
+      "hardened_outlier_count": 1,
+      "legacy_admitted": true,
+      "legacy_ratio_sq": {
+        "den": 268472311,
+        "num": 12881756160
+      },
+      "outlier_value": 6144
+    },
+    "mag02_recurrent_step_relaxation": {
+      "bf16_over_f32_step_factor": {
+        "den": 1,
+        "num": 65536
+      },
+      "hardened_admitted": false,
+      "hardened_bulk_ratio_sq": {
+        "den": 3,
+        "num": 17179869184
+      },
+      "hardened_max_ulp": {
+        "den": 3,
+        "num": 65536
+      },
+      "hardened_step_fmt": "F32",
+      "legacy_admitted": true,
+      "legacy_ratio_sq": {
+        "den": 3,
+        "num": 4
+      }
+    },
+    "mag03_ville_supermartingale": {
+      "hardened_7_0_verdict": "undecided",
+      "hardened_8_0_anchor_fail_promote": false,
+      "hardened_8_0_pass_promote": true,
+      "legacy_7_0_verdict": "leads",
+      "m6_6": {
+        "den": 7,
+        "num": 127
+      },
+      "m7_7": {
+        "den": 8,
+        "num": 255
+      },
+      "m8_8": {
+        "den": 9,
+        "num": 511
+      },
+      "martingale_exact_identity": true,
+      "uncorrected_fwer_k20_alpha_1_20": {
+        "den": 104857600000000000000000000,
+        "num": 67267626542454041806644399
+      }
+    },
+    "mag04_05_06_08_trust_boundary": {
+      "hardened_admitted": true,
+      "hardened_reasons": [],
+      "legacy_risky_admitted": false,
+      "legacy_risky_reason_count": 9,
+      "legacy_risky_reasons": [
+        "BIND_UNAUTHENTICATED_NON_LOOPBACK",
+        "SAMPLING_NON_DETERMINISTIC",
+        "TUNING_IDENTITY_UNPINNED",
+        "CACHE_PRIVACY_NOT_OWNER",
+        "EVIDENCE_DIGEST_UNVERIFIED",
+        "JIT_ARTIFACT_UNTRUSTED",
+        "CHECKPOINT_SHA256_MISMATCH",
+        "PREFIX_CACHE_TENANT_MISMATCH",
+        "STATE_BANKS_NOT_FLUSHED"
+      ]
+    },
+    "mag06_weight_sample_vs_sha256": {
+      "pos_affine_r_squared": {
+        "den": 1,
+        "num": 1
+      },
+      "pos_affine_sign": 1,
+      "sha256_catches_tamper": true,
+      "weight_sample_neg_affine_matches": false,
+      "weight_sample_pos_affine_matches": true
+    }
+  },
+  "schema": "expedition.round7.magnitude_autotune_bridge.v1",
+  "target_repo": "magnitudedev/magnitude",
+  "zero_float_arithmetic": true
+}
