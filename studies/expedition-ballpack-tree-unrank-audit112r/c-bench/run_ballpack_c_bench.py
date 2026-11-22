@@ -38,11 +38,15 @@ import tempfile
 from typing import Any, Sequence
 
 _HERE = Path(__file__).resolve().parent
-_TRACK15_DIR = _HERE.parent / "track-s15-ballpack-tree-unrank"
+_ORACLE_DIR = (
+    _HERE.parent
+    if (_HERE.parent / "ballpack_tree_oracle.py").is_file()
+    else (_HERE.parent / "track-s15-ballpack-tree-unrank")
+)
 _INTAKE_DIR = _HERE.parent / "intake-siliquant-ballpack"
 
-if str(_TRACK15_DIR) not in sys.path:
-    sys.path.insert(0, str(_TRACK15_DIR))
+if str(_ORACLE_DIR) not in sys.path:
+    sys.path.insert(0, str(_ORACLE_DIR))
 
 from ballpack_tree_oracle import (
     build_e8_tree_tables,
@@ -53,10 +57,14 @@ from ballpack_tree_oracle import (
     unrank_tree_z,
 )
 
-SCHEMA_VERSION = "track_s15b.ballpack_c_bench.v1"
+SCHEMA_VERSION = "track_s15b.ballpack_c_bench.v2"
 PINNED_BASELINE_COMMIT = "20d13d5fa9c5fb2333b8faa0360a90caa1e0a43f"
 PINNED_BALLPACK_C_SHA256 = "53074fbadf169650da6cad400b986e07b1ea15df180f6f148f97ef4761b33055"
 Q4KM_FALSIFIER_MW_PER_SEC_PER_CORE = 45000  # siliquant#23 reported Q4_K_M throughput ceiling (M weights/s/core)
+L1D_REFERENCE_BYTES = 32 * 1024  # 32 KiB per-core L1d reference (AMD Athlon Silver 3050U / Zen 1)
+BASELINE_Z32_BALLPACK_C_BYTES = (32 + 1) * (783 + 1) * 24  # ballpack.c g_ways: 25,872 * sizeof(num)
+BASELINE_E8_136B_BALLINDEX_BYTES = (4 * 9 * 4 * (8 * 391 + 1) + 5 * (8 * 391 + 1)) * 24  # 466,221 * 24 B
+BASELINE_E8_88B_BALLINDEX_BYTES = (4 * 9 * 4 * (8 * 48 + 1) + 5 * (8 * 48 + 1)) * 24  # 57,365 * 24 B
 
 COMPILER_PROFILES: tuple[dict[str, Any], ...] = (
     {
@@ -90,6 +98,92 @@ _DIV_INSN_RE = re.compile(r"\t(?:i?div[bwlq]?)\b")
 
 class BenchError(ValueError):
     """Fail-closed error raised on build, table, exactness, or runtime violations."""
+
+
+class CFootprintBreakdown(ctypes.Structure):
+    _fields_ = [
+        ("hot_compact_base_bytes", ctypes.c_size_t),
+        ("hot_compact_recip_bytes", ctypes.c_size_t),
+        ("hot_compact_total_bytes", ctypes.c_size_t),
+        ("fast_extra_ckpt_data_bytes", ctypes.c_size_t),
+        ("fast_extra_ckpt_meta_bytes", ctypes.c_size_t),
+        ("hot_fast_total_bytes", ctypes.c_size_t),
+        ("rank_only_inverse_bytes", ctypes.c_size_t),
+        ("init_unused_aux_bytes", ctypes.c_size_t),
+        ("total_heap_init_bytes", ctypes.c_size_t),
+        ("ctx_struct_bytes", ctypes.c_size_t),
+    ]
+
+
+def _read_type_sizes(tree_lib: ctypes.CDLL) -> dict[str, int]:
+    arr = (ctypes.c_size_t * 6)()
+    tree_lib.ballpack_tree_type_sizes(arr)
+    names = ("u192", "u128", "Recip192", "Recip128", "Recip64", "Recip32")
+    out = {name: int(arr[i]) for i, name in enumerate(names)}
+    if any(v <= 0 for v in out.values()):
+        raise BenchError(f"invalid C type sizes reported: {out}")
+    return out
+
+
+def _read_footprint_breakdown(
+    getter: Any,
+    *,
+    label: str,
+    baseline_bytes: int,
+    baseline_name: str,
+) -> dict[str, Any]:
+    fp = CFootprintBreakdown()
+    rc = int(getter(ctypes.byref(fp)))
+    if rc != 0:
+        raise BenchError(f"{label} footprint breakdown getter failed with code {rc}")
+    d = {name: int(getattr(fp, name)) for name, _ in CFootprintBreakdown._fields_}
+    if d["hot_compact_base_bytes"] + d["hot_compact_recip_bytes"] != d["hot_compact_total_bytes"]:
+        raise BenchError(f"{label} hot_compact partition sum mismatch")
+    if (
+        d["hot_compact_total_bytes"]
+        + d["fast_extra_ckpt_data_bytes"]
+        + d["fast_extra_ckpt_meta_bytes"]
+        != d["hot_fast_total_bytes"]
+    ):
+        raise BenchError(f"{label} hot_fast partition sum mismatch")
+    if (
+        d["hot_fast_total_bytes"]
+        + d["rank_only_inverse_bytes"]
+        + d["init_unused_aux_bytes"]
+        != d["total_heap_init_bytes"]
+    ):
+        raise BenchError(f"{label} total_heap_init partition sum mismatch")
+    if d["ctx_struct_bytes"] <= 0 or d["hot_compact_total_bytes"] <= 0:
+        raise BenchError(f"{label} non-positive footprint reported")
+    d["baseline_name"] = baseline_name
+    d["baseline_bytes"] = baseline_bytes
+    d["hot_compact_fits_32kib_l1d"] = d["hot_compact_total_bytes"] <= L1D_REFERENCE_BYTES
+    d["hot_fast_fits_32kib_l1d"] = d["hot_fast_total_bytes"] <= L1D_REFERENCE_BYTES
+    d["vs_baseline_hot_compact_reduction_x"] = format_exact_decimal(
+        Fraction(baseline_bytes, d["hot_compact_total_bytes"]), 2
+    )
+    d["vs_baseline_hot_fast_reduction_x"] = format_exact_decimal(
+        Fraction(baseline_bytes, d["hot_fast_total_bytes"]), 2
+    )
+    d["vs_baseline_total_heap_init_reduction_x"] = format_exact_decimal(
+        Fraction(baseline_bytes, d["total_heap_init_bytes"]), 2
+    )
+    return d
+
+
+def _resolve_baseline_ballpack_c(explicit_path: Path | None) -> Path:
+    if explicit_path is not None:
+        return explicit_path
+    candidates = (
+        _INTAKE_DIR / "shape" / "ballpack.c",
+        _HERE.parents[2] / "shape" / "ballpack.c",
+    )
+    for cand in candidates:
+        if cand.is_file():
+            return cand
+    raise BenchError(
+        "baseline shape/ballpack.c (PR #12 @ 20d13d5f) not found; pass --baseline-ballpack-c <path>"
+    )
 
 
 def _sha256_file(path: Path) -> str:
@@ -358,6 +452,10 @@ def _bind_libs(base_so: Path, tree_so: Path) -> tuple[ctypes.CDLL, ctypes.CDLL]:
     tree_lib.ztree_init.restype = ctypes.c_int
     tree_lib.ztree_checkpoint_bytes.argtypes = []
     tree_lib.ztree_checkpoint_bytes.restype = ctypes.c_size_t
+    tree_lib.ztree_footprint_breakdown.argtypes = [ctypes.POINTER(CFootprintBreakdown)]
+    tree_lib.ztree_footprint_breakdown.restype = ctypes.c_int
+    tree_lib.ballpack_tree_type_sizes.argtypes = [ctypes.POINTER(ctypes.c_size_t)]
+    tree_lib.ballpack_tree_type_sizes.restype = None
 
     for fn_name in (
         "ztree_unrank_compact",
@@ -414,6 +512,8 @@ def _bind_libs(base_so: Path, tree_so: Path) -> tuple[ctypes.CDLL, ctypes.CDLL]:
     tree_lib.e8tree_init.restype = ctypes.c_int
     tree_lib.e8tree_checkpoint_bytes.argtypes = []
     tree_lib.e8tree_checkpoint_bytes.restype = ctypes.c_size_t
+    tree_lib.e8tree_footprint_breakdown.argtypes = [ctypes.POINTER(CFootprintBreakdown)]
+    tree_lib.e8tree_footprint_breakdown.restype = ctypes.c_int
 
     tree_lib.bench_unrank_ns.argtypes = [
         ctypes.c_int,
@@ -867,8 +967,17 @@ def _time_codec(
     return _summarize_timings(wall_samples, cpu_samples, groups * 32, n_threads)
 
 
-def run_suite(*, bench: bool, groups: int, trials: int, oracle_check_n: int) -> dict[str, Any]:
-    base_src = _INTAKE_DIR / "shape" / "ballpack.c"
+def run_suite(
+    *,
+    bench: bool,
+    groups: int,
+    trials: int,
+    oracle_check_n: int,
+    baseline_ballpack_c: Path | None = None,
+) -> dict[str, Any]:
+    if groups < 1 or trials < 1 or oracle_check_n < 0:
+        raise BenchError("groups and trials must be >= 1 and oracle_check_n must be >= 0")
+    base_src = _resolve_baseline_ballpack_c(baseline_ballpack_c)
     tree_src = _HERE / "ballpack_tree.c"
 
     base_sha = _sha256_file(base_src)
@@ -891,7 +1000,7 @@ def run_suite(*, bench: bool, groups: int, trials: int, oracle_check_n: int) -> 
     compiler_builds: list[dict[str, Any]] = []
     exactness_by_profile: dict[str, Any] = {}
     benchmarks_by_profile: dict[str, Any] = {}
-    checkpoint_footprint: dict[str, int] = {}
+    memory_footprints: dict[str, Any] | None = None
 
     with tempfile.TemporaryDirectory(prefix="s15b_c_bench_") as td:
         os.chmod(td, 0o700)
@@ -912,6 +1021,14 @@ def run_suite(*, bench: bool, groups: int, trials: int, oracle_check_n: int) -> 
             if int(base_lib.zb_init(32, 783, 17, dp_table_c)) != 0:
                 raise BenchError(f"zb_init failed under {pid}")
             z_cp_bytes = _init_z32_tables(tree_lib, z32_tbl, 17)
+            z_fp = _read_footprint_breakdown(
+                tree_lib.ztree_footprint_breakdown,
+                label=f"{pid}:z32_136b",
+                baseline_bytes=BASELINE_Z32_BALLPACK_C_BYTES,
+                baseline_name="ballpack.c Z^32 g_ways",
+            )
+            if z_cp_bytes != z_fp["fast_extra_ckpt_data_bytes"] + z_fp["fast_extra_ckpt_meta_bytes"]:
+                raise BenchError(f"{pid}: ztree_checkpoint_bytes mismatch vs breakdown")
 
             # Full groups on primary gcc_native; exact parity subset on secondary profiles in bench mode
             prof_groups = groups if (pid == "gcc_native" or not bench) else min(groups, 10000)
@@ -927,6 +1044,14 @@ def run_suite(*, bench: bool, groups: int, trials: int, oracle_check_n: int) -> 
             )
 
             e8_136_cp_bytes = _init_e8_tables(tree_lib, e8_136_tbl, 17)
+            e8_136_fp = _read_footprint_breakdown(
+                tree_lib.e8tree_footprint_breakdown,
+                label=f"{pid}:e8_4_136b",
+                baseline_bytes=BASELINE_E8_136B_BALLINDEX_BYTES,
+                baseline_name="BallIndex E_8^4 136b DP table",
+            )
+            if e8_136_cp_bytes != e8_136_fp["fast_extra_ckpt_data_bytes"] + e8_136_fp["fast_extra_ckpt_meta_bytes"]:
+                raise BenchError(f"{pid}: e8_136b checkpoint_bytes mismatch vs breakdown")
             e8_136_exact = _verify_e8_exactness(
                 tree_lib,
                 e8_136_tbl,
@@ -938,6 +1063,14 @@ def run_suite(*, bench: bool, groups: int, trials: int, oracle_check_n: int) -> 
             )
 
             e8_88_cp_bytes = _init_e8_tables(tree_lib, e8_88_tbl, 11)
+            e8_88_fp = _read_footprint_breakdown(
+                tree_lib.e8tree_footprint_breakdown,
+                label=f"{pid}:e8_4_88b",
+                baseline_bytes=BASELINE_E8_88B_BALLINDEX_BYTES,
+                baseline_name="BallIndex E_8^4 88b DP table",
+            )
+            if e8_88_cp_bytes != e8_88_fp["fast_extra_ckpt_data_bytes"] + e8_88_fp["fast_extra_ckpt_meta_bytes"]:
+                raise BenchError(f"{pid}: e8_88b checkpoint_bytes mismatch vs breakdown")
             e8_88_exact = _verify_e8_exactness(
                 tree_lib,
                 e8_88_tbl,
@@ -953,16 +1086,23 @@ def run_suite(*, bench: bool, groups: int, trials: int, oracle_check_n: int) -> 
                 "e8_4_136b": e8_136_exact,
                 "e8_4_88b": e8_88_exact,
             }
-            if pid == "gcc_native":
-                checkpoint_footprint = {
-                    "baseline_ballpack_c_table_bytes": (32 + 1) * (783 + 1) * 24,
-                    "ztree_compact_table_bytes": 70780,
-                    "ztree_fast_checkpoint_bytes": z_cp_bytes,
-                    "e8_136b_compact_table_bytes": 56850,
-                    "e8_136b_fast_checkpoint_bytes": e8_136_cp_bytes,
-                    "e8_88b_compact_table_bytes": 5490,
-                    "e8_88b_fast_checkpoint_bytes": e8_88_cp_bytes,
-                }
+            prof_footprints = {
+                "measurement_source": "live C11 malloc/calloc sizeof tracking (ztree_footprint_breakdown / e8tree_footprint_breakdown)",
+                "l1d_cache_reference_bytes": L1D_REFERENCE_BYTES,
+                "c_type_sizes_bytes": _read_type_sizes(tree_lib),
+                "baselines_bytes": {
+                    "ballpack_c_z32_136b_g_ways": BASELINE_Z32_BALLPACK_C_BYTES,
+                    "ballindex_e8_4_136b_dp_table": BASELINE_E8_136B_BALLINDEX_BYTES,
+                    "ballindex_e8_4_88b_dp_table": BASELINE_E8_88B_BALLINDEX_BYTES,
+                },
+                "z32_136b": z_fp,
+                "e8_4_136b": e8_136_fp,
+                "e8_4_88b": e8_88_fp,
+            }
+            if memory_footprints is None:
+                memory_footprints = prof_footprints
+            elif prof_footprints != memory_footprints:
+                raise BenchError(f"cross-compiler C sizeof footprint mismatch under {pid}")
 
             if bench:
                 z_in_c = ctypes.create_string_buffer(z32_in, len(z32_in))
@@ -1077,7 +1217,7 @@ def run_suite(*, bench: bool, groups: int, trials: int, oracle_check_n: int) -> 
             "intake_ballpack_c_sha256": base_sha,
             "ballpack_tree_c_sha256": tree_sha,
         },
-        "table_footprints_bytes": checkpoint_footprint,
+        "memory_footprints_bytes": memory_footprints,
         "compiler_builds": compiler_builds,
         "all_profiles_zero_warnings": True,
         "all_hot_unrank_zero_hardware_div": all_zero_div,
@@ -1103,6 +1243,12 @@ def main(argv: list[str] | None = None) -> int:
         default=None,
         help="Blocks cross-checked vs Python oracle (default: 32 verify, 256 bench).",
     )
+    parser.add_argument(
+        "--baseline-ballpack-c",
+        type=Path,
+        default=None,
+        help="Path to pinned PR #12 shape/ballpack.c (SHA-256 verified).",
+    )
     parser.add_argument("--json", action="store_true", help="Emit canonical JSON to stdout.")
     parser.add_argument("--write-results", type=Path, default=None, help="Run --bench and write canonical JSON to path.")
     args = parser.parse_args(argv)
@@ -1110,7 +1256,13 @@ def main(argv: list[str] | None = None) -> int:
     bench = bool(args.bench or args.write_results is not None)
     groups = args.groups if args.groups is not None else (100000 if bench else 1024)
     oracle_check = args.oracle_check if args.oracle_check is not None else (256 if bench else 32)
-    res = run_suite(bench=bench, groups=groups, trials=args.trials, oracle_check_n=oracle_check)
+    res = run_suite(
+        bench=bench,
+        groups=groups,
+        trials=args.trials,
+        oracle_check_n=oracle_check,
+        baseline_ballpack_c=args.baseline_ballpack_c,
+    )
 
     rendered = json.dumps(res, indent=2, sort_keys=True, ensure_ascii=True) + "\n"
     if args.write_results is not None:

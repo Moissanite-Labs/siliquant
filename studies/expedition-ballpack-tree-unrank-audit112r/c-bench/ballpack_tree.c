@@ -1,17 +1,24 @@
 /* Zero-division binary-tree shell-convolution unrankers & rankers in pure C11
  * for Track S15b (AUDIT-112 empirical companion to Moissanite-Labs/siliquant#23/#25).
  *
+ * Scope: Exact research C11 rank/unrank implementation and scalar CPU microbenchmark
+ * harness (not yet wired into a packed-file reader/writer, format integration, or
+ * production binding).
+ *
  * Implements:
- *   1. Z^32 (136-bit, B=783) zero-division binary-tree bijection (32->16->8->4->2->L1 LUT):
- *      - ztree_unrank_compact      (70,780 B 1D tables + Z^2 L1 LUT)
- *      - ztree_unrank_fast         (L2-resident strided checkpoint prefix sums)
+ *   1. Z^32 (136-bit, B=783) zero-division binary-tree bijection (32->16->8->4->2->LUT):
+ *      - ztree_unrank_compact      (1D count/LUT tables + multiply-shift reciprocals, no checkpoints)
+ *      - ztree_unrank_fast         (adds strided checkpoint prefix sums & offset/length metadata)
  *      - ztree_unrank_fast_batch4  (4-block interleaved ILP unrolling)
- *      - ztree_rank                (exact inverse bijection)
- *   2. E_8^4 (136-bit m=391 & 88-bit m=48) zero-division reduced-norm binary-tree codec:
- *      - e8tree_unrank_compact     (56,850 B @ 136b / 5,490 B @ 88b)
- *      - e8tree_unrank_fast        (L2-resident strided checkpoints, depth 2 -> 4 E_8 blocks)
+ *      - ztree_rank                (exact inverse bijection using Z^2 inverse LUT + checkpoints)
+ *   2. E_8^4 (136-bit m=391 & 88-bit m=48) zero-division reduced-norm binary-tree rank/unrank:
+ *      - e8tree_unrank_compact     (outer/inner count/LUT + branch totals + reciprocals, no checkpoints)
+ *      - e8tree_unrank_fast        (adds strided checkpoint prefix sums & metadata, depth 2 -> 4 E_8 blocks)
+ *      - e8tree_unrank_fast_batch4 (4-block interleaved ILP unrolling)
  *      - e8tree_rank               (exact inverse bijection in doubled coordinates u = 2y)
- *   3. Built-in 1-core and multi-core (pthread) CLOCK_MONOTONIC microbenchmark harness.
+ *   3. Exact sizeof/allocation-tracked memory footprint getters:
+ *      - ztree_footprint_breakdown, e8tree_footprint_breakdown, ballpack_tree_type_sizes
+ *   4. Built-in 1-core and multi-core (pthread) CLOCK_MONOTONIC / CLOCK_THREAD_CPUTIME_ID harness.
  *
  * Zero hardware division instructions on the hot unranking path: every split uses
  * precomputed exact Granlund-Montgomery / Barrett multiply-shift pairs verified by AUDIT-112.
@@ -56,6 +63,41 @@ typedef struct {
     uint32_t m;
     uint32_t shift;
 } Recip32;
+
+/* Exact sizeof- and allocation-tracked runtime memory accounting (all bytes summed at malloc/calloc). */
+typedef struct {
+    size_t hot_compact_base_bytes;     /* Base count/LUT/branch arrays actually read by *_unrank_compact */
+    size_t hot_compact_recip_bytes;    /* Multiply-shift reciprocal arrays read by *_unrank_compact */
+    size_t hot_compact_total_bytes;    /* hot_compact_base_bytes + hot_compact_recip_bytes */
+    size_t fast_extra_ckpt_data_bytes; /* Additional checkpoint prefix/total arrays read by *_unrank_fast/batch4 */
+    size_t fast_extra_ckpt_meta_bytes; /* Checkpoint offset/length metadata arrays read by *_unrank_fast/batch4 */
+    size_t hot_fast_total_bytes;       /* hot_compact_total_bytes + fast_extra_ckpt_data_bytes + fast_extra_ckpt_meta_bytes */
+    size_t rank_only_inverse_bytes;    /* Inverse lookup grids read only by *_rank */
+    size_t init_unused_aux_bytes;      /* Arrays allocated at init but unread by unrank/rank (s16+z2_nz_r; s_blk2) */
+    size_t total_heap_init_bytes;      /* Exact sum of EVERY malloc/calloc performed in *_init */
+    size_t ctx_struct_bytes;           /* sizeof(Z32Ctx) or sizeof(E8Ctx) */
+} FootprintBreakdown;
+
+static void *alloc_tracked(size_t nmemb, size_t elem_sz, int zero, size_t *bucket, size_t *total) {
+    if (nmemb == 0u || elem_sz == 0u || nmemb > ((size_t)-1) / elem_sz) return NULL;
+    size_t nbytes = nmemb * elem_sz;
+    void *p = zero ? calloc(nmemb, elem_sz) : malloc(nbytes);
+    if (p != NULL) {
+        *bucket += nbytes;
+        *total += nbytes;
+    }
+    return p;
+}
+
+void ballpack_tree_type_sizes(size_t out_sizes[6]) {
+    if (out_sizes == NULL) return;
+    out_sizes[0] = sizeof(u192);
+    out_sizes[1] = sizeof(u128);
+    out_sizes[2] = sizeof(Recip192);
+    out_sizes[3] = sizeof(Recip128);
+    out_sizes[4] = sizeof(Recip64);
+    out_sizes[5] = sizeof(Recip32);
+}
 
 /* ============================================================================
  * Zero-Division Exact Multiply-Shift Helpers
@@ -243,13 +285,13 @@ typedef struct {
     uint32_t *cp_s4;       /* strided prefix sums for Shell(4, r) */
     uint32_t *cp_w4;       /* strided prefix sums for Ball(4, b) */
     size_t checkpoint_bytes;
+    FootprintBreakdown footprint;
 } Z32Ctx;
 
 static Z32Ctx g_z32;
 static int g_z32_ready = 0;
 
-static void z32_free(void) {
-    if (!g_z32_ready) return;
+static void z32_free_ptrs(void) {
     free(g_z32.c_root);
     free(g_z32.s16);
     free(g_z32.w16);
@@ -285,6 +327,11 @@ static void z32_free(void) {
     free(g_z32.cp_w4);
     memset(&g_z32, 0, sizeof(g_z32));
     g_z32_ready = 0;
+}
+
+static void z32_free(void) {
+    if (!g_z32_ready) return;
+    z32_free_ptrs();
 }
 
 int ztree_init(
@@ -325,31 +372,41 @@ int ztree_init(
     g_z32.bound = bound;
     g_z32.bytes = bytes;
     g_z32.z2_pairs = z2_pairs;
-    g_z32.c_root = (u192 *)malloc(B2 * sizeof(u192));
-    g_z32.s16 = (u128 *)malloc(B1 * sizeof(u128));
-    g_z32.w16 = (u128 *)malloc(B1 * sizeof(u128));
-    g_z32.s8 = (uint64_t *)malloc(B1 * sizeof(uint64_t));
-    g_z32.w8 = (uint64_t *)malloc(B1 * sizeof(uint64_t));
-    g_z32.s4 = (uint32_t *)malloc(B1 * sizeof(uint32_t));
-    g_z32.w4 = (uint32_t *)malloc(B1 * sizeof(uint32_t));
-    g_z32.s2 = (uint16_t *)malloc(B1 * sizeof(uint16_t));
-    g_z32.w2 = (uint16_t *)malloc(B1 * sizeof(uint16_t));
-    g_z32.z2_off = (uint16_t *)malloc(B2 * sizeof(uint16_t));
-    g_z32.z2_pts = (int8_t *)malloc((size_t)z2_pairs * 2u * sizeof(int8_t));
-    g_z32.z2_nz_r = (uint16_t *)malloc(B1 * sizeof(uint16_t));
-    g_z32.rec_root = (Recip192 *)calloc(B1, sizeof(Recip192));
-    g_z32.rec_b8 = (Recip128 *)calloc(B1, sizeof(Recip128));
-    g_z32.rec_s8 = (Recip128 *)calloc(B1, sizeof(Recip128));
-    g_z32.rec_b4 = (Recip64 *)calloc(B1, sizeof(Recip64));
-    g_z32.rec_s4 = (Recip64 *)calloc(B1, sizeof(Recip64));
-    g_z32.rec_b2 = (Recip32 *)calloc(B1, sizeof(Recip32));
-    g_z32.rec_s2 = (Recip32 *)calloc(B1, sizeof(Recip32));
-    g_z32.cp16_off = (uint32_t *)malloc(B1 * sizeof(uint32_t));
-    g_z32.cp16_len = (uint32_t *)malloc(B1 * sizeof(uint32_t));
-    g_z32.cp8_off = (uint32_t *)malloc(B1 * sizeof(uint32_t));
-    g_z32.cp8_len = (uint32_t *)malloc(B1 * sizeof(uint32_t));
-    g_z32.cp4_off = (uint32_t *)malloc(B1 * sizeof(uint32_t));
-    g_z32.cp4_len = (uint32_t *)malloc(B1 * sizeof(uint32_t));
+    FootprintBreakdown *fp = &g_z32.footprint;
+    g_z32.c_root = (u192 *)alloc_tracked(B2, sizeof(u192), 0, &fp->hot_compact_base_bytes, &fp->total_heap_init_bytes);
+    g_z32.s16 = (u128 *)alloc_tracked(B1, sizeof(u128), 0, &fp->init_unused_aux_bytes, &fp->total_heap_init_bytes);
+    g_z32.w16 = (u128 *)alloc_tracked(B1, sizeof(u128), 0, &fp->hot_compact_base_bytes, &fp->total_heap_init_bytes);
+    g_z32.s8 = (uint64_t *)alloc_tracked(B1, sizeof(uint64_t), 0, &fp->hot_compact_base_bytes, &fp->total_heap_init_bytes);
+    g_z32.w8 = (uint64_t *)alloc_tracked(B1, sizeof(uint64_t), 0, &fp->hot_compact_base_bytes, &fp->total_heap_init_bytes);
+    g_z32.s4 = (uint32_t *)alloc_tracked(B1, sizeof(uint32_t), 0, &fp->hot_compact_base_bytes, &fp->total_heap_init_bytes);
+    g_z32.w4 = (uint32_t *)alloc_tracked(B1, sizeof(uint32_t), 0, &fp->hot_compact_base_bytes, &fp->total_heap_init_bytes);
+    g_z32.s2 = (uint16_t *)alloc_tracked(B1, sizeof(uint16_t), 0, &fp->hot_compact_base_bytes, &fp->total_heap_init_bytes);
+    g_z32.w2 = (uint16_t *)alloc_tracked(B1, sizeof(uint16_t), 0, &fp->hot_compact_base_bytes, &fp->total_heap_init_bytes);
+    g_z32.z2_off = (uint16_t *)alloc_tracked(B2, sizeof(uint16_t), 0, &fp->hot_compact_base_bytes, &fp->total_heap_init_bytes);
+    g_z32.z2_pts = (int8_t *)alloc_tracked((size_t)z2_pairs * 2u, sizeof(int8_t), 0, &fp->hot_compact_base_bytes, &fp->total_heap_init_bytes);
+    g_z32.z2_nz_r = (uint16_t *)alloc_tracked(B1, sizeof(uint16_t), 0, &fp->init_unused_aux_bytes, &fp->total_heap_init_bytes);
+    g_z32.rec_root = (Recip192 *)alloc_tracked(B1, sizeof(Recip192), 1, &fp->hot_compact_recip_bytes, &fp->total_heap_init_bytes);
+    g_z32.rec_b8 = (Recip128 *)alloc_tracked(B1, sizeof(Recip128), 1, &fp->hot_compact_recip_bytes, &fp->total_heap_init_bytes);
+    g_z32.rec_s8 = (Recip128 *)alloc_tracked(B1, sizeof(Recip128), 1, &fp->hot_compact_recip_bytes, &fp->total_heap_init_bytes);
+    g_z32.rec_b4 = (Recip64 *)alloc_tracked(B1, sizeof(Recip64), 1, &fp->hot_compact_recip_bytes, &fp->total_heap_init_bytes);
+    g_z32.rec_s4 = (Recip64 *)alloc_tracked(B1, sizeof(Recip64), 1, &fp->hot_compact_recip_bytes, &fp->total_heap_init_bytes);
+    g_z32.rec_b2 = (Recip32 *)alloc_tracked(B1, sizeof(Recip32), 1, &fp->hot_compact_recip_bytes, &fp->total_heap_init_bytes);
+    g_z32.rec_s2 = (Recip32 *)alloc_tracked(B1, sizeof(Recip32), 1, &fp->hot_compact_recip_bytes, &fp->total_heap_init_bytes);
+    g_z32.cp16_off = (uint32_t *)alloc_tracked(B1, sizeof(uint32_t), 0, &fp->fast_extra_ckpt_meta_bytes, &fp->total_heap_init_bytes);
+    g_z32.cp16_len = (uint32_t *)alloc_tracked(B1, sizeof(uint32_t), 0, &fp->fast_extra_ckpt_meta_bytes, &fp->total_heap_init_bytes);
+    g_z32.cp8_off = (uint32_t *)alloc_tracked(B1, sizeof(uint32_t), 0, &fp->fast_extra_ckpt_meta_bytes, &fp->total_heap_init_bytes);
+    g_z32.cp8_len = (uint32_t *)alloc_tracked(B1, sizeof(uint32_t), 0, &fp->fast_extra_ckpt_meta_bytes, &fp->total_heap_init_bytes);
+    g_z32.cp4_off = (uint32_t *)alloc_tracked(B1, sizeof(uint32_t), 0, &fp->fast_extra_ckpt_meta_bytes, &fp->total_heap_init_bytes);
+    g_z32.cp4_len = (uint32_t *)alloc_tracked(B1, sizeof(uint32_t), 0, &fp->fast_extra_ckpt_meta_bytes, &fp->total_heap_init_bytes);
+    if (!g_z32.c_root || !g_z32.s16 || !g_z32.w16 || !g_z32.s8 || !g_z32.w8 ||
+        !g_z32.s4 || !g_z32.w4 || !g_z32.s2 || !g_z32.w2 || !g_z32.z2_off ||
+        !g_z32.z2_pts || !g_z32.z2_nz_r || !g_z32.rec_root || !g_z32.rec_b8 ||
+        !g_z32.rec_s8 || !g_z32.rec_b4 || !g_z32.rec_s4 || !g_z32.rec_b2 ||
+        !g_z32.rec_s2 || !g_z32.cp16_off || !g_z32.cp16_len || !g_z32.cp8_off ||
+        !g_z32.cp8_len || !g_z32.cp4_off || !g_z32.cp4_len) {
+        z32_free_ptrs();
+        return 2;
+    }
 
     for (size_t i = 0; i < B2; ++i) {
         g_z32.c_root[i].w[0] = c_root_limbs[3u * i + 0u];
@@ -396,8 +453,12 @@ int ztree_init(
     g_z32.z2_max_c = mc;
     g_z32.z2_side = 2 * mc + 1;
     size_t grid_n = (size_t)g_z32.z2_side * (size_t)g_z32.z2_side;
-    g_z32.z2_ball_idx = (uint16_t *)malloc(grid_n * sizeof(uint16_t));
-    g_z32.z2_shell_idx = (uint16_t *)malloc(grid_n * sizeof(uint16_t));
+    g_z32.z2_ball_idx = (uint16_t *)alloc_tracked(grid_n, sizeof(uint16_t), 0, &fp->rank_only_inverse_bytes, &fp->total_heap_init_bytes);
+    g_z32.z2_shell_idx = (uint16_t *)alloc_tracked(grid_n, sizeof(uint16_t), 0, &fp->rank_only_inverse_bytes, &fp->total_heap_init_bytes);
+    if (!g_z32.z2_ball_idx || !g_z32.z2_shell_idx) {
+        z32_free_ptrs();
+        return 2;
+    }
     memset(g_z32.z2_ball_idx, 0xff, grid_n * sizeof(uint16_t));
     memset(g_z32.z2_shell_idx, 0xff, grid_n * sizeof(uint16_t));
     for (int r = 0; r <= bound; ++r) {
@@ -422,12 +483,16 @@ int ztree_init(
         g_z32.cp8_off[b] = tot8;   g_z32.cp8_len[b] = n8;   tot8 += n8;
         g_z32.cp4_off[b] = tot4;   g_z32.cp4_len[b] = n4;   tot4 += n4;
     }
-    g_z32.cp_s16 = (u128 *)malloc((size_t)tot16 * sizeof(u128));
-    g_z32.cp_w16 = (u128 *)malloc((size_t)tot16 * sizeof(u128));
-    g_z32.cp_s8 = (uint64_t *)malloc((size_t)tot8 * sizeof(uint64_t));
-    g_z32.cp_w8 = (uint64_t *)malloc((size_t)tot8 * sizeof(uint64_t));
-    g_z32.cp_s4 = (uint32_t *)malloc((size_t)tot4 * sizeof(uint32_t));
-    g_z32.cp_w4 = (uint32_t *)malloc((size_t)tot4 * sizeof(uint32_t));
+    g_z32.cp_s16 = (u128 *)alloc_tracked((size_t)tot16, sizeof(u128), 0, &fp->fast_extra_ckpt_data_bytes, &fp->total_heap_init_bytes);
+    g_z32.cp_w16 = (u128 *)alloc_tracked((size_t)tot16, sizeof(u128), 0, &fp->fast_extra_ckpt_data_bytes, &fp->total_heap_init_bytes);
+    g_z32.cp_s8 = (uint64_t *)alloc_tracked((size_t)tot8, sizeof(uint64_t), 0, &fp->fast_extra_ckpt_data_bytes, &fp->total_heap_init_bytes);
+    g_z32.cp_w8 = (uint64_t *)alloc_tracked((size_t)tot8, sizeof(uint64_t), 0, &fp->fast_extra_ckpt_data_bytes, &fp->total_heap_init_bytes);
+    g_z32.cp_s4 = (uint32_t *)alloc_tracked((size_t)tot4, sizeof(uint32_t), 0, &fp->fast_extra_ckpt_data_bytes, &fp->total_heap_init_bytes);
+    g_z32.cp_w4 = (uint32_t *)alloc_tracked((size_t)tot4, sizeof(uint32_t), 0, &fp->fast_extra_ckpt_data_bytes, &fp->total_heap_init_bytes);
+    if (!g_z32.cp_s16 || !g_z32.cp_w16 || !g_z32.cp_s8 || !g_z32.cp_w8 || !g_z32.cp_s4 || !g_z32.cp_w4) {
+        z32_free_ptrs();
+        return 2;
+    }
     for (int b = 0; b <= bound; ++b) {
         uint32_t b16 = g_z32.cp16_off[b];
         uint32_t b8 = g_z32.cp8_off[b];
@@ -460,7 +525,11 @@ int ztree_init(
             aw4 += (uint32_t)g_z32.s2[r_l] * g_z32.w2[rem_b];
         }
     }
-    g_z32.checkpoint_bytes = (size_t)tot16 * 32u + (size_t)tot8 * 16u + (size_t)tot4 * 8u;
+    fp->hot_compact_total_bytes = fp->hot_compact_base_bytes + fp->hot_compact_recip_bytes;
+    fp->hot_fast_total_bytes =
+        fp->hot_compact_total_bytes + fp->fast_extra_ckpt_data_bytes + fp->fast_extra_ckpt_meta_bytes;
+    fp->ctx_struct_bytes = sizeof(Z32Ctx);
+    g_z32.checkpoint_bytes = fp->fast_extra_ckpt_data_bytes + fp->fast_extra_ckpt_meta_bytes;
     g_z32_ready = 1;
     return 0;
 }
@@ -469,7 +538,13 @@ size_t ztree_checkpoint_bytes(void) {
     return g_z32_ready ? g_z32.checkpoint_bytes : 0u;
 }
 
-/* --- Leaf Z^2 emission (O(1) L1 LUT load!) --- */
+int ztree_footprint_breakdown(FootprintBreakdown *out) {
+    if (!g_z32_ready || out == NULL) return 1;
+    *out = g_z32.footprint;
+    return 0;
+}
+
+/* --- Leaf Z^2 emission (O(1) LUT load) --- */
 static inline void emit_z2_shell(int r, uint32_t idx, int8_t *out) {
     uint32_t pos = (uint32_t)g_z32.z2_off[r] + idx;
     out[0] = g_z32.z2_pts[2u * pos];
@@ -481,7 +556,7 @@ static inline void emit_z2_ball(uint32_t idx, int8_t *out) {
     out[1] = g_z32.z2_pts[2u * idx + 1u];
 }
 
-/* --- Compact 1D-table node unrankers (70.8 KB footprint, 0 hardware divisions!) --- */
+/* --- Compact 1D-table node unrankers (no checkpoints, 0 hardware divisions!) --- */
 static inline void unrank_z4_shell_compact(int r, uint32_t rem, int8_t *out) {
     const uint16_t *s2 = g_z32.s2;
     int r_l = 0;
@@ -954,7 +1029,7 @@ size_t ztree_rank(const int8_t *Y, size_t groups, uint8_t *out) {
 }
 
 /* ============================================================================
- * PART 2: E_8^4 (136-bit m=391 & 88-bit m=48) Reduced-Norm Binary-Tree Codec
+ * PART 2: E_8^4 (136-bit m=391 & 88-bit m=48) Reduced-Norm Binary-Tree Rank/Unrank
  * ============================================================================ */
 
 #define E8_STRIDE    16
@@ -1017,13 +1092,13 @@ typedef struct {
     uint32_t *cp_oq_len;      /* [t_max + 1] */
     uint32_t *cp_oq[4];       /* odd 4->2 strided prefix sums, pair_id = (pa<<1)|pb */
     size_t checkpoint_bytes;
+    FootprintBreakdown footprint;
 } E8Ctx;
 
 static E8Ctx g_e8;
 static int g_e8_ready = 0;
 
-static void e8_free(void) {
-    if (!g_e8_ready) return;
+static void e8_free_ptrs(void) {
     free(g_e8.c_root);
     free(g_e8.s_blk2);
     free(g_e8.w_blk2);
@@ -1075,6 +1150,11 @@ static void e8_free(void) {
     g_e8_ready = 0;
 }
 
+static void e8_free(void) {
+    if (!g_e8_ready) return;
+    e8_free_ptrs();
+}
+
 int e8tree_init(
     int m_max,
     int bytes,
@@ -1105,7 +1185,8 @@ int e8tree_init(
     const uint64_t *rec_oc4_m, const uint32_t *rec_oc4_s, /* 2 * (t_max + 1) */
     const uint32_t *rec_oc2_m, const uint32_t *rec_oc2_s
 ) {
-    if (m_max < 1 || m_max > 2048 || bytes < 1 || bytes > 24) return 1;
+    if (m_max < 1 || m_max > 2048 || bytes < 1 || bytes > 24 ||
+        even_n0 < 1 || even_n1 < 1 || odd_n0 < 1 || odd_n1 < 1) return 1;
     e8_free();
     int r_max = 2 * m_max;
     int t_max = m_max - 1;
@@ -1120,15 +1201,21 @@ int e8tree_init(
     g_e8.r_max = r_max;
     g_e8.t_max = t_max;
     g_e8.bytes = bytes;
-    g_e8.c_root = (u192 *)malloc(M2 * sizeof(u192));
-    g_e8.s_blk2 = (u128 *)malloc(M1 * sizeof(u128));
-    g_e8.w_blk2 = (u128 *)malloc(M1 * sizeof(u128));
-    g_e8.s_blk1 = (uint64_t *)malloc(M1 * sizeof(uint64_t));
-    g_e8.w_blk1 = (uint64_t *)malloc(M1 * sizeof(uint64_t));
-    g_e8.rec_root = (Recip192 *)calloc(M1, sizeof(Recip192));
-    g_e8.rec_b1 = (Recip128 *)calloc(M1, sizeof(Recip128));
-    g_e8.rec_s1 = (Recip128 *)calloc(M1, sizeof(Recip128));
-    g_e8.even_c8 = (uint64_t *)malloc(M1 * sizeof(uint64_t));
+    FootprintBreakdown *fp = &g_e8.footprint;
+    g_e8.c_root = (u192 *)alloc_tracked(M2, sizeof(u192), 0, &fp->hot_compact_base_bytes, &fp->total_heap_init_bytes);
+    g_e8.s_blk2 = (u128 *)alloc_tracked(M1, sizeof(u128), 0, &fp->init_unused_aux_bytes, &fp->total_heap_init_bytes);
+    g_e8.w_blk2 = (u128 *)alloc_tracked(M1, sizeof(u128), 0, &fp->hot_compact_base_bytes, &fp->total_heap_init_bytes);
+    g_e8.s_blk1 = (uint64_t *)alloc_tracked(M1, sizeof(uint64_t), 0, &fp->hot_compact_base_bytes, &fp->total_heap_init_bytes);
+    g_e8.w_blk1 = (uint64_t *)alloc_tracked(M1, sizeof(uint64_t), 0, &fp->hot_compact_base_bytes, &fp->total_heap_init_bytes);
+    g_e8.rec_root = (Recip192 *)alloc_tracked(M1, sizeof(Recip192), 1, &fp->hot_compact_recip_bytes, &fp->total_heap_init_bytes);
+    g_e8.rec_b1 = (Recip128 *)alloc_tracked(M1, sizeof(Recip128), 1, &fp->hot_compact_recip_bytes, &fp->total_heap_init_bytes);
+    g_e8.rec_s1 = (Recip128 *)alloc_tracked(M1, sizeof(Recip128), 1, &fp->hot_compact_recip_bytes, &fp->total_heap_init_bytes);
+    g_e8.even_c8 = (uint64_t *)alloc_tracked(M1, sizeof(uint64_t), 0, &fp->hot_compact_base_bytes, &fp->total_heap_init_bytes);
+    if (!g_e8.c_root || !g_e8.s_blk2 || !g_e8.w_blk2 || !g_e8.s_blk1 || !g_e8.w_blk1 ||
+        !g_e8.rec_root || !g_e8.rec_b1 || !g_e8.rec_s1 || !g_e8.even_c8) {
+        e8_free_ptrs();
+        return 2;
+    }
 
     for (size_t i = 0; i < M2; ++i) {
         g_e8.c_root[i].w[0] = c_root_limbs[3u * i + 0u];
@@ -1157,34 +1244,40 @@ int e8tree_init(
     const int odd_ns[2] = {odd_n0, odd_n1};
     const int8_t *odd_pts[2] = {odd_pts0_in, odd_pts1_in};
     for (int p = 0; p < 2; ++p) {
-        g_e8.even_c4[p] = (uint32_t *)malloc(R1 * sizeof(uint32_t));
-        g_e8.even_c2[p] = (uint16_t *)malloc(R1 * sizeof(uint16_t));
-        g_e8.even_p2_off[p] = (uint16_t *)malloc(R2 * sizeof(uint16_t));
-        g_e8.even_p2_pts[p] = (int8_t *)malloc((size_t)even_ns[p] * 2u * sizeof(int8_t));
+        g_e8.even_c4[p] = (uint32_t *)alloc_tracked(R1, sizeof(uint32_t), 0, &fp->hot_compact_base_bytes, &fp->total_heap_init_bytes);
+        g_e8.even_c2[p] = (uint16_t *)alloc_tracked(R1, sizeof(uint16_t), 0, &fp->hot_compact_base_bytes, &fp->total_heap_init_bytes);
+        g_e8.even_p2_off[p] = (uint16_t *)alloc_tracked(R2, sizeof(uint16_t), 0, &fp->hot_compact_base_bytes, &fp->total_heap_init_bytes);
+        g_e8.even_p2_pts[p] = (int8_t *)alloc_tracked((size_t)even_ns[p] * 2u, sizeof(int8_t), 0, &fp->hot_compact_base_bytes, &fp->total_heap_init_bytes);
+        g_e8.odd_c4[p] = (uint32_t *)alloc_tracked(T1, sizeof(uint32_t), 0, &fp->hot_compact_base_bytes, &fp->total_heap_init_bytes);
+        g_e8.odd_c2[p] = (uint16_t *)alloc_tracked(T1, sizeof(uint16_t), 0, &fp->hot_compact_base_bytes, &fp->total_heap_init_bytes);
+        g_e8.odd_p2_off[p] = (uint16_t *)alloc_tracked(T2, sizeof(uint16_t), 0, &fp->hot_compact_base_bytes, &fp->total_heap_init_bytes);
+        g_e8.odd_p2_pts[p] = (int8_t *)alloc_tracked((size_t)odd_ns[p] * 2u, sizeof(int8_t), 0, &fp->hot_compact_base_bytes, &fp->total_heap_init_bytes);
+        g_e8.rec_even_c4[p] = (Recip64 *)alloc_tracked(R1, sizeof(Recip64), 1, &fp->hot_compact_recip_bytes, &fp->total_heap_init_bytes);
+        g_e8.rec_even_c2[p] = (Recip32 *)alloc_tracked(R1, sizeof(Recip32), 1, &fp->hot_compact_recip_bytes, &fp->total_heap_init_bytes);
+        g_e8.rec_odd_c4[p] = (Recip64 *)alloc_tracked(T1, sizeof(Recip64), 1, &fp->hot_compact_recip_bytes, &fp->total_heap_init_bytes);
+        g_e8.rec_odd_c2[p] = (Recip32 *)alloc_tracked(T1, sizeof(Recip32), 1, &fp->hot_compact_recip_bytes, &fp->total_heap_init_bytes);
+        if (!g_e8.even_c4[p] || !g_e8.even_c2[p] || !g_e8.even_p2_off[p] || !g_e8.even_p2_pts[p] ||
+            !g_e8.odd_c4[p] || !g_e8.odd_c2[p] || !g_e8.odd_p2_off[p] || !g_e8.odd_p2_pts[p] ||
+            !g_e8.rec_even_c4[p] || !g_e8.rec_even_c2[p] || !g_e8.rec_odd_c4[p] || !g_e8.rec_odd_c2[p]) {
+            e8_free_ptrs();
+            return 2;
+        }
         memcpy(g_e8.even_c4[p], even_c4_in + (size_t)p * R1, R1 * sizeof(uint32_t));
         memcpy(g_e8.even_c2[p], even_c2_in + (size_t)p * R1, R1 * sizeof(uint16_t));
         memcpy(g_e8.even_p2_off[p], even_off_in + (size_t)p * R2, R2 * sizeof(uint16_t));
         memcpy(g_e8.even_p2_pts[p], even_pts[p], (size_t)even_ns[p] * 2u * sizeof(int8_t));
 
-        g_e8.odd_c4[p] = (uint32_t *)malloc(T1 * sizeof(uint32_t));
-        g_e8.odd_c2[p] = (uint16_t *)malloc(T1 * sizeof(uint16_t));
-        g_e8.odd_p2_off[p] = (uint16_t *)malloc(T2 * sizeof(uint16_t));
-        g_e8.odd_p2_pts[p] = (int8_t *)malloc((size_t)odd_ns[p] * 2u * sizeof(int8_t));
         memcpy(g_e8.odd_c4[p], odd_c4_in + (size_t)p * T1, T1 * sizeof(uint32_t));
         memcpy(g_e8.odd_c2[p], odd_c2_in + (size_t)p * T1, T1 * sizeof(uint16_t));
         memcpy(g_e8.odd_p2_off[p], odd_off_in + (size_t)p * T2, T2 * sizeof(uint16_t));
         memcpy(g_e8.odd_p2_pts[p], odd_pts[p], (size_t)odd_ns[p] * 2u * sizeof(int8_t));
 
-        g_e8.rec_even_c4[p] = (Recip64 *)calloc(R1, sizeof(Recip64));
-        g_e8.rec_even_c2[p] = (Recip32 *)calloc(R1, sizeof(Recip32));
         for (size_t i = 0; i < R1; ++i) {
             g_e8.rec_even_c4[p][i].m = rec_ec4_m[(size_t)p * R1 + i];
             g_e8.rec_even_c4[p][i].shift = rec_ec4_s[(size_t)p * R1 + i];
             g_e8.rec_even_c2[p][i].m = rec_ec2_m[(size_t)p * R1 + i];
             g_e8.rec_even_c2[p][i].shift = rec_ec2_s[(size_t)p * R1 + i];
         }
-        g_e8.rec_odd_c4[p] = (Recip64 *)calloc(T1, sizeof(Recip64));
-        g_e8.rec_odd_c2[p] = (Recip32 *)calloc(T1, sizeof(Recip32));
         for (size_t i = 0; i < T1; ++i) {
             g_e8.rec_odd_c4[p][i].m = rec_oc4_m[(size_t)p * T1 + i];
             g_e8.rec_odd_c4[p][i].shift = rec_oc4_s[(size_t)p * T1 + i];
@@ -1199,8 +1292,12 @@ int e8tree_init(
     g_e8.u_max = um;
     g_e8.u_side = 2 * um + 1;
     size_t ugrid = (size_t)g_e8.u_side * (size_t)g_e8.u_side;
-    g_e8.even_p2_idx = (uint16_t *)malloc(ugrid * sizeof(uint16_t));
-    g_e8.odd_p2_idx = (uint16_t *)malloc(ugrid * sizeof(uint16_t));
+    g_e8.even_p2_idx = (uint16_t *)alloc_tracked(ugrid, sizeof(uint16_t), 0, &fp->rank_only_inverse_bytes, &fp->total_heap_init_bytes);
+    g_e8.odd_p2_idx = (uint16_t *)alloc_tracked(ugrid, sizeof(uint16_t), 0, &fp->rank_only_inverse_bytes, &fp->total_heap_init_bytes);
+    if (!g_e8.even_p2_idx || !g_e8.odd_p2_idx) {
+        e8_free_ptrs();
+        return 2;
+    }
     memset(g_e8.even_p2_idx, 0xff, ugrid * sizeof(uint16_t));
     memset(g_e8.odd_p2_idx, 0xff, ugrid * sizeof(uint16_t));
     for (int p = 0; p < 2; ++p) {
@@ -1223,8 +1320,12 @@ int e8tree_init(
     }
 
     /* Outer E_8^2 strided checkpoints + inner p=0 branch totals */
-    g_e8.cp_m_off = (uint32_t *)malloc(M1 * sizeof(uint32_t));
-    g_e8.cp_m_len = (uint32_t *)malloc(M1 * sizeof(uint32_t));
+    g_e8.cp_m_off = (uint32_t *)alloc_tracked(M1, sizeof(uint32_t), 0, &fp->fast_extra_ckpt_meta_bytes, &fp->total_heap_init_bytes);
+    g_e8.cp_m_len = (uint32_t *)alloc_tracked(M1, sizeof(uint32_t), 0, &fp->fast_extra_ckpt_meta_bytes, &fp->total_heap_init_bytes);
+    if (!g_e8.cp_m_off || !g_e8.cp_m_len) {
+        e8_free_ptrs();
+        return 2;
+    }
     uint32_t total_cp = 0;
     for (int m = 0; m <= m_max; ++m) {
         uint32_t nblk = (uint32_t)(m / E8_STRIDE) + 1u;
@@ -1232,8 +1333,12 @@ int e8tree_init(
         g_e8.cp_m_len[m] = nblk;
         total_cp += nblk;
     }
-    g_e8.cp_s_blk2 = (u128 *)malloc((size_t)total_cp * sizeof(u128));
-    g_e8.cp_w_blk2 = (u128 *)malloc((size_t)total_cp * sizeof(u128));
+    g_e8.cp_s_blk2 = (u128 *)alloc_tracked((size_t)total_cp, sizeof(u128), 0, &fp->fast_extra_ckpt_data_bytes, &fp->total_heap_init_bytes);
+    g_e8.cp_w_blk2 = (u128 *)alloc_tracked((size_t)total_cp, sizeof(u128), 0, &fp->fast_extra_ckpt_data_bytes, &fp->total_heap_init_bytes);
+    if (!g_e8.cp_s_blk2 || !g_e8.cp_w_blk2) {
+        e8_free_ptrs();
+        return 2;
+    }
     for (int m = 0; m <= m_max; ++m) {
         uint32_t base = g_e8.cp_m_off[m];
         u128 as2 = 0, aw2 = 0;
@@ -1247,10 +1352,18 @@ int e8tree_init(
             aw2 += (u128)g_e8.s_blk1[m_l] * g_e8.w_blk1[m - m_l];
         }
     }
-    g_e8.e8_even_p0_tot = (uint64_t *)calloc(M1, sizeof(uint64_t));
-    g_e8.e8_odd_p0_tot = (uint64_t *)calloc(M1, sizeof(uint64_t));
-    g_e8.cp_ec8_off = (uint32_t *)malloc(M1 * sizeof(uint32_t));
-    g_e8.cp_ec8_len = (uint32_t *)malloc(M1 * sizeof(uint32_t));
+    /* Read by unrank_e8_block (compact), unrank_e8_block_fast (fast/batch4), and rank_e8_block_c */
+    g_e8.e8_even_p0_tot = (uint64_t *)alloc_tracked(M1, sizeof(uint64_t), 1, &fp->hot_compact_base_bytes, &fp->total_heap_init_bytes);
+    g_e8.e8_odd_p0_tot = (uint64_t *)alloc_tracked(M1, sizeof(uint64_t), 1, &fp->hot_compact_base_bytes, &fp->total_heap_init_bytes);
+    g_e8.cp_ec8_off = (uint32_t *)alloc_tracked(M1, sizeof(uint32_t), 0, &fp->fast_extra_ckpt_meta_bytes, &fp->total_heap_init_bytes);
+    g_e8.cp_ec8_len = (uint32_t *)alloc_tracked(M1, sizeof(uint32_t), 0, &fp->fast_extra_ckpt_meta_bytes, &fp->total_heap_init_bytes);
+    g_e8.cp_oc8_off = (uint32_t *)alloc_tracked(T1, sizeof(uint32_t), 0, &fp->fast_extra_ckpt_meta_bytes, &fp->total_heap_init_bytes);
+    g_e8.cp_oc8_len = (uint32_t *)alloc_tracked(T1, sizeof(uint32_t), 0, &fp->fast_extra_ckpt_meta_bytes, &fp->total_heap_init_bytes);
+    if (!g_e8.e8_even_p0_tot || !g_e8.e8_odd_p0_tot || !g_e8.cp_ec8_off || !g_e8.cp_ec8_len ||
+        !g_e8.cp_oc8_off || !g_e8.cp_oc8_len) {
+        e8_free_ptrs();
+        return 2;
+    }
     uint32_t tot_ec8 = 0;
     for (int m = 0; m <= m_max; ++m) {
         uint32_t nblk = (uint32_t)((2 * m) / E8_IN_STRIDE) + 1u;
@@ -1258,8 +1371,6 @@ int e8tree_init(
         g_e8.cp_ec8_len[m] = nblk;
         tot_ec8 += nblk;
     }
-    g_e8.cp_oc8_off = (uint32_t *)malloc(T1 * sizeof(uint32_t));
-    g_e8.cp_oc8_len = (uint32_t *)malloc(T1 * sizeof(uint32_t));
     uint32_t tot_oc8 = 0;
     for (int t = 0; t <= t_max; ++t) {
         uint32_t nblk = (uint32_t)(t / E8_IN_STRIDE) + 1u;
@@ -1268,8 +1379,12 @@ int e8tree_init(
         tot_oc8 += nblk;
     }
     for (int p = 0; p < 2; ++p) {
-        g_e8.cp_ec8[p] = (uint64_t *)malloc((size_t)tot_ec8 * sizeof(uint64_t));
-        g_e8.cp_oc8[p] = (uint64_t *)malloc((size_t)tot_oc8 * sizeof(uint64_t));
+        g_e8.cp_ec8[p] = (uint64_t *)alloc_tracked((size_t)tot_ec8, sizeof(uint64_t), 0, &fp->fast_extra_ckpt_data_bytes, &fp->total_heap_init_bytes);
+        g_e8.cp_oc8[p] = (uint64_t *)alloc_tracked((size_t)tot_oc8, sizeof(uint64_t), 0, &fp->fast_extra_ckpt_data_bytes, &fp->total_heap_init_bytes);
+        if (!g_e8.cp_ec8[p] || !g_e8.cp_oc8[p]) {
+            e8_free_ptrs();
+            return 2;
+        }
     }
     for (int m = 0; m <= m_max; ++m) {
         int r8 = 2 * m;
@@ -1301,8 +1416,14 @@ int e8tree_init(
     }
 
     /* Inner E_8 quad (4->2) strided checkpoints + pa=0 totals */
-    g_e8.cp_eq_off = (uint32_t *)malloc(R1 * sizeof(uint32_t));
-    g_e8.cp_eq_len = (uint32_t *)malloc(R1 * sizeof(uint32_t));
+    g_e8.cp_eq_off = (uint32_t *)alloc_tracked(R1, sizeof(uint32_t), 0, &fp->fast_extra_ckpt_meta_bytes, &fp->total_heap_init_bytes);
+    g_e8.cp_eq_len = (uint32_t *)alloc_tracked(R1, sizeof(uint32_t), 0, &fp->fast_extra_ckpt_meta_bytes, &fp->total_heap_init_bytes);
+    g_e8.cp_oq_off = (uint32_t *)alloc_tracked(T1, sizeof(uint32_t), 0, &fp->fast_extra_ckpt_meta_bytes, &fp->total_heap_init_bytes);
+    g_e8.cp_oq_len = (uint32_t *)alloc_tracked(T1, sizeof(uint32_t), 0, &fp->fast_extra_ckpt_meta_bytes, &fp->total_heap_init_bytes);
+    if (!g_e8.cp_eq_off || !g_e8.cp_eq_len || !g_e8.cp_oq_off || !g_e8.cp_oq_len) {
+        e8_free_ptrs();
+        return 2;
+    }
     uint32_t tot_eq = 0;
     for (int r = 0; r <= r_max; ++r) {
         uint32_t nblk = (uint32_t)(r / E8_Q_STRIDE) + 1u;
@@ -1310,8 +1431,6 @@ int e8tree_init(
         g_e8.cp_eq_len[r] = nblk;
         tot_eq += nblk;
     }
-    g_e8.cp_oq_off = (uint32_t *)malloc(T1 * sizeof(uint32_t));
-    g_e8.cp_oq_len = (uint32_t *)malloc(T1 * sizeof(uint32_t));
     uint32_t tot_oq = 0;
     for (int t = 0; t <= t_max; ++t) {
         uint32_t nblk = (uint32_t)(t / E8_Q_STRIDE) + 1u;
@@ -1320,12 +1439,20 @@ int e8tree_init(
         tot_oq += nblk;
     }
     for (int p = 0; p < 2; ++p) {
-        g_e8.q_even_p0_tot[p] = (uint32_t *)calloc(R1, sizeof(uint32_t));
-        g_e8.q_odd_p0_tot[p] = (uint32_t *)calloc(T1, sizeof(uint32_t));
+        g_e8.q_even_p0_tot[p] = (uint32_t *)alloc_tracked(R1, sizeof(uint32_t), 1, &fp->fast_extra_ckpt_data_bytes, &fp->total_heap_init_bytes);
+        g_e8.q_odd_p0_tot[p] = (uint32_t *)alloc_tracked(T1, sizeof(uint32_t), 1, &fp->fast_extra_ckpt_data_bytes, &fp->total_heap_init_bytes);
+        if (!g_e8.q_even_p0_tot[p] || !g_e8.q_odd_p0_tot[p]) {
+            e8_free_ptrs();
+            return 2;
+        }
     }
     for (int q = 0; q < 4; ++q) {
-        g_e8.cp_eq[q] = (uint32_t *)malloc((size_t)tot_eq * sizeof(uint32_t));
-        g_e8.cp_oq[q] = (uint32_t *)malloc((size_t)tot_oq * sizeof(uint32_t));
+        g_e8.cp_eq[q] = (uint32_t *)alloc_tracked((size_t)tot_eq, sizeof(uint32_t), 0, &fp->fast_extra_ckpt_data_bytes, &fp->total_heap_init_bytes);
+        g_e8.cp_oq[q] = (uint32_t *)alloc_tracked((size_t)tot_oq, sizeof(uint32_t), 0, &fp->fast_extra_ckpt_data_bytes, &fp->total_heap_init_bytes);
+        if (!g_e8.cp_eq[q] || !g_e8.cp_oq[q]) {
+            e8_free_ptrs();
+            return 2;
+        }
     }
     for (int pa = 0; pa < 2; ++pa) {
         for (int pb = 0; pb < 2; ++pb) {
@@ -1354,17 +1481,23 @@ int e8tree_init(
             }
         }
     }
-    g_e8.checkpoint_bytes =
-        (size_t)total_cp * 32u + M1 * 16u +
-        (size_t)(tot_ec8 + tot_oc8) * 16u +
-        (size_t)(tot_eq + tot_oq) * 16u +
-        (R1 + T1) * 8u;
+    fp->hot_compact_total_bytes = fp->hot_compact_base_bytes + fp->hot_compact_recip_bytes;
+    fp->hot_fast_total_bytes =
+        fp->hot_compact_total_bytes + fp->fast_extra_ckpt_data_bytes + fp->fast_extra_ckpt_meta_bytes;
+    fp->ctx_struct_bytes = sizeof(E8Ctx);
+    g_e8.checkpoint_bytes = fp->fast_extra_ckpt_data_bytes + fp->fast_extra_ckpt_meta_bytes;
     g_e8_ready = 1;
     return 0;
 }
 
 size_t e8tree_checkpoint_bytes(void) {
     return g_e8_ready ? g_e8.checkpoint_bytes : 0u;
+}
+
+int e8tree_footprint_breakdown(FootprintBreakdown *out) {
+    if (!g_e8_ready || out == NULL) return 1;
+    *out = g_e8.footprint;
+    return 0;
 }
 
 static inline void unrank_e8_quad(uint32_t rem, int coset, int norm4, int parity4, int8_t *out) {
