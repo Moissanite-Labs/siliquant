@@ -1,0 +1,9 @@
+Column weights of the reading matrices guessed from the weights alone, in the place of the importance matrix. Not planned, nothing scored.
+gain: what the weighted arm gains over the plain arm, in dB, with each column counted by its input's mean square over the wikitext-2 training text. Mean over the layers, and the worst layer.
+first ten: the share of the input's mean square in the ten columns the guess puts first, in percent, mean over the layers.
+kind | the importance matrix: gain | worst layer | first ten | gain: gain | worst layer | first ten | gain x stream: gain | worst layer | first ten | small weights: gain | worst layer | first ten
+attn_q | 0.06 | -1.33 | 11.4 | -0.80 | -1.83 | 2.9 | -1.05 | -2.23 | 3.1 | -0.55 | -1.42 | 0.2
+attn_k | -0.24 | -1.44 | 11.4 | -0.51 | -1.55 | 2.9 | -0.68 | -1.98 | 3.1 | -0.68 | -1.28 | 0.6
+attn_v | 0.43 | -1.08 | 11.4 | -0.81 | -1.96 | 2.9 | -0.87 | -2.44 | 3.1 | 0.42 | -0.20 | 1.7
+ffn_gate | -0.03 | -1.10 | 12.1 | -0.87 | -1.70 | 2.2 | -1.07 | -2.02 | 3.2 | -0.62 | -1.61 | 0.3
+ffn_up | 0.51 | 0.27 | 12.1 | -1.08 | -1.99 | 2.2 | -1.23 | -2.32 | 3.2 | 0.08 | -0.08 | 5.6

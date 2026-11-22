@@ -565,6 +565,95 @@ def closure(board, n):
     return set(board) | set(dead_cells(allowed))
 
 
+def matching_through(allowed, cell):
+    """A perfect matching that uses the cell, as the list of the column of
+    each row. None if there is none."""
+    n = len(allowed)
+    i, j = cell
+    if not allowed[i][j]:
+        return None
+    forced = [[allowed[r][c] if (r == i) == (c == j) else 0 for c in range(n)]
+              for r in range(n)]
+    match = max_matching(forced)
+    return None if any(c == -1 for c in match) else match
+
+
+def closure_witnessed(board, n):
+    """The closure of a board with a witness for every cell, closed or open.
+
+    closure() returns the cells and drops the reasons. This returns
+    (closed, opened). closed maps each cell of the closure to its witness:
+
+      ("board",)           the cell is in the board
+      ("dead", S)          the cell is allowed and on no perfect matching of
+                           J - board: S is a set of rows with |N(S)| = |S|,
+                           j in N(S) and i not in S
+      ("no matching", S)   J - board has no perfect matching at all: S is a
+                           set of rows with |N(S)| < |S|
+
+    opened maps every other cell to a perfect matching of J - board that uses
+    it, as the list of the column of each row. So a cell is closed on a
+    certificate and left open on one too. verify_closure() checks both.
+    """
+    allowed = [[0 if (i, j) in board else 1 for j in range(n)] for i in range(n)]
+    cells = [(i, j) for i in range(n) for j in range(n)]
+    viol = hall_violator(allowed)
+    if viol is not None:
+        return {cell: (("board",) if cell in board else ("no matching", frozenset(viol)))
+                for cell in cells}, {}
+    dead = dead_cells(allowed)
+    closed, opened = {}, {}
+    for cell in cells:
+        if cell in board:
+            closed[cell] = ("board",)
+        elif cell in dead:
+            closed[cell] = ("dead", frozenset(dead[cell]))
+        else:
+            opened[cell] = matching_through(allowed, cell)
+    return closed, opened
+
+
+def verify_closure(board, n, closed, opened):
+    """Check a witnessed closure against the board alone. Returns the list of
+    what is wrong, empty if nothing is. Written independently of
+    closure_witnessed: it finds no matching and no violator itself."""
+    wrong = []
+    cells = {(i, j) for i in range(n) for j in range(n)}
+    if set(closed) & set(opened):
+        wrong.append("a cell is both closed and open")
+    if set(closed) | set(opened) != cells:
+        wrong.append("the closed and open cells are not all the cells")
+
+    def columns_of(S):
+        return {c for r in S for c in range(n) if (r, c) not in board}
+
+    for (i, j), w in closed.items():
+        kind = w[0] if isinstance(w, tuple) and w else None
+        if kind == "board":
+            ok = (i, j) in board
+        elif kind in ("dead", "no matching") and len(w) == 2:
+            S = set(w[1])
+            rows_ok = bool(S) and all(isinstance(r, int) and 0 <= r < n for r in S)
+            if not rows_ok:
+                ok = False
+            elif kind == "dead":
+                N = columns_of(S)
+                ok = (i, j) not in board and len(N) == len(S) and j in N and i not in S
+            else:
+                ok = len(columns_of(S)) < len(S)
+        else:
+            ok = False
+        if not ok:
+            wrong.append(f"closed cell {(i, j)}: its witness does not hold")
+    for (i, j), m in opened.items():
+        ok = (isinstance(m, (list, tuple)) and len(m) == n
+              and sorted(m) == list(range(n))
+              and all((r, m[r]) not in board for r in range(n)) and m[i] == j)
+        if not ok:
+            wrong.append(f"open cell {(i, j)}: no perfect matching through it is given")
+    return wrong
+
+
 # ---------------------------------------------------------------------------
 # 10. Permanent bounds for 0/1 matrices
 # ---------------------------------------------------------------------------

@@ -1,0 +1,57 @@
+A packed file for the integer ball arm: the model read back from the file, wikitext-2 test text, 10,200 positions
+An error of a gap is the root of the sum of the squares of the two standard errors.
+
+Qwen2.5-1.5B-Instruct
+variant | bits per weight | of a file | weight error in dB, mean over the block matrices | mean KL | its standard error | first choice kept, percent
+PZ32:b136s8 | 4.5000 | yes | -24.44 | 0.024517 | 0.000495 | 92.36
+hPZ32:b136s8 | 4.5063 | yes | -23.72 | 0.022679 | 0.000455 | 92.89
+ZBG128:b560s16 | 4.4998 | no, counted | -24.94 | 0.022750 | 0.000632 | 92.75
+hZBG128:b560s16 | 4.5060 | no, counted | -24.22 | 0.020898 | 0.000479 | 92.64
+EBG32:b136s8 | 4.4994 | no, counted | -25.13 | 0.020817 | 0.000409 | 92.65
+Q4_0 | 4.5000 | yes | -20.67 | 0.062335 | 0.001613 | 88.22
+Q4_K_M | 4.8120 | yes | -24.21 | 0.033348 | 0.000682 | 91.11
+Q4_K_M with the matrix | 4.8120 | yes | -24.08 | 0.028205 | 0.000634 | 91.84
+the files | bytes | stored bits per weight | read back exactly | share of weights stored as zero | share of blocks shrunk | seconds to pack on 4 cores | processor seconds to decode on one core | million weights a second
+PZ32:b136s8 | 736991766 | 4.50004 | yes | 0.0836 | 0.00000 | 61 | 54.2 | 24.1
+   SHA-256 of the file: 99eac588a8e077af722c442b679c99aca3b77418a01930d7192382a9707faa65
+hPZ32:b136s8 | 738009622 | 4.50626 | yes | 0.0879 | 0.00000 | 57 | 54.0 | 24.3
+   SHA-256 of the file: a30b01fcf31b7f1884ed89282f4d4d3ac18db8af8bb63d07d0bdf3e4fd72f171
+comparison | mean KL of the first | of the second | first lower by | in errors | ratio of the first to the second
+PZ32:b136s8 against Q4_K_M | 0.0245 | 0.0333 | +0.0088 | +10.5 | 0.735
+hPZ32:b136s8 against Q4_K_M with the matrix | 0.0227 | 0.0282 | +0.0055 | +7.1 | 0.804
+PZ32:b136s8 against Q4_0 | 0.0245 | 0.0623 | +0.0378 | +22.4 | 0.393
+PZ32:b136s8 against ZBG128:b560s16 | 0.0245 | 0.0227 | -0.0018 | -2.2 | 1.078
+hPZ32:b136s8 against hZBG128:b560s16 | 0.0227 | 0.0209 | -0.0018 | -2.7 | 1.085
+hPZ32:b136s8 against PZ32:b136s8 | 0.0227 | 0.0245 | +0.0018 | +2.7 | 0.925
+
+SmolLM2-1.7B-Instruct
+variant | bits per weight | of a file | weight error in dB, mean over the block matrices | mean KL | its standard error | first choice kept, percent
+PZ32:b136s8 | 4.5000 | yes | -24.41 | 0.058855 | 0.001066 | 87.69
+hPZ32:b136s8 | 4.5049 | yes | -24.03 | 0.030939 | 0.000693 | 91.09
+ZBG128:b560s16 | 4.4998 | no, counted | -24.93 | 0.055962 | 0.001060 | 88.25
+hZBG128:b560s16 | 4.5047 | no, counted | -24.50 | 0.028205 | 0.000610 | 91.35
+EBG32:b136s8 | not scored
+Q4_0 | 4.5000 | yes | -21.17 | 0.127149 | 0.002415 | 82.35
+Q4_K_M | 4.8223 | yes | -24.56 | 0.083761 | 0.001559 | 85.52
+Q4_K_M with the matrix | 4.8223 | yes | -24.40 | 0.037827 | 0.000739 | 89.56
+the files | bytes | stored bits per weight | read back exactly | share of weights stored as zero | share of blocks shrunk | seconds to pack on 4 cores | processor seconds to decode on one core | million weights a second
+PZ32:b136s8 | 905975382 | 4.50003 | yes | 0.0817 | 0.00000 | 74 | 64.4 | 25.0
+   SHA-256 of the file: bc47799e3c89f09ca062b465bd7e67db7c633695e8e580589c6887c2eb5b6aaa
+hPZ32:b136s8 | 906958422 | 4.50491 | yes | 0.0835 | 0.00000 | 83 | 81.8 | 19.7
+   SHA-256 of the file: 521e438071c8b72e49730495a6e75c292cc5f148c3095e801cc8bf60016f536c
+comparison | mean KL of the first | of the second | first lower by | in errors | ratio of the first to the second
+PZ32:b136s8 against Q4_K_M | 0.0589 | 0.0838 | +0.0249 | +13.2 | 0.703
+hPZ32:b136s8 against Q4_K_M with the matrix | 0.0309 | 0.0378 | +0.0069 | +6.8 | 0.818
+PZ32:b136s8 against Q4_0 | 0.0589 | 0.1271 | +0.0683 | +25.9 | 0.463
+PZ32:b136s8 against ZBG128:b560s16 | 0.0589 | 0.0560 | -0.0029 | -1.9 | 1.052
+hPZ32:b136s8 against hZBG128:b560s16 | 0.0309 | 0.0282 | -0.0027 | -3.0 | 1.097
+hPZ32:b136s8 against PZ32:b136s8 | 0.0309 | 0.0589 | +0.0279 | +22.0 | 0.526
+
+The predictions of PREREG.md
+prediction | holds
+F1 | yes
+F2 | yes
+F3 | yes
+F4 | yes
+F5 | yes
+hold: 5 of 5

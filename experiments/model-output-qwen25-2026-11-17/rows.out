@@ -1,0 +1,82 @@
+1. The centre that the harness's E8 Voronoi code subtracts from its codewords, in steps of the lattice
+   16 levels: [0.0679, 0.3273, 0.0303, -0.5663, 0.3629, 0.1359, -0.1616, 0.2648], length 0.8245
+   32 levels: [0.0724, 0.3144, 0.0286, -0.5641, 0.3621, 0.1349, -0.1564, 0.2687], length 0.8180
+   E8's nearest points to zero are 1.4142 long, so its cell at zero holds every block shorter than 0.7071.
+   With the centre taken off, no codeword is zero: the codeword nearest to a block of zeros is 0.82 steps away.
+
+2. Error of single rows, one scale per row, 16 levels. Relative error of a row is its squared error over its squared length, in dB.
+matrix | rows by row length | largest entry over the row's rms: median, largest | rule | matrix error | row error: median | 99th percentile | worst | rows with error above -3 dB | share of the matrix's error in its 10 worst rows | share of rebuilt weights that are zero
+blk.0.attn_q.weight | 1536 by 1536 | 4.3, 32.3 | XR:16 | -9.79 | -16.3 | -3.9 | -3.1 | 0 | 0.215 | 0.278
+blk.0.attn_q.weight | 1536 by 1536 | 4.3, 32.3 | VE8R:16 | -13.05 | -19.2 | -5.9 | -4.7 | 0 | 0.280 | 0.000
+blk.0.attn_q.weight | 1536 by 1536 | 4.3, 32.3 | VE8ZR:16 | -13.34 | -19.2 | -6.3 | -6.0 | 0 | 0.267 | 0.110
+blk.0.attn_k.weight | 256 by 1536 | 3.9, 10.2 | XR:16 | -16.36 | -17.0 | -9.8 | -8.6 | 0 | 0.117 | 0.215
+blk.0.attn_k.weight | 256 by 1536 | 3.9, 10.2 | VE8R:16 | -19.31 | -19.7 | -14.3 | -13.6 | 0 | 0.092 | 0.000
+blk.0.attn_k.weight | 256 by 1536 | 3.9, 10.2 | VE8ZR:16 | -19.29 | -19.6 | -14.6 | -13.5 | 0 | 0.088 | 0.084
+blk.0.attn_v.weight | 256 by 1536 | 4.1, 17.2 | XR:16 | -15.65 | -16.5 | -9.7 | -4.9 | 0 | 0.153 | 0.243
+blk.0.attn_v.weight | 256 by 1536 | 4.1, 17.2 | VE8R:16 | -18.84 | -19.4 | -14.6 | -10.1 | 0 | 0.108 | 0.000
+blk.0.attn_v.weight | 256 by 1536 | 4.1, 17.2 | VE8ZR:16 | -18.80 | -19.3 | -14.4 | -9.9 | 0 | 0.110 | 0.094
+blk.0.attn_output.weight | 1536 by 1536 | 3.7, 11.8 | XR:16 | -16.66 | -17.5 | -12.5 | -7.4 | 0 | 0.036 | 0.219
+blk.0.attn_output.weight | 1536 by 1536 | 3.7, 11.8 | VE8R:16 | -18.12 | -18.8 | -15.0 | -12.3 | 0 | 0.035 | 0.000
+blk.0.attn_output.weight | 1536 by 1536 | 3.7, 11.8 | VE8ZR:16 | -18.09 | -18.8 | -14.9 | -12.0 | 0 | 0.034 | 0.103
+blk.0.ffn_gate.weight | 8960 by 1536 | 3.7, 20.1 | XR:16 | -15.34 | -17.6 | -8.8 | -3.7 | 0 | 0.027 | 0.209
+blk.0.ffn_gate.weight | 8960 by 1536 | 3.7, 20.1 | VE8R:16 | -18.85 | -19.9 | -14.1 | -8.7 | 0 | 0.017 | 0.000
+blk.0.ffn_gate.weight | 8960 by 1536 | 3.7, 20.1 | VE8ZR:16 | -18.81 | -19.9 | -14.0 | -8.5 | 0 | 0.017 | 0.082
+blk.0.ffn_up.weight | 8960 by 1536 | 3.5, 15.6 | XR:16 | -17.56 | -18.0 | -12.6 | -5.7 | 0 | 0.007 | 0.187
+blk.0.ffn_up.weight | 8960 by 1536 | 3.5, 15.6 | VE8R:16 | -19.91 | -20.1 | -16.6 | -11.0 | 0 | 0.005 | 0.000
+blk.0.ffn_up.weight | 8960 by 1536 | 3.5, 15.6 | VE8ZR:16 | -19.86 | -20.1 | -16.6 | -11.2 | 0 | 0.004 | 0.078
+blk.0.ffn_down.weight | 1536 by 8960 | 4.5, 42.4 | XR:16 | -14.13 | -15.8 | -5.1 | -1.7 | 4 | 0.091 | 0.257
+blk.0.ffn_down.weight | 1536 by 8960 | 4.5, 42.4 | VE8R:16 | -17.75 | -18.8 | -10.5 | -2.5 | 1 | 0.087 | 0.000
+blk.0.ffn_down.weight | 1536 by 8960 | 4.5, 42.4 | VE8ZR:16 | -17.72 | -18.8 | -10.4 | -3.5 | 0 | 0.084 | 0.096
+blk.13.attn_q.weight | 1536 by 1536 | 4.1, 12.5 | XR:16 | -15.19 | -16.6 | -9.1 | -6.9 | 0 | 0.041 | 0.241
+blk.13.attn_q.weight | 1536 by 1536 | 4.1, 12.5 | VE8R:16 | -18.64 | -19.4 | -13.9 | -11.6 | 0 | 0.034 | 0.000
+blk.13.attn_q.weight | 1536 by 1536 | 4.1, 12.5 | VE8ZR:16 | -18.60 | -19.5 | -13.7 | -11.2 | 0 | 0.034 | 0.090
+blk.13.attn_k.weight | 256 by 1536 | 4.8, 14.2 | XR:16 | -14.19 | -15.2 | -8.0 | -6.1 | 0 | 0.161 | 0.284
+blk.13.attn_k.weight | 256 by 1536 | 4.8, 14.2 | VE8R:16 | -18.17 | -18.7 | -13.1 | -12.3 | 0 | 0.127 | 0.000
+blk.13.attn_k.weight | 256 by 1536 | 4.8, 14.2 | VE8ZR:16 | -18.13 | -18.6 | -12.8 | -12.0 | 0 | 0.126 | 0.101
+blk.13.attn_v.weight | 256 by 1536 | 4.1, 12.7 | XR:16 | -14.24 | -16.7 | -8.2 | -6.9 | 0 | 0.180 | 0.264
+blk.13.attn_v.weight | 256 by 1536 | 4.1, 12.7 | VE8R:16 | -18.11 | -19.2 | -13.7 | -10.8 | 0 | 0.136 | 0.000
+blk.13.attn_v.weight | 256 by 1536 | 4.1, 12.7 | VE8ZR:16 | -18.01 | -19.1 | -13.3 | -10.6 | 0 | 0.142 | 0.098
+blk.13.attn_output.weight | 1536 by 1536 | 3.6, 8.4 | XR:16 | -17.12 | -17.8 | -12.5 | -10.3 | 0 | 0.079 | 0.193
+blk.13.attn_output.weight | 1536 by 1536 | 3.6, 8.4 | VE8R:16 | -18.57 | -19.1 | -14.1 | -11.0 | 0 | 0.078 | 0.000
+blk.13.attn_output.weight | 1536 by 1536 | 3.6, 8.4 | VE8ZR:16 | -18.54 | -19.1 | -14.1 | -11.5 | 0 | 0.076 | 0.089
+blk.13.ffn_gate.weight | 8960 by 1536 | 3.8, 22.5 | XR:16 | -15.17 | -17.2 | -8.0 | -3.4 | 0 | 0.021 | 0.227
+blk.13.ffn_gate.weight | 8960 by 1536 | 3.8, 22.5 | VE8R:16 | -18.72 | -19.8 | -12.9 | -7.7 | 0 | 0.016 | 0.000
+blk.13.ffn_gate.weight | 8960 by 1536 | 3.8, 22.5 | VE8ZR:16 | -18.69 | -19.7 | -12.9 | -7.6 | 0 | 0.016 | 0.087
+blk.13.ffn_up.weight | 8960 by 1536 | 3.5, 22.3 | XR:16 | -17.16 | -18.0 | -8.8 | -4.5 | 0 | 0.014 | 0.194
+blk.13.ffn_up.weight | 8960 by 1536 | 3.5, 22.3 | VE8R:16 | -19.65 | -20.1 | -13.6 | -7.9 | 0 | 0.010 | 0.000
+blk.13.ffn_up.weight | 8960 by 1536 | 3.5, 22.3 | VE8ZR:16 | -19.61 | -20.1 | -13.5 | -8.4 | 0 | 0.010 | 0.080
+blk.13.ffn_down.weight | 1536 by 8960 | 4.3, 31.0 | XR:16 | -14.49 | -16.2 | -4.3 | -2.1 | 2 | 0.097 | 0.252
+blk.13.ffn_down.weight | 1536 by 8960 | 4.3, 31.0 | VE8R:16 | -17.88 | -19.0 | -9.2 | -5.2 | 0 | 0.092 | 0.000
+blk.13.ffn_down.weight | 1536 by 8960 | 4.3, 31.0 | VE8ZR:16 | -17.83 | -18.9 | -8.9 | -5.3 | 0 | 0.094 | 0.096
+blk.27.attn_q.weight | 1536 by 1536 | 5.8, 13.6 | XR:16 | -13.16 | -13.6 | -7.2 | -6.3 | 0 | 0.041 | 0.327
+blk.27.attn_q.weight | 1536 by 1536 | 5.8, 13.6 | VE8R:16 | -17.04 | -17.6 | -12.0 | -11.0 | 0 | 0.035 | 0.000
+blk.27.attn_q.weight | 1536 by 1536 | 5.8, 13.6 | VE8ZR:16 | -17.03 | -17.5 | -12.0 | -10.7 | 0 | 0.036 | 0.119
+blk.27.attn_k.weight | 256 by 1536 | 7.4, 17.0 | XR:16 | -10.49 | -11.5 | -6.4 | -4.7 | 0 | 0.178 | 0.466
+blk.27.attn_k.weight | 256 by 1536 | 7.4, 17.0 | VE8R:16 | -15.03 | -15.9 | -10.9 | -10.0 | 0 | 0.177 | 0.000
+blk.27.attn_k.weight | 256 by 1536 | 7.4, 17.0 | VE8ZR:16 | -15.01 | -15.8 | -11.2 | -10.1 | 0 | 0.171 | 0.161
+blk.27.attn_v.weight | 256 by 1536 | 7.5, 12.6 | XR:16 | -11.09 | -11.4 | -8.5 | -8.0 | 0 | 0.082 | 0.645
+blk.27.attn_v.weight | 256 by 1536 | 7.5, 12.6 | VE8R:16 | -14.85 | -15.1 | -12.0 | -11.0 | 0 | 0.083 | 0.000
+blk.27.attn_v.weight | 256 by 1536 | 7.5, 12.6 | VE8ZR:16 | -14.84 | -15.1 | -11.8 | -10.6 | 0 | 0.086 | 0.249
+blk.27.attn_output.weight | 1536 by 1536 | 3.5, 9.0 | XR:16 | -16.52 | -17.9 | -13.6 | -9.8 | 0 | 0.194 | 0.206
+blk.27.attn_output.weight | 1536 by 1536 | 3.5, 9.0 | VE8R:16 | -17.89 | -19.4 | -15.2 | -12.4 | 0 | 0.215 | 0.000
+blk.27.attn_output.weight | 1536 by 1536 | 3.5, 9.0 | VE8ZR:16 | -17.87 | -19.4 | -15.2 | -12.4 | 0 | 0.207 | 0.095
+blk.27.ffn_gate.weight | 8960 by 1536 | 3.7, 23.2 | XR:16 | -16.20 | -17.5 | -8.5 | -3.2 | 0 | 0.019 | 0.209
+blk.27.ffn_gate.weight | 8960 by 1536 | 3.7, 23.2 | VE8R:16 | -19.33 | -19.9 | -13.8 | -7.5 | 0 | 0.012 | 0.000
+blk.27.ffn_gate.weight | 8960 by 1536 | 3.7, 23.2 | VE8ZR:16 | -19.28 | -19.9 | -13.8 | -7.4 | 0 | 0.012 | 0.082
+blk.27.ffn_up.weight | 8960 by 1536 | 3.5, 18.0 | XR:16 | -17.22 | -17.9 | -9.1 | -4.1 | 0 | 0.023 | 0.201
+blk.27.ffn_up.weight | 8960 by 1536 | 3.5, 18.0 | VE8R:16 | -19.78 | -20.0 | -14.4 | -8.2 | 0 | 0.013 | 0.000
+blk.27.ffn_up.weight | 8960 by 1536 | 3.5, 18.0 | VE8ZR:16 | -19.73 | -20.0 | -14.3 | -7.7 | 0 | 0.013 | 0.080
+blk.27.ffn_down.weight | 1536 by 8960 | 4.8, 47.6 | XR:16 | -9.99 | -15.3 | -2.8 | -1.4 | 18 | 0.221 | 0.302
+blk.27.ffn_down.weight | 1536 by 8960 | 4.8, 47.6 | VE8R:16 | -9.68 | -18.6 | -5.4 | 1.9 | 4 | 0.711 | 0.000
+blk.27.ffn_down.weight | 1536 by 8960 | 4.8, 47.6 | VE8ZR:16 | -13.19 | -18.6 | -5.7 | -3.7 | 0 | 0.356 | 0.114
+
+3. Over the 21 matrices
+rule | error pooled over all weights, dB | rows with error above -3 dB | of rows
+XR:16 | -15.40 | 24 | 69120
+VE8R:16 | -17.80 | 5 | 69120
+VE8ZR:16 | -18.35 | 0 | 69120
+
+4. The worst row of the E8 Voronoi code in each matrix where it has a row above -3 dB, under all three rules
+matrix | row | its largest entry over its rms | XR:16, dB | VE8R:16, dB | VE8ZR:16, dB
+blk.0.ffn_down.weight | 1215 | 42.4 | -2.65 | -2.51 | -3.47
+blk.27.ffn_down.weight | 1421 | 45.0 | -8.01 | 1.90 | -7.53

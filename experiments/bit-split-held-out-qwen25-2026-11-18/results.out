@@ -1,0 +1,43 @@
+Bits split by kind of matrix on Qwen2.5-1.5B: fitted on the wikitext-2 validation text, scored on the test text. 10,200 positions of each
+
+Part A, validation text: one kind rounded at a time by the rule X32, the rest as in the reference
+kind | weights | share of the block weights, percent | mean KL at 8 levels | at 16 | at 32 | standard error at 16
+attn_q | 66060288 | 5.0 | 0.007493 | 0.001859 | 0.000451 | 0.000049
+attn_k | 11010048 | 0.8 | 0.013860 | 0.003255 | 0.000780 | 0.000113
+attn_v | 11010048 | 0.8 | 0.022935 | 0.006194 | 0.001638 | 0.000122
+attn_output | 66060288 | 5.0 | 0.046070 | 0.007851 | 0.001887 | 0.000147
+ffn_gate | 385351680 | 29.4 | 0.037698 | 0.009404 | 0.002260 | 0.000267
+ffn_up | 385351680 | 29.4 | 0.046503 | 0.011790 | 0.002852 | 0.000220
+ffn_down | 385351680 | 29.4 | 0.057442 | 0.014531 | 0.003622 | 0.000370
+the seven kinds at 8 levels add up to 0.232001; all kinds at once score 0.273440: the sum is 0.848 of it
+
+The split from allocate.py
+budget | arm | levels by kind | mean bits | KL it predicts on the validation text
+4.5 | best | attn_q=16 attn_k=64 attn_v=64 attn_output=46 ffn_gate=12 ffn_up=16 ffn_down=16 | 4.4884 | 0.046428
+4.5 | reversed | attn_q=46 attn_k=64 attn_v=64 attn_output=16 ffn_gate=16 ffn_up=16 ffn_down=12 | 4.4884 | 0.055587
+3.5 | best | attn_q=8 attn_k=46 attn_v=64 attn_output=22 ffn_gate=6 ffn_up=8 ffn_down=8 | 3.4979 | 0.183398
+3.5 | reversed | attn_q=22 attn_k=64 attn_v=46 attn_output=8 ffn_gate=8 ffn_up=8 ffn_down=6 | 3.4979 | 0.233864
+
+Part B
+text | budget | arm | bits per weight | mean KL | its standard error | first choice kept, percent | gain over equal bits, percent | lower than equal bits by, in errors
+validation | 4.5 | equal bits, X32:16 | 4.5000 | 0.057214 | 0.001172 | 88.57 | - | -
+validation | 4.5 | best | 4.4884 | 0.047265 | 0.001104 | 89.63 | 17.4 | +6.2
+validation | 3.5 | equal bits, X32:8 | 3.5000 | 0.273440 | 0.004456 | 75.93 | - | -
+validation | 3.5 | best | 3.4979 | 0.202769 | 0.003695 | 78.95 | 25.8 | +12.2
+test | 4.5 | equal bits, X32:16 | 4.5000 | 0.062043 | 0.001597 | 88.19 | - | -
+test | 4.5 | best | 4.4884 | 0.050918 | 0.001144 | 88.79 | 17.9 | +5.7
+test | 4.5 | reversed | 4.4884 | 0.063656 | 0.001398 | 87.48 | -2.6 | -0.8
+test | 3.5 | equal bits, X32:8 | 3.5000 | 0.279027 | 0.004062 | 74.95 | - | -
+test | 3.5 | best | 3.4979 | 0.222169 | 0.003868 | 78.34 | 20.4 | +10.1
+gain at 4.5 bits: 17.4 percent on the text of the fit, 17.9 percent on the other
+gain at 3.5 bits: 25.8 percent on the text of the fit, 20.4 percent on the other
+test text, 4.5 bits: the best arm is lower than the reversed arm by +0.012738, +7.1 errors
+
+The predictions of PREREG.md
+prediction | holds
+H1 | yes
+H2 | yes
+H3 | yes
+H4 | yes
+H5 | yes
+hold: 5 of 5

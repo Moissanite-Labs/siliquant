@@ -1,0 +1,15 @@
+The two importance matrices made from texts with no meaning: what llama-imatrix and randtext.py printed, and the files' SHA-256. Nothing scored.
+
+smollm2
+text: d3cdb8cf16a3f0868ca1dd2cac2965200dab274989b2ce3f009fe21818aa22cb, 539878 bytes
+compute_imatrix: computing over 100 chunks, n_ctx=512, batch_size=2048, n_seq=4
+Final estimate: PPL = 101587.7851 +/- 1314.58203
+time: real 12m40.615s
+matrix: 3cbd29deefdea2aa01d0a6924e882f25b51a289004543f4f6fc979817a693a93, 3988992 bytes
+
+qwen15
+text: 37b8bd6425bcf37641b1bdb5f7831597e4f03eab82bd78daccb4ac005759e78f, 512829 bytes
+compute_imatrix: computing over 100 chunks, n_ctx=512, batch_size=2048, n_seq=4
+Final estimate: PPL = 340140.8334 +/- 5249.42432
+time: real 14m56.323s
+matrix: c3c51ebdcd9add708a8350ddd3b860458b5446a3af9ace636be81beeb79e7ac9, 4137696 bytes

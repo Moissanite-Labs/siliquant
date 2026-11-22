@@ -267,6 +267,73 @@ class TestMatching(unittest.TestCase):
         board = {(0, 0), (0, 1), (1, 0), (1, 1), (0, 2), (1, 2)}
         self.assertEqual(len(P.closure(board, 3)), 9)
 
+    def test_closure_witnessed_against_enumeration(self):
+        # every board of a 3 by 3 grid, and random boards up to 6 by 6
+        rng = random.Random(21)
+        boards = [(b, 3) for b in all_boards(3)]
+        for _ in range(400):
+            n = rng.randint(1, 6)
+            boards.append((random_board(rng, n, 0.0, 0.8), n))
+        kinds = {"board": 0, "dead": 0, "no matching": 0, "open": 0}
+        for board, n in boards:
+            closed, opened = P.closure_witnessed(board, n)
+            self.assertEqual(P.verify_closure(board, n, closed, opened), [])
+            self.assertEqual(set(closed), P.closure(board, n))
+            A = board_to_allowed(board, n)
+            used = {(i, s[i]) for s in itertools.permutations(range(n))
+                    if all(A[i][s[i]] for i in range(n)) for i in range(n)}
+            self.assertEqual(set(opened), used)
+            for w in closed.values():
+                kinds[w[0]] += 1
+            kinds["open"] += len(opened)
+        self.assertTrue(all(v > 0 for v in kinds.values()), kinds)
+
+    def test_verify_closure_rejects(self):
+        board, n = {(0, 2), (0, 3), (1, 2), (1, 3), (3, 0), (3, 1)}, 4
+        closed, opened = P.closure_witnessed(board, n)
+        self.assertEqual(P.verify_closure(board, n, closed, opened), [])
+        self.assertEqual(sorted(c for c, w in closed.items() if w[0] == "dead"), [(2, 0), (2, 1)])
+
+        def changed(c=None, o=None, drop_closed=None, drop_open=None):
+            c2, o2 = dict(closed), dict(opened)
+            c2.update(c or {})
+            o2.update(o or {})
+            for k in drop_closed or ():
+                del c2[k]
+            for k in drop_open or ():
+                del o2[k]
+            return P.verify_closure(board, n, c2, o2)
+
+        # a dead cell with the wrong rows, with a row out of range, with no rows, and with its own row
+        self.assertTrue(changed(c={(2, 0): ("dead", {0})}))
+        self.assertTrue(changed(c={(2, 0): ("dead", {0, 7})}))
+        self.assertTrue(changed(c={(2, 0): ("dead", set())}))
+        self.assertTrue(changed(c={(2, 0): ("dead", {0, 1, 2})}))
+        # an open cell called closed, each way
+        self.assertTrue(changed(c={(0, 0): ("board",)}, drop_open=[(0, 0)]))
+        self.assertTrue(changed(c={(0, 0): ("dead", {0, 1})}, drop_open=[(0, 0)]))
+        self.assertTrue(changed(c={(0, 0): ("no matching", {0, 1})}, drop_open=[(0, 0)]))
+        # a closed cell called open: a dead one, and one of the board
+        self.assertTrue(changed(o={(2, 0): [1, 2, 0, 3]}, drop_closed=[(2, 0)]))
+        self.assertTrue(changed(o={(0, 2): [2, 0, 1, 3]}, drop_closed=[(0, 2)]))
+        # an open cell whose matching is not a permutation, or misses the cell
+        self.assertTrue(changed(o={(0, 0): [0, 0, 2, 3]}))
+        self.assertTrue(changed(o={(0, 0): opened[(0, 1)]}))
+        # a cell left out, and a cell given twice
+        self.assertTrue(changed(drop_open=[(0, 0)]))
+        self.assertTrue(changed(c={(0, 0): ("board",)}))
+        # an unknown kind of witness
+        self.assertTrue(changed(c={(0, 2): ("because",)}))
+
+    def test_closure_witnessed_no_matching(self):
+        board, n = {(0, 0), (0, 1), (1, 0), (1, 1), (0, 2), (1, 2)}, 3
+        closed, opened = P.closure_witnessed(board, n)
+        self.assertEqual((len(closed), opened), (9, {}))
+        self.assertEqual(P.verify_closure(board, n, closed, opened), [])
+        self.assertEqual({w[0] for w in closed.values()}, {"board", "no matching"})
+        # the violator must be one: two rows with two columns is not
+        self.assertTrue(P.verify_closure(board, n, {**closed, (2, 2): ("no matching", {2})}, opened))
+
 
 class TestBounds(unittest.TestCase):
     def test_bregman_minc(self):

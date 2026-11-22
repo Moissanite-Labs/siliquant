@@ -1,0 +1,93 @@
+Llama-3.2-1B-Instruct: llama.cpp's Q4_K_M and the ball arm, each with no matrix, the matrix of the wikitext-2 training text and the matrix of no meaning, on two texts. 10,200 positions each.
+An error of a gap is the root of the sum of the squares of the two standard errors.
+From forecast.out: the ten most active dimensions hold 13.8 percent of what the attention reads. SmolLM2 has 61.8 and Qwen2.5 has 11.4.
+
+On the wikitext-2 test text
+arm | matrix | bits a weight | mean KL | its standard error | first choice kept, percent
+llama.cpp Q4_K_M | none | 4.8023 | 0.043179 | 0.000604 | 89.03
+llama.cpp Q4_K_M | wikitext-2 training text | 4.8023 | 0.035923 | 0.000538 | 90.02
+llama.cpp Q4_K_M | no meaning | 4.8023 | 0.038211 | 0.000588 | 89.37
+one ball per group of 128 | none | 4.4998 | 0.047808 | 0.000725 | 88.86
+one ball per group of 128 | wikitext-2 training text | 4.5052 | 0.024224 | 0.000352 | 91.50
+one ball per group of 128 | no meaning | 4.5052 | 0.028372 | 0.000419 | 90.49
+no matrix on either side: the ball arm 0.047808 against Q4_K_M 0.043179, under it by -4.9 errors
+the training text's matrix on both sides: the ball arm 0.024224 against Q4_K_M 0.035923, under it by 18.2 errors
+the ball arm with the matrix of no meaning 0.028372 against Q4_K_M with the training text's matrix 0.035923, under it by 11.1 errors
+the ball arm: the training text's matrix is under no matrix by 29.3 errors
+the ball arm: the matrix of no meaning is under no matrix by 23.2 errors
+the ball arm: the matrix of no meaning buys 82.4 percent of what the training text's matrix buys
+Q4_K_M: the training text's matrix is under no matrix by 9.0 errors
+Q4_K_M: the matrix of no meaning is under no matrix by 5.9 errors
+Q4_K_M: the matrix of no meaning buys 68.5 percent of what the training text's matrix buys
+
+On the Python text
+arm | matrix | bits a weight | mean KL | its standard error | first choice kept, percent
+llama.cpp Q4_K_M | none | 4.8023 | 0.037139 | 0.000629 | 92.54
+llama.cpp Q4_K_M | wikitext-2 training text | 4.8023 | 0.034137 | 0.000629 | 92.19
+llama.cpp Q4_K_M | no meaning | 4.8023 | 0.034749 | 0.000590 | 92.09
+one ball per group of 128 | none | 4.4998 | 0.045635 | 0.000811 | 91.37
+one ball per group of 128 | wikitext-2 training text | 4.5052 | 0.021682 | 0.000377 | 93.96
+one ball per group of 128 | no meaning | 4.5052 | 0.023989 | 0.000393 | 93.88
+no matrix on either side: the ball arm 0.045635 against Q4_K_M 0.037139, under it by -8.3 errors
+the training text's matrix on both sides: the ball arm 0.021682 against Q4_K_M 0.034137, under it by 17.0 errors
+the ball arm with the matrix of no meaning 0.023989 against Q4_K_M with the training text's matrix 0.034137, under it by 13.7 errors
+the ball arm: the training text's matrix is under no matrix by 26.8 errors
+the ball arm: the matrix of no meaning is under no matrix by 24.0 errors
+the ball arm: the matrix of no meaning buys 90.4 percent of what the training text's matrix buys
+Q4_K_M: the training text's matrix is under no matrix by 3.4 errors
+Q4_K_M: the matrix of no meaning is under no matrix by 2.8 errors
+Q4_K_M: the matrix of no meaning buys 79.6 percent of what the training text's matrix buys
+
+L5: the share is 13.8, 20 or less, so the prediction is that neither matrix puts the ball arm under the plain arm by 2 errors on the Python text
+
+Extension 1, on the wikitext-2 test text: the ball arm with columns weighted by the training text's matrix on some kinds of matrix only
+weighted | mean KL | its standard error | under the plain arm by, percent | in errors of the gap | share of the whole gain, percent
+the attention's readers | 0.048397 | 0.000721 | -1.2 | -0.6 | -2.5
+the feed-forward readers | 0.046573 | 0.000741 | 2.6 | 1.2 | 5.2
+the writers | 0.025964 | 0.000370 | 45.7 | 26.8 | 92.6
+the three shares add up to 95.4 percent of the whole gain. On SmolLM2 they were 68.5, 9.5 and 21.9, together 99.9
+
+Extension 2: the ball arm with no matrix and columns of ffn_down left whole. K10: the ten loud columns of every ffn_down, found from the weights. A1: one column, the most active by the matrix
+text | arm | reads calibration data | bits a weight | columns kept | mean KL | its standard error | first choice kept, percent | under the plain ball arm by, percent | in errors | under Q4_K_M with no matrix by, in errors
+wikitext | ZBG128:b560s16+K10 | no | 4.5052 | 160 | 0.030223 | 0.000446 | 90.97 | 36.8 | 20.7 | 17.3
+wikitext | ZBG128:b560s16+K10#0,1 | no | 4.5005 | 20 | 0.030143 | 0.000444 | 90.98 | 36.9 | 20.8 | 17.4
+wikitext | ZBG128:b560s16+A1#0,1 | yes | 4.4999 | 2 | 0.030244 | 0.000444 | 90.92 | 36.7 | 20.7 | 17.3
+python | ZBG128:b560s16+K10 | no | 4.5052 | 160 | 0.025603 | 0.000417 | 93.70 | 43.9 | 22.0 | 15.3
+wikitext: keeping the columns buys 74.6 percent of what the training text's matrix buys the ball arm
+wikitext: keeping them in layers 0 and 1 only gains 1.005 of what keeping them in every layer gains
+wikitext: one column kept in layers 0 and 1 against ten: 0.030244 against 0.030143, above it by 0.2 errors
+
+Three models on the wikitext-2 test text. The two earlier models are from the records that scored them
+model | Q4_K_M: none | wikitext matrix | noise matrix | ball arm: none | wikitext matrix | noise matrix | ball under Q4_K_M with no matrix on either side, errors | with the wikitext matrix on both sides | ball with the noise matrix under Q4_K_M with the wikitext matrix | the wikitext matrix puts the ball arm under the plain ball arm by | the noise matrix by
+Qwen2.5-1.5B | 0.0333 | 0.0282 | 0.0294 | 0.0227 | 0.0209 | 0.0228 | 11.4 | 9.2 | 7.1 | 2.3 | -0.1
+SmolLM2-1.7B | 0.0838 | 0.0378 | 0.0399 | 0.0560 | 0.0282 | 0.0314 | 14.7 | 10.0 | 6.6 | 22.7 | 19.8
+Llama-3.2-1B | 0.0432 | 0.0359 | 0.0382 | 0.0478 | 0.0242 | 0.0284 | -4.9 | 18.2 | 11.1 | 29.3 | 23.2
+
+Three models on the Python text. The two earlier models are from the records that scored them
+model | Q4_K_M: none | wikitext matrix | noise matrix | ball arm: none | wikitext matrix | noise matrix | ball under Q4_K_M with no matrix on either side, errors | with the wikitext matrix on both sides | ball with the noise matrix under Q4_K_M with the wikitext matrix | the wikitext matrix puts the ball arm under the plain ball arm by | the noise matrix by
+Qwen2.5-1.5B | 0.0223 | 0.0194 | 0.0208 | 0.0140 | 0.0154 | 0.0162 | 9.3 | 5.0 | 3.6 | -2.2 | -3.0
+SmolLM2-1.7B | 0.0522 | 0.0234 | 0.0236 | 0.0364 | 0.0167 | 0.0176 | 13.2 | 11.2 | 8.7 | 24.9 | 22.3
+Llama-3.2-1B | 0.0371 | 0.0341 | 0.0347 | 0.0456 | 0.0217 | 0.0240 | -8.3 | 17.0 | 13.7 | 26.8 | 24.0
+
+Three models on the wikitext-2 test text: the ball arm with no matrix, no forward pass, and the ten loud columns of every ffn_down left whole
+model | bits a weight | mean KL | the plain ball arm | under it by, errors | Q4_K_M with no matrix | under it by, errors | Q4_K_M with the wikitext matrix | under it by, errors
+Qwen2.5-1.5B | 4.5051 | 0.0222 | 0.0227 | 0.6 | 0.0333 | 12.5 | 0.0282 | 7.0
+SmolLM2-1.7B | 4.5047 | 0.0528 | 0.0560 | 2.2 | 0.0838 | 16.8 | 0.0378 | -12.2
+Llama-3.2-1B | 4.5052 | 0.0302 | 0.0478 | 20.7 | 0.0432 | 17.3 | 0.0359 | 8.2
+
+The predictions of PREREG.md and of its extensions 1 and 2
+prediction | holds
+L1 | NO
+L2 | NO
+L3 | yes
+L4 | yes
+L5 | NO
+L6 | yes
+X1 | yes
+X2 | yes
+Y1 | yes
+Y2 | yes
+Y3 | yes
+Y4 | yes
+Y5 | yes
+hold: 10 of 13
