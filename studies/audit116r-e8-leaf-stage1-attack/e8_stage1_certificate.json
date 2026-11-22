@@ -1,0 +1,94 @@
+{
+  "audit_id": "AUDIT-116",
+  "mode": "standalone_pure_zq",
+  "novelty_class": "N1",
+  "overall_verified": true,
+  "payload_sha256": "55098d900544b0dd03d4ca292a4f6f82f4a887dc4f6a0cf6d9e19537eab06be7",
+  "pillar1_exact_bit_widths": {
+    "dp_matches_240_sigma3_exact": true,
+    "ebg32_b136s8": {
+      "m_max": 391,
+      "max_c2": 24,
+      "max_c2_fits_u8": true,
+      "max_c4": 14976,
+      "max_c4_fits_u16": true,
+      "max_s1": 16749815040,
+      "max_s1_bits": 34,
+      "max_s1_fits_u64": true,
+      "max_s1_shell_m": 390,
+      "w1_ball_bits": 41,
+      "w1_ball_count": 1525056448801,
+      "w1_ball_fits_u64": true
+    },
+    "ebg32_b88s8": {
+      "m_max": 48,
+      "max_c2": 16,
+      "max_c2_fits_u8": true,
+      "max_c4": 1872,
+      "max_c4_fits_u16": true,
+      "max_s1": 31456320,
+      "max_s1_bits": 25,
+      "max_s1_fits_u32": true,
+      "max_s1_shell_m": 48,
+      "w1_ball_bits": 29,
+      "w1_ball_count": 360605761,
+      "w1_ball_fits_u32": true
+    },
+    "pillar_verified": true
+  },
+  "pillar2_bucket_guide_and_lut_concentration": {
+    "flat_lut_m_le_2_bytes": 19208,
+    "flat_lut_m_le_2_vectors": 2401,
+    "flat_lut_m_le_3_bytes": 72968,
+    "flat_lut_m_le_3_vectors": 9121,
+    "guide_136b_m97_b32_expected_steps": "4.3596",
+    "guide_136b_m97_b32_max_span": 26,
+    "guide_136b_m97_b64_expected_steps": "1.9711",
+    "guide_136b_m97_b64_max_span": 18,
+    "guide_88b_all_49_shells_invariant_exact": true,
+    "guide_88b_m12_b32_expected_steps": "0.6116",
+    "guide_88b_m12_b32_max_span": 4,
+    "pillar_verified": true,
+    "uniform_e8_4_136b_lut_hits": {
+      "e8_4_total_count": 85889107931845736051215402649708868585601,
+      "p_leaf_m_le_2_pct": "0.000270",
+      "p_leaf_m_le_3_pct": "0.001001"
+    },
+    "uniform_e8_4_88b_lut_hits": {
+      "e8_4_total_count": 263197133594409826368003841,
+      "p_leaf_m_le_2_pct": "0.756558",
+      "p_leaf_m_le_3_pct": "2.341009"
+    }
+  },
+  "pillar3_d8plus_leader_bijection_and_wall": {
+    "binomial_comb_mask_table_bytes": 502,
+    "d8plus_m0_to_m3_bijective_exact": true,
+    "d8plus_m0_to_m3_vectors_verified": 9121,
+    "ebg32_b136s8_leaders": {
+      "all_shells_orbit_sum_exact": true,
+      "even_leaders": 409367,
+      "leader_table_bytes_16b_each": 16530560,
+      "m_max": 391,
+      "max_leaders_in_shell": 8749,
+      "max_leaders_shell_m": 389,
+      "odd_leaders": 623793,
+      "total_leaders": 1033160
+    },
+    "ebg32_b88s8_leaders": {
+      "all_shells_orbit_sum_exact": true,
+      "even_leaders": 955,
+      "leader_table_bytes_16b_each": 32000,
+      "m_max": 48,
+      "max_leaders_in_shell": 111,
+      "max_leaders_shell_m": 47,
+      "odd_leaders": 1045,
+      "total_leaders": 2000
+    },
+    "leader_blowup_136b_over_88b": "516.58",
+    "partitions_of_8_shapes": 22,
+    "pillar_verified": true,
+    "universal_22_shape_perm_count": 95503,
+    "universal_22_shape_pshufb_bytes": 764024
+  },
+  "schema_version": "audit116.e8_stage1.v1"
+}
