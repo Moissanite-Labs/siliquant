@@ -337,6 +337,8 @@ class Format:
                 raise ValueError(f"matrix {name}: a block of {n} does not tile a row of {cols}")
             top = np.frombuffer(blob, dtype="<f2", count=1, offset=at)[0]
             at += 2
+            if not np.isfinite(top) or top <= 0:
+                raise ValueError(f"matrix {name}: the largest scale is not a positive finite 16-bit float")
             if flag & ~3:
                 raise ValueError("a matrix of the file has a flag this reader does not know")
             c, keep, kept = None, None, None
@@ -344,6 +346,8 @@ class Format:
                 need(2 * cols, "the column weights")
                 c = np.frombuffer(blob, dtype="<f2", count=cols, offset=at).copy()
                 at += 2 * cols
+                if not np.all(np.isfinite(c)) or np.any(c <= 0):
+                    raise ValueError(f"matrix {name}: a column weight is not a positive finite 16-bit float")
             if flag & 2:
                 need(4, "the kept columns")
                 (count_kept,) = struct.unpack_from("<I", blob, at)
@@ -356,6 +360,8 @@ class Format:
                 need(2 * rows * count_kept, "the kept columns")
                 kept = np.frombuffer(blob, dtype="<f2", count=rows * count_kept, offset=at).reshape(rows, count_kept).copy()
                 at += 2 * rows * count_kept
+                if not np.all(np.isfinite(kept)):
+                    raise ValueError(f"matrix {name}: an entry of a kept column is not finite")
             blocks, width = rows * cols // n, fmt.bytes + 1
             need(blocks * width, "the blocks")
             records = np.frombuffer(blob, dtype=np.uint8, count=blocks * width, offset=at).reshape(blocks, width).copy()
