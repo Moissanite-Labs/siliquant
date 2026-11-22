@@ -1,0 +1,532 @@
+{
+  "audit_id": "AUDIT-107",
+  "certificate_sha256": "83708325b2788c32788a08e6bdc1742b2aff7f4f8fe0916ebb8d3953c75e18d4",
+  "live_intake_audited": true,
+  "live_source_ast_audit": {
+    "band_route_ignores_conformal_and_ood": true,
+    "band_route_unbanded_not_review": true,
+    "calibrate_insample_coupled": true,
+    "evidence_bool_guard_confirmed": true,
+    "evidence_negative_items_bug_confirmed": true,
+    "evidence_unknown_collapsed_to_insufficient": true,
+    "guardrail_781_c038_pi_dec": "0.619",
+    "guardrail_781_parsed_case_ids": [
+      "c011",
+      "c012",
+      "c042"
+    ],
+    "laya_vega_route_ignores_unbound": true,
+    "qhat_uses_float_one_minus_alpha": true
+  },
+  "mode": "live_intake_recount",
+  "novelty_class": "N1",
+  "overall_verified": true,
+  "pillar1_split_conformal": {
+    "exact_lac_n19_a010": {
+      "alpha": {
+        "den": 10,
+        "num": 1
+      },
+      "finite_sample_coverage_lb": {
+        "den": 10,
+        "num": 9
+      },
+      "meets_nominal_target": true,
+      "n": 19,
+      "qhat": {
+        "den": 10,
+        "num": 9
+      },
+      "rank": 18
+    },
+    "insample_coupling_theorem": {
+      "alpha": {
+        "den": 4,
+        "num": 1
+      },
+      "coupled_exact_coverage": {
+        "den": 2,
+        "num": 1
+      },
+      "coupled_exact_coverage_pct": "50.00%",
+      "coverage_deficit": {
+        "den": 4,
+        "num": 1
+      },
+      "disjoint_exact_coverage": {
+        "den": 20,
+        "num": 19
+      },
+      "disjoint_exact_coverage_pct": "95.00%",
+      "ieee754_overshoot_n149_a018": {
+        "alpha": {
+          "den": 50,
+          "num": 9
+        },
+        "binary64_rank": 124,
+        "exact_product": {
+          "den": 1,
+          "num": 123
+        },
+        "exact_rank": 123,
+        "n": 149,
+        "overshoot": 1,
+        "overshoot_witnessed": true
+      },
+      "ieee754_overshoot_n29_a070": {
+        "alpha": {
+          "den": 10,
+          "num": 7
+        },
+        "binary64_rank": 10,
+        "exact_product": {
+          "den": 1,
+          "num": 9
+        },
+        "exact_rank": 9,
+        "n": 29,
+        "overshoot": 1,
+        "overshoot_witnessed": true
+      },
+      "n_calibration": 3,
+      "n_candidate_calibrators": 10,
+      "n_exact_splits": 20,
+      "n_population": 6,
+      "nominal_target_coverage": {
+        "den": 4,
+        "num": 3
+      },
+      "theorem_holds": true,
+      "zero_coverage_coupled_splits": 10
+    },
+    "pillar_verified": true
+  },
+  "pillar2_escalation_band_and_router": {
+    "band_ambiguous_gap_contrast": {
+      "fail_closed_union": {
+        "review": true,
+        "route": "review",
+        "triggers": [
+          "conformal_set_ambiguous"
+        ]
+      },
+      "laya_vega_default": {
+        "mode_used": "band_only",
+        "review": false,
+        "route": "auto"
+      }
+    },
+    "clean_auto_witness": {
+      "review": false,
+      "route": "auto",
+      "triggers": []
+    },
+    "empty_set_non_trigger_k2": {
+      "abstention_reachable": false,
+      "empty_set_boundary": {
+        "den": 2,
+        "num": 1
+      },
+      "iff_verified": true,
+      "k": 2,
+      "probability_cutoff": {
+        "den": 2,
+        "num": 1
+      },
+      "qhat": {
+        "den": 2,
+        "num": 1
+      },
+      "uniform_pset_size": 2
+    },
+    "empty_set_non_trigger_k4": {
+      "abstention_reachable": false,
+      "empty_set_boundary": {
+        "den": 4,
+        "num": 3
+      },
+      "iff_verified": true,
+      "k": 4,
+      "probability_cutoff": {
+        "den": 5,
+        "num": 1
+      },
+      "qhat": {
+        "den": 5,
+        "num": 4
+      },
+      "uniform_pset_size": 4
+    },
+    "empty_set_triggerable_k2": {
+      "abstention_reachable": true,
+      "empty_set_boundary": {
+        "den": 2,
+        "num": 1
+      },
+      "iff_verified": true,
+      "k": 2,
+      "probability_cutoff": {
+        "den": 5,
+        "num": 3
+      },
+      "qhat": {
+        "den": 5,
+        "num": 2
+      },
+      "uniform_pset_size": 0
+    },
+    "ood_unbound_gap_contrast": {
+      "fail_closed_union": {
+        "review": true,
+        "route": "review",
+        "triggers": [
+          "unbound_ood"
+        ]
+      },
+      "laya_vega_default": {
+        "mode_used": "band_only",
+        "review": false,
+        "route": "auto"
+      }
+    },
+    "pillar_verified": true,
+    "wilson_12_of_12_at_816": {
+      "center_ok": true,
+      "hits": 12,
+      "lb_ceil_6dp": "0.816011",
+      "lb_floor_6dp": "0.816010",
+      "meets_target": true,
+      "n": 12,
+      "quadratic_ok": true,
+      "target": {
+        "den": 125,
+        "num": 102
+      },
+      "z": {
+        "den": 10000,
+        "num": 16449
+      }
+    },
+    "wilson_12_of_12_at_817": {
+      "center_ok": true,
+      "hits": 12,
+      "lb_ceil_6dp": "0.816011",
+      "lb_floor_6dp": "0.816010",
+      "meets_target": false,
+      "n": 12,
+      "quadratic_ok": false,
+      "target": {
+        "den": 1000,
+        "num": 817
+      },
+      "z": {
+        "den": 10000,
+        "num": 16449
+      }
+    },
+    "wilson_12_of_12_at_950": {
+      "center_ok": false,
+      "hits": 12,
+      "lb_ceil_6dp": "0.816011",
+      "lb_floor_6dp": "0.816010",
+      "meets_target": false,
+      "n": 12,
+      "quadratic_ok": false,
+      "target": {
+        "den": 20,
+        "num": 19
+      },
+      "z": {
+        "den": 10000,
+        "num": 16449
+      }
+    }
+  },
+  "pillar3_epistemic_evidence_lattice": {
+    "bool_items_fail_closed": {
+      "claim_ledger_verdict": "UNVERIFIED_HYPOTHESIS",
+      "state": "UNKNOWN",
+      "types": {
+        "choice": "UNKNOWN"
+      }
+    },
+    "clean_calibration_present": {
+      "claim_ledger_verdict": "ELIGIBLE_FOR_VERIFIED",
+      "state": "PRESENT",
+      "types": {
+        "choice": "PRESENT"
+      }
+    },
+    "empty_calibration_fail_closed": {
+      "claim_ledger_verdict": "NOT_SHOWN",
+      "state": "MISSING",
+      "types": {}
+    },
+    "lattice_axioms": {
+      "all_laws_hold": true,
+      "associative": true,
+      "bottom_incomparable_absorbing": true,
+      "claim_ledger_map": {
+        "INCOMPARABLE": "CONTRADICTED_FALSIFIED",
+        "INSUFFICIENT": "PARTIAL_FRAGILE",
+        "MISSING": "NOT_SHOWN",
+        "PRESENT": "ELIGIBLE_FOR_VERIFIED",
+        "UNKNOWN": "UNVERIFIED_HYPOTHESIS"
+      },
+      "commutative": true,
+      "idempotent": true,
+      "state_count": 5,
+      "top_present_identity": true,
+      "triples_checked": 125
+    },
+    "negative_items_fail_closed": {
+      "claim_ledger_verdict": "UNVERIFIED_HYPOTHESIS",
+      "state": "UNKNOWN",
+      "types": {
+        "choice": "UNKNOWN"
+      }
+    },
+    "pillar_verified": true,
+    "promotion_bound_present": {
+      "can_promote_to_verified": true,
+      "claim_ledger_verdict": "ELIGIBLE_FOR_VERIFIED",
+      "meet_state": "PRESENT"
+    },
+    "promotion_incomparable_blocked": {
+      "can_promote_to_verified": false,
+      "claim_ledger_verdict": "CONTRADICTED_FALSIFIED",
+      "meet_state": "INCOMPARABLE"
+    },
+    "promotion_unbound_blocked": {
+      "can_promote_to_verified": false,
+      "claim_ledger_verdict": "UNVERIFIED_HYPOTHESIS",
+      "meet_state": "UNKNOWN"
+    }
+  },
+  "pillar4_siliquant_port_and_guardrail781": {
+    "guardrail_781_inversion_and_cap": {
+      "all_embedded_harm_capped_below_threshold": true,
+      "benign_inversion_pi": {
+        "den": 1000,
+        "num": 619
+      },
+      "case_count": 3,
+      "cases": [
+        {
+          "cannot_reach_default_threshold": true,
+          "harm_severity": {
+            "den": 50,
+            "num": 41
+          },
+          "id": "c011",
+          "markov_upper_tail_cap": {
+            "den": 100,
+            "num": 41
+          },
+          "prompt_injection": {
+            "den": 500,
+            "num": 91
+          }
+        },
+        {
+          "cannot_reach_default_threshold": true,
+          "harm_severity": {
+            "den": 50,
+            "num": 39
+          },
+          "id": "c012",
+          "markov_upper_tail_cap": {
+            "den": 100,
+            "num": 39
+          },
+          "prompt_injection": {
+            "den": 1000,
+            "num": 301
+          }
+        },
+        {
+          "cannot_reach_default_threshold": true,
+          "harm_severity": {
+            "den": 100,
+            "num": 51
+          },
+          "id": "c042",
+          "markov_upper_tail_cap": {
+            "den": 200,
+            "num": 51
+          },
+          "prompt_injection": {
+            "den": 1,
+            "num": 0
+          }
+        }
+      ],
+      "default_threshold": {
+        "den": 2,
+        "num": 1
+      },
+      "markov_tightness_verified": true,
+      "max_embedded_attack_pi": {
+        "den": 1000,
+        "num": 301
+      },
+      "max_harm_upper_tail_cap": {
+        "den": 100,
+        "num": 41
+      },
+      "scalar_threshold_impossible": true
+    },
+    "pillar_verified": true,
+    "siliquant_vega_u_port_recovery": {
+      "affine_exact_absorption": true,
+      "noise_floor_strictly_positive": true,
+      "refit_beats_unrefitted": true,
+      "refitted_affine_sq": {
+        "den": 1,
+        "num": 0
+      },
+      "refitted_noisy_sq": {
+        "den": 10697,
+        "num": 93140
+      },
+      "ridge_lam_kkt_exact": true,
+      "unrefitted_affine_sq": {
+        "den": 100,
+        "num": 3949
+      },
+      "unrefitted_noisy_sq": {
+        "den": 50,
+        "num": 2437
+      },
+      "wiener_floor_sq": {
+        "den": 10697,
+        "num": 93140
+      },
+      "wiener_identity_exact": true
+    }
+  },
+  "pinned_artifacts": {
+    "laya/docs/guardrail-limitations.md": {
+      "bytes": 6791,
+      "sha256": "c554f7ecf6a6fa42c8001bb2bb5f3e5678845f246ee8526ee93cfeb1928c3662"
+    },
+    "laya/laya/confidence.py": {
+      "bytes": 17941,
+      "sha256": "454ed669ecde141ccb02df2aea9e1a935cdad3ae0a660e5ab8ae38335111ccf9"
+    },
+    "laya/laya/evidence.py": {
+      "bytes": 12794,
+      "sha256": "4f2f7d85675ddbfc6c56752233ecd938a009d52959169afe3f9cfd01a36566ae"
+    },
+    "laya/laya/router.py": {
+      "bytes": 117122,
+      "sha256": "77ec4e015050d2b2d5965004704977ac36df17465bfdc814806a19dd2d02cb7e"
+    },
+    "laya/laya/vega.py": {
+      "bytes": 66173,
+      "sha256": "fd0a5093beca7af784a58ba8d43d35476dcb5276f36c60ad1ee0b5433e132f7d"
+    },
+    "unmerged_prs_snapshot.json": {
+      "bytes": 13388,
+      "sha256": "0aeb193d6fdf11d043fb7c3f89002af45826f63251f6081794857cfc2b9d26d2"
+    },
+    "vegaml/vegaml/_attach.py": {
+      "bytes": 28642,
+      "sha256": "83c603a6bd62a25d06d639ff6ee1c59defa71877a2944a1ed76a9e7c0f596793"
+    },
+    "vegaml/vegaml/_common.py": {
+      "bytes": 60956,
+      "sha256": "a2d48a5b292cc236dde726cceb5b347ca8a8b5eaee1847c5368df7339f58bf1a"
+    },
+    "vegaml/vegaml/_universal.py": {
+      "bytes": 3620,
+      "sha256": "1cc978c283acafcfd76e5ca8378ef05b50a766a793d3146de402b7223b65364f"
+    },
+    "vegaml/vegaml/band.py": {
+      "bytes": 13150,
+      "sha256": "506a61a936ce9cccf5002bafe804503a63e3fc0c3a47d560ab4156b0d15f55be"
+    },
+    "vegaml/vegaml/calibrate.py": {
+      "bytes": 21576,
+      "sha256": "3e92d496097b0f3008def26cbec98f6573d400d37821814f557dee87905ef5ca"
+    },
+    "vegaml/vegaml/router.py": {
+      "bytes": 6369,
+      "sha256": "7e880a78150cb25a69a9b6375a34f1b345c15b88ec41e178c3cfcf5a631dfb1d"
+    }
+  },
+  "pinned_repo_heads": {
+    "laya": "e150aa92a0d4059ac621875b39b620847cf1b88a",
+    "vegaml": "5e7ffad546b006ccc316bb46c02df40e9200713d"
+  },
+  "schema_version": "audit107.laya_vegaml.v1",
+  "unmerged_pr_gems": {
+    "pr_count": 8,
+    "prs": [
+      {
+        "head_sha": "1d9aaae8b352e58a41baf6b7cb50344c6fb26cf5",
+        "merged": false,
+        "number": 1524,
+        "repo": "NandhaKishorM/laya",
+        "state": "open",
+        "title": "fix(onnx): verify fused exports against the selected checkpoint"
+      },
+      {
+        "head_sha": "216a723efc7ce974d21d0b5e488e7474ba2a1be3",
+        "merged": false,
+        "number": 1519,
+        "repo": "NandhaKishorM/laya",
+        "state": "open",
+        "title": "fix(vega): translate engine's string-keyed choice labels back to caller's labels"
+      },
+      {
+        "head_sha": "9291f01bfc3df77642bac1694ebe33f6e7d3d6ba",
+        "merged": false,
+        "number": 1517,
+        "repo": "NandhaKishorM/laya",
+        "state": "open",
+        "title": "perf(train): single-pass evaluation overlap checks and signature reuse"
+      },
+      {
+        "head_sha": "ac03d3fc007a8484003441f13062b05b853a1dce",
+        "merged": false,
+        "number": 1502,
+        "repo": "NandhaKishorM/laya",
+        "state": "closed",
+        "title": "Add an opt-in Monid adapter for typed decisions"
+      },
+      {
+        "head_sha": "f63252ba2e2fe64d610828a78566fea1400b41be",
+        "merged": false,
+        "number": 1390,
+        "repo": "NandhaKishorM/laya",
+        "state": "open",
+        "title": "feat(rust): revision pinning and SHA-256 digest checks"
+      },
+      {
+        "head_sha": "32097a4e5e97aabc999821c98990b946cdc526ea",
+        "merged": false,
+        "number": 1388,
+        "repo": "NandhaKishorM/laya",
+        "state": "open",
+        "title": "feat(rust): port predict_tournament and cached_embed_fn"
+      },
+      {
+        "head_sha": "a7d5ccba0e28dfe083d636de8c84a8feb8a6cabd",
+        "merged": false,
+        "number": 57,
+        "repo": "NandhaKishorM/vegaml",
+        "state": "open",
+        "title": "perf(perception): replace dummy scatter index_add with direct span pooling"
+      },
+      {
+        "head_sha": "aa1ad172d8b28745230e3054854dd9e07399deae",
+        "merged": false,
+        "number": 40,
+        "repo": "NandhaKishorM/vegaml",
+        "state": "open",
+        "title": "Add an inference-only Rust port (rust/)"
+      }
+    ]
+  }
+}
