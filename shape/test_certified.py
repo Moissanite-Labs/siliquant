@@ -232,5 +232,48 @@ class TestCountsTwice(unittest.TestCase):
                     self.assertTrue(bigger and table[bigger[0]] > cap, (cap, lattice, p))
 
 
+class TestReviewEdgeCases(unittest.TestCase):
+    def setUp(self):
+        W = np.random.default_rng(21).standard_t(5, size=(16, 256)).astype(np.float32)
+        self.best, self.cert = C.pick(candidates(W, {32: 1 << 32, 128: 1 << 35}), budget=F(9, 2))
+
+    def test_oversized_whole_numbers_return_findings(self):
+        huge_string = copy.deepcopy(self.cert)
+        huge_string["candidates"][0]["codewords"] = "9" * 5000
+        self.assertTrue(K.check(huge_string))
+        self.assertTrue(K.check_bound(huge_string, "0" * 64))
+
+        huge_int = copy.deepcopy(self.cert)
+        huge_int["candidates"][0]["terms"]["sum_sq"] = 10 ** 5000
+        self.assertTrue(K.check_bound(huge_int, "0" * 64))
+
+    def test_lone_surrogate_arm_is_a_finding(self):
+        forged = copy.deepcopy(self.cert)
+        forged["candidates"][0]["arm"] = "\ud800"
+        self.assertTrue(K.check(forged))
+        with self.assertRaises(ValueError):
+            K.certificate_sha256(forged)
+
+    def test_zero_cube_bound_is_rejected(self):
+        forged = copy.deepcopy(self.cert)
+        terms = forged["candidates"][self.best]["terms"]
+        for key in ("top_cube", "top_ball", "top_cross"):
+            terms[key] = "0"
+        self.assertTrue(any("cube bound" in finding for finding in K.check(forged)))
+
+    def test_mixed_integer_and_string_representations(self):
+        receipt = copy.deepcopy(self.cert)
+        candidate = receipt["candidates"][self.best]
+        candidate["codewords"] = str(int(candidate["codewords"]))
+        for key in ("count", "groups", "sum_sq", "top_cube", "top_ball", "top_cross"):
+            candidate["terms"][key] = str(int(candidate["terms"][key]))
+        self.assertEqual(K.check(receipt), [])
+
+    def test_huge_budget_numerator_fails_closed(self):
+        forged = copy.deepcopy(self.cert)
+        forged["budget"] = [10 ** 9, 2]
+        self.assertTrue(K.check(forged))
+
+
 if __name__ == "__main__":
     unittest.main()

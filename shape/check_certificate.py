@@ -35,14 +35,22 @@ CELL = {"X": (1, 12), "Z8:p1": (1, 12), "Z8:p2": (1, 12), "E8:p1": (929, 12960),
 REGION = {"X": "cube", "Z8:p1": "cross", "Z8:p2": "ball", "E8:p1": "cross", "E8:p2": "ball"}
 VOLUME = {"cube": (256, 1, 0), "cross": (256, 40320, 0), "ball": (1, 24, 1)}     # numerator, denominator, power of pi^4
 TERM_KEYS = frozenset(("count", "groups", "sum_sq", "top_cube", "top_ball", "top_cross"))
+MAX_WHOLE_DIGITS = 4096
+MAX_WHOLE_BITS = 13600
+MAX_BUDGET_NUMERATOR = 4096
 
 
 def _whole_number(value):
     """An exact JSON whole number: an int or a canonical decimal string, never a bool or float."""
     if type(value) is int:
-        return value
+        return value if value.bit_length() <= MAX_WHOLE_BITS else None
     if isinstance(value, str) and value.isascii() and value.isdecimal() and (value == "0" or not value.startswith("0")):
-        return int(value)
+        if len(value) > MAX_WHOLE_DIGITS:
+            return None
+        try:
+            return int(value)
+        except ValueError:
+            return None
     return None
 
 
@@ -58,6 +66,8 @@ def _structure_findings(cert):
             return ["the budget must be null or a two-integer numerator/denominator list"]
         if budget[1] <= 0:
             return ["the budget denominator must be positive"]
+        if budget[0] > MAX_BUDGET_NUMERATOR:
+            return ["the budget numerator is too large to check safely"]
     candidates = cert["candidates"]
     if not isinstance(candidates, list) or not candidates:
         return ["candidates must be a nonempty list"]
@@ -66,8 +76,8 @@ def _structure_findings(cert):
         if not isinstance(candidate, dict) or set(candidate) != {"arm", "size", "codewords", "terms"}:
             bad.append(f"candidate {i}: expected exactly arm, size, codewords and terms")
             continue
-        if not isinstance(candidate["arm"], str) or type(candidate["size"]) is not int:
-            bad.append(f"candidate {i}: arm must be a string and size an integer")
+        if not isinstance(candidate["arm"], str) or candidate["arm"] not in CELL or type(candidate["size"]) is not int:
+            bad.append(f"candidate {i}: arm must be a known cell and size an integer")
         if _whole_number(candidate["codewords"]) is None:
             bad.append(f"candidate {i}: codewords must be an exact whole number")
         terms = candidate["terms"]
@@ -150,10 +160,12 @@ def check(cert):
         if (int(t["groups"]) * size != int(t["count"]) or size <= 0 or size % 8
                 or int(t["groups"]) <= 0 or int(t["count"]) <= 0 or int(t["sum_sq"]) <= 0 or int(c["codewords"]) <= 0):
             bad.append(f"candidate {i}: the receipt's numbers do not fit together")
+        if int(t["top_cube"]) <= 0 or int(t["sum_sq"]) > size * int(t["top_cube"]):
+            bad.append(f"candidate {i}: the squared weights exceed the cube bound")
         # the three inequalities that hold for any weights
         if not (int(t["top_cube"]) <= int(t["top_ball"]) <= int(t["top_cross"]) <= 8 * int(t["top_ball"]) and int(t["top_ball"]) <= 8 * int(t["top_cube"])):
             bad.append(f"candidate {i}: the receipt breaks an inequality that holds for any weights")
-    if len({(c["terms"]["sum_sq"], c["terms"]["count"]) for c in cands}) != 1:
+    if len({(_whole_number(c["terms"]["sum_sq"]), _whole_number(c["terms"]["count"])) for c in cands}) != 1:
         bad.append("the candidates are not of one matrix: the squared weights or the count differ")
     if bad:
         return bad
