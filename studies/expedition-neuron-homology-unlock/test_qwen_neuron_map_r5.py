@@ -96,6 +96,8 @@ def run_all_tests() -> dict[str, int]:
     _require(mod.exact_binomial_two_sided_tail(2, 1) == Fraction(1), "n=2 k=1 >1 clamped to 1")
     _require(mod.exact_binomial_two_sided_tail(21, 21) == Fraction(1, 1_048_576), "21/21 sign test")
     _require(mod.exact_binomial_two_sided_tail(21, 0) == Fraction(1, 1_048_576), "0/21 symmetric")
+    _require(mod.exact_binomial_two_sided_tail(24, 21) == Fraction(2325, 8_388_608), "21/24 all-layer sign test")
+    _require(mod.exact_binomial_two_sided_tail(24, 3) == Fraction(2325, 8_388_608), "3/24 symmetric")
     _expect_reject(lambda: mod.exact_binomial_two_sided_tail(0, 0), "trials==0")
     _expect_reject(lambda: mod.exact_binomial_two_sided_tail(-3, 0), "trials<0")
     _expect_reject(lambda: mod.exact_binomial_two_sided_tail(5, -1), "k<0")

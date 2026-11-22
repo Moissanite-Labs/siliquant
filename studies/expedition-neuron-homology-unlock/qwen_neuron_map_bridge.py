@@ -74,7 +74,7 @@ FETCHED_MODEL_SLUGS: tuple[str, ...] = (
     "py0c",
 )
 
-DYADIC_SCALE = 1 << 16  # 65536 exact binary scaling for float32 weights
+DYADIC_SCALE = 1 << 16  # 65536 fixed-point 2^-16 quantization scale (preserves reported ranks/counts; bf16 has sub-2^-16 entries)
 
 
 def _require(cond: bool, msg: str) -> None:
@@ -297,7 +297,8 @@ def audit_part2_atlas_and_confounder(repos_dir: Path = REPOS_DIR) -> dict[str, A
             "hi_to_lo_dark_ratio_exact": str(ratio),
         }
 
-    # Verify Pythia non-monotonic dark-neuron collapse & late rebound across all 3 seeds
+    # Verify Pythia py0 trajectory (1k -> 8k -> 32k -> 143k) and endpoints py1/py2 > py0@32k
+    # (py0a/py0b/py0c are intermediate checkpoints of one run py0; py1/py2 have 143k endpoints only)
     py_1k = Fraction(per_model_13["py0a"]["dark_fraction_exact"])
     py_8k = Fraction(per_model_13["py0b"]["dark_fraction_exact"])
     py_32k = Fraction(per_model_13["py0c"]["dark_fraction_exact"])
@@ -778,25 +779,53 @@ def run_standalone_certified_replay(cert_path: Path = CERT_PATH) -> dict[str, An
     p3 = cert["part3_q08_weight_edit_empirical_join"]
     sign_p = nhx.exact_binomial_two_sided_tail(21, 21)
     _require(str(sign_p) == p3["q08_24layer_column_anisotropy"]["exact_binomial_sign_p"] == "1/1048576", "sign p")
+    # Honest all-layer sign test (weft-loom#44 N7): 21/24 layers have hi > lo (L00, L01, L23 reverse).
+    sign_p_all24 = nhx.exact_binomial_two_sided_tail(24, 21)
+    _require(sign_p_all24 == Fraction(2325, 8_388_608), "all-24-layer sign test p")
 
     top40_cnt, top40_n = p3["top40_linf_outliers_in_col_lt_512"]["count"]
     top40_k, top40_pop = p3["top40_linf_outliers_in_col_lt_512"]["background"]
     p_top40 = nhx.exact_hypergeom_tail(top40_pop, top40_k, top40_n, top40_cnt)
     _require(p_top40 < Fraction(1, 10**14), "top40 hypergeom p")
 
+    def _exact_stratified_two_block_tail(
+        n1: int, k1_bg: int, d1: int, n2: int, k2_bg: int, d2: int, obs_total: int
+    ) -> Fraction:
+        import math as _math
+
+        den = _math.comb(n1, d1) * _math.comb(n2, d2)
+        num = 0
+        for x1 in range(max(0, d1 + k1_bg - n1), min(k1_bg, d1) + 1):
+            for x2 in range(max(0, d2 + k2_bg - n2), min(k2_bg, d2) + 1):
+                if x1 + x2 >= obs_total:
+                    num += (
+                        _math.comb(k1_bg, x1)
+                        * _math.comb(n1 - k1_bg, d1 - x1)
+                        * _math.comb(k2_bg, x2)
+                        * _math.comb(n2 - k2_bg, d2 - x2)
+                    )
+        return Fraction(num, den)
+
     l15 = p3["layer_joins"]["L15"]
     l19 = p3["layer_joins"]["L19"]
     p_l15_adj = nhx.exact_hypergeom_tail(3584, 77, 64, 16)
     p_l15_lo = nhx.exact_hypergeom_tail(512, 29, 40, 9)
     p_l15_hi = nhx.exact_hypergeom_tail(3072, 48, 24, 7)
+    p_l15_strat = _exact_stratified_two_block_tail(512, 29, 40, 3072, 48, 24, 16)
     p_l15_eq = nhx.exact_hypergeom_tail(3584, 364, 64, 22)
     p_l19_adj = nhx.exact_hypergeom_tail(3584, 11, 64, 4)
+    p_l19_lo = nhx.exact_hypergeom_tail(512, 8, 35, 3)
+    p_l19_hi = nhx.exact_hypergeom_tail(3072, 3, 29, 1)
+    p_l19_strat = _exact_stratified_two_block_tail(512, 8, 35, 3072, 3, 29, 4)
     p_l19_eq = nhx.exact_hypergeom_tail(3584, 291, 64, 15)
     _require(p_l15_adj < Fraction(1, 10**13), "L15 adjacent brackets p < 1e-13")
-    _require(p_l15_lo < Fraction(1, 100), "L15 strat col<512 p < 1e-2")
-    _require(p_l15_hi < Fraction(1, 10**7), "L15 strat col>=512 p < 1e-7")
+    _require(p_l15_lo < Fraction(1, 100) and p_l15_hi < Fraction(1, 10**7), "L15 both blocks < 0.01")
+    _require(p_l15_strat < Fraction(1, 10**9), "L15 combined stratified p < 1e-9")
     _require(p_l15_eq < Fraction(1, 10**6), "L15 equations p < 1e-6")
     _require(p_l19_adj < Fraction(1, 10**4), "L19 adjacent brackets p < 1e-4")
+    # Narrowed scope (weft-loom#44 N2): in L19 neither block clears 0.01 individually, though combined stratified p < 2e-3.
+    _require(p_l19_lo > Fraction(1, 100) and p_l19_hi > Fraction(1, 100), "L19 individual blocks > 0.01")
+    _require(p_l19_strat < Fraction(2, 1000), "L19 combined stratified p < 2e-3")
     _require(p_l19_eq < Fraction(1, 10**3), "L19 equations p < 1e-3")
     _require(
         l15["adjacent_brackets"]["all"]["sel"] == [16, 64]
@@ -859,20 +888,25 @@ def run_standalone_certified_replay(cert_path: Path = CERT_PATH) -> dict[str, An
         "committed_live_canonical_sha256": recomputed_canon,
         "committed_certificate_zero_floats_verified": True,
         "atlas_13models_total_neurons": total_neurons,
-        "pythia_non_monotonic_rebound_verified": py_rebound,
+        "pythia_py0_trajectory_and_endpoints_verified": py_rebound,
         "smollm2_monotonic_dark_decay_verified": smol_decay,
         "q08_unique_column_anisotropy_ratio_exact": str(q08_ratio),
         "other_12models_max_hi_lo_ratio_exact": str(other_max_ratio),
-        "q08_21_of_21_sign_test_p_exact": str(sign_p),
+        "q08_all_24_layers_hi_gt_lo": "21/24",
+        "q08_all_24_layers_sign_test_p_exact": str(sign_p_all24),
+        "q08_posthoc_middle_21_of_21_sign_test_p_exact": str(sign_p),
         "top40_linf_in_lo512_p_lt_1e_14": p_top40 < Fraction(1, 10**14),
         "l15_adjacent_brackets_p_lt_1e_13": p_l15_adj < Fraction(1, 10**13),
-        "l15_strat_col_lt_512_p_lt_1e_2": p_l15_lo < Fraction(1, 100),
-        "l15_strat_col_ge_512_p_lt_1e_7": p_l15_hi < Fraction(1, 10**7),
+        "l15_strat_both_blocks_lt_0_01": (p_l15_lo < Fraction(1, 100) and p_l15_hi < Fraction(1, 100)),
+        "l15_strat_combined_p_lt_1e_9": p_l15_strat < Fraction(1, 10**9),
         "l19_adjacent_brackets_p_lt_1e_4": p_l19_adj < Fraction(1, 10**4),
+        "l19_strat_both_blocks_lt_0_01": (p_l19_lo < Fraction(1, 100) and p_l19_hi < Fraction(1, 100)),
+        "l19_strat_combined_p_lt_2e_3": p_l19_strat < Fraction(2, 1000),
         "exp8_mcnemar_579_vs_5_p_lt_1e_150": p_mcnemar < Fraction(1, 10**150),
-        "standalone_permutation_null_1000_l15": standalone_perm_null,
+        "standalone_permutation_null_code_crosscheck_1000_l15": standalone_perm_null,
         "z2_sign_symmetry_lineage_proofs": lineage_recomputed,
-        "gemma4_e4b_layer10_siliquant_summary": {
+        "gemma4_e4b_layer10_exploratory_summary": {
+            "epistemic_status": "post_hoc_exploratory_target",
             "rank1_mean_out_layer": 10,
             "layer10_mean_out_x100000": top5[0]["mean_out_x100000"],
             "layer09_mean_out_x100000": top5[1]["mean_out_x100000"],

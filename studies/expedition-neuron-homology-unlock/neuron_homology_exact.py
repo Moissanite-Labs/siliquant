@@ -97,10 +97,12 @@ def exact_sign_symmetry_lineage(
     For two independent models whose neuron sign marginal probabilities are p1, p2 in [0, 1],
     raw sign agreement under independence equals:
         A_chance = p1*p2 + (1 - p1)*(1 - p2) = 1/2 + (1/2)*(2*p1 - 1)*(2*p2 - 1).
-    When activations are non-sign-symmetric (e.g. Pythia p1=1, Falcon-H1 p2=17/20),
-    raw agreement inflates to 85% despite zero shared origin. Margin-centered excess
-    delta_lin = A_obs - A_chance and Cohen's kappa = delta_lin / (1 - A_chance) vanish
-    identically (0/1) for every unrelated pair regardless of activation skewness.
+    When activations are non-sign-symmetric (e.g. setting p1=1 and p2=17/20 to match
+    observed Pythia/Falcon-H1 shares), the identity gives A_chance = 17/20 = 85%
+    (an arithmetic consistency check—not a parameter-free prediction—motivating
+    margin-centered equalizers). Margin-centered excess delta_lin = A_obs - A_chance
+    and Cohen's kappa = delta_lin / (1 - A_chance) vanish identically (0/1) for every
+    unrelated pair regardless of activation skewness.
     """
     a_obs = require_exact_fraction(observed_agreement, "observed_agreement")
     p1 = require_exact_fraction(p_pos_1, "p_pos_1")
