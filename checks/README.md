@@ -16,7 +16,7 @@ python3 checks/number_trace.py > checks/number_trace.out
 python3 checks/claim_ledger.py > checks/claim_ledger.out
 ```
 
-The outputs are written again as records are added, so they describe the tree at the commit that last changed them. The figures quoted below are those of the first run of each program, when seven records had a README. The outputs have the figures for the tree as it stands.
+The outputs are written again as records are added, so they describe the tree at the commit that last changed them. The first program prints the commit it ran at to the standard error and not into its output: a committed output cannot name the commit that holds it, and with that line in it a rerun at the same commit could never match byte for byte. The figures quoted below are those of the first run of each program, when seven records had a README. The outputs have the figures for the tree as it stands.
 
 ## What the first one found
 
