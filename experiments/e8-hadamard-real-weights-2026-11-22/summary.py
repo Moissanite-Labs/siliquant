@@ -2,7 +2,7 @@
 """Tables and verdicts for E8 turned by a Hadamard matrix, from results.jsonl, metrics.jsonl and the rows of four earlier records.
 
 results.jsonl holds the rows scored here. metrics.jsonl holds, for the arms that earlier records scored, what
-this program's weights-only pass says they do to the small weights. Scores the predictions H1 to H9 and the
+this program's weights-only pass says they do to the small weights. Scores the predictions H1 to H12 and the
 check C1 of PREREG.md by the rules written there. Every number is a field of one of those files or arithmetic
 on two of them.
 
@@ -50,7 +50,8 @@ def load():
         old = rows(EXP / earlier, model)
         if tag == "llama32":
             old.update({v: r for v, r in rows(EXP / "third-model-llama32-2026-11-18" / "results-loud.jsonl", model).items() if v == "ZBG128:b560s16+K10"})
-        scored = {v: (r, "an earlier record") for v, r in old.items() if v.startswith(("ZBG128:b560s16", "EBG128:b560s16")) and (v.endswith("s16") or v.endswith("+K10"))}
+        scored = {v: (r, "an earlier record") for v, r in old.items()
+                  if v == "VE8Z32:16" or (v.startswith(("ZBG128:b560s16", "EBG128:b560s16")) and (v.endswith("s16") or v.endswith("+K10")))}
         replay = None
         for v, r in mine.items():
             if (model, v) == REPLAY:
@@ -125,6 +126,25 @@ def main():
     if all(k in best_ok for k in need):
         verdict["H6"] = all(best_ok[k] for k in need)
     print()
+    print("The turned lattice in a Voronoi code: 16 points a weight and one scale per group of 32 weights, 4.5 bits, a codeword at zero in both.")
+    print("model | arm | variant | weight error, dB | mean KL | its standard error | first choice kept, percent | scored in | turned under plain by, errors | under Q4_K_M with no matrix by, errors")
+    h12 = []
+    for name, model, tag, _ in MODELS[:2]:
+        d = data[name]
+        e, h = d["scored"].get("VE8Z32:16", (None, None)), d["scored"].get("VH8Z32:16", (None, None))
+        for label, (r, where), v in (("E8, Voronoi code", e, "VE8Z32:16"), ("E8 turned, Voronoi code", h, "VH8Z32:16")):
+            if r:
+                turned = f"{gap(r, e[0]):.1f}" if v == "VH8Z32:16" and e[0] else ""
+                print(f"{name} | {label} | {v} | {r['weight_err_db_pooled']:.3f} | {r['kl_mean']:.6f} | {r['kl_mean_se']:.6f} | {r['same_top']:.2f} | {where} | {turned} | {gap(r, d['q']):.1f}")
+        if e[0] and h[0]:
+            if name.startswith("SmolLM2"):
+                verdict["H10"] = gap(h[0], e[0]) >= 2
+            else:
+                verdict["H11"] = -gap(h[0], e[0]) < 2
+            h12.append(gap(h[0], d["q"]) < 2)
+    if len(h12) == 2:
+        verdict["H12"] = all(h12)
+    print()
     print("What each arm does to the small weights, from the weights alone. Small: under 0.05, 0.1 or 0.2 of the root mean square of the weight's matrix.")
     print("model | bits | columns kept | arm | weight error, dB | stored as zero, percent of all weights | of attention's | of the feed-forward's | "
           "under 0.05: percent of weights, stored as zero percent, error over size dB | under 0.1: the same | under 0.2: the same")
@@ -143,6 +163,17 @@ def main():
                     cells.append(f"{s['percent_of_weights']:.2f}, {s['stored_zero_percent']:.1f}, {s['err_over_size_db']:.2f}")
                 z = r["stored_zero_percent"]
                 print(f"{name} | {'4.5' if bits == '560' else '3.0'} | {'ten of each ffn_down' if keep else 'none'} | {label} | {r['weight_err_db_pooled']:.3f} | {z['all']:.2f} | {z['attention']:.2f} | {z['mlp']:.2f} | " + " | ".join(cells))
+            if (bits, keep) == ("560", ""):
+                for v, label in (("VE8Z32:16", "E8, Voronoi code"), ("VH8Z32:16", "E8 turned, Voronoi code")):
+                    r = d["weights"].get(v)
+                    if r is None or "small_weights" not in r:
+                        continue
+                    cells = []
+                    for dd in ("0.05", "0.1", "0.2"):
+                        s_ = r["small_weights"][dd]["all"]
+                        cells.append(f"{s_['percent_of_weights']:.2f}, {s_['stored_zero_percent']:.1f}, {s_['err_over_size_db']:.2f}")
+                    z = r["stored_zero_percent"]
+                    print(f"{name} | 4.5 | none | {label} | {r['weight_err_db_pooled']:.3f} | {z['all']:.2f} | {z['attention']:.2f} | {z['mlp']:.2f} | " + " | ".join(cells))
             e, h = got["EBG"], got["HBG"]
             if e and h and "small_weights" in e and "small_weights" in h and not keep:
                 h7.append(abs(h["weight_err_db_pooled"] - e["weight_err_db_pooled"]) <= 0.1)
@@ -163,7 +194,7 @@ def main():
     print()
     print("The predictions of PREREG.md")
     print("prediction | holds")
-    for k in ("H1", "H2", "H3", "H4", "H5", "H6", "H7", "H8", "H9"):
+    for k in ("H1", "H2", "H3", "H4", "H5", "H6", "H7", "H8", "H9", "H10", "H11", "H12"):
         print(f"{k} | {'not scored' if k not in verdict else 'yes' if verdict[k] else 'no'}")
 
 

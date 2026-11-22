@@ -177,9 +177,37 @@ class TestProgram(unittest.TestCase):
         self.assertAlmostEqual(pooled["stored_zero_percent"]["all"], 100.0 * info["zeros"] / info["size"], places=12)
         self.assertAlmostEqual(pooled["stored_zero_percent"]["mlp"], pooled["stored_zero_percent"]["attention"], places=12)
 
+    def test_the_plain_voronoi_arm_is_the_base_program_bit_for_bit(self):
+        import torch
+        import tq
+        code = tq.Code("E8", 16)
+        kept = code.centre
+        code.centre = torch.zeros_like(kept)                      # the lines of the base program for its arm VE8Z
+        try:
+            base, binfo = tq.maxscale_voronoi(self.W, 16, 32, name="E8")
+        finally:
+            code.centre = kept
+        Wh, info = RUN.round_matrix("VE8Z32:16", "attn_q", self.W)
+        self.assertTrue(np.array_equal(Wh, base))
+        self.assertEqual((info["bits"], info["rel_err"], info["overload"]), (4.5, binfo["rel_err"], binfo["overload"]))
+        self.assertTrue(torch.equal(tq.Code("E8", 16).centre, kept))    # the harness's centre is back in its place
+
+    def test_the_turned_voronoi_arm_has_the_same_bits_and_keeps_zero_at_zero(self):
+        Wh, info = RUN.round_matrix("VH8Z32:16", "attn_q", self.W)
+        _, plain = RUN.round_matrix("VE8Z32:16", "attn_q", self.W)
+        self.assertEqual(info["bits"], 4.5)
+        self.assertLess(abs(10.0 * math.log10(info["rel_err"] / plain["rel_err"])), 1.5)
+        zeros = np.zeros((2, 64), dtype=np.float32)
+        zeros[0, 5] = 1.0                                         # one weight, and nothing else in its row
+        for v in ("VE8Z32:16", "VH8Z32:16"):
+            out = RUN.round_matrix(v, "attn_q", zeros)[0]
+            self.assertTrue(np.all(out[1] == 0))                  # a group of zeros stays zero
+            self.assertTrue(np.all(out[0, 32:] == 0))
+
     def test_names_outside_the_plan_are_refused(self):
-        for v in ("HBG128:b560s8", "HBG64:b560s16", "hHBG128:b560s16", "HBG128:b560s16+K1", "ZBG128:b500s16"):
+        for v in ("HBG128:b560s8", "HBG64:b560s16", "hHBG128:b560s16", "HBG128:b560s16+K1", "ZBG128:b500s16", "VE832:16", "VH8Z128:16", "VH8Z32:16+K10"):
             self.assertIsNone(RUN.VARIANT.match(v))
+            self.assertIsNone(RUN.VORONOI.match(v))
 
 
 if __name__ == "__main__":

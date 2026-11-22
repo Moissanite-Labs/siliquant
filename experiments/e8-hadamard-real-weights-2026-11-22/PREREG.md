@@ -16,6 +16,8 @@ This machine holds the three models and their reference outputs.
 
 **Does turning E8 give it what integer levels have on SmolLM2, and keep what E8 has on Qwen2.5? Is the turned lattice the one arm to use on all three models?**
 
+**And a second question, for a format that decodes fast.** Step 2 of issue 25 is a closest-point routine with no branches. That speeds up a Voronoi code, where an index becomes a point with one call of it. A ball is not such a code: its points are numbered, and a number is taken apart one weight at a time. On real weights the two score far apart. E8 in the harness's Voronoi code at 4.5 bits is behind `Q4_K_M` on both models scored. **Does turning help that code, and is it enough to pass `Q4_K_M`?**
+
 ## What is run
 
 **The models, the text and the score** are those of the earlier records: `Qwen2.5-1.5B-Instruct`, `SmolLM2-1.7B-Instruct` and `Llama-3.2-1B-Instruct`, 16-bit files, the wikitext-2 test text, 10,200 positions, mean KL against the reference's saved outputs, with `llama-perplexity --kl-divergence` of llama.cpp at `eada89c`. No calibration data and no forward pass for any arm.
@@ -32,11 +34,18 @@ This machine holds the three models and their reference outputs.
 
 **The program** is `run.py` of this folder. The first two arms are the ball arm of the record model-output-qwen25-2026-11-17, whose code is not changed. For the third, that code's E8 arm is given the matrix with every block of 8 turned, and what it returns is turned back. The matrix that turns is its own inverse. It is the function `closest_E8_had` of the pull request, inside a ball. `test_turn.py` holds the lattice to the pull request's description of it by a decoder written another way, and holds the first two arms to the base program bit for bit.
 
+**Two arms in a Voronoi code**, 16 points a weight and one scale per group of 32 weights, 4.5 bits, each with a codeword at zero as issue 16 proposes.
+
+| Name | Lattice |
+|---|---|
+| `VE8Z32:16` | E8, by the harness's function as the base program calls it |
+| `VH8Z32:16` | the turned lattice: the same function on the turned matrix, turned back |
+
 **With `+K10`**, the ten loud columns of every `ffn_down` are left as in the reference and counted at 16 bits an entry, by the function of the record loud-columns-2026-11-18. On Llama-3.2 the arms with nothing kept are ruled by two hidden units, so the lattices are compared there with those columns kept.
 
 **Each row also has, from the weights alone,** how many weights the arm stores as zero, and for the weights under 0.05, 0.1 and 0.2 of the root mean square of their matrix: how many there are, how many are stored as zero, and their squared error over their squared size.
 
-**Thirteen rows are scored**, in `results.jsonl`.
+**Fifteen rows are scored**, in `results.jsonl`.
 
 | Model | Bits | Variants |
 |---|---|---|
@@ -45,10 +54,12 @@ This machine holds the three models and their reference outputs.
 | Llama-3.2 | 4.5 | `EBG128:b560s16`, `HBG128:b560s16`, `EBG128:b560s16+K10`, `HBG128:b560s16+K10` |
 | SmolLM2 | 3.0 | `ZBG128:b368s16`, `EBG128:b368s16`, `HBG128:b368s16` |
 | Qwen2.5 | 3.0 | `ZBG128:b368s16`, `EBG128:b368s16`, `HBG128:b368s16` |
+| SmolLM2 | 4.5 | `VH8Z32:16` |
+| Qwen2.5 | 4.5 | `VH8Z32:16` |
 
-**Five more are built and not scored**, in `metrics.jsonl`, for what they do to the small weights: the arms that earlier records scored. `ZBG128:b560s16` and `EBG128:b560s16` on Qwen2.5, `ZBG128:b560s16` on SmolLM2, `ZBG128:b560s16` and `ZBG128:b560s16+K10` on Llama-3.2.
+**Seven more are built and not scored**, in `metrics.jsonl`, for what they do to the small weights: the arms that earlier records scored. `ZBG128:b560s16`, `EBG128:b560s16` and `VE8Z32:16` on Qwen2.5, `ZBG128:b560s16` and `VE8Z32:16` on SmolLM2, `ZBG128:b560s16` and `ZBG128:b560s16+K10` on Llama-3.2.
 
-**Tried before this plan**, on made-up matrices only: the 11 tests of `test_turn.py`, which pass. No matrix of a model has been rounded by the turned lattice, by this program or any other.
+**Tried before this plan**, on made-up matrices only: the 13 tests of `test_turn.py`, which pass. No matrix of a model has been rounded by the turned lattice, by this program or any other.
 
 ## What is known beforehand
 
@@ -68,6 +79,8 @@ From the pull request, on made-up Gaussian blocks: of the weights under 0.05 of 
 
 Nothing at 3.0 bits has been scored for a ball arm.
 
+In the Voronoi code, from the same earlier records: `VE8Z32:16` scores 0.0434 on Qwen2.5 and 0.1247 on SmolLM2, which is 8.9 and 15.0 errors behind `Q4_K_M`. Its weight error is -22.6 dB on both, where the balls have -24.9 and -25.6. On SmolLM2 the code without a codeword at zero scores better, 0.1166, and I do not know why.
+
 ## Predictions
 
 An error is the tool's standard error, and an error of a gap is the root of the sum of the two squares.
@@ -83,10 +96,13 @@ An error is the tool's standard error, and an error of a gap is the root of the 
 | H7 | Weights only. The turned lattice's pooled weight error is within 0.1 dB of E8's, in all five cells with nothing kept: three models at 4.5 bits and two at 3.0 | it is not, in any |
 | H8 | Weights only. At 4.5 bits, of the weights under 0.05 of their matrix's root mean square, the turned lattice stores as zero at least 15 points of a hundred more than E8 does, on all three models | it does not, on any |
 | H9 | SmolLM2, 3.0 bits: the turned lattice is under E8 by 2 errors | it is not |
+| H10 | Voronoi code, SmolLM2: the turned lattice is under E8 by 2 errors | it is not |
+| H11 | Voronoi code, Qwen2.5: the turned lattice is not above E8 by 2 errors | it is |
+| H12 | Voronoi code: turning is not enough. On both models the turned lattice is still not under `Q4_K_M` with no matrix by 2 errors | it is under by 2, on either |
 
 **The check C1.** `EBG128:b560s16` on SmolLM2 is scored again through this program, first. Its mean KL must be within a tenth of a standard error of the committed row's 0.060861. If it is not, the run stops there and nothing else is scored until the cause is found and written down.
 
-My confidence. High in H7: it is the same lattice, and at these bits the error of a lattice hardly depends on how it is turned. Fair in H1, H3, H4, H8 and H9. Low in H2, H5 and H6. H2 needs the turned lattice to keep most of the gain at zero while it stores fewer weights as zero than integer levels do: its coordinates step by 0.71 of an integer step, so only weights under 0.35 of a step can go to zero. H5 needs Llama-3.2 to be like one of the other two models and not a third case, and that model has been a third case before.
+My confidence. High in H7: it is the same lattice, and at these bits the error of a lattice hardly depends on how it is turned. Fair in H1, H3, H4, H8 and H9. Low in H2, H5 and H6. H2 needs the turned lattice to keep most of the gain at zero while it stores fewer weights as zero than integer levels do: its coordinates step by 0.71 of an integer step, so only weights under 0.35 of a step can go to zero. H5 needs Llama-3.2 to be like one of the other two models and not a third case, and that model has been a third case before. Low in H10: the step of that code is coarse, so more weights are small against it, which favours the turned lattice. But on SmolLM2 a codeword at zero made that code worse, and I cannot explain it. Fair in H11 and H12. For H12 the turned lattice would have to take a quarter off the KL on Qwen2.5 and a third on SmolLM2.
 
 The reasoning behind H1 to H5, so that it can be judged apart from the outcomes. If a model gains nothing at zero, as Qwen2.5, the turned lattice scores as E8 does, under integer levels. If a model gains at zero, as SmolLM2, the turned lattice gets E8's lower weight error and part of the gain at zero. Either way it is under integer levels.
 
@@ -102,12 +118,15 @@ The reasoning behind H1 to H5, so that it can be judged apart from the outcomes.
 - **H1, H2 and H6 hold**: how E8 is turned was what cost it SmolLM2. The turned lattice is then the arm with no data to start from on all three models, in place of integer levels. It would need a packed format of its own: the format of this branch holds integer levels only.
 - **H1 holds and H2 fails**: turning recovers part of what E8 lost and integer levels stay the arm for SmolLM2. No one lattice is best on all three.
 - **H1 fails**: the made-up matrices of the pull request do not carry to this model. Either the turned lattice does not keep enough weights at zero in a ball at 4.5 bits, which H8 and the table of small weights will show, or the lattice-split record's account needs another look.
+- **H10 holds and H12 holds**: turning helps the fast code and does not bring it to `Q4_K_M`. A format for step 2 of issue 25 then needs more than the lattice: another rule for the scale, kept columns, or a region that can be indexed fast.
+- **H12 fails**: a Voronoi code of the turned lattice passes `Q4_K_M` at fewer bits with nothing but the weights. That would be the first arm of this repository that is both ahead and fast to decode, and the next thing to replicate on Llama-3.2.
 - **H3 fails because the turned lattice is above E8**: turning costs something where nothing is gained at zero, and the choice of lattice depends on the model.
 
 ## What this cannot show
 
 - Three models between 1 and 2 billion weights. KL on one text. No task.
-- Counted bits. No E8 arm has a file, turned or not.
+- Counted bits. No E8 arm has a file, turned or not. Nothing is timed: that a Voronoi code decodes fast is taken from how it is built.
+- The Voronoi arms are scored on two models, not on Llama-3.2, which has no row for that code.
 - No importance matrix. The arms that weight columns were not run with the turned lattice.
 - The pull request's own figure of 4.47 bits comes from packing the kept columns apart from the blocks. Here a kept column is set to zero inside its block, as in the loud-columns record, so the arms differ in the lattice only.
 - Nothing about the other proposals of the pull request: the Leech lattice, the certificate for which columns to keep, or shells of varying size.
@@ -115,4 +134,4 @@ The reasoning behind H1 to H5, so that it can be judged apart from the outcomes.
 
 ## Order and time
 
-One process at a time. The check on SmolLM2, then the six other rows at 4.5 bits, then the six at 3.0 bits, then the five weights-only rows. About six minutes a scored row and a minute and a half for one that is only built: an hour and a half.
+One process at a time. The check on SmolLM2, then the six other ball rows at 4.5 bits, then the two Voronoi rows, then the six at 3.0 bits, then the seven weights-only rows. About six minutes a scored row and a minute and a half for one that is only built: an hour and three quarters.

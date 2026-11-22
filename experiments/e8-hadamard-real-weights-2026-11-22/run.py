@@ -10,12 +10,20 @@ Variants:
   ARM+K10          the arm with, in every ffn_down, the ten loud columns left as in the reference: 16 bits an
                    entry and 16 bits for each column's number, counted
 
+  VE8Z32:16        the harness's Voronoi code of E8 with a codeword at zero: 16 points a weight, and one scale per
+                   group of 32 weights, the smallest at which no block of the group is shrunk. 4.5 bits a weight
+  VH8Z32:16        the same code of the turned lattice
+
 B is 560, which is 4.5 bits a weight, or 368, which is 3.0.
 
 Every arm is built by the ball arm of the record model-output-qwen25-2026-11-17, whose code is not changed.
 For the turned lattice that code's E8 arm is given the matrix with every block of 8 weights of a row turned,
 and what it returns is turned back. The matrix that turns is its own inverse, and a ball does not change when
 it is turned, so the points, the scales and the bits are those of E8 in the same ball.
+
+The two Voronoi arms are the harness's function, as the base program calls it for its arm VE8Z. For the turned
+lattice it is given the turned matrix. It returns 16-bit floats, which are turned back in 64-bit floats and cut
+to 16 bits once more: a 16-bit float is within one part in 2,048 of what it holds, far under the rounding error.
 
 The loud columns are those of the record loud-columns-2026-11-18, by its function. A kept column is set to
 zero before the rest of the matrix is rounded and put back after, as in that record.
@@ -59,6 +67,7 @@ Q.MODELS["1f33ad43d2b85b908ff06fe7002b69806a57359b9b2617ca27d7bdea428ae146"] = "
 ACCEPTED = ("qwen2.5-1.5b-instruct-fp16.gguf", "SmolLM2-1.7B-Instruct-f16.gguf", "Llama-3.2-1B-Instruct-f16.gguf")
 
 VARIANT = re.compile(r"^(?P<arm>ZBG|EBG|HBG)128:b(?P<bits>560|368)s16(?P<keep>\+K10)?$")
+VORONOI = re.compile(r"^(?P<arm>VE8Z|VH8Z)32:16$")
 LATTICE = {"ZBG": "Z8", "EBG": "E8", "HBG": "E8"}
 SMALL = (0.05, 0.1, 0.2)
 CLASS = {"attn_q": "attention", "attn_k": "attention", "attn_v": "attention", "attn_output": "attention",
@@ -76,23 +85,47 @@ def ball64(W64, lattice, bits):
     return Y, info["bits"], info["overload"]
 
 
+def voronoi(W32):
+    """The harness's Voronoi code of E8, 16 points a weight, a scale per group of 32, with a codeword at zero: (16-bit floats, what happened)."""
+    import torch
+    import tq
+    code = tq.Code("E8", 16)
+    kept = code.centre
+    code.centre = torch.zeros_like(kept)                   # as the base program does for its arm VE8Z
+    try:
+        return tq.maxscale_voronoi(W32, 16, 32, name="E8")
+    finally:
+        code.centre = kept
+
+
 def round_matrix(variant, kind, W):
     """One block matrix rounded by one variant: (the matrix as 16-bit floats, what happened)."""
-    m = VARIANT.match(variant)
     W64 = W.astype(np.float64)
-    cols, rest = None, W64
-    if m.group("keep") and kind == "ffn_down":
-        cols = LC.loud(W, LC.K)
-        rest = W64.copy()
-        rest[:, cols] = 0.0
-    if m.group("arm") == "HBG":
-        Y, bits, shrunk = ball64(turn(rest), "E8", int(m.group("bits")))
-        Y = turn(Y)
+    cols = None
+    v = VORONOI.match(variant)
+    if v:
+        if v.group("arm") == "VH8Z":
+            Wr, got = voronoi(turn(W64).astype(np.float32))
+            Y = turn(Wr.astype(np.float64))
+        else:
+            Wr, got = voronoi(W)
+            Y = Wr.astype(np.float64)
+        bits, shrunk = got["bits"], got["overload"]
     else:
-        Y, bits, shrunk = ball64(rest, LATTICE[m.group("arm")], int(m.group("bits")))
-    if cols is not None:
-        Y[:, cols] = W64[:, cols]
-        bits += (len(cols) * W.shape[0] * 16.0 + len(cols) * 16.0) / W.size
+        m = VARIANT.match(variant)
+        rest = W64
+        if m.group("keep") and kind == "ffn_down":
+            cols = LC.loud(W, LC.K)
+            rest = W64.copy()
+            rest[:, cols] = 0.0
+        if m.group("arm") == "HBG":
+            Y, bits, shrunk = ball64(turn(rest), "E8", int(m.group("bits")))
+            Y = turn(Y)
+        else:
+            Y, bits, shrunk = ball64(rest, LATTICE[m.group("arm")], int(m.group("bits")))
+        if cols is not None:
+            Y[:, cols] = W64[:, cols]
+            bits += (len(cols) * W.shape[0] * 16.0 + len(cols) * 16.0) / W.size
     Wh, info = Q.finish(W, Y, bits, shrunk)
     Wh64 = Wh.astype(np.float64)
     size, err2 = np.abs(W64), (W64 - Wh64) ** 2
@@ -142,7 +175,7 @@ def main():
     ap.add_argument("variants", nargs="+")
     args = ap.parse_args()
     for v in args.variants:
-        if not VARIANT.match(v):
+        if not (VARIANT.match(v) or VORONOI.match(v)):
             raise SystemExit(f"unknown variant {v}")
     if not args.metrics_only and not (args.kld and args.work):
         raise SystemExit("scoring needs --kld and --work")
