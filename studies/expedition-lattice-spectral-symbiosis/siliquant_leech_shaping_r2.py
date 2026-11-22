@@ -1187,7 +1187,13 @@ def run_part_c_sp01_hessian_transformer() -> dict[str, Any]:
             Wh_rest_eff, sc_rest = _quantize_matrix_8d_ball(W_eff_rest, closest_E8_had, r_e8_lo, 1.0, group_size=128)
             Wh_split = Wh_rest_eff / h_sqrt[None, :]
             Wh_split[:, keep_mask] = W[:, keep_mask]
-            bpw_split = (k_keep * 16.0 + (n_cols - k_keep) * (3.5 + 16.0 / 128.0)) / n_cols
+            n_total = m_rows * n_cols
+            scale_slots = (n_total + 127) // 128
+            kept_weights = k_keep * m_rows
+            rest_weights = n_total - kept_weights
+            # Whole 128-value scale groups allocated by _quantize_matrix_8d_ball (ceil(n_total/128) = 8 slots for 16x64):
+            # (64*16 + 120*28 + 8*16) / 1024 = 4512 / 1024 = 4.40625 bpw (exact; 4576 / 1024 = 4.46875 bpw with 64b bitmap).
+            bpw_split = float(Fraction(16 * kept_weights + 28 * (rest_weights // 8) + 16 * scale_slots, n_total))
             require(bpw_split < bpw_45, "BIT_BUDGET_EXCEEDED", f"split bpw {bpw_split} >= {bpw_45}")
             out["E8_Had_certified_split_hessian"] = _score(Wh_split, sc_rest / h_sqrt[None, :], bpw_split)
         return out
@@ -1288,12 +1294,54 @@ def run_all() -> dict[str, Any]:
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Wave 2 Round 2 (Arm 1): Leech Cover Sphere Shaping + SP-01 Hessian E8_Had.")
     parser.add_argument("--json", action="store_true", help="Emit canonical deterministic JSON.")
-    parser.add_argument("--write-cert", type=str, default="", help="Write canonical JSON certificate to path.")
+    parser.add_argument(
+        "--check-cert",
+        type=str,
+        default="",
+        help="Verify bit-for-bit parity against an existing committed JSON certificate without modifying it.",
+    )
+    parser.add_argument(
+        "--write-cert",
+        type=str,
+        default="",
+        help="Write canonical JSON certificate to path (if target exists, fails closed on mismatch unless --force).",
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Allow --write-cert to overwrite an existing certificate whose contents differ.",
+    )
     args = parser.parse_args(argv)
     res = run_all()
     txt = json.dumps(res, indent=2, sort_keys=True)
+    expected_bytes = (txt + "\n").encode("utf-8")
+    if args.check_cert:
+        cert_path = Path(args.check_cert)
+        if cert_path.is_symlink() or not cert_path.is_file():
+            print(f"CERT_PARITY_ERROR: missing or symlink certificate at {cert_path}", file=sys.stderr)
+            return 1
+        actual_bytes = cert_path.read_bytes()
+        if actual_bytes != expected_bytes:
+            print(f"CERT_PARITY_MISMATCH: {cert_path} differs from recomputed certificate", file=sys.stderr)
+            return 1
     if args.write_cert:
-        Path(args.write_cert).write_text(txt + "\n", encoding="utf-8")
+        cert_path = Path(args.write_cert)
+        if cert_path.is_symlink():
+            print(f"CERT_WRITE_ERROR: refusing symlink target {cert_path}", file=sys.stderr)
+            return 1
+        if cert_path.exists():
+            if not cert_path.is_file():
+                print(f"CERT_WRITE_ERROR: target is not a regular file: {cert_path}", file=sys.stderr)
+                return 1
+            actual_bytes = cert_path.read_bytes()
+            if actual_bytes != expected_bytes and not args.force:
+                print(
+                    f"CERT_PARITY_MISMATCH: existing {cert_path} differs from recomputed certificate "
+                    "(pass --force to overwrite)",
+                    file=sys.stderr,
+                )
+                return 1
+        cert_path.write_bytes(expected_bytes)
     if args.json:
         print(txt)
     else:
@@ -1316,7 +1364,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(f"  [Part C] SP-01 Ill-Conditioned Heavy-Tailed Transformer (zero-float cert={c['zero_float_outlier_certificates']['ill_conditioned_transformer']['certified_min_outlier_spikes']} spikes, iso_null={c['zero_float_outlier_certificates']['isotropic_gaussian_null']['certified_min_outlier_spikes']}, SP01_perm={c['zero_float_outlier_certificates']['sp01_col_permuted_exact_match']}):")
         print(f"           Unweighted E8_Had vs E8_std behavioral gain: +{r1['unweighted_E8_Had_vs_E8_std_behavioral_dB']} dB (tiny MSE drop {r1['unweighted_tiny_mse_drop_E8_Had_vs_E8_std_x']}x)")
         print(f"           Naive Hessian precond group-scale bloat (k<g): E8_std {r1['naive_hessian_group_bloat_E8_std_dB']} dB | E8_Had {r1['naive_hessian_group_bloat_E8_Had_dB']} dB")
-        print(f"           Certified split + E8_Had (4.398 < 4.500 bpw): +{r1['certified_split_E8_Had_vs_unweighted_E8_std_dB']} dB vs unweighted E8_std | +{r1['certified_split_E8_Had_vs_naive_hessian_E8_Had_dB']} dB vs naive Hessian!")
+        print(f"           Certified split + E8_Had (4.40625 < 4.500 bpw): +{r1['certified_split_E8_Had_vs_unweighted_E8_std_dB']} dB vs unweighted E8_std | +{r1['certified_split_E8_Had_vs_naive_hessian_E8_Had_dB']} dB vs naive Hessian!")
         print(f"  [Part D] R5 Controls: {d['controls_passed']}/{d['controls_total']} rejected")
         print(f"  VERDICT: {res['verdict']} | SHA-256: {res['canonical_sha256']}")
     return 0

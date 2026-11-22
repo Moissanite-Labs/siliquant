@@ -10,10 +10,10 @@ Every script below runs standalone using **only Python 3's standard library** (z
 
 | File | Audit | Role & Exact Integrity |
 |---|---|---|
-| [`neuron_homology_exact.py`](./neuron_homology_exact.py) | `AUDIT-059` | Pure-stdlib exact $\mathbb{Q}/\mathbb{Z}$ statistical, $\mathbb{Z}_2$ lineage-equalizer, seeded permutation-null cross-check, and `-O`-immune recounter kernel (`SHA-256`: `9ae195c0...`, **`24/24` `100.0%` R5 killed**) |
+| [`neuron_homology_exact.py`](./neuron_homology_exact.py) | `AUDIT-059` | Pure-stdlib exact $\mathbb{Q}/\mathbb{Z}$ statistical, $\mathbb{Z}_2$ lineage-equalizer, seeded permutation-null cross-check (with exact feasible `[k_min, k_max]` domain enforcement), and `-O`-immune recounter kernel (`SHA-256`: `74b77624...`, **`24/24` `100.0%` R5 killed**, `9/9` `100.0%` AST `BoolOp` killed) |
 | [`qwen_neuron_map_bridge.py`](./qwen_neuron_map_bridge.py) | `AUDIT-059` | Standalone certified replay + live external-extraction bridge (`SHA-256`: `e2398ee6...`; standalone `-I -O -B -W error --json` stdout SHA-256 `d61f2dc4536ff13937caad0c116477479f56bb318ad3a83a28f4bda193efc372`; `standalone_canonical_sha256: 61aeb010...`; live `--live --repos-dir <dir>` reproduces `qwen_neuron_map_certificate.json` byte-for-byte) |
-| [`test_qwen_neuron_map_r5.py`](./test_qwen_neuron_map_r5.py) | `AUDIT-059` | R5 refusal-site mutation & exact-invariant test suite (`SHA-256`: `4d9db962...`; `6/6` groups PASS; `-I -O -B -W error` stdout SHA-256 `953f5ed0b8ea96385f2d32bbcda57ac7b3b2d190d3fe95e2389b5f1d864f2160`) |
-| [`check_048_audit059_independent.py`](./check_048_audit059_independent.py) | `AUDIT-059` | Published, parameterized, zero-shared-code independent verifier closing `weft-loom#44` `N8` (`SHA-256`: `c80cb8fc...`; standalone `-I -O -B -W error` stdout SHA-256 `26a1607fd51758c2423194e496a23c440b7b80d5b840a31af94207139b92a3fb`; also supports `--live --repos-dir <dir>`) |
+| [`test_qwen_neuron_map_r5.py`](./test_qwen_neuron_map_r5.py) | `AUDIT-059` | R5 refusal-site mutation, feasible-boundary, and independent-checker semantic-tamper test suite (`SHA-256`: `c88f0611...`; `7/7` groups PASS; `-I -O -B -W error` stdout SHA-256 `7ed5ee3594c196eb122aa3cf3090368ab37cbf29cad522d468847d3ce409becd`) |
+| [`check_048_audit059_independent.py`](./check_048_audit059_independent.py) | `AUDIT-059` | Published, parameterized, zero-shared-code independent verifier closing `weft-loom#44` `N8` (`SHA-256`: `e3a87063...`; pins `canonical_sha256`, upstream HEAD SHAs, and all `15` page digests while deriving all `part1`–`part5` checks directly from the supplied certificate; standalone `-I -O -B -W error` stdout SHA-256 `d2295af083202a39d2ac4e3d33420846988a8bf77044c5154a162b518bf9561b`; also supports `--live --repos-dir <dir>`) |
 | [`qwen_neuron_map_certificate.json`](./qwen_neuron_map_certificate.json) | `AUDIT-059` | Unchanged pinned zero-float canonical JSON certificate from live extraction over 15 static `qwen-neuron-map.pages.dev` pages (`1,504,256` MLP neurons across 13 full models) and both read-only `alphaxiv` clones (`SHA-256`: `7ff59841...`, `canonical_sha256`: `4abe60205f6b6a43762a19711d4a72936ca34e67cf751410a825ef1e7f478289`) |
 | [`QWEN_NEURON_MAP_UNLOCK_REPORT.md`](./QWEN_NEURON_MAP_UNLOCK_REPORT.md) | `AUDIT-059` | Full empirical tomography, complete `weft-loom#44` `N1`–`N11` reconciliation ledger, Law-4 `N0`/`N1` quarantine (`R5-N0-10..15`), and tightened model-research unlock playbook |
 
@@ -28,16 +28,18 @@ Run from this directory (`studies/expedition-neuron-homology-unlock/`), with **z
 python3 -I -O -B -W error qwen_neuron_map_bridge.py --json | sha256sum
 # Expected: d61f2dc4536ff13937caad0c116477479f56bb318ad3a83a28f4bda193efc372
 
-# 2. R5 refusal-site mutation & exact-invariant test suite (6/6 groups PASS):
+# 2. R5 refusal-site mutation & exact-invariant test suite (7/7 groups PASS):
 python3 -I -O -B -W error test_qwen_neuron_map_r5.py | sha256sum
-# Expected: 953f5ed0b8ea96385f2d32bbcda57ac7b3b2d190d3fe95e2389b5f1d864f2160
+# Expected: 7ed5ee3594c196eb122aa3cf3090368ab37cbf29cad522d468847d3ce409becd
 
 # 3. Published zero-shared-code independent verifier (closes weft-loom#44 N8):
 python3 -I -O -B -W error check_048_audit059_independent.py | sha256sum
-# Expected: 26a1607fd51758c2423194e496a23c440b7b80d5b840a31af94207139b92a3fb
+# Expected: d2295af083202a39d2ac4e3d33420846988a8bf77044c5154a162b518bf9561b
 ```
 
-Passing `--live --repos-dir <path>` against local read-only snapshots of `qwen-neuron-map.pages.dev`, `alphaxiv/weight-edit-minimization@768d7340`, and `alphaxiv/flint-goalkeeper-neuron@6ece43a9` re-parses every static HTML atlas, real float32 `.npy`/`.npz` weight matrix, and raw JSON continuation file directly, reproducing [`qwen_neuron_map_certificate.json`](./qwen_neuron_map_certificate.json) with 0-byte diff (and verifying `[0, 1, 23]` boundary layers and sub-$2^{-16}$ `bf16` entry counts in `check_048_audit059_independent.py --live`).
+Passing `--live --repos-dir <path>` against local read-only snapshots of `qwen-neuron-map.pages.dev`, `alphaxiv/weight-edit-minimization@768d7340`, and `alphaxiv/flint-goalkeeper-neuron@6ece43a9`:
+- In `qwen_neuron_map_bridge.py --live --repos-dir <path>`, re-parses all `15` static HTML atlas pages, real float32 `.npy`/`.npz` weight matrices, and raw JSON continuation files directly, reproducing [`qwen_neuron_map_certificate.json`](./qwen_neuron_map_certificate.json) with 0-byte diff.
+- In `check_048_audit059_independent.py --live --repos-dir <path> [--siliquant-readme <path>]`, additionally verifies upstream repo HEAD SHAs and clean working trees, AST bare-assert positions (`FG-01`, `WE-01`), SHA-256 digests of all `15` static HTML atlas pages, direct parsing of `q08.html` (`[0, 1, 23]` boundary layers) and both `base_l15`/`base_l19` float32 `.npy` matrices (sub-$2^{-16}$ `bf16` entry counts), raw Flint Goalkeeper JSON row counts, and the optional `siliquant` README quote.
 
 ---
 

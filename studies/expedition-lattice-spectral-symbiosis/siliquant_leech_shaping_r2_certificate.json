@@ -1,5 +1,5 @@
 {
-  "canonical_sha256": "6569c8964c97a56617e00249eee260298cab884e07f6c538b05dd9cce9ae8623",
+  "canonical_sha256": "47f8e3cdbc96c90a6ba9b2c28f343549b0ac5b72115c23d8bfc0e9496ada8f86",
   "part_c_sp01_hessian_transformer": {
     "ball_radii_8d": {
       "E8_28b": 9.380832,
@@ -10,7 +10,7 @@
       "arms": {
         "E8_Had_certified_split_hessian": {
           "behavioral_hessian_mse_dB": -25.891527,
-          "bpw": 4.398438,
+          "bpw": 4.40625,
           "tiny_weight_exact_zero_pct": 98.550725,
           "tiny_weight_mse_over_w2": 11.127988,
           "unweighted_mse_dB": -16.174582

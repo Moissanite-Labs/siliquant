@@ -1127,12 +1127,54 @@ def run_all() -> dict[str, Any]:
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Wave 2 Arm 1: siliquant <-> Cave Expedition Symbiosis Verifier.")
     parser.add_argument("--json", action="store_true", help="Emit deterministic canonical JSON.")
-    parser.add_argument("--write-cert", type=str, default="", help="Write canonical JSON certificate to path.")
+    parser.add_argument(
+        "--check-cert",
+        type=str,
+        default="",
+        help="Verify bit-for-bit parity against an existing committed JSON certificate without modifying it.",
+    )
+    parser.add_argument(
+        "--write-cert",
+        type=str,
+        default="",
+        help="Write canonical JSON certificate to path (if target exists, fails closed on mismatch unless --force).",
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Allow --write-cert to overwrite an existing certificate whose contents differ.",
+    )
     args = parser.parse_args(argv)
     res = run_all()
     txt = json.dumps(res, indent=2, sort_keys=True)
+    expected_bytes = (txt + "\n").encode("utf-8")
+    if args.check_cert:
+        cert_path = Path(args.check_cert)
+        if cert_path.is_symlink() or not cert_path.is_file():
+            print(f"CERT_PARITY_ERROR: missing or symlink certificate at {cert_path}", file=sys.stderr)
+            return 1
+        actual_bytes = cert_path.read_bytes()
+        if actual_bytes != expected_bytes:
+            print(f"CERT_PARITY_MISMATCH: {cert_path} differs from recomputed certificate", file=sys.stderr)
+            return 1
     if args.write_cert:
-        Path(args.write_cert).write_text(txt + "\n", encoding="utf-8")
+        cert_path = Path(args.write_cert)
+        if cert_path.is_symlink():
+            print(f"CERT_WRITE_ERROR: refusing symlink target {cert_path}", file=sys.stderr)
+            return 1
+        if cert_path.exists():
+            if not cert_path.is_file():
+                print(f"CERT_WRITE_ERROR: target is not a regular file: {cert_path}", file=sys.stderr)
+                return 1
+            actual_bytes = cert_path.read_bytes()
+            if actual_bytes != expected_bytes and not args.force:
+                print(
+                    f"CERT_PARITY_MISMATCH: existing {cert_path} differs from recomputed certificate "
+                    "(pass --force to overwrite)",
+                    file=sys.stderr,
+                )
+                return 1
+        cert_path.write_bytes(expected_bytes)
     if args.json:
         print(txt)
     else:

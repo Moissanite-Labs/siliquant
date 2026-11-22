@@ -207,13 +207,17 @@ def permutation_null_enrichment_exact(
     sd = require_exact_int(seed, "seed")
     if k_draw <= 0 or k_draw > n_pop:
         raise ExactHomologyError("sample_size must lie in [1, len(labels)]")
-    if obs < 0 or obs > k_draw:
-        raise ExactHomologyError("observed_hits must lie in [0, sample_size]")
     if perms <= 0:
         raise ExactHomologyError("n_perms must be >= 1")
 
     pool = [1 if x == t_lbl else 0 for x in labels]
     total_targets = sum(pool)
+    k_min = max(0, k_draw + total_targets - n_pop)
+    k_max = min(k_draw, total_targets)
+    if obs < k_min or obs > k_max:
+        raise ExactHomologyError(
+            f"observed_hits={obs} outside feasible [{k_min}, {k_max}]"
+        )
     rng = random.Random(sd)
     exceed = 0
     max_null = 0

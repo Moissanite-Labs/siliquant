@@ -13,8 +13,8 @@ Every script below runs standalone using only Python's standard library + `numpy
 | [`siliquant_lattice_symbiosis.py`](./siliquant_lattice_symbiosis.py) | `AUDIT-028` | Round 1 executable verifier (`6/6` must-fail controls; `-I -O -B -W error --json` stdout SHA-256 `10125fdda88be6749c5e08d0a5f33eb002f23014dd4e6c6f51d84d26ddc7004c`) |
 | [`siliquant_symbiosis_certificate.json`](./siliquant_symbiosis_certificate.json) | `AUDIT-028` | Round 1 canonical JSON certificate (`canonical_sha256`: `3c26e48ad6f959a1d2cd9e343701fa0bdab9e4697a775699e8e063d25287e363`) |
 | [`SYMBIOSIS_REPORT.md`](./SYMBIOSIS_REPORT.md) | `AUDIT-028` | Detailed Round 1 baseline map, mathematical derivations, and incoming/outgoing transfer ledger |
-| [`siliquant_leech_shaping_r2.py`](./siliquant_leech_shaping_r2.py) | `AUDIT-031` | Round 2 executable verifier: Leech Cover (1973) DP ball/shell codec + `SP-01` Hessian/group-scale study (`8/8` controls; stdout SHA-256 `7b23278286619d0e01fa61b09046d88b0a54d868834167b6aa3d90ffb723d575`) |
-| [`siliquant_leech_shaping_r2_certificate.json`](./siliquant_leech_shaping_r2_certificate.json) | `AUDIT-031` | Round 2 canonical JSON certificate (`canonical_sha256`: `6569c8964c97a56617e00249eee260298cab884e07f6c538b05dd9cce9ae8623`) |
+| [`siliquant_leech_shaping_r2.py`](./siliquant_leech_shaping_r2.py) | `AUDIT-031` | Round 2 executable verifier: Leech Cover (1973) DP ball/shell codec + `SP-01` Hessian/group-scale study (`8/8` controls; stdout SHA-256 `43a8d77a934bc150618c0622b588efdcbbef0bbb18de5c83dd6bc3d61fb88be9`) |
+| [`siliquant_leech_shaping_r2_certificate.json`](./siliquant_leech_shaping_r2_certificate.json) | `AUDIT-031` | Round 2 canonical JSON certificate (`canonical_sha256`: `47f8e3cdbc96c90a6ba9b2c28f343549b0ac5b72115c23d8bfc0e9496ada8f86`) |
 
 ---
 
@@ -31,10 +31,10 @@ python3 -I -O -B -W error siliquant_lattice_symbiosis.py --json | sha256sum
 # Round 2 (AUDIT-031): ~3.5s — exact Leech Cover DP ball/shell codec up to m=214 (4 bpw),
 # fixed-rate & variable-shell 24D benchmarks, and SP-01 Hessian/group-scale bloat study
 python3 -I -O -B -W error siliquant_leech_shaping_r2.py --json | sha256sum
-# Expected: 7b23278286619d0e01fa61b09046d88b0a54d868834167b6aa3d90ffb723d575
+# Expected: 43a8d77a934bc150618c0622b588efdcbbef0bbb18de5c83dd6bc3d61fb88be9
 ```
 
-Passing `--write-cert` verifies bit-for-bit parity against the committed JSON certificates.
+Passing `--check-cert <path>` verifies bit-for-bit parity against a committed JSON certificate in read-only mode (exiting non-zero on mismatch). Passing `--write-cert <path>` verifies bit-for-bit parity when `<path>` already exists and fails closed without overwriting on mismatch (pass `--force` to overwrite intentionally).
 
 ---
 
@@ -63,14 +63,14 @@ Extends `shape/ballindex.py` from $E_8^{n/8}$ to the 24D Leech lattice using sym
 ### 4. Zero-Float Spectral Outlier Certification & Group-Scale Bloat (`AUDIT-028` & `AUDIT-031`)
 - **Zero-Float Kept-Column Certificate (`Issue #10` / `PR #12`):** Combines `shape/shapelib.py:to_integers` (`W = Z * 2^e`) with an exact-rational $\Phi_{x_0, \tau}$ sum-of-squares spectral certifier (zero floats, zero SVD): certifies `0` spikes on isotropic bulk null, exact `>= 3` (`>= 2, 1, 0` after keeping `1, 2, 3` columns) on 3-spike float16 matrices, bit-identical numerator/denominator under column permutation, and immediately detects activation-Hessian spikes.
 - **Mechanistic Diagnosis of Naive Hessian Group-Scale Bloat (`AUDIT-031` Part C):**
-  - On an ill-conditioned heavy-tailed Transformer weight matrix (`128 x 64`, `4` active outlier columns, `g = 32`), unweighted `E8_Had` beats unweighted `E8_std` by **`+1.625 dB` behavioral loss** (`1.883x` lower tiny-weight MSE).
+  - On an ill-conditioned heavy-tailed Transformer weight matrix (`16 x 64`, `4` active outlier columns, `g = 32`), unweighted `E8_Had` beats unweighted `E8_std` by **`+1.625 dB` behavioral loss** (`1.883x` lower tiny-weight MSE).
   - **Negative Result:** Naive diagonal Hessian preconditioning `W * sqrt(H)` inside raw `g = 32` groups *degrades* behavioral loss (`E8_std`: **`-1.423 dB`**, `E8_Had`: **`-3.802 dB`**) because the `4` boosted columns inflate the shared 32-weight group scale for the remaining `28` quiet weights.
-  - **Certified Split Fix:** Isolating the `4` zero-float $\Phi_{x_0,\tau}$-certified outlier columns in FP16 first beats unweighted `E8_std` by **`+3.304 dB`** and naive Hessian `E8_Had` by **`+5.481 dB`** at strictly fewer bits (`4.398438 bpw` in-place zeroed; **`4.46875 bpw < 4.500 bpw`** when dense-packed with an explicit 64-bit column bitmap — independently verified to gain `+2.590 dB` on an unseen seed with zero padding inflation).
+  - **Certified Split Fix:** Isolating the `4` zero-float $\Phi_{x_0,\tau}$-certified outlier columns in FP16 first beats unweighted `E8_std` by **`+3.304 dB`** and naive Hessian `E8_Had` by **`+5.481 dB`** at strictly fewer bits (`4512 / 1024 = 4.40625 bpw` in-place zeroed, charging all `8` whole 128-value scale slots; **`4576 / 1024 = 4.46875 bpw < 4.500 bpw`** when dense-packed with an explicit 64-bit column bitmap — independently verified to gain `+2.590 dB` on an unseen seed with zero padding inflation).
 
 ---
 
 ## Honest Scope Limits & Next Steps
 
 1. **Synthetic Matrices vs. Real GGUF Output KL:** All quantitative tables in these two scripts use reproducible synthetic Gaussian, Student-$t_3$, sparse+small, and ill-conditioned Transformer matrices. Scoring `E8_Had`, `D8`, certified outlier splitting, and `Leech24` safe-scale / variable-shell arms directly against output KL on `SmolLM2-1.7B-Instruct` and `Qwen2.5-1.5B-Instruct` GGUF weights (matching `experiments/lattice-split-smollm2-2026-11-17`) requires the multi-GB model files and is the natural next experiment.
-2. **Bit-Budget Accounting Note (Dense Packing):** In `siliquant_leech_shaping_r2.py` Part C, the certified outlier split zeroes the 4 kept columns in-place (`4.398438 bpw`, omitting the column-index bitmap). Dense-packing the 60 non-outlier columns plus an explicit 64-bit column bitmap (`+0.0625 bpw`) yields `4.46875 bpw < 4.500 bpw` with zero padding waste and slightly better behavioral MSE.
+2. **Bit-Budget Accounting Note (Dense Packing):** In `siliquant_leech_shaping_r2.py` Part C, the certified outlier split zeroes the 4 kept columns in-place (`4512 / 1024 = 4.40625 bpw`, charging all `8` whole 128-value scale slots and omitting the column-index bitmap). Dense-packing the 60 non-outlier columns plus an explicit 64-bit column bitmap (`+0.0625 bpw`) yields `4576 / 1024 = 4.46875 bpw < 4.500 bpw` with zero padding waste and slightly better behavioral MSE.
 3. **Decode/Encode Throughput (`Issue #23`):** `LeechCoverCodec` is an exact, readable Python/NumPy reference implementation. Translating the 20 symmetry-collapsed MOG column DP tables and Conway–Sloane 4-state Hexacode decoder to C/SIMD (analogous to `shape/ballpack.c`) remains open engineering work.
