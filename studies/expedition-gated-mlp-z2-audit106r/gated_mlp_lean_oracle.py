@@ -1,10 +1,16 @@
-"""Pure-Q Exact Oracle (v1) for Track S9 (AUDIT-106):
-Gated-MLP Z_2 Gauge Conservation (SwiGLU + Separate/Fused Muon + Learnable Multipliers),
-Symmetry-Breaking Witnesses, and Exact Verification of weft-loom#44 & AUDIT-059 Rulings.
+"""Pure-Q Exact Oracle (v1) for Track S9 (AUDIT-106R2):
+Rational Gated-MLP Z_2 Gauge Equivariance Witness (SiLU-like Gate + RMS-like Norm +
+Separate/Fused Muon + Learnable Multipliers), Symmetry-Breaking Controls, and Exact
+Verification of weft-loom#44 & AUDIT-059 Rulings.
 
 Governance & Mathematical Discipline (Aletheia v2.0.0):
 - Pure Python 3 standard library only (int / Fraction); zero floats anywhere on trust paths.
 - Zero bare assert statements; fail closed with typed GatedMlpLeanError.
+- Honest operator & causal scope: certifies exact mirror-pair Z_2 equivariance on pure-Q
+  rational surrogates (SiLU-like gate phi(g) and RMS-like h / (1 + mean(h^2))), NOT full
+  real-valued transcendental SiLU / square-root RMSNorm architectures, and states exact
+  distributional equivariance assumptions without asserting a finite-run causal impossibility
+  or identifying Falcon-H1-Tiny's unreleased training cause.
 - Strict Law-4 N0 prior-art quarantine (SwiGLU Shazeer 2020, Muon/Newton-Schulz Jordan 2024,
   Learnable Multipliers arXiv:2601.04890, Fisher/hypergeometric/sign tests, weft-loom#44
   exact binomial/cluster sign-lineage law) and Law-5 zero-metaphor exact operators.
@@ -251,7 +257,14 @@ def newton_schulz_odd_poly_exact(mat_g, c0=Fraction(3, 1), c1=Fraction(-3, 2), c
 
 
 def _swiglu_forward_and_grads(w_g, w_u, w_d, r_shared, s_g, s_u, s_d, x, target, hidden_mode="none", asym_alpha=Fraction(0, 1)):
-    """Exact pure-Q SwiGLU forward + backprop with Learnable Multipliers (s_g, s_u, s_d, shared r_i)."""
+    """Exact pure-Q rational SiLU-like gated MLP forward + analytical backprop with Learnable Multipliers.
+
+    Supports exact backprop across all three hidden_mode branches:
+    - "none": identity on h_raw
+    - "rms_like_sq_denom": exact rational RMS-like even-denominator surrogate h_i / (1 + mean(h^2))
+      (NOT square-root RMSNorm; shares sign-evenness in h_k^2 under h -> D h)
+    - "layernorm_center": exact mean subtraction h_i - mean(h) (breaks Z_2 sign symmetry)
+    """
     h_dim = len(w_g)
     d_dim = len(x)
     g_pre = [s_g * r_shared[i] * _dot(w_g[i], x) for i in range(h_dim)]
@@ -263,12 +276,14 @@ def _swiglu_forward_and_grads(w_g, w_u, w_d, r_shared, s_g, s_u, s_d, x, target,
         dphi_g.append(dpv)
     h_raw = [phi_g[i] * u_pre[i] for i in range(h_dim)]
 
+    rms_denom = None
     if hidden_mode == "none":
         h_eff = list(h_raw)
-    elif hidden_mode == "rmsnorm_sq_denom":
+    elif hidden_mode == "rms_like_sq_denom":
         # Exact rational RMS-like normalization preserving sign symmetry: h_i / (1 + mean(h^2))
         msq = sum(v * v for v in h_raw) / Fraction(h_dim, 1)
-        h_eff = [v / (Fraction(1, 1) + msq) for v in h_raw]
+        rms_denom = Fraction(1, 1) + msq
+        h_eff = [v / rms_denom for v in h_raw]
     elif hidden_mode == "layernorm_center":
         # Exact mean subtraction (LayerNorm centering on hidden vector h): breaks Z_2!
         mean_h = sum(h_raw) / Fraction(h_dim, 1)
@@ -281,10 +296,18 @@ def _swiglu_forward_and_grads(w_g, w_u, w_d, r_shared, s_g, s_u, s_d, x, target,
     diff_y = [y[o] - target[o] for o in range(d_dim)]
     loss = Fraction(1, 2) * _dot(diff_y, diff_y) - asym_alpha * sum(h_raw)
 
-    # Exact backprop for hidden_mode == "none"
+    # Exact analytical backprop for every supported hidden_mode
     grad_wd = [[s_d * diff_y[o] * h_eff[i] for i in range(h_dim)] for o in range(d_dim)]
     grad_heff = [s_d * sum(w_d[o][i] * diff_y[o] for o in range(d_dim)) for i in range(h_dim)]
-    grad_hraw = [grad_heff[i] - asym_alpha for i in range(h_dim)]
+    if hidden_mode == "none":
+        grad_hraw = [grad_heff[i] - asym_alpha for i in range(h_dim)]
+    elif hidden_mode == "rms_like_sq_denom":
+        dot_gh = _dot(grad_heff, h_raw)
+        coeff = Fraction(2, h_dim) * dot_gh / (rms_denom * rms_denom)
+        grad_hraw = [grad_heff[i] / rms_denom - coeff * h_raw[i] - asym_alpha for i in range(h_dim)]
+    else:
+        mean_g = sum(grad_heff) / Fraction(h_dim, 1)
+        grad_hraw = [grad_heff[i] - mean_g - asym_alpha for i in range(h_dim)]
 
     grad_gpre = [grad_hraw[i] * dphi_g[i] * u_pre[i] for i in range(h_dim)]
     grad_upre = [grad_hraw[i] * phi_g[i] for i in range(h_dim)]
@@ -315,13 +338,66 @@ def _flip_signs(w_u, w_d, signs):
     return wu_f, wd_f
 
 
+def _evaluate_z2_branch_equivariance(orig, flip, clean_s):
+    """Verify exact 0/1 mirror-pair equivariance across forward, loss, LRM, backprop, and separate/fused Muon."""
+    fwd_diff = _vec_max_abs_diff(orig["y"], flip["y"])
+    loss_diff = abs(orig["loss"] - flip["loss"])
+    lrm_grad_diff = _vec_max_abs_diff(orig["grad_r"], flip["grad_r"])
+
+    exp_gu, exp_gd = _flip_signs(orig["grad_wu"], orig["grad_wd"], clean_s)
+    grad_g_diff = _mat_max_abs_diff(orig["grad_wg"], flip["grad_wg"])
+    grad_u_diff = _mat_max_abs_diff(exp_gu, flip["grad_wu"])
+    grad_d_diff = _mat_max_abs_diff(exp_gd, flip["grad_wd"])
+
+    muon_u_orig = newton_schulz_odd_poly_exact(orig["grad_wu"])
+    muon_u_flip = newton_schulz_odd_poly_exact(flip["grad_wu"])
+    muon_d_orig = newton_schulz_odd_poly_exact(orig["grad_wd"])
+    muon_d_flip = newton_schulz_odd_poly_exact(flip["grad_wd"])
+    exp_muon_u, exp_muon_d = _flip_signs(muon_u_orig, muon_d_orig, clean_s)
+    muon_sep_diff = max(_mat_max_abs_diff(exp_muon_u, muon_u_flip), _mat_max_abs_diff(exp_muon_d, muon_d_flip))
+
+    fused_orig = orig["grad_wg"] + orig["grad_wu"]
+    fused_flip = flip["grad_wg"] + flip["grad_wu"]
+    muon_fused_orig = newton_schulz_odd_poly_exact(fused_orig)
+    muon_fused_flip = newton_schulz_odd_poly_exact(fused_flip)
+    exp_fused = muon_fused_orig[:4] + [[clean_s[i] * v for v in muon_fused_orig[4 + i]] for i in range(4)]
+    muon_fused_diff = _mat_max_abs_diff(exp_fused, muon_fused_flip)
+
+    branch_passed = all(
+        (
+            fwd_diff == 0,
+            loss_diff == 0,
+            lrm_grad_diff == 0,
+            grad_g_diff == 0,
+            grad_u_diff == 0,
+            grad_d_diff == 0,
+            muon_sep_diff == 0,
+            muon_fused_diff == 0,
+        )
+    )
+    return {
+        "forward_output_max_diff_exact": frac_str(fwd_diff),
+        "loss_diff_exact": frac_str(loss_diff),
+        "lrm_shared_row_grad_max_diff_exact": frac_str(lrm_grad_diff),
+        "grad_wg_max_diff_exact": frac_str(grad_g_diff),
+        "grad_wu_equivariance_diff_exact": frac_str(grad_u_diff),
+        "grad_wd_equivariance_diff_exact": frac_str(grad_d_diff),
+        "muon_separate_equivariance_diff_exact": frac_str(muon_sep_diff),
+        "muon_fused_gate_up_equivariance_diff_exact": frac_str(muon_fused_diff),
+        "passed": branch_passed,
+    }
+
+
 # =============================================================================
-# Pillar 1: Exact Z_2 Gauge Conservation (SwiGLU + Separate/Fused Muon + LRMs + RMSNorm)
+# Pillar 1: Exact Pure-Q Z_2 Equivariance Witness (Rational SiLU-like + RMS-like + Muon + LRMs)
 # =============================================================================
 
 
 def audit_z2_conservation_muon_lrm_exact(signs=(1, -1, -1, 1)):
-    """Prove exact pure-Q Z_2 equivariance of SwiGLU, backprop, separate/fused Muon, LRMs, and RMSNorm."""
+    """Prove exact pure-Q Z_2 mirror-pair equivariance on rational SiLU-like & RMS-like surrogates,
+    covering forward output, loss, analytical backprop, shared LRMs, and separate/fused Muon on BOTH
+    the unnormalized ("none") branch and the rational RMS-like normalization ("rms_like_sq_denom") branch.
+    """
     verify_no_floats(signs, "signs")
     if not isinstance(signs, (list, tuple)) or len(signs) != 4:
         raise GatedMlpLeanError("INVALID_SIGNS", "signs must be 4-tuple of +-1")
@@ -355,66 +431,31 @@ def audit_z2_conservation_muon_lrm_exact(signs=(1, -1, -1, 1)):
     wu_f, wd_f = _flip_signs(w_u, w_d, clean_s)
     orig = _swiglu_forward_and_grads(w_g, w_u, w_d, r_shared, s_g, s_u, s_d, x, target, hidden_mode="none")
     flip = _swiglu_forward_and_grads(w_g, wu_f, wd_f, r_shared, s_g, s_u, s_d, x, target, hidden_mode="none")
+    none_res = _evaluate_z2_branch_equivariance(orig, flip, clean_s)
 
-    fwd_diff = _vec_max_abs_diff(orig["y"], flip["y"])
-    loss_diff = abs(orig["loss"] - flip["loss"])
-    lrm_grad_diff = _vec_max_abs_diff(orig["grad_r"], flip["grad_r"])
-
-    # Verify exact gradient equivariance: G_g' = G_g, G_u' = D G_u, G_d' = G_d D
-    exp_gu, exp_gd = _flip_signs(orig["grad_wu"], orig["grad_wd"], clean_s)
-    grad_g_diff = _mat_max_abs_diff(orig["grad_wg"], flip["grad_wg"])
-    grad_u_diff = _mat_max_abs_diff(exp_gu, flip["grad_wu"])
-    grad_d_diff = _mat_max_abs_diff(exp_gd, flip["grad_wd"])
-
-    # Separate Muon (Newton-Schulz odd polynomial) on G_u and G_d
-    muon_u_orig = newton_schulz_odd_poly_exact(orig["grad_wu"])
-    muon_u_flip = newton_schulz_odd_poly_exact(flip["grad_wu"])
-    muon_d_orig = newton_schulz_odd_poly_exact(orig["grad_wd"])
-    muon_d_flip = newton_schulz_odd_poly_exact(flip["grad_wd"])
-    exp_muon_u, exp_muon_d = _flip_signs(muon_u_orig, muon_d_orig, clean_s)
-    muon_sep_diff = max(_mat_max_abs_diff(exp_muon_u, muon_u_flip), _mat_max_abs_diff(exp_muon_d, muon_d_flip))
-
-    # Fused gate_up_proj Muon (Newton-Schulz on stacked [G_g; G_u])
-    fused_orig = orig["grad_wg"] + orig["grad_wu"]
-    fused_flip = flip["grad_wg"] + flip["grad_wu"]
-    muon_fused_orig = newton_schulz_odd_poly_exact(fused_orig)
-    muon_fused_flip = newton_schulz_odd_poly_exact(fused_flip)
-    exp_fused = muon_fused_orig[:4] + [[clean_s[i] * v for v in muon_fused_orig[4 + i]] for i in range(4)]
-    muon_fused_diff = _mat_max_abs_diff(exp_fused, muon_fused_flip)
-
-    # RMSNorm on hidden vector h preserves exact forward invariance!
-    rms_orig = _swiglu_forward_and_grads(w_g, w_u, w_d, r_shared, s_g, s_u, s_d, x, target, hidden_mode="rmsnorm_sq_denom")
-    rms_flip = _swiglu_forward_and_grads(w_g, wu_f, wd_f, r_shared, s_g, s_u, s_d, x, target, hidden_mode="rmsnorm_sq_denom")
-    rms_hidden_diff = _vec_max_abs_diff(rms_orig["y"], rms_flip["y"])
+    # Full forward + analytical backprop + LRM + separate/fused Muon check on rational RMS-like norm h/(1+mean(h^2))
+    rms_orig = _swiglu_forward_and_grads(w_g, w_u, w_d, r_shared, s_g, s_u, s_d, x, target, hidden_mode="rms_like_sq_denom")
+    rms_flip = _swiglu_forward_and_grads(w_g, wu_f, wd_f, r_shared, s_g, s_u, s_d, x, target, hidden_mode="rms_like_sq_denom")
+    rms_like_res = _evaluate_z2_branch_equivariance(rms_orig, rms_flip, clean_s)
 
     # Verify gate_up inner products flip strictly for every s_i = -1 and stay fixed for s_i = +1
     gu_orig = [_dot(w_g[i], w_u[i]) for i in range(4)]
     gu_flip = [_dot(w_g[i], wu_f[i]) for i in range(4)]
     inner_flip_exact = all(gu_flip[i] == clean_s[i] * gu_orig[i] for i in range(4))
 
-    passed = (
-        fwd_diff == 0
-        and loss_diff == 0
-        and lrm_grad_diff == 0
-        and grad_g_diff == 0
-        and grad_u_diff == 0
-        and grad_d_diff == 0
-        and muon_sep_diff == 0
-        and muon_fused_diff == 0
-        and rms_hidden_diff == 0
-        and inner_flip_exact
-    )
+    passed = all((none_res["passed"], rms_like_res["passed"], inner_flip_exact))
     return {
         "signs_applied": clean_s,
-        "forward_output_max_diff_exact": frac_str(fwd_diff),
-        "loss_diff_exact": frac_str(loss_diff),
-        "lrm_shared_row_grad_max_diff_exact": frac_str(lrm_grad_diff),
-        "grad_wg_max_diff_exact": frac_str(grad_g_diff),
-        "grad_wu_equivariance_diff_exact": frac_str(grad_u_diff),
-        "grad_wd_equivariance_diff_exact": frac_str(grad_d_diff),
-        "muon_separate_equivariance_diff_exact": frac_str(muon_sep_diff),
-        "muon_fused_gate_up_equivariance_diff_exact": frac_str(muon_fused_diff),
-        "rmsnorm_on_hidden_output_diff_exact": frac_str(rms_hidden_diff),
+        "operator_scope": {
+            "gate_operator": "rational_silu_like_surrogate_g_half_1_plus_g_over_1_plus_abs_g",
+            "gate_is_transcendental_silu": False,
+            "norm_operator": "rational_rms_like_surrogate_h_over_1_plus_mean_h_sq",
+            "norm_is_sqrt_rmsnorm": False,
+            "rms_like_backprop_and_muon_verified": True,
+            "scope_boundary": "pure_Q_rational_surrogate_witness_not_full_published_architecture",
+        },
+        "unnormalized_branch": none_res,
+        "rms_like_norm_branch": rms_like_res,
         "gate_up_inner_product_sign_flip_exact": inner_flip_exact,
         "passed": passed,
     }
@@ -642,6 +683,7 @@ def audit_weight_lean_and_audit059_exact(weight_lean_summary):
     )
     return {
         "diag_source": diag_src,
+        "layer_sign_test_null_assumption": "independent_symmetric_layers_p_half_not_automatic_under_cross_layer_correlation",
         "models_verified": parsed,
         "falcon_06b_all_44_layers_gt_half": falcon_06_all_layers,
         "falcon_06b_matches_pre_grpo_exact": falcon_pre_grpo_eq,
@@ -703,7 +745,7 @@ def certify_gated_mlp_lean_audit_exact(
     label_guard = enforce_law5_label_hygiene(operator_labels)
 
     req_axes = (
-        "z2_conservation_muon_lrm_rmsnorm",
+        "z2_equivariance_surrogate_muon_lrm_rms_like",
         "z2_symmetry_breaking_controls",
         "weft_loom_weight_lean_and_audit059",
     )
@@ -735,7 +777,7 @@ def certify_gated_mlp_lean_audit_exact(
         raise GatedMlpLeanError("PROVENANCE_MISMATCH", f"diag_source {re_p3['diag_source']} contradicts mode {clean_mode}")
 
     expected_axes = {
-        "z2_conservation_muon_lrm_rmsnorm": re_p1["passed"],
+        "z2_equivariance_surrogate_muon_lrm_rms_like": re_p1["passed"],
         "z2_symmetry_breaking_controls": re_p2["passed"],
         "weft_loom_weight_lean_and_audit059": re_p3["passed"],
     }
@@ -748,14 +790,20 @@ def certify_gated_mlp_lean_audit_exact(
         "audit_id": AUDIT_ID,
         "mode": clean_mode,
         "live_json_recounted": live_flag,
-        "novelty_classification": "N0_prior_art_primitives_with_N1_exact_muon_lrm_z2_conservation_proof",
+        "novelty_classification": "N0_prior_art_primitives_with_N1_exact_surrogate_muon_lrm_rms_like_z2_equivariance",
+        "causal_and_statistical_scope": {
+            "equivariance_scope": "exact_mirror_pair_and_distributional_equivariance_under_symmetric_init_data_and_stochastic_assumptions",
+            "rules_out_finite_run_asymmetry": False,
+            "identifies_falcon_unreleased_training_cause": False,
+            "layer_sign_test_null_assumption": "independent_symmetric_layers_p_half_not_automatic_under_cross_layer_correlation",
+        },
         "law5_label_hygiene_guard": label_guard,
         "three_axis_audit_checks": clean_axes,
         "all_three_axes_passed": all_passed,
-        "pillar1_z2_conservation_muon_lrm": re_p1,
+        "pillar1_z2_equivariance_surrogate_witness": re_p1,
         "pillar2_z2_symmetry_breaking_controls": re_p2,
         "pillar3_weft_loom_weight_lean_and_audit059": re_p3,
-        "verdict": "AUDITED_GATED_MLP_Z2_CONSERVATION_AND_RULINGS" if all_passed else "REJECTED_GATE_FAILED",
+        "verdict": "AUDITED_GATED_MLP_SURROGATE_Z2_EQUIVARIANCE_AND_RULINGS" if all_passed else "REJECTED_GATE_FAILED",
         "all_gates_passed": all_passed,
     }
     body["certificate_sha256"] = canonical_sha256(body)

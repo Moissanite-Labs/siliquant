@@ -89,7 +89,12 @@ class TestGatedMlpLeanR5(unittest.TestCase):
     def test_pillar1_z2_conservation_muon_lrm(self):
         p1 = o.audit_z2_conservation_muon_lrm_exact()
         self.assertTrue(p1["passed"])
-        for k in (
+        scope = p1["operator_scope"]
+        self.assertIs(scope["gate_is_transcendental_silu"], False)
+        self.assertIs(scope["norm_is_sqrt_rmsnorm"], False)
+        self.assertIs(scope["rms_like_backprop_and_muon_verified"], True)
+
+        branch_keys = (
             "forward_output_max_diff_exact",
             "loss_diff_exact",
             "lrm_shared_row_grad_max_diff_exact",
@@ -98,10 +103,108 @@ class TestGatedMlpLeanR5(unittest.TestCase):
             "grad_wd_equivariance_diff_exact",
             "muon_separate_equivariance_diff_exact",
             "muon_fused_gate_up_equivariance_diff_exact",
-            "rmsnorm_on_hidden_output_diff_exact",
-        ):
-            self.assertEqual(p1[k], "0/1")
+        )
+        for branch_name in ("unnormalized_branch", "rms_like_norm_branch"):
+            branch = p1[branch_name]
+            self.assertTrue(branch["passed"], branch_name)
+            for k in branch_keys:
+                self.assertEqual(branch[k], "0/1", f"{branch_name}.{k}")
         self.assertTrue(p1["gate_up_inner_product_sign_flip_exact"])
+
+        # Independent exact pure-Q dual-number Jacobian check across all 3 hidden_mode branches
+        # (proves exact 0/1 analytical backprop for none, rms_like_sq_denom, and layernorm_center)
+        def d_add(a, b):
+            return (a[0] + b[0], a[1] + b[1])
+        def d_sub(a, b):
+            return (a[0] - b[0], a[1] - b[1])
+        def d_mul(a, b):
+            return (a[0] * b[0], a[0] * b[1] + a[1] * b[0])
+        def d_div(a, b):
+            return (a[0] / b[0], (a[1] * b[0] - a[0] * b[1]) / (b[0] * b[0]))
+        def d_abs(a):
+            return a if a[0] >= 0 else (-a[0], -a[1])
+        def dual_loss(w_g, w_u, w_d, r_sh, s_g, s_u, s_d, x, target, mode, asym_alpha):
+            h_dim, d_dim = len(w_g), len(x)
+            z = Fraction(0, 1)
+            h_raw = []
+            for i in range(h_dim):
+                gp = (z, z)
+                up = (z, z)
+                for j in range(d_dim):
+                    xj = (x[j], z)
+                    gp = d_add(gp, d_mul(w_g[i][j], xj))
+                    up = d_add(up, d_mul(w_u[i][j], xj))
+                gp = d_mul(d_mul((s_g, z), r_sh[i]), gp)
+                up = d_mul(d_mul((s_u, z), r_sh[i]), up)
+                denom = d_add((Fraction(1, 1), z), d_abs(gp))
+                sig = d_mul((Fraction(1, 2), z), d_add((Fraction(1, 1), z), d_div(gp, denom)))
+                h_raw.append(d_mul(d_mul(gp, sig), up))
+            if mode == "none":
+                h_eff = h_raw
+            elif mode == "rms_like_sq_denom":
+                msq = (z, z)
+                for v in h_raw:
+                    msq = d_add(msq, d_mul(v, v))
+                msq = d_mul(msq, (Fraction(1, h_dim), z))
+                q = d_add((Fraction(1, 1), z), msq)
+                h_eff = [d_div(v, q) for v in h_raw]
+            else:
+                mh = (z, z)
+                for v in h_raw:
+                    mh = d_add(mh, v)
+                mh = d_mul(mh, (Fraction(1, h_dim), z))
+                h_eff = [d_sub(v, mh) for v in h_raw]
+            loss_d = (z, z)
+            for out_i in range(d_dim):
+                yo = (z, z)
+                for i in range(h_dim):
+                    yo = d_add(yo, d_mul(w_d[out_i][i], h_eff[i]))
+                yo = d_mul((s_d, z), yo)
+                dy = d_sub(yo, (target[out_i], z))
+                loss_d = d_add(loss_d, d_mul((Fraction(1, 2), z), d_mul(dy, dy)))
+            sum_h = (z, z)
+            for v in h_raw:
+                sum_h = d_add(sum_h, v)
+            return d_sub(loss_d, d_mul((asym_alpha, z), sum_h))
+
+        wg0 = [[Fraction(1, 2), Fraction(-1, 3)], [Fraction(-2, 5), Fraction(1, 2)], [Fraction(3, 5), Fraction(1, 4)]]
+        wu0 = [[Fraction(2, 3), Fraction(1, 5)], [Fraction(1, 4), Fraction(-2, 3)], [Fraction(-1, 2), Fraction(3, 4)]]
+        wd0 = [[Fraction(1, 2), Fraction(-1, 4), Fraction(2, 5)], [Fraction(-1, 3), Fraction(3, 5), Fraction(-1, 2)]]
+        r0 = [Fraction(6, 5), Fraction(4, 5), Fraction(7, 5)]
+        sg0, su0, sd0 = Fraction(5, 4), Fraction(3, 4), Fraction(7, 8)
+        x0 = [Fraction(2, 1), Fraction(-3, 2)]
+        t0 = [Fraction(1, 2), Fraction(-1, 4)]
+        z0 = Fraction(0, 1)
+        one0 = Fraction(1, 1)
+        for mode in ("none", "rms_like_sq_denom", "layernorm_center"):
+            res_m = o._swiglu_forward_and_grads(wg0, wu0, wd0, r0, sg0, su0, sd0, x0, t0, hidden_mode=mode, asym_alpha=Fraction(1, 3))
+            for i in range(3):
+                for j in range(2):
+                    dg = [[(wg0[r][c], one0 if (r, c) == (i, j) else z0) for c in range(2)] for r in range(3)]
+                    du = [[(wu0[r][c], z0) for c in range(2)] for r in range(3)]
+                    dd = [[(wd0[r][c], z0) for c in range(3)] for r in range(2)]
+                    dr = [(r0[r], z0) for r in range(3)]
+                    lv, dlv = dual_loss(dg, du, dd, dr, sg0, su0, sd0, x0, t0, mode, Fraction(1, 3))
+                    self.assertEqual(lv, res_m["loss"])
+                    self.assertEqual(dlv, res_m["grad_wg"][i][j])
+                    dg0 = [[(wg0[r][c], z0) for c in range(2)] for r in range(3)]
+                    du1 = [[(wu0[r][c], one0 if (r, c) == (i, j) else z0) for c in range(2)] for r in range(3)]
+                    _, dlv_u = dual_loss(dg0, du1, dd, dr, sg0, su0, sd0, x0, t0, mode, Fraction(1, 3))
+                    self.assertEqual(dlv_u, res_m["grad_wu"][i][j])
+                dg0 = [[(wg0[r][c], z0) for c in range(2)] for r in range(3)]
+                du0 = [[(wu0[r][c], z0) for c in range(2)] for r in range(3)]
+                dd0 = [[(wd0[r][c], z0) for c in range(3)] for r in range(2)]
+                dr1 = [(r0[r], one0 if r == i else z0) for r in range(3)]
+                _, dlv_r = dual_loss(dg0, du0, dd0, dr1, sg0, su0, sd0, x0, t0, mode, Fraction(1, 3))
+                self.assertEqual(dlv_r, res_m["grad_r"][i])
+            for oi in range(2):
+                for i in range(3):
+                    dg0 = [[(wg0[r][c], z0) for c in range(2)] for r in range(3)]
+                    du0 = [[(wu0[r][c], z0) for c in range(2)] for r in range(3)]
+                    dd1 = [[(wd0[r][c], one0 if (r, c) == (oi, i) else z0) for c in range(3)] for r in range(2)]
+                    dr0 = [(r0[r], z0) for r in range(3)]
+                    _, dlv_d = dual_loss(dg0, du0, dd1, dr0, sg0, su0, sd0, x0, t0, mode, Fraction(1, 3))
+                    self.assertEqual(dlv_d, res_m["grad_wd"][oi][i])
 
         # Guards
         self._assert_err("INVALID_SIGNS", o.audit_z2_conservation_muon_lrm_exact, "1234")
@@ -114,51 +217,30 @@ class TestGatedMlpLeanR5(unittest.TestCase):
         self._assert_err("INVALID_MATRIX", o.newton_schulz_odd_poly_exact, [[1, 2], [3]])
         self._assert_err("INVALID_MODE", o._swiglu_forward_and_grads, [[1]], [[1]], [[1]], [1], 1, 1, 1, [1], [1], hidden_mode="bad")
 
-        # Pin EVERY conjunct in Pillar 1 passed individually!
-        with mock.patch.object(o, "_vec_max_abs_diff", side_effect=[Fraction(1, 1), Fraction(0, 1), Fraction(0, 1)]):
-            self.assertFalse(o.audit_z2_conservation_muon_lrm_exact()["passed"])
-        with mock.patch.object(o, "_vec_max_abs_diff", side_effect=[Fraction(0, 1), Fraction(1, 1), Fraction(0, 1)]):
-            self.assertFalse(o.audit_z2_conservation_muon_lrm_exact()["passed"])
-        with mock.patch.object(o, "_vec_max_abs_diff", side_effect=[Fraction(0, 1), Fraction(0, 1), Fraction(1, 1)]):
-            self.assertFalse(o.audit_z2_conservation_muon_lrm_exact()["passed"])
-        with mock.patch.object(o, "_mat_max_abs_diff", side_effect=[Fraction(1, 1), Fraction(0, 1), Fraction(0, 1), Fraction(0, 1), Fraction(0, 1), Fraction(0, 1)]):
-            self.assertFalse(o.audit_z2_conservation_muon_lrm_exact()["passed"])
-        with mock.patch.object(o, "_mat_max_abs_diff", side_effect=[Fraction(0, 1), Fraction(1, 1), Fraction(0, 1), Fraction(0, 1), Fraction(0, 1), Fraction(0, 1)]):
-            self.assertFalse(o.audit_z2_conservation_muon_lrm_exact()["passed"])
-        with mock.patch.object(o, "_mat_max_abs_diff", side_effect=[Fraction(0, 1), Fraction(0, 1), Fraction(1, 1), Fraction(0, 1), Fraction(0, 1), Fraction(0, 1)]):
-            self.assertFalse(o.audit_z2_conservation_muon_lrm_exact()["passed"])
-        with mock.patch.object(o, "_mat_max_abs_diff", side_effect=[Fraction(0, 1), Fraction(0, 1), Fraction(0, 1), Fraction(1, 1), Fraction(0, 1), Fraction(0, 1)]):
-            self.assertFalse(o.audit_z2_conservation_muon_lrm_exact()["passed"])
-        with mock.patch.object(o, "_mat_max_abs_diff", side_effect=[Fraction(0, 1), Fraction(0, 1), Fraction(0, 1), Fraction(0, 1), Fraction(0, 1), Fraction(1, 1)]):
-            self.assertFalse(o.audit_z2_conservation_muon_lrm_exact()["passed"])
+        # Pin EVERY branch residual (both unnormalized & rms_like_norm) and inner_flip_exact individually!
+        for idx in range(4):
+            seq = [Fraction(0, 1)] * 4
+            seq[idx] = Fraction(1, 1)
+            with mock.patch.object(o, "_vec_max_abs_diff", side_effect=seq):
+                self.assertFalse(o.audit_z2_conservation_muon_lrm_exact()["passed"])
+        for idx in range(12):
+            seq = [Fraction(0, 1)] * 12
+            seq[idx] = Fraction(1, 1)
+            with mock.patch.object(o, "_mat_max_abs_diff", side_effect=seq):
+                self.assertFalse(o.audit_z2_conservation_muon_lrm_exact()["passed"])
         orig_fw = o._swiglu_forward_and_grads
-        calls = [0]
-        def _bad_loss(*args, **kwargs):
-            r = orig_fw(*args, **kwargs)
-            calls[0] += 1
-            if calls[0] == 2:
-                r = dict(r, loss=r["loss"] + Fraction(1, 1))
-            return r
-        with mock.patch.object(o, "_swiglu_forward_and_grads", side_effect=_bad_loss):
-            self.assertFalse(o.audit_z2_conservation_muon_lrm_exact()["passed"])
+        for bad_call in (2, 4):
+            calls = [0]
+            def _bad_loss(*args, _bc=bad_call, _c=calls, **kwargs):
+                r = orig_fw(*args, **kwargs)
+                _c[0] += 1
+                if _c[0] == _bc:
+                    r = dict(r, loss=r["loss"] + Fraction(1, 1))
+                return r
+            with mock.patch.object(o, "_swiglu_forward_and_grads", side_effect=_bad_loss):
+                self.assertFalse(o.audit_z2_conservation_muon_lrm_exact()["passed"])
+        # Clean isolation of inner_flip_exact: patch _dot on the last call only
         orig_dot = o._dot
-        dcalls = [0]
-        def _bad_gu_dot(a_v, b_v):
-            dcalls[0] += 1
-            val = orig_dot(a_v, b_v)
-            if dcalls[0] == 100:
-                return val + Fraction(1, 1)
-            return val
-        # Directly check inner_flip_exact conjunct via patched _flip_signs on 3rd call (no-op) vs final dot check
-        orig_flip = o._flip_signs
-        fcalls = [0]
-        def _bad_inner(*args, **kwargs):
-            fcalls[0] += 1
-            return orig_flip(*args, **kwargs)
-        with mock.patch.object(o, "_dot", side_effect=lambda x, y: orig_dot(x, y) if len(x) != 3 else orig_dot(x, y) + Fraction(1, 1000)):
-            # Shift final inner products asymmetrically only on gu_flip
-            pass
-        # Clean isolation of inner_flip_exact: patch _dot on the last 4 calls only
         n_dots = [0]
         def _count_dot(x, y):
             n_dots[0] += 1
@@ -227,13 +309,15 @@ class TestGatedMlpLeanR5(unittest.TestCase):
 
         cert = a.run_audit(live=False)
         self.assertTrue(cert["all_gates_passed"])
-        self.assertEqual(cert["verdict"], "AUDITED_GATED_MLP_Z2_CONSERVATION_AND_RULINGS")
+        self.assertEqual(cert["verdict"], "AUDITED_GATED_MLP_SURROGATE_Z2_EQUIVARIANCE_AND_RULINGS")
         self.assertEqual(cert["mode"], "standalone_fixture_replay")
         self.assertIs(cert["live_json_recounted"], False)
+        self.assertIs(cert["causal_and_statistical_scope"]["rules_out_finite_run_asymmetry"], False)
+        self.assertIs(cert["causal_and_statistical_scope"]["identifies_falcon_unreleased_training_cause"], False)
         body_no_sha = {k: v for k, v in cert.items() if k != "certificate_sha256"}
         self.assertEqual(cert["certificate_sha256"], o.canonical_sha256(body_no_sha))
 
-        p1 = cert["pillar1_z2_conservation_muon_lrm"]
+        p1 = cert["pillar1_z2_equivariance_surrogate_witness"]
         p2 = cert["pillar2_z2_symmetry_breaking_controls"]
         p3 = cert["pillar3_weft_loom_weight_lean_and_audit059"]
         axes = dict(cert["three_axis_audit_checks"])

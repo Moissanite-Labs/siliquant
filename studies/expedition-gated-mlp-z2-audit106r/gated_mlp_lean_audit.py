@@ -1,6 +1,7 @@
 """Dual-mode (live_json_recount + standalone_fixture_replay) audit runner for
-Track S9 (AUDIT-106): Gated-MLP Z_2 Gauge Conservation (Muon + Learnable Multipliers),
-Symmetry-Breaking Controls, and weft-loom#44 / AUDIT-059 Exact Rulings Verification.
+Track S9 (AUDIT-106R2): Rational Gated-MLP Z_2 Gauge Equivariance Witness (SiLU-like Gate +
+RMS-like Norm + Muon + Learnable Multipliers), Symmetry-Breaking Controls, and
+weft-loom#44 / AUDIT-059 Exact Rulings Verification.
 
 Pure Python 3 stdlib. Zero floats. Zero bare assert statements.
 """
@@ -27,15 +28,16 @@ from gated_mlp_lean_oracle import (
 
 
 OPERATOR_LABELS = (
-    "swiglu_z2_unit_sign_gauge_invariance",
+    "rational_silu_like_gated_mlp_z2_gauge_equivariance",
     "muon_newton_schulz_separate_and_fused_equivariance",
-    "learnable_multiplier_and_rmsnorm_equivariance",
+    "learnable_multiplier_and_rms_like_norm_forward_and_grad_equivariance",
     "layernorm_asymmetric_penalty_and_correlated_init_breaks",
     "weft_loom_pr44_weight_lean_and_audit059_exact_tails",
 )
 
 # Pinned from Moissanite-Labs/weft-loom#44 @ e660cd3de1ebd8fac33c60a3f65f5ccabb5ed9f1
-# real-models/out/weights/weight_lean.json (sha256: 1123f698ee72ebb17d31f56f672b6641ad674382234a96226d9cf7a7b7ce00f9)
+# experiments/sign-lineage-2026-11-21/real-models/out/weights/weight_lean.json
+# (sha256: 1123f698ee72ebb17d31f56f672b6641ad674382234a96226d9cf7a7b7ce00f9)
 STANDALONE_WEIGHT_LEAN_FIXTURE = {
     "diag_source": "standalone_fixture",
     "models": {
@@ -112,7 +114,7 @@ def certify_from_summary(mode, live_json_recounted, summary):
     p2 = audit_z2_symmetry_breaking_controls_exact()
     p3 = audit_weight_lean_and_audit059_exact(summary)
     axes = {
-        "z2_conservation_muon_lrm_rmsnorm": p1["passed"],
+        "z2_equivariance_surrogate_muon_lrm_rms_like": p1["passed"],
         "z2_symmetry_breaking_controls": p2["passed"],
         "weft_loom_weight_lean_and_audit059": p3["passed"],
     }
