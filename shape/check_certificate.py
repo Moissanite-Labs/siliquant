@@ -24,6 +24,8 @@ pick, by other code, from the numbers of the receipt.
 Usage:
   python3 shape/check_certificate.py certificates.json
 """
+import hashlib
+import hmac
 import itertools
 import json
 import sys
@@ -32,6 +34,74 @@ PI_LOW_N, PI_HIGH_N, PI_D = 314159265358979323846, 314159265358979323847, 10 ** 
 CELL = {"X": (1, 12), "Z8:p1": (1, 12), "Z8:p2": (1, 12), "E8:p1": (929, 12960), "E8:p2": (929, 12960)}
 REGION = {"X": "cube", "Z8:p1": "cross", "Z8:p2": "ball", "E8:p1": "cross", "E8:p2": "ball"}
 VOLUME = {"cube": (256, 1, 0), "cross": (256, 40320, 0), "ball": (1, 24, 1)}     # numerator, denominator, power of pi^4
+TERM_KEYS = frozenset(("count", "groups", "sum_sq", "top_cube", "top_ball", "top_cross"))
+
+
+def _whole_number(value):
+    """An exact JSON whole number: an int or a canonical decimal string, never a bool or float."""
+    if type(value) is int:
+        return value
+    if isinstance(value, str) and value.isascii() and value.isdecimal() and (value == "0" or not value.startswith("0")):
+        return int(value)
+    return None
+
+
+def _structure_findings(cert):
+    """Validate the receipt boundary before any int conversion or indexing takes place."""
+    if not isinstance(cert, dict) or set(cert) != {"budget", "candidates", "pick"}:
+        return ["certificate must have exactly budget, candidates and pick"]
+    if type(cert["pick"]) is not int:
+        return ["the pick must be an integer, not a boolean, float or string"]
+    budget = cert["budget"]
+    if budget is not None:
+        if not isinstance(budget, list) or len(budget) != 2 or any(type(x) is not int for x in budget):
+            return ["the budget must be null or a two-integer numerator/denominator list"]
+        if budget[1] <= 0:
+            return ["the budget denominator must be positive"]
+    candidates = cert["candidates"]
+    if not isinstance(candidates, list) or not candidates:
+        return ["candidates must be a nonempty list"]
+    bad = []
+    for i, candidate in enumerate(candidates):
+        if not isinstance(candidate, dict) or set(candidate) != {"arm", "size", "codewords", "terms"}:
+            bad.append(f"candidate {i}: expected exactly arm, size, codewords and terms")
+            continue
+        if not isinstance(candidate["arm"], str) or type(candidate["size"]) is not int:
+            bad.append(f"candidate {i}: arm must be a string and size an integer")
+        if _whole_number(candidate["codewords"]) is None:
+            bad.append(f"candidate {i}: codewords must be an exact whole number")
+        terms = candidate["terms"]
+        if not isinstance(terms, dict) or set(terms) != TERM_KEYS:
+            bad.append(f"candidate {i}: terms must have exactly the six receipt fields")
+        elif any(_whole_number(terms[key]) is None for key in TERM_KEYS):
+            bad.append(f"candidate {i}: every term must be an exact whole number")
+    return bad
+
+
+def certificate_sha256(cert):
+    """SHA-256 of a structurally valid receipt's canonical compact JSON.
+
+    This binds the complete budget, candidate list, matrix terms and pick. It does not replace
+    check(): a wrong pick still has a well-defined digest. Downstream verifiers should compare an
+    expected digest with check_bound(), then separately bind the receipt to their adapter and format.
+    """
+    bad = _structure_findings(cert)
+    if bad:
+        raise ValueError("cannot digest an invalid receipt: " + "; ".join(bad[:4]))
+    body = json.dumps(cert, sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False).encode("utf-8")
+    return hashlib.sha256(body).hexdigest()
+
+
+def check_bound(cert, expected_sha256):
+    """Check both the exact pick claim and an expected canonical-receipt SHA-256."""
+    if not isinstance(expected_sha256, str) or len(expected_sha256) != 64 or any(c not in "0123456789abcdef" for c in expected_sha256):
+        return ["expected receipt SHA-256 must be 64 lowercase hexadecimal characters"]
+    bad = check(cert)
+    if bad:
+        return bad
+    if not hmac.compare_digest(certificate_sha256(cert), expected_sha256):
+        return ["the certificate does not match the expected receipt SHA-256"]
+    return []
 
 
 def value(c):
@@ -67,6 +137,9 @@ def in_budget(c, budget):
 
 def check(cert):
     bad = []
+    structural = _structure_findings(cert)
+    if structural:
+        return structural
     cands = cert["candidates"]
     for i, c in enumerate(cands):
         t = c["terms"]
@@ -74,7 +147,8 @@ def check(cert):
         if c["arm"] not in CELL:
             bad.append(f"candidate {i}: unknown arm")
             continue
-        if int(t["groups"]) * size != int(t["count"]) or size % 8 or int(t["sum_sq"]) <= 0 or int(c["codewords"]) <= 0:
+        if (int(t["groups"]) * size != int(t["count"]) or size <= 0 or size % 8
+                or int(t["groups"]) <= 0 or int(t["count"]) <= 0 or int(t["sum_sq"]) <= 0 or int(c["codewords"]) <= 0):
             bad.append(f"candidate {i}: the receipt's numbers do not fit together")
         # the three inequalities that hold for any weights
         if not (int(t["top_cube"]) <= int(t["top_ball"]) <= int(t["top_cross"]) <= 8 * int(t["top_ball"]) and int(t["top_ball"]) <= 8 * int(t["top_cube"])):
