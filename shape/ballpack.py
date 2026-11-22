@@ -302,7 +302,7 @@ class Format:
 
     @staticmethod
     def read(path):
-        """A file as (Format, list of (name, stored)). A file that is cut short or does not hold what its header says is refused with a ValueError."""
+        """A file as (Format, list of (name, stored)). A file that is cut short, does not hold what its header says, or holds a scale, a column weight or a kept entry that encode never writes is refused with a ValueError."""
         with open(path, "rb") as f:
             blob = f.read()
         if blob[:8] != MAGIC:
@@ -339,11 +339,15 @@ class Format:
             at += 2
             if flag & ~3:
                 raise ValueError("a matrix of the file has a flag this reader does not know")
+            if not np.isfinite(top) or top <= 0:                 # encode writes a finite scale above zero, for a matrix of zeros too
+                raise ValueError(f"matrix {name}: its largest scale is not a number above zero")
             c, keep, kept = None, None, None
             if flag & 1:
                 need(2 * cols, "the column weights")
                 c = np.frombuffer(blob, dtype="<f2", count=cols, offset=at).copy()
                 at += 2 * cols
+                if not np.all(np.isfinite(c)) or np.any(c <= 0):
+                    raise ValueError(f"matrix {name}: a column weight is not a number above zero")
             if flag & 2:
                 need(4, "the kept columns")
                 (count_kept,) = struct.unpack_from("<I", blob, at)
@@ -356,6 +360,8 @@ class Format:
                 need(2 * rows * count_kept, "the kept columns")
                 kept = np.frombuffer(blob, dtype="<f2", count=rows * count_kept, offset=at).reshape(rows, count_kept).copy()
                 at += 2 * rows * count_kept
+                if not np.all(np.isfinite(kept)):
+                    raise ValueError(f"matrix {name}: an entry of a kept column is not a number")
             blocks, width = rows * cols // n, fmt.bytes + 1
             need(blocks * width, "the blocks")
             records = np.frombuffer(blob, dtype=np.uint8, count=blocks * width, offset=at).reshape(blocks, width).copy()
