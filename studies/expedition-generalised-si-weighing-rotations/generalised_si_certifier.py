@@ -10,7 +10,10 @@ Supports two explicit modes:
   - `--live --intake-root <dir>`: parses pinned read-only sitemap/HTML/`llms-full.txt`,
     downloaded `/files/...` exact certificates, and cloned public repos
     (`vatskishan03/Hadamard`, `vatskishan03/Quantum`), verifying every public
-    combinatorial/algebraic/statistical-mechanics certificate from scratch.
+    combinatorial/algebraic/statistical-mechanics certificate from scratch, and
+    running SHA256SUMS manifest + structural JSON schema/count validation only
+    on `vatskishan03/Quantum` witness files (not circuit-level syndrome or
+    logical-effect simulation).
   - `--standalone`: runs all 8 exact pure-Z/Q verifiers offline on embedded
     known-answer witnesses with zero external files required.
 """
@@ -30,7 +33,10 @@ from typing import Any
 ORG_DOMAIN_MAP: dict[str, tuple[str, str]] = {
     "hadamard-matrices": ("Foundation-0/math0", "exact Goethals-Seidel / T-matrix / Williamson PAF certificates"),
     "skew-symmetric-hadamard": ("Foundation-0/math0", "exact skew-type & symmetric Hadamard PAF certificates"),
-    "two-gross-circuit-distance": ("Foundation-0/quantum", "exact 16-fault undetectable logical-error circuit witnesses on [[288,12,18]]"),
+    "two-gross-circuit-distance": (
+        "Foundation-0/quantum",
+        "[[288,12,18]] 16-fault witness artifacts (SHA256SUMS + structural schema/count validation only; circuit-level syndrome/logical-effect verification not performed)",
+    ),
     "cyclic-difference-set-465": ("Foundation-0/math0", "exact Z_31 quotient group-ring orbit invariants (sum^2=100, PAF=0) for (465,145,45)"),
     "circulant-weighing-matrices": ("Foundation-0/math0", "exact proper CW(n,k) sparse autocorrelation & orbit-inequivalence certificates + Lean 4"),
     "good-matrices-53-55": ("Foundation-0/math0", "exact skew/symmetric Good-matrix PAF quadruples (H_212, H_220) + Lean 4"),
@@ -859,8 +865,16 @@ def verify_sha256sums_manifest(base_dir: Path, manifest_text: str) -> int:
     return count
 
 
-def verify_quantum_fault_witness(record: dict[str, Any], expected_faults: int = 16) -> dict[str, Any]:
-    """Verify a two-gross circuit-distance fault witness declares and lists exact distinct fault dicts."""
+def validate_quantum_fault_witness_schema(
+    record: dict[str, Any],
+    expected_faults: int = 16,
+) -> dict[str, Any]:
+    """Validate structural schema and fault count of a two-gross witness JSON.
+
+    Scope boundary: checks only container shape, sector tag, exact fault count,
+    and distinct non-empty fault dict entries. Does NOT simulate the [[288,12,18]]
+    circuit or verify zero syndrome / nontrivial logical effect.
+    """
     if not _is_strict_int(expected_faults) or expected_faults < 1:
         raise ValueError("QUANTUM_WITNESS_INVALID_EXPECTED")
     if not isinstance(record, dict):
@@ -885,7 +899,12 @@ def verify_quantum_fault_witness(record: dict[str, Any], expected_faults: int = 
         if canon in seen:
             raise ValueError("QUANTUM_WITNESS_DUPLICATE_FAULT")
         seen.add(canon)
-    return {"sector": sector, "n_faults": expected_faults}
+    return {
+        "sector": sector,
+        "n_faults": expected_faults,
+        "circuit_semantics_verified": False,
+        "scope_note": "sha256_manifest_and_schema_count_only_not_circuit_fault_verification",
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -1062,7 +1081,7 @@ def run_live_audit(intake_root: Path) -> dict[str, Any]:
         cr["file"] = cf.name
         code_results.append(cr)
 
-    # Pillar 4: 3D Ising DoS (4x4x4 & 5x5x4), 24 Ag-Pd Cluster Expansion cells, Quantum SHA256SUMS + witnesses
+    # Pillar 4: 3D Ising DoS (4x4x4 & 5x5x4), 24 Ag-Pd Cluster Expansion cells, Quantum SHA256SUMS + witness schema checks
     ising_results = {}
     for fn, dims in (
         ("omega_4x4x4_periodic.txt", (4, 4, 4)),
@@ -1084,11 +1103,19 @@ def run_live_audit(intake_root: Path) -> dict[str, Any]:
         ce_verified += 1
 
     q_sha_verified = verify_sha256sums_manifest(qroot, (qroot / "SHA256SUMS").read_text(encoding="utf-8"))
-    q_witnesses = []
+    q_witness_schemas = []
     for wf in sorted(qroot.glob("witness_*_16faults.json")):
         wd = json.loads(wf.read_text(encoding="utf-8"))
-        wres = verify_quantum_fault_witness(wd, expected_faults=16)
-        q_witnesses.append({"file": wf.name, "sector": wres["sector"], "n_faults": wres["n_faults"]})
+        wres = validate_quantum_fault_witness_schema(wd, expected_faults=16)
+        q_witness_schemas.append(
+            {
+                "file": wf.name,
+                "sector": wres["sector"],
+                "n_faults": wres["n_faults"],
+                "circuit_semantics_verified": wres["circuit_semantics_verified"],
+                "scope_note": wres["scope_note"],
+            }
+        )
 
     # Pillar 5: Moissanite-Labs/siliquant Sparse Weighing-Matrix Rotation Bridge (exact pure-Q witnesses)
     cw120_c0 = cw120["classes"][0]
@@ -1155,7 +1182,9 @@ def run_live_audit(intake_root: Path) -> dict[str, Any]:
             "ising_3d_dos": ising_results,
             "agpd_cluster_expansion_cells_verified": ce_verified,
             "quantum_sha256sums_verified": q_sha_verified,
-            "quantum_16fault_witnesses": q_witnesses,
+            "quantum_16fault_witness_schema_checks": q_witness_schemas,
+            "quantum_circuit_semantics_verified": False,
+            "quantum_scope_note": "sha256_manifest_and_schema_count_only_not_circuit_fault_verification",
         },
         "pillar5_siliquant_sparse_rotation_bridge": siliquant_bridge,
         "pinned_certificate_sha256s": pinned_file_sha256s,

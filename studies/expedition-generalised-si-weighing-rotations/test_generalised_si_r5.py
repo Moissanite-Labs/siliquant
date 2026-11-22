@@ -371,10 +371,24 @@ class TestGeneralisedSiCertifierR5(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "W75_SOL_NOT_FOUND"):
             gsi.parse_williamson_sol_line("no sol line here")
 
-        # Quantum witness guards (incl. GSI101-BYPASS-03: bool n_faults, sector, hollow/non-dict/duplicate faults)
+        # Quantum witness structural schema/count guards (NOT circuit-level syndrome/logical-effect verification!)
+        self.assertFalse(hasattr(gsi, "verify_quantum_fault_witness"))
         good_qw = {"sector": "X", "n_faults": 2, "faults": [{"cycle": 1, "pauli": "X"}, {"cycle": 2, "pauli": "X"}]}
-        self.assertEqual(gsi.verify_quantum_fault_witness(good_qw, expected_faults=2)["n_faults"], 2)
-        self.assertEqual(gsi.verify_quantum_fault_witness({"sector": "Z", "n_faults": 1, "faults": [{"q": 1}]}, expected_faults=1)["sector"], "Z")
+        qw_res = gsi.validate_quantum_fault_witness_schema(good_qw, expected_faults=2)
+        self.assertEqual(qw_res["n_faults"], 2)
+        self.assertFalse(qw_res["circuit_semantics_verified"])
+        self.assertEqual(
+            qw_res["scope_note"],
+            "sha256_manifest_and_schema_count_only_not_circuit_fault_verification",
+        )
+        # Scope boundary: schema/count validator accepts any structurally valid non-empty dict
+        # and explicitly flags circuit_semantics_verified=False rather than claiming fault verification.
+        z_schema_only = gsi.validate_quantum_fault_witness_schema(
+            {"sector": "Z", "n_faults": 1, "faults": [{"arbitrary": "not-a-circuit-fault"}]},
+            expected_faults=1,
+        )
+        self.assertEqual(z_schema_only["sector"], "Z")
+        self.assertFalse(z_schema_only["circuit_semantics_verified"])
         for bad_q, exp_f, code in (
             (good_qw, True, "QUANTUM_WITNESS_INVALID_EXPECTED"),
             (good_qw, 0, "QUANTUM_WITNESS_INVALID_EXPECTED"),
@@ -390,7 +404,7 @@ class TestGeneralisedSiCertifierR5(unittest.TestCase):
             ({"sector": "X", "n_faults": 2, "faults": [{"a": 1}, {"a": 1}]}, 2, "QUANTUM_WITNESS_DUPLICATE_FAULT"),
         ):
             with self.assertRaisesRegex(ValueError, code):
-                gsi.verify_quantum_fault_witness(bad_q, expected_faults=exp_f)  # type: ignore[arg-type]
+                gsi.validate_quantum_fault_witness_schema(bad_q, expected_faults=exp_f)  # type: ignore[arg-type]
 
         # SHA256SUMS manifest guards (incl. GSI101-BYPASS-01: empty, malformed, hex, abs/backslash/.. traversal, symlink escape, missing)
         with tempfile.TemporaryDirectory() as td:

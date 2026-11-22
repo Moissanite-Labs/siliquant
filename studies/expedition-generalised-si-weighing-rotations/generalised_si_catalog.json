@@ -1,5 +1,5 @@
 {
-  "canonical_sha256": "21a60829aed7e047d4426cd514f509c3bf40cec726a3b9b2115e880eeac954d3",
+  "canonical_sha256": "35700182a53f3002fa9b5ccae8fc7190ee3d9da03e9990c46d36e2833f41871d",
   "domains": [
     {
       "category": "Combinatorial designs",
@@ -77,7 +77,7 @@
       "id": "GSI-R-0003",
       "index": 3,
       "law4_default_novelty_tier": "N0",
-      "law5_exact_operator_mapping": "exact 16-fault undetectable logical-error circuit witnesses on [[288,12,18]]",
+      "law5_exact_operator_mapping": "[[288,12,18]] 16-fault witness artifacts (SHA256SUMS + structural schema/count validation only; circuit-level syndrome/logical-effect verification not performed)",
       "page_html_sha256": "cbb90fa408ef11ebb0f95a4bed03da54efeddecc02f16378a5c4ae4e0f1808bd",
       "series": "gsi_r_note",
       "siliquant_exact_bridge": null,

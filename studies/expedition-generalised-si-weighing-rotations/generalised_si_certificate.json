@@ -1,7 +1,7 @@
 {
-  "canonical_sha256": "cd9b2a1dad5b1b6110874d072945391eed78747bb1165c36b664a8f17df5926d",
+  "canonical_sha256": "5048fe8b259d1c267f2e9f7b1ec67ce8303514b8b10de5e69c154e2b653c3be8",
   "catalog_summary": {
-    "catalog_canonical_sha256": "21a60829aed7e047d4426cd514f509c3bf40cec726a3b9b2115e880eeac954d3",
+    "catalog_canonical_sha256": "35700182a53f3002fa9b5ccae8fc7190ee3d9da03e9990c46d36e2833f41871d",
     "gsi_r_notes_with_public_artifacts": 15,
     "nov16_white_papers_labelled_independently_checked": 13,
     "nov16_white_papers_with_public_artifacts": 0,
@@ -231,28 +231,38 @@
         "valid": true
       }
     },
-    "quantum_16fault_witnesses": [
+    "quantum_16fault_witness_schema_checks": [
       {
+        "circuit_semantics_verified": false,
         "file": "witness_A23swap_Xtype_16faults.json",
         "n_faults": 16,
+        "scope_note": "sha256_manifest_and_schema_count_only_not_circuit_fault_verification",
         "sector": "X"
       },
       {
+        "circuit_semantics_verified": false,
         "file": "witness_A23swap_Ztype_16faults.json",
         "n_faults": 16,
+        "scope_note": "sha256_manifest_and_schema_count_only_not_circuit_fault_verification",
         "sector": "Z"
       },
       {
+        "circuit_semantics_verified": false,
         "file": "witness_Xtype_16faults.json",
         "n_faults": 16,
+        "scope_note": "sha256_manifest_and_schema_count_only_not_circuit_fault_verification",
         "sector": "X"
       },
       {
+        "circuit_semantics_verified": false,
         "file": "witness_Ztype_16faults.json",
         "n_faults": 16,
+        "scope_note": "sha256_manifest_and_schema_count_only_not_circuit_fault_verification",
         "sector": "Z"
       }
     ],
+    "quantum_circuit_semantics_verified": false,
+    "quantum_scope_note": "sha256_manifest_and_schema_count_only_not_circuit_fault_verification",
     "quantum_sha256sums_verified": 7
   },
   "pillar5_siliquant_sparse_rotation_bridge": {
