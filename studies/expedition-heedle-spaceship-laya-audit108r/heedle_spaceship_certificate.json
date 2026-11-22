@@ -1,0 +1,184 @@
+{
+  "audit_id": "AUDIT-108",
+  "canonical_sha256": "c2403436221bb46d9e228138f00d81bf7d62e55582891ee3795328ed4f9cca09",
+  "novelty_tier": {
+    "prior_math_and_repos": "N0",
+    "pure_q_bridge_and_audit": "N1"
+  },
+  "pillars": {
+    "p1_rational_gauss_newton_shafts_and_shed": {
+      "must_fail_share_exceeds_unity": {
+        "claimed_rho": "5/4",
+        "error_code": "ERR_TREADLE_SHARE_INVALID",
+        "rejected": true
+      },
+      "must_fail_unpinned_move_leaks_heddle": {
+        "error_code": "ERR_HEDDLE_PIN_LEAK",
+        "pin_leak_sq": "8/1",
+        "rejected": true
+      },
+      "passed": true,
+      "shaft_eigenvalues": [
+        "4/1",
+        "1/1",
+        "1/4",
+        "1/16"
+      ],
+      "share_monotone_nondecreasing": true,
+      "shed_projection": {
+        "idempotent": true,
+        "open_dimensions": 2,
+        "pin_leak_sq": "0/1",
+        "pin_rank": 2,
+        "projected_move": [
+          "1/1",
+          "-1/1",
+          "2/1",
+          "2/1"
+        ],
+        "pythagorean_exact": true
+      },
+      "treadle_k1_rho": "1/4",
+      "treadle_k2_rho": "1/2",
+      "treadle_k2_undelivered_ms": "9/50",
+      "treadle_k4_rho": "1/1",
+      "treadle_k4_undelivered_ms": "0/1"
+    },
+    "p2_hidden_move_nullspace_refutation": {
+      "elsewhere_probe_ms": "4398046511105/2199023255552",
+      "known_probe_ms": "0/1",
+      "must_fail_known_probe_only_misses_stealth": {
+        "blinded_witness_change_sq": "4/1",
+        "error_code": "ERR_STEALTH_MOVE_SNAPPED",
+        "known_probe_ms": "0/1",
+        "rejected": true
+      },
+      "must_fail_snap_with_quiet_witness": {
+        "error_code": "ERR_SNAP_WITNESS_DOES_NOT_REFUTE",
+        "quiet_witness_change_sq": "1/1099511627776",
+        "rejected": true
+      },
+      "passed": true,
+      "stealth_move": [
+        "0/1",
+        "0/1",
+        "1/262144",
+        "1/1"
+      ],
+      "tau_sq": "1/4",
+      "zone_b_snap_change_sq": "4/1",
+      "zone_b_snap_witness_index": 1
+    },
+    "p3_scaling_bridge_pruning_and_int4_survival": {
+      "column_structured_pruning": {
+        "heddle_leak_sq": "0/1",
+        "heddle_preserved": true,
+        "is_exact_rank_le_1": true,
+        "rank1_gram_defect": "0/1"
+      },
+      "int4_surviving_move": {
+        "collateral_unedited_flips": 0,
+        "edited_flips": 1,
+        "min_edit_ulp_ratio": "3/4",
+        "three_quarter_ulp": "3/1",
+        "ulp": "4/1"
+      },
+      "must_fail_entry_pruning_shatters_heddle": {
+        "error_code": "ERR_PRUNING_SHATTERED_HEDDLE",
+        "heddle_leak_sq": "16/1",
+        "rank1_gram_defect": "294/1",
+        "rejected": true
+      },
+      "must_fail_int4_spike_collateral_flip": {
+        "collateral_unedited_flips": 3,
+        "error_code": "ERR_QUANT_COLLATERAL_FLIP",
+        "rejected": true,
+        "scale_ratio": "2/1"
+      },
+      "must_fail_int4_sub_threshold_erasure": {
+        "erased_edits": 1,
+        "error_code": "ERR_QUANT_MOVE_ERASED",
+        "min_edit_ulp_ratio": "3/4",
+        "rejected": true
+      },
+      "passed": true
+    },
+    "p4_heedle_protocol_replay_and_tide1": {
+      "clean_protocol_replay": {
+        "events_replayed": 3,
+        "final_fell_root": "4cfa6d55a790cae5f8f331ccbc1578daecf1b3922590f5624c7d07ea72917b47",
+        "remaining_budget": 22
+      },
+      "must_fail_protocol_chain_tamper": {
+        "error_code": "ERR_PROTOCOL_CHAIN_OR_TAU",
+        "rejected": true,
+        "step_index": 0
+      },
+      "must_fail_t1_double_zone_skip": {
+        "error_code": "ERR_T1_GESTURE_TOO_LIGHT",
+        "gesture": "release",
+        "rejected": true,
+        "zone": "knot"
+      },
+      "must_fail_unpick_budget_refund": {
+        "error_code": "ERR_UNPICK_BUDGET_REFUND",
+        "rejected": true,
+        "step_index": 1
+      },
+      "passed": true,
+      "tide1_exhaustive_host": {
+        "breach_snapped": true,
+        "breach_worst_contrast": "7/20",
+        "breach_worst_pair": [
+          "fg_accent",
+          "bg_panel"
+        ],
+        "clean_snapped": false,
+        "clean_worst_contrast": "1/2",
+        "pairs_checked": 4
+      }
+    },
+    "p5_spaceship_realization_to_zone_b_snap": {
+      "conformal_calibration": {
+        "alpha": "1/5",
+        "coverage_lb": "4/5",
+        "n": 9,
+        "qhat": "2/5",
+        "rank": 8
+      },
+      "escalated_to_zone_b": "ESCALATE_ZONE_B",
+      "must_fail_ambiguous_conformal_skips_escalation": {
+        "error_code": "ERR_CONFORMAL_ESCALATION_BYPASS",
+        "rejected": true,
+        "required_action": "ESCALATE_ZONE_B"
+      },
+      "must_fail_self_realization_promotes_without_zone_b": {
+        "error_code": "ERR_CIRCULAR_REALIZATION_CLAIM",
+        "rejected": true,
+        "required_action": "ESCALATE_ZONE_B"
+      },
+      "passed": true,
+      "zone_b_snap_action": "SNAP_REFUTED",
+      "zone_b_verified_action": "VERIFIED"
+    }
+  },
+  "primary_sources": {
+    "heedle_core_sha256": "49b2bf776693f05dfdf361353586f61535622d9ae6fc412d55afe972adb04c8c",
+    "heedle_draft_sha256": "498b9392da0b5f37412b04f508463d143b0848df09b2d62d9762b5b7974a60d6",
+    "heedle_hosts_sha256": "796af461d3ee1e5789132e061445ff52c34e5d35707d978fc089d43a94b8346a",
+    "heedle_main_commit": "d5e42392b03fe0edaddf8bdeb35c0c03c9378ca4",
+    "heedle_pr8_commit": "7de102ecf56ba99e277f7c9d021c2e66eab55e8c",
+    "heedle_protocol_sha256": "7c5e583dee69c59436c84b5eceaab5711f0cd676a068de970136a17d5906d3b2",
+    "spaceship_master_commit": "0499b9930bdc0c471ee62ee1b1c01e1a986fb4ec",
+    "spaceship_pr5_commit": "7633dbee79799944d757e6d6993607174bee88fe"
+  },
+  "schema_version": "heedle-spaceship-laya-oracle/v1",
+  "summary": {
+    "all_passed": true,
+    "floats_used": 0,
+    "must_fail_controls_verified": 12,
+    "pillars_passed": 5,
+    "pillars_total": 5
+  },
+  "track_id": "track-s13-heedle-spaceship-laya"
+}
