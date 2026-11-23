@@ -106,7 +106,7 @@
       <h2>Turning E8 pays at 4.5 bpw, not uniformly at 3</h2>
       <p>One ball per 128 weights, no calibration or kept columns. Turned E8 and plain E8 have nearly identical aggregate weight error, yet their output KL differs. At 4.5 bpw the Qwen2.5 gap between them is only 1.1 combined standard errors; it is 5.4 for SmolLM2 and 5.0 for Llama.</p>
       <div class="split">
-        <div class="table-scroll">
+        <div class="table-scroll" tabindex="0" role="region" aria-label="Turned E8 and baseline mean KL">
           <table>
             <caption>Mean KL to 16-bit · WikiText-2 test, 10,200 positions</caption>
             <thead><tr><th scope="col">Model</th><th scope="col">Integer<br>ball</th><th scope="col">Plain<br>E8</th><th scope="col">Turned<br>E8</th><th scope="col">Stock<br>Q4_K_M</th></tr></thead>
@@ -136,7 +136,7 @@
       <span class="tag">On main · measured</span>
       <h2>Integer balls survive the write to disk</h2>
       <p>The packed format stores 32 weights in 18 bytes before kept columns and other file data. The experiment wrote the file, read it back and scored the reconstructed model. Keeping the ten columns of each feed-forward down projection most affected by clipping reduced Llama’s KL by 34.5%, from 0.051877 to 0.033987, at 4.50542 bpw. The same repair barely moves Qwen2.5 or SmolLM2.</p>
-      <div class="table-scroll">
+      <div class="table-scroll" tabindex="0" role="region" aria-label="Packed integer ball and Q4_K_M mean KL">
         <table>
           <caption>Mean KL to 16-bit · WikiText-2 test, 10,200 positions</caption>
           <thead><tr><th scope="col">Model</th><th scope="col">Packed ball<br>plain</th><th scope="col">Packed ball<br>kept columns</th><th scope="col">Q4_K_M<br>no matrix</th><th scope="col">Q4_K_M<br>with matrix</th></tr></thead>
