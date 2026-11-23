@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>siliquant status: real-weight results, open PRs, TPU v5e roofline</title>
+<style>
+  :root { --ink:#1E293B; --muted:#64748B; --teal:#0F766E; --amber:#B45309; --rose:#BE123C; --bg:#FAF8F5; --card:#FFFFFF; --line:#E2E8F0; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }
+  header { padding:28px 24px 8px; max-width:1100px; margin:0 auto; }
+  h1 { font-size:24px; margin:0 0 6px; }
+  h2 { font-size:18px; margin:0 0 10px; }
+  .sub { color:var(--muted); margin:0; }
+  main { max-width:1100px; margin:0 auto; padding:12px 24px 48px; }
+  section { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px; margin:18px 0; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:12px; }
+  .card { border:1px solid var(--line); border-radius:10px; padding:14px; background:var(--bg); }
+  .card .k { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; }
+  .card .v { font-size:20px; font-weight:700; margin-top:4px; }
+  .card .n { font-size:13px; color:var(--muted); margin-top:4px; }
+  table { width:100%; border-collapse:collapse; font-size:13.5px; }
+  th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { background:#F1F5F9; font-weight:600; }
+  td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; }
+  .tag { display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; border:1px solid var(--line); background:#fff; }
+  .tag.open { color:var(--teal); border-color:#99F6E4; background:#F0FDFA; }
+  .tag.merged { color:#334155; background:#F1F5F9; }
+  .tag.warn { color:var(--amber); border-color:#FDE68A; background:#FFFBEB; }
+  .bar { height:14px; background:var(--teal); border-radius:4px; min-width:2px; }
+  .bar.alt { background:#94A3B8; }
+  .barrow { display:grid; grid-template-columns:200px 1fr 110px; gap:10px; align-items:center; margin:6px 0; font-size:13.5px; }
+  .note { font-size:13px; color:var(--muted); }
+  a { color:var(--teal); }
+  code { background:#F1F5F9; padding:1px 5px; border-radius:4px; font-size:13px; }
+  @media (max-width:640px){ .barrow{ grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>siliquant: where the work stands</h1>
+  <p class="sub">Repository status as of Monday, November 23, 2026 (UTC). Source: <a href="https://github.com/Moissanite-Labs/siliquant">Moissanite-Labs/siliquant</a>. Main is at <code>fa5f397</code>.</p>
+</header>
+<main>
+
+<section>
+  <h2>Headline numbers</h2>
+  <div class="grid">
+    <div class="card"><div class="k">Real-weight E8 turned by Hadamard (PR #41)</div><div class="v">0.0189 KL</div><div class="n">Qwen2.5 at 4.5 bits. Q4_K_M: 0.0333. Measured on real weights, mean KL vs 16-bit model.</div></div>
+    <div class="card"><div class="k">SmolLM2 at 4.5 bits (PR #41)</div><div class="v">0.0515 vs 0.0838</div><div class="n">Turned E8 vs Q4_K_M at 4.8 bits.</div></div>
+    <div class="card"><div class="k">Llama-3.2 at 4.5 bits (PR #41)</div><div class="v">0.0360 vs 0.0432</div><div class="n">Turned E8 vs Q4_K_M at 4.8 bits.</div></div>
+    <div class="card"><div class="k">Z^32 packed footprint (PR #35)</div><div class="v">620.9 KB to 70.8 KB</div><div class="n">8.8x smaller compact table with zero shaping loss on the codebook count.</div></div>
+  </div>
+</section>
+
+<section>
+  <h2>Real-weight results: where each arm sits</h2>
+  <p class="note">Mean KL divergence against the 16-bit model, wikitext-2 test text, no calibration data. Lower is better. Figures from PR #41 (head <code>ab1022b</code>). Q4_K_M is llama.cpp's own quantiser at about 4.8 bits.</p>
+  <table>
+    <thead><tr><th>Model</th><th class="num">Turned E8, 4.5 bits</th><th class="num">Q4_K_M, about 4.8 bits</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>Qwen2.5-1.5B</td><td class="num">0.018875</td><td class="num">0.033348</td><td>Turned E8 ahead</td></tr>
+      <tr><td>SmolLM2-1.7B</td><td class="num">0.051522</td><td class="num">0.083761</td><td>Turned E8 ahead</td></tr>
+      <tr><td>Llama-3.2-1B</td><td class="num">0.036038</td><td class="num">0.043179</td><td>Turned E8 ahead</td></tr>
+    </tbody>
+  </table>
+  <p class="note">At 3.0 bits there is no single winner: integer levels beat the turned lattice on SmolLM2 by 20.2 errors, which was not predicted. No E8 arm has a packed file or decoder yet; bit counts are counted, not stored.</p>
+</section>
+
+<section>
+  <h2>Gemma-4-E4B-it (7.5B weights, 294 block matrices)</h2>
+  <p class="note">Output of the rounded model scored by llama.cpp's own tool against the unrounded model on 10,200 positions. Source: <code>experiments/model-output-gemma-e4b-2026-11-15/results.out</code>.</p>
+  <table>
+    <thead><tr><th>Variant</th><th class="num">Bits per weight</th><th class="num">Mean KL</th><th class="num">Top token kept, %</th></tr></thead>
+    <tbody>
+      <tr><td>Q4_0 (llama.cpp)</td><td class="num">4.500</td><td class="num">0.1173</td><td class="num">89.40</td></tr>
+      <tr><td>Q4_K_M (llama.cpp)</td><td class="num">4.803</td><td class="num">0.0689</td><td class="num">91.79</td></tr>
+      <tr><td>E8, one scale per 16 weights, with balancing (VE832:16)</td><td class="num">4.500</td><td class="num">0.0747</td><td class="num">91.57</td></tr>
+      <tr><td>E8 balanced, one scale per 32 weights (VE8R:32)</td><td class="num">5.005</td><td class="num">0.0593</td><td class="num">92.32</td></tr>
+    </tbody>
+  </table>
+  <p class="note">Scored record verdict: 10 of 18 predictions held. Weight error did not rank the arms by output: rank correlation with mean KL was about 0.75 on pooled weight error. The record reports that clipping the large weights of one matrix type costs more output than the rounding it avoids.</p>
+</section>
+
+<section>
+  <h2>Roofline: TPU v5e, decode ceilings (arithmetic, not measured)</h2>
+  <p class="note">Weight-only, batch 1, HBM bandwidth 819 GB/s. These are exact bandwidth ceilings from the bridge certificate (<code>studies/expedition-siliquant-bridges-audit103r2</code>). Measured kernel tokens per second are not present in the certificate (<code>measured_kernel_tok_s_present: false</code>).</p>
+  <h3 style="font-size:15px;margin:14px 0 4px">Gemma-4-E4B: decode ceiling, tokens per second</h3>
+  <div class="barrow"><span>FP16</span><div><div class="bar alt" style="width:28%"></div></div><span class="num">102.4</span></div>
+  <div class="barrow"><span>Q4_K_M (4.80 bits)</span><div><div class="bar alt" style="width:93%"></div></div><span class="num">341.3</span></div>
+  <div class="barrow"><span>ZBG128 (4.50 bits)</span><div><div class="bar" style="width:99%"></div></div><span class="num">364.0</span></div>
+  <div class="barrow"><span>E8_Had (4.47 bits)</span><div><div class="bar" style="width:100%"></div></div><span class="num">366.4</span></div>
+  <p class="note">E8_Had moves 2.235 GB per token against 2.400 GB for Q4_K_M, a 1.07x bandwidth ratio. That is the whole roofline gap on this model; it is not a speed claim.</p>
+  <h3 style="font-size:15px;margin:14px 0 4px">Measured CPU kernels (AMD Athlon Silver 3050U, Zen 1)</h3>
+  <table>
+    <thead><tr><th>Kernel</th><th class="num">Million weights per second</th><th class="num">Versus matched Q4</th></tr></thead>
+    <tbody>
+      <tr><td>Q4_K_M-style AVX2/FMA GEMV (baseline)</td><td class="num">6,178</td><td class="num">1.00x</td></tr>
+      <tr><td>E8_Had 136-bit, adjoint batch-4 GEMV</td><td class="num">34.8</td><td class="num">177.6x slower</td></tr>
+      <tr><td>E8_Had 88-bit (3.0 bpw), adjoint batch-4 GEMV</td><td class="num">63.0</td><td class="num">98.1x slower</td></tr>
+    </tbody>
+  </table>
+  <p class="note">Source: PR #36 (AUDIT-115R). Stage 1, inner E8 leaf unranking, takes 68 to 75 percent of cycles. Removing the Walsh-Hadamard step can gain only 2 to 3 percent until Stage 1 is redesigned. The record states no CPU superiority over Q4_K_M.</p>
+  <p class="note">PR #35 (AUDIT-112R) reports a C11 codec that reaches 46 to 65 million weights per second per core, still 689 to 1,233 times slower than the Q4_K_M CPU figure cited in #23. The record claims no CPU win.</p>
+</section>
+
+<section>
+  <h2>Open pull requests and in-flight work</h2>
+  <table>
+    <thead><tr><th>PR</th><th>Title</th><th>Author</th><th>Status</th><th>Head</th></tr></thead>
+    <tbody>
+      <tr><td><a href="https://github.com/Moissanite-Labs/siliquant/pull/12">#12</a></td><td>Real-weight KL scoring, hZBG128 ball baseline, packed file, and checks</td><td>orda-aska</td><td><span class="tag merged">Merged</span></td><td>Merge commit <code>bee2545</code></td></tr>
+      <tr><td><a href="https://github.com/Moissanite-Labs/siliquant/pull/41">#41</a></td><td>E8 turned by a Hadamard matrix on real weights (#25 step 1), read guard, plan-before-data header</td><td>—</td><td><span class="tag open">Open</span></td><td><code>ab1022b</code></td></tr>
+      <tr><td><a href="https://github.com/Moissanite-Labs/siliquant/pull/35">#35</a></td><td>Binary-tree shell-convolution unranking and C11 packed E8^4 codec (AUDIT-112R)</td><td>abu-aska</td><td><span class="tag open">Open</span> <span class="tag warn">Blocked</span></td><td><code>419477a</code></td></tr>
+      <tr><td><a href="https://github.com/Moissanite-Labs/siliquant/pull/36">#36</a></td><td>Zero-table E8_Had adjoint GEMV and real-hardware cycle breakdown (AUDIT-115R)</td><td>abu-aska</td><td><span class="tag open">Open</span> <span class="tag warn">Blocked</span></td><td><code>e1b7f73</code></td></tr>
+      <tr><td><a href="https://github.com/Moissanite-Labs/siliquant/pull/39">#39</a></td><td>Branchless int32 guide and leader-phase audit, Stage 1 (AUDIT-116R)</td><td>abu-aska</td><td><span class="tag merged">Merged</span></td><td>Into main, <code>fa5f397</code></td></tr>
+      <tr><td><a href="https://github.com/Moissanite-Labs/siliquant/pull/40">#40</a></td><td>Bind and strictly validate codebook receipts (shape/)</td><td>orda-aska</td><td><span class="tag open">Open</span></td><td><code>6a58d81</code></td></tr>
+      <tr><td><a href="https://github.com/Moissanite-Labs/siliquant/pull/42">#42</a></td><td>Pure-Q E8_Had outlier anisotropy, Block-H2 equals WHT_8, Gate-8 study (AUDIT-119BR)</td><td>abu-aska</td><td><span class="tag open">Open</span></td><td><code>4f7e4ad</code></td></tr>
+      <tr><td><a href="https://github.com/Moissanite-Labs/siliquant/pull/43">#43</a></td><td>Split all Unicode \p{N} numbers in SmolLM2 pre-tokenizer (closes #37)</td><td>abu-aska</td><td><span class="tag open">Open</span></td><td><code>e5adc05</code></td></tr>
+      <tr><td><a href="https://github.com/Moissanite-Labs/siliquant/pull/44">#44</a></td><td>Zero-extra-bit graded conformal-wing E8^Had shell packing and bulk Steiner parity wall (AUDIT-121AR)</td><td>abu-aska</td><td><span class="tag open">Open</span></td><td><code>168fbe3</code></td></tr>
+    </tbody>
+  </table>
+  <p class="note">PR #39 is already merged into main; it was listed as in flight in the request. PR #35 and #36 are reported as blocked by GitHub's mergeable state. Research PRs in this list (#42, #44) are standalone exact studies and are not wired into the runtime.</p>
+</section>
+
+<section>
+  <h2>Stage 2 safety and bridge status</h2>
+  <div class="grid">
+    <div class="card"><div class="k">Bridge certificate</div><div class="v">Passed</div><div class="n">AUDIT-103, five axes and all gates passed (<code>siliquant_bridge_certificate.json</code>).</div></div>
+    <div class="card"><div class="k">Mutation kill rate, AUDIT-115R</div><div class="v">41 of 41</div><div class="n">Killed under aletheia v2.0.0 with zero survivors.</div></div>
+    <div class="card"><div class="k">Mutation kill rate, AUDIT-121AR</div><div class="v">74 of 74</div><div class="n">Plus exhaustive BoolOp check and a Zone-B fuzzer pass.</div></div>
+  </div>
+  <p class="note">These are verification results reported in each PR body. The repository's own checks (claim ledger, number trace, plan-before-data) were reported as exit 0 at the heads listed.</p>
+</section>
+
+<section>
+  <h2>Limits</h2>
+  <ul>
+    <li>Real-weight KL is measured on wikitext-2 test text only, with no calibration data. Other kinds of text are not yet tested for PR #41 arms.</li>
+    <li>No packed format or decoder yet exists for the turned E8 lattice. Its bit counts are counted, not stored.</li>
+    <li>Roofline figures are bandwidth ceilings. Measured kernel tokens per second are not in the record.</li>
+    <li>On CPU, every E8 arm is far slower than the Q4_K_M baseline. The records state this and do not claim otherwise.</li>
+  </ul>
+</section>
+
+</main>
+</body>
+</html>
