@@ -7,15 +7,15 @@
 
 ## 1. Contents (Zero Edits to Existing `siliquant` Files)
 
-All 5 core study files below are byte-identical to the frozen `AUDIT-103R2` verified package:
+The SHA-256 values below cover the five core study files in this directory:
 
 | File | SHA-256 | Role |
 |---|---|---|
 | [`siliquant_bridge_oracle.py`](siliquant_bridge_oracle.py) | `cea1b40fc4fa6ba660c56f54aac6ebdcd57d707e114f1627da668f792964c94b` | Branchless `int64` Conway–Sloane $E_8$ decoder + brute-force verifier, `siliquant#16` `Code.centre` floor witness, Part-E TPU v5e roofline oracle, Turrigiano/Barkai–Leibler/Kirchhoff $R_{\mathrm{eff}}$ bridges, al-Bīrūnī/al-Kāshī conditioning & contraction, fail-closed certifier |
-| [`siliquant_bridge_audit.py`](siliquant_bridge_audit.py) | `d218ba6728c995e7d91786853ea28685d0d7495b2d22bd071350919165dd586e` | Dual-mode CLI (`--standalone` 100% offline vs. `--live` read-only temp shared clone with zero writes to `.git`) |
-| [`test_siliquant_bridge_r5.py`](test_siliquant_bridge_r5.py) | `b3d175ea03d6b441f96e27a0b143a57f5fcdca3e92481b46f1c5b0645ffd61d0` | Assertion-free R5 mutation-killing, 48×512 exhaustive $E_8$ brute-force, & temporary-git-repo live-path suite (`6/6` OK) |
-| [`siliquant_bridge_certificate.json`](siliquant_bridge_certificate.json) | `62338fa92540d08e75412c709ed6326082af7a40cc97de0c150eff02506d0eef` | Pinned live-repo canonical certificate (`payload_sha256` inner `6afebf60...`) |
-| [`SILIQUANT_BRIDGE_REPORT.md`](SILIQUANT_BRIDGE_REPORT.md) | `a0a93c8aaf389d5a6cb73dbaf92a5e34ae6e3ae40e94393ab29f65dfe9e0d1d8` | Full technical report, PR `#12`/`#24`/`#26`/`#27` diagnostic, and exact operator bridges |
+| [`siliquant_bridge_audit.py`](siliquant_bridge_audit.py) | `16a1182cacafefda46fc703eb2fde1a0b65c94af3746cdf19b093efcaf86cdaf` | Dual-mode CLI (`--standalone` 100% offline vs. `--live` read-only temp shared clone with zero writes to `.git`) |
+| [`test_siliquant_bridge_r5.py`](test_siliquant_bridge_r5.py) | `46990afbdf1fd8edb97350cdeea317675f2c1f84fdff9f718dd029ea1c463a60` | Assertion-free R5 mutation-killing, 48×512 exhaustive $E_8$ brute-force, & temporary-git-repo live-path suite (`6/6` OK) |
+| [`siliquant_bridge_certificate.json`](siliquant_bridge_certificate.json) | `62338fa92540d08e75412c709ed6326082af7a40cc97de0c150eff02506d0eef` | Pinned live-repo canonical certificate (`certificate_sha256` inner `6afebf60...`) |
+| [`SILIQUANT_BRIDGE_REPORT.md`](SILIQUANT_BRIDGE_REPORT.md) | `3c1db377023b78f988f99b2f2840daf4a6418767981503b02376abe661fcfe36` | Full technical report, PR `#12`/`#24`/`#26`/`#27` diagnostic, and exact operator bridges |
 
 ## 2. Highlights & Honest Boundaries
 
