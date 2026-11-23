@@ -2208,10 +2208,20 @@
           </div>
         </div>
 
+        <h4 class="sub-title" id="gemma-3-12b">Gemma 3 12B · BF16 reference</h4>
+        <p class="prose"><span class="pill pill-neutral">Measured on an unmerged branch · not on main</span></p>
+        <p class="prose">
+          In the <a href="https://github.com/Moissanite-Labs/siliquant/blob/ba5ec5a64c3252ef4c0caa1c23bc33b0594ab506/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-12b-it/results.out">12B sweep</a>, the calibrated <code>hZBG128:b560s16</code> ball at <code>4.5026 bpw</code> scores <code>24.0%</code> lower in mean KL on WikiText and <code>17.6%</code> lower on Python than calibrated <code>Q4_K_M</code> at <code>4.8076 bpw</code>. The rates are unequal and count quantised blocks only, not whole-model storage or serving throughput.
+        </p>
+        <div class="callout">
+          <span class="callout-tag">Provisional</span>
+          <div>Every stock arm in the <a href="https://github.com/Moissanite-Labs/siliquant/blob/ba5ec5a64c3252ef4c0caa1c23bc33b0594ab506/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-12b-it/results.jsonl">receipts</a> differs from the BF16 reference at <code>token_embd.weight</code>: the <a href="https://github.com/Moissanite-Labs/siliquant/blob/ca10cdacd9b1251b989d5fb66578bfe7e8f2554e/experiments/model-output-gemma-ball-2026-11-23/run.py#L731-L752">stock runner</a> requests F16 for that tensor, while the ball path copies it unchanged. The comparison is not tensor-matched; a tensor-matched stock rerun is pending.</div>
+        </div>
+
         <!-- 4.3 Preregistration Ledger -->
         <h3 class="sub-title" style="margin-top: 8px;">
           <span class="mono" style="color:var(--text-muted);">4.3</span>
-          <span>Preregistration Scoring Ledger (Gemma 3 Merged)</span>
+          <span>Preregistration Scoring Ledger (Gemma 3 270M / 1B / 4B)</span>
         </h3>
 
         <div class="table-wrap">
@@ -2480,7 +2490,7 @@
               <tr>
                 <td><strong>Evaluation Scope</strong></td>
                 <td><span class="pill pill-neutral">SCOPE</span></td>
-                <td>Gemma 3 <code>270M</code>, <code>1B</code>, <code>4B</code> evaluated on two texts (16-bit ref) plus Gemma 4 E4B bridge (8-bit ref). Decode baseline <code>18–23M</code> w/s/core (fastest <code>58–65M</code>).</td>
+                <td>Gemma 3 <code>270M</code>, <code>1B</code>, <code>4B</code> and provisional <a href="#gemma-3-12b">12B</a> evaluated on two texts (16-bit ref), plus the Gemma 4 E4B bridge (8-bit ref). Decode baseline <code>18–23M</code> w/s/core (fastest <code>58–65M</code>).</td>
               </tr>
             </tbody>
           </table>
