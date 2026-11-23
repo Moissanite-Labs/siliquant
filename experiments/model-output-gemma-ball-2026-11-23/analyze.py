@@ -201,11 +201,15 @@ def select(rows, model, text):
             if m == model and t == text and "kl_mean" in row}
 
 
+class InvalidRateCurve(ValueError):
+    pass
+
+
 def matched_rate(points, target):
     points = sorted(points)
     require(len(points) >= 2, "at least two rates required")
-    require(all(x0 < x1 and y0 > y1 for (x0, y0), (x1, y1) in zip(points, points[1:])),
-            "iso-quality needs strictly ordered, decreasing observed rates/KL")
+    if not all(x0 < x1 and y0 > y1 for (x0, y0), (x1, y1) in zip(points, points[1:])):
+        raise InvalidRateCurve("iso-quality needs strictly ordered, decreasing observed rates/KL")
     if target > points[0][1]:
         return ("bound", points[0][0])
     for (x0, y0), (x1, y1) in zip(points, points[1:]):
@@ -289,7 +293,11 @@ def impact(rows, model, f16):
             for baseline in (Q4, Q4KM, Q4IMAT):
                 if baseline not in cells:
                     continue
-                kind, rate = matched_rate(points, cells[baseline]["kl_mean"])
+                try:
+                    kind, rate = matched_rate(points, cells[baseline]["kl_mean"])
+                except InvalidRateCurve as exc:
+                    lines.append(f"| {family} / {baseline} | — | — | — | unavailable: {exc} |")
+                    continue
                 old = Q(cells[baseline]["bits_per_weight"])
                 saved = old - rate if rate is not None else None
                 if family == "Real matrix" and baseline == Q4IMAT and saved is not None:

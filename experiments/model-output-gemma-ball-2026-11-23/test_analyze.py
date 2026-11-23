@@ -127,8 +127,9 @@ class ImpactTests(unittest.TestCase):
         self.assertEqual(a.matched_rate(points[1:], Q(3, 20)), ("interpolated", Q(19, 4)))
         with self.assertRaisesRegex(ValueError, "at least two rates required"):
             a.matched_rate(points[:1], Q(1, 4))
-        with self.assertRaises(ValueError):
-            a.matched_rate([(4, 1), (5, 2)], 1)
+        for invalid in ([(4, 1), (5, 2)], [(4, 1), (5, 1)], [(4, 2), (4, 1)]):
+            with self.subTest(invalid=invalid), self.assertRaises(a.InvalidRateCurve):
+                a.matched_rate(invalid, 1)
 
     def test_exact_deltas_and_se_boundary(self):
         base = dict(kl_mean=Q("0.2"), kl_mean_se=Q("0.04"), same_top=80, ppl=10)
@@ -161,6 +162,18 @@ class ImpactTests(unittest.TestCase):
         self.assertNotIn("model_sha256", next(iter(cells.values())))
         with self.assertRaises(ValueError):
             a.load_transcribed_table(row.replace(b"90", b"190"), "gemma-3-270m-it")
+
+    def test_nonmonotone_curve_refuses_only_its_interpolation(self):
+        raw = synthetic_row(variant=a.Q4, bits_per_weight=4.5, kl_mean=0.2,
+                            file_sha256="d" * 64, other_tensors_that_differ=[])
+        for arm, rate, kl in ((a.PLAIN4, 4, 0.3), (a.PLAIN, 4.5, 0.1), (a.PLAIN5, 5, 0.1),
+                              (a.MATRIX4, 4, 0.25), (a.MATRIX, 4.5, 0.12), (a.RAND, 4.5, 0.14)):
+            raw += synthetic_row(variant=arm, bits_per_weight=rate, kl_mean=kl)
+        report = a.impact(a.load_rows([raw]), "gemma-3-270m-it", {})
+        self.assertIn(f"| Plain / {a.Q4} | — | — | — | unavailable:", report)
+        self.assertIn(f"| Real matrix / {a.Q4} | 4.1923 | 0.3077 | 6.84% | interpolated |", report)
+        self.assertIn(f"| {a.PLAIN} → {a.Q4} |", report)
+        self.assertIn(f"| {a.MATRIX} → {a.RAND} |", report)
 
     def test_cli_refuses_before_emitting_report(self):
         with TemporaryDirectory() as tmp:
