@@ -1,5 +1,11 @@
 # Gemma 3 270M — Runner output transcription
 
+**Verification update (2026-11-23):** The raw files were later retrieved from
+results commit `964b5f4`. Both output SHA-256 hashes match the receipts below,
+and all 170 transcribed numeric fields reconcile at printed precision. See
+the [results receipts](../RESULTS_RECEIPTS.md) for the checks and their scope.
+The original transcription follows.
+
 Source: Message from the runner operator, 2026-11-23. The sender reported 34 rows, 17 variants
 on both texts, zero errors, and F16 reference PPL 50.594102 on wikitext and
 8.38385 on Python. The raw runner files were not available on the remote

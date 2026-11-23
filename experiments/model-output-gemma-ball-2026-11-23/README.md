@@ -43,3 +43,6 @@ From this experiment directory, use `python3 -I -B analyze.py results.jsonl
 Add later models as separate `reports/impact/<model>` records. Run
 `test_analyze.py` under `-I -B`, `-I -O -B`, and `-I -B -W error`.
 Rendering the PNG separately uses Matplotlib.
+
+See [current R5 status](verification/AUDIT_LOG.md#current-r5-status) for
+the passing mutation result and its relation to the earlier audit.
