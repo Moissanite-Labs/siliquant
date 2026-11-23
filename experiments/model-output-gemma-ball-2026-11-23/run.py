@@ -82,16 +82,42 @@ VORONOI_RE = re.compile(r"^(H?)VE8(Z?)(\d+|R):(\d+)$")
 
 LOUD_LIMIT_SIGMA = 5.0
 SCALE_STEPS = {16: None, 8: 16, 6: 8}
-_TOKEN_EMBD_TYPE_MAP = {
-    "BF16": "bf16",
-    "F16": "f16",
-    "F32": "f32",
-}
 _GGML_TYPE_CODES = {
     0: "F32",
     1: "F16",
+    2: "Q4_0",
+    3: "Q4_1",
+    6: "Q5_0",
+    7: "Q5_1",
+    8: "Q8_0",
+    9: "Q8_1",
+    10: "Q2_K",
+    11: "Q3_K",
+    12: "Q4_K",
+    13: "Q5_K",
+    14: "Q6_K",
+    15: "Q8_K",
+    16: "IQ2_XXS",
+    17: "IQ2_XS",
+    18: "IQ3_XXS",
+    19: "IQ1_S",
+    20: "IQ4_NL",
+    21: "IQ3_S",
+    22: "IQ2_S",
+    23: "IQ4_XS",
+    24: "I8",
+    25: "I16",
+    26: "I32",
+    27: "I64",
+    28: "F64",
+    29: "IQ1_M",
     30: "BF16",
+    34: "TQ1_0",
+    35: "TQ2_0",
+    39: "MXFP4",
 }
+_GGML_TYPE_MAP = {name: name.lower() for name in _GGML_TYPE_CODES.values()}
+_BLK_LAYER_RE = re.compile(r"^blk\.(\d+)\.(.+)$")
 
 
 def arm_needs_real_imat(arm):
@@ -769,7 +795,7 @@ def ensure_imatrix(model_path, text_path, imatrix_path, binary, chunks, ctx, bat
     return cmd
 
 
-def _ggml_type_flag(tensor_type):
+def _ggml_type_flag(tensor_type, tensor_name="tensor"):
     """Map a GGUF tensor_type (enum, string, or GGML type code) to a llama-quantize --tensor-type value."""
     name = getattr(tensor_type, "name", None)
     if name is not None:
@@ -780,37 +806,76 @@ def _ggml_type_flag(tensor_type):
         key = _GGML_TYPE_CODES.get(int(tensor_type))
     else:
         key = None
-    if key in _TOKEN_EMBD_TYPE_MAP:
-        return _TOKEN_EMBD_TYPE_MAP[key]
-    raise ValueError(f"unsupported token_embd.weight tensor_type: {tensor_type!r} (expected BF16, F16, or F32)")
+    if key in _GGML_TYPE_MAP:
+        return _GGML_TYPE_MAP[key]
+    raise ValueError(f"unsupported {tensor_name} tensor_type: {tensor_type!r}")
+
+
+def _is_block_target(name, shape=None):
+    return bool(BLOCK.match(name)) and (shape is None or len(shape) == 2)
 
 
 def quantize_tensor_type_flags(tensors, token_embd_type=None):
-    """Preserve non-block Gemma tensors (token_embd in its source dtype + E4B proj/gate tensors if present).
+    """Preserve every non-block tensor in its exact source GGUF dtype.
 
     `tensors` may be an iterable of GGUF tensor objects (with `.name` and `.tensor_type`)
-    or plain tensor name strings. When `token_embd_type` is omitted, it is inferred from
-    the `token_embd.weight` tensor object if present, defaulting to `f16`.
+    or plain tensor name strings. For tensor objects, every non-block tensor keeps its
+    exact source `tensor_type` (bf16, f16, f32, q8_0, etc.), collapsing uniform
+    `blk.<n>.<suffix>` groups into a single anchored regex `^blk\\.\\d+\\.<suffix>$=<type>`.
+    When `token_embd_type` is explicitly supplied, it overrides `token_embd.weight` (and
+    serves as the fallback dtype for string-only calls, defaulting to `f16` for token
+    embedding tensors and `f32` for other non-block string names).
     """
-    names = set()
-    inferred_type = token_embd_type
+    default_embd_flag = _ggml_type_flag(token_embd_type, "token_embd.weight") if token_embd_type is not None else "f16"
+    non_block = []
+    seen = set()
     for item in tensors:
         if isinstance(item, str):
-            names.add(item)
+            tname = item
+            if tname in seen or _is_block_target(tname):
+                continue
+            seen.add(tname)
+            if tname in ("token_embd.weight", "per_layer_token_embd.weight"):
+                flag = default_embd_flag
+            elif token_embd_type is not None:
+                flag = default_embd_flag
+            else:
+                flag = "f32"
+            non_block.append((tname, flag))
         else:
             tname = item.name
-            names.add(tname)
-            if inferred_type is None and tname == "token_embd.weight":
-                inferred_type = getattr(item, "tensor_type", None)
+            shape = getattr(item, "shape", None)
+            if tname in seen or _is_block_target(tname, shape):
+                continue
+            seen.add(tname)
+            if token_embd_type is not None and tname == "token_embd.weight":
+                flag = default_embd_flag
+            else:
+                flag = _ggml_type_flag(getattr(item, "tensor_type", None), tname)
+            non_block.append((tname, flag))
 
-    embd_flag = _ggml_type_flag(inferred_type) if inferred_type is not None else "f16"
-    flags = ["--tensor-type", rf"^token_embd\.weight$={embd_flag}"]
-    if any("per_layer_model_proj" in n for n in names):
-        flags.extend(["--tensor-type", "per_layer_model_proj=f32"])
-    if any("inp_gate" in n for n in names):
-        flags.extend(["--tensor-type", "inp_gate=f32"])
-    if any(".proj." in n for n in names):
-        flags.extend(["--tensor-type", r"\.proj\.=f32"])
+    blk_groups = {}
+    for tname, flag in non_block:
+        m = _BLK_LAYER_RE.match(tname)
+        if m:
+            blk_groups.setdefault(m.group(2), []).append((tname, flag))
+
+    collapsible = {}
+    for suffix, entries in blk_groups.items():
+        if len(entries) > 1 and len({f for _, f in entries}) == 1 and not BLOCK.match(f"blk.0.{suffix}"):
+            collapsible[suffix] = entries[0][1]
+
+    flags = []
+    emitted_suffixes = set()
+    for tname, flag in non_block:
+        m = _BLK_LAYER_RE.match(tname)
+        if m and m.group(2) in collapsible:
+            suffix = m.group(2)
+            if suffix not in emitted_suffixes:
+                flags.extend(["--tensor-type", rf"^blk\.\d+\.{re.escape(suffix)}$={collapsible[suffix]}"])
+                emitted_suffixes.add(suffix)
+        else:
+            flags.extend(["--tensor-type", rf"^{re.escape(tname)}$={flag}"])
     return flags
 
 

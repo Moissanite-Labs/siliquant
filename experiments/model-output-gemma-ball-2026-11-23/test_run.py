@@ -6,6 +6,7 @@ import enum
 import importlib.util
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -111,33 +112,42 @@ class TestGemmaBallRunner(unittest.TestCase):
             F32 = 0
             F16 = 1
             Q8_0 = 8
+            Q4_K = 12
             BF16 = 30
+            UNKNOWN = 999
 
-        def fake_tensor(name, ttype):
-            return types.SimpleNamespace(name=name, tensor_type=ttype)
+        def fake_tensor(name, ttype, shape=None, data=None):
+            ns = types.SimpleNamespace(name=name, tensor_type=ttype)
+            if shape is not None:
+                ns.shape = shape
+            if data is not None:
+                ns.data = data
+                ns.n_bytes = data.nbytes
+            return ns
 
-        # String-only call defaults to f16
+        # String-only call defaults to f16 for token embeddings
         base_flags = R.quantize_tensor_type_flags(["token_embd.weight", "blk.0.attn_q.weight"])
         self.assertEqual(base_flags, ["--tensor-type", r"^token_embd\.weight$=f16"])
 
-        # Enum tensor_type inspection preserves BF16, F16, and F32
-        bf16_flags = R.quantize_tensor_type_flags([
-            fake_tensor("token_embd.weight", FakeType.BF16),
-            fake_tensor("blk.0.attn_q.weight", FakeType.BF16),
-        ])
-        self.assertEqual(bf16_flags, ["--tensor-type", r"^token_embd\.weight$=bf16"])
-
-        f16_flags = R.quantize_tensor_type_flags([
-            fake_tensor("token_embd.weight", FakeType.F16),
-            fake_tensor("blk.0.attn_q.weight", FakeType.F16),
-        ])
-        self.assertEqual(f16_flags, ["--tensor-type", r"^token_embd\.weight$=f16"])
-
-        f32_flags = R.quantize_tensor_type_flags([
-            fake_tensor("token_embd.weight", FakeType.F32),
-            fake_tensor("blk.0.attn_q.weight", FakeType.F32),
-        ])
-        self.assertEqual(f32_flags, ["--tensor-type", r"^token_embd\.weight$=f32"])
+        # Enum tensor_type inspection preserves BF16, F16, F32, and Q8_0
+        for ttype, flag_val in (
+            (FakeType.BF16, "bf16"),
+            (FakeType.F16, "f16"),
+            (FakeType.F32, "f32"),
+            (FakeType.Q8_0, "q8_0"),
+        ):
+            flags = R.quantize_tensor_type_flags([
+                fake_tensor("token_embd.weight", ttype),
+                fake_tensor("per_layer_token_embd.weight", ttype),
+                fake_tensor("blk.0.attn_q.weight", ttype),
+            ])
+            self.assertEqual(
+                flags,
+                [
+                    "--tensor-type", rf"^token_embd\.weight$={flag_val}",
+                    "--tensor-type", rf"^per_layer_token_embd\.weight$={flag_val}",
+                ],
+            )
 
         # Raw GGML integer type codes also map cleanly
         self.assertEqual(
@@ -145,37 +155,144 @@ class TestGemmaBallRunner(unittest.TestCase):
             ["--tensor-type", r"^token_embd\.weight$=bf16"],
         )
         self.assertEqual(
+            R.quantize_tensor_type_flags([fake_tensor("per_layer_token_embd.weight", 8)]),
+            ["--tensor-type", r"^per_layer_token_embd\.weight$=q8_0"],
+        )
+        self.assertEqual(
             R.quantize_tensor_type_flags([fake_tensor("token_embd.weight", 0)]),
             ["--tensor-type", r"^token_embd\.weight$=f32"],
         )
 
-        # E4B BF16 checkpoint keeps bf16 on token_embd plus f32 on E4B proj/gate tensors
-        e4b_tensors = [
-            fake_tensor("token_embd.weight", FakeType.BF16),
-            fake_tensor("per_layer_model_proj.weight", FakeType.F32),
-            fake_tensor("blk.0.inp_gate.weight", FakeType.F32),
-            fake_tensor("blk.0.alt.proj.weight", FakeType.F32),
+        # E4B BF16 checkpoint preserves native source dtypes (never hardcoding =f32)
+        # and collapses uniform multi-layer non-block tensors into ^blk\.\d+\.<suffix>$
+        e4b_bf16_tensors = [
+            fake_tensor("token_embd.weight", FakeType.BF16, shape=(256, 16)),
+            fake_tensor("per_layer_token_embd.weight", FakeType.BF16, shape=(256, 16)),
+            fake_tensor("per_layer_model_proj.weight", FakeType.BF16, shape=(256, 16)),
+            fake_tensor("blk.0.inp_gate.weight", FakeType.BF16, shape=(256, 16)),
+            fake_tensor("blk.1.inp_gate.weight", FakeType.BF16, shape=(256, 16)),
+            fake_tensor("blk.0.proj.weight", FakeType.BF16, shape=(256, 16)),
+            fake_tensor("blk.1.proj.weight", FakeType.BF16, shape=(256, 16)),
+            fake_tensor("blk.0.alt.proj.weight", FakeType.F32, shape=(256, 16)),
+            fake_tensor("blk.0.attn_q.weight", FakeType.BF16, shape=(256, 16)),
+            fake_tensor("blk.1.attn_q.weight", FakeType.BF16, shape=(256, 16)),
         ]
-        e4b_flags = R.quantize_tensor_type_flags(e4b_tensors)
-        self.assertEqual(e4b_flags[:2], ["--tensor-type", r"^token_embd\.weight$=bf16"])
-        self.assertIn("per_layer_model_proj=f32", e4b_flags)
-        self.assertIn("inp_gate=f32", e4b_flags)
-        self.assertIn(r"\.proj\.=f32", e4b_flags)
+        e4b_flags = R.quantize_tensor_type_flags(e4b_bf16_tensors)
+        self.assertEqual(
+            e4b_flags,
+            [
+                "--tensor-type", r"^token_embd\.weight$=bf16",
+                "--tensor-type", r"^per_layer_token_embd\.weight$=bf16",
+                "--tensor-type", r"^per_layer_model_proj\.weight$=bf16",
+                "--tensor-type", r"^blk\.\d+\.inp_gate\.weight$=bf16",
+                "--tensor-type", r"^blk\.\d+\.proj\.weight$=bf16",
+                "--tensor-type", r"^blk\.0\.alt\.proj\.weight$=f32",
+            ],
+        )
 
-        # ensure_baseline_gguf forwards the inspected BF16 flag in its llama-quantize command
+        # Mixed dtypes across layers stay separate exact anchored flags instead of collapsing
+        mixed_flags = R.quantize_tensor_type_flags([
+            fake_tensor("blk.0.inp_gate.weight", FakeType.BF16),
+            fake_tensor("blk.1.inp_gate.weight", FakeType.F32),
+        ])
+        self.assertEqual(
+            mixed_flags,
+            [
+                "--tensor-type", r"^blk\.0\.inp_gate\.weight$=bf16",
+                "--tensor-type", r"^blk\.1\.inp_gate\.weight$=f32",
+            ],
+        )
+
+        # ensure_baseline_gguf forwards all preserved non-block flags
         cmd = R.ensure_baseline_gguf(
             "model-bf16.gguf",
             "out-Q4_K_M.gguf",
             "Q4_K_M",
             "llama-quantize",
-            e4b_tensors,
+            e4b_bf16_tensors,
             dry_run=True,
         )
         self.assertIn(r"^token_embd\.weight$=bf16", cmd)
+        self.assertIn(r"^per_layer_token_embd\.weight$=bf16", cmd)
+        self.assertIn(r"^per_layer_model_proj\.weight$=bf16", cmd)
+        self.assertIn(r"^blk\.\d+\.inp_gate\.weight$=bf16", cmd)
+        self.assertIn(r"^blk\.\d+\.proj\.weight$=bf16", cmd)
 
-        # Unsupported token_embd.weight dtype fails closed
+        # Unsupported or missing tensor_type fails closed
         with self.assertRaises(ValueError):
-            R.quantize_tensor_type_flags([fake_tensor("token_embd.weight", FakeType.Q8_0)])
+            R.quantize_tensor_type_flags([fake_tensor("token_embd.weight", FakeType.UNKNOWN)])
+        with self.assertRaises(ValueError):
+            R.quantize_tensor_type_flags([fake_tensor("per_layer_token_embd.weight", None)])
+        with self.assertRaises(ValueError):
+            R.quantize_tensor_type_flags([fake_tensor("per_layer_model_proj.weight", "BOGUS")])
+
+        # End-to-end compare_file check across BF16, F16, and F32 models:
+        # simulate llama-quantize applying --tensor-type regex overrides (first match wins,
+        # unmatched 2D tensors quantized to Q4_K) and verify other_tensors_that_differ == [].
+        flag_to_enum = {
+            "bf16": FakeType.BF16,
+            "f16": FakeType.F16,
+            "f32": FakeType.F32,
+            "q8_0": FakeType.Q8_0,
+            "q4_k": FakeType.Q4_K,
+        }
+        norm_vec = np.ones((16,), dtype=np.float32)
+        for model_dtype in (FakeType.BF16, FakeType.F16, FakeType.F32):
+            ref_tensors = [
+                fake_tensor("token_embd.weight", model_dtype, shape=(256, 16), data=self.W),
+                fake_tensor("per_layer_token_embd.weight", model_dtype, shape=(256, 16), data=self.W),
+                fake_tensor("per_layer_model_proj.weight", model_dtype, shape=(256, 16), data=self.W),
+                fake_tensor("output.weight", model_dtype, shape=(256, 16), data=self.W),
+                fake_tensor("output_norm.weight", FakeType.F32, shape=(16,), data=norm_vec),
+                fake_tensor("blk.0.attn_norm.weight", FakeType.F32, shape=(16,), data=norm_vec),
+                fake_tensor("blk.1.attn_norm.weight", FakeType.F32, shape=(16,), data=norm_vec),
+                fake_tensor("blk.0.inp_gate.weight", model_dtype, shape=(256, 16), data=self.W),
+                fake_tensor("blk.1.inp_gate.weight", model_dtype, shape=(256, 16), data=self.W),
+                fake_tensor("blk.0.proj.weight", model_dtype, shape=(256, 16), data=self.W),
+                fake_tensor("blk.1.proj.weight", model_dtype, shape=(256, 16), data=self.W),
+                fake_tensor("blk.0.attn_q.weight", model_dtype, shape=(256, 16), data=self.W),
+                fake_tensor("blk.1.ffn_down.weight", model_dtype, shape=(256, 16), data=self.W),
+            ]
+            flags = R.quantize_tensor_type_flags(ref_tensors)
+            overrides = []
+            for idx in range(0, len(flags), 2):
+                self.assertEqual(flags[idx], "--tensor-type")
+                pat, tname = flags[idx + 1].rsplit("=", 1)
+                overrides.append((re.compile(pat), flag_to_enum[tname]))
+
+            quant_tensors = []
+            for t in ref_tensors:
+                override_type = None
+                for pat, target_type in overrides:
+                    if pat.search(t.name):
+                        override_type = target_type
+                        break
+                if override_type is not None:
+                    out_type = override_type
+                    out_data = t.data.copy() if out_type == t.tensor_type else (t.data * 0.99)
+                else:
+                    out_type = FakeType.Q4_K
+                    out_data = (t.data * 0.98).astype(np.float32)
+                quant_tensors.append(fake_tensor(t.name, out_type, shape=t.shape, data=out_data))
+
+            # Verify block targets were quantized while every non-block tensor kept its source dtype
+            quant_by_name = {t.name: t for t in quant_tensors}
+            self.assertEqual(quant_by_name["blk.0.attn_q.weight"].tensor_type, FakeType.Q4_K)
+            self.assertEqual(quant_by_name["blk.1.ffn_down.weight"].tensor_type, FakeType.Q4_K)
+            for t in ref_tensors:
+                if not (R.BLOCK.match(t.name) and len(t.shape) == 2):
+                    self.assertEqual(quant_by_name[t.name].tensor_type, t.tensor_type, f"{model_dtype.name}: {t.name}")
+
+            ref_reader = types.SimpleNamespace(tensors=ref_tensors)
+            quant_reader = types.SimpleNamespace(tensors=quant_tensors)
+            fake_ggufedit = types.SimpleNamespace(
+                open_model=lambda _p, qr=quant_reader: qr,
+                tensor_float=lambda t: t.data,
+            )
+            with mock.patch.object(R, "_load_ggufedit", return_value=fake_ggufedit):
+                row = R.compare_file(ref_reader, "quant.gguf", "gemma-4-E4B-it", n_layers=2)
+            self.assertEqual(row["other_tensors_that_differ"], [], f"differing non-block tensors for {model_dtype.name}")
+            self.assertEqual(row["matrices"], 2)
 
     def test_arm_needs_real_imat_and_provenance(self):
         for arm in (
