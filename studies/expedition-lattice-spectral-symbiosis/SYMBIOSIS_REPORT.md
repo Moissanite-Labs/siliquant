@@ -4,13 +4,13 @@
 **Exclusive Workspace:** `symbiosis/siliquant/`  
 **Executable Verifier:** [`siliquant_lattice_symbiosis.py`](./siliquant_lattice_symbiosis.py) (`4/4` isolated R4 parity: `-I -B`, `-I -O -B`, `-I -B -W error`, `-I -O -B -W error`; stdout SHA-256 `10125fdda88be6749c5e08d0a5f33eb002f23014dd4e6c6f51d84d26ddc7004c`)  
 **Machine Certificate:** [`siliquant_symbiosis_certificate.json`](./siliquant_symbiosis_certificate.json) (`canonical_sha256`: `3c26e48ad6f959a1d2cd9e343701fa0bdab9e4697a775699e8e063d25287e363`)  
-**Upstream Baselines Inspected (Read-Only):** `Moissanite-Labs/siliquant` `main` (`67b29a4`) + open branch `origin/bayan/charming-gates-jlas14` (PRs `#12`, `#17`, `#22`; issues `#4`, `#9`, `#10`, `#14`, `#16`, `#20`, `#23`). All `127/127` existing `siliquant` tests passed (`40` `perm`, `38` `lattice`, `30` `shape`, `19` `persist`). *(Per `#145`, `Moissanite-Labs/mlx` is a 1-line README + preference-reversal harness with no lattice/quantization code, so Arm 1 stays anchored on `siliquant`.)*
+**Upstream Baselines Inspected (Read-Only):** `Moissanite-Labs/siliquant` `main` (`67b29a4`) and the experiment snapshot from PR #12 (PRs `#12`, `#17`, `#22`; issues `#4`, `#9`, `#10`, `#14`, `#16`, `#20`, `#23`). All `127/127` existing `siliquant` tests passed (`40` `perm`, `38` `lattice`, `30` `shape`, `19` `persist`). *(Per `#145`, `Moissanite-Labs/mlx` is a 1-line README + preference-reversal harness with no lattice/quantization code, so Arm 1 stays anchored on `siliquant`.)*
 
 ---
 
 ## 1. Honest Baseline Map of `Moissanite-Labs/siliquant` (Zero `N0` Duplication)
 
-Before building any new operators, we verified what `siliquant` already proved and shipped on `main` and `origin/bayan/charming-gates-jlas14`:
+Before building any new operators, we verified what `siliquant` already proved and shipped on `main` and in the experiment snapshot from PR #12:
 
 - **Already proved & implemented in `siliquant` (DO NOT RE-CLAIM):**
   - Exact nearest-point decoders for $\mathbb{Z}^n, D_n, E_8, A_n, A_n^*$ (`lattice/lattices.py`) and Voronoi codes.
