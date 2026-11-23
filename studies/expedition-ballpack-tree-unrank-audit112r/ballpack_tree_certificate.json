@@ -1,0 +1,657 @@
+{
+  "audit_id": "AUDIT-112",
+  "certificate_sha256": "bf9c77bf3e14f03c564393b8aaae2a6bfcc8726dcdc4d659da01140cce24afe2",
+  "live_intake_audited": true,
+  "live_source_audit": {
+    "ballindex_e8_136_table_entries": 466221,
+    "ballindex_e8_88_table_entries": 57365,
+    "ballindex_has_z8_and_e8": true,
+    "ballindex_serial_unrank_loop": true,
+    "ballindex_z32_136_count_matches_tree": true,
+    "ballindex_z32_table_entries": 25872,
+    "ballpack_c_has_no_e8": true,
+    "ballpack_c_limbs": 3,
+    "ballpack_c_serial_unrank_loop": true,
+    "ballpack_py_default_z32_b136": true,
+    "ballpack_py_hardcodes_z8_only": true
+  },
+  "mode": "live_intake_recount",
+  "novelty_class": "N1",
+  "overall_verified": true,
+  "pillar1_z32_tree_bijection": {
+    "pillar_verified": true,
+    "z32_b783_136bit": {
+      "all_reciprocals_universally_valid": true,
+      "all_roundtrips_exact": true,
+      "bound": 783,
+      "codebook_bits": 136,
+      "codebook_count": 86775110168433561078044359892823273950209,
+      "count_matches_ballindex_dp": true,
+      "depth_reduction_ratio": {
+        "den": 1,
+        "num": 8
+      },
+      "exhaustive_bijection_distinct": true,
+      "exhaustive_mode": false,
+      "levels": [
+        {
+          "ball_hw_type": "uint192",
+          "depth": 0,
+          "dim": 32,
+          "max_ball_bits": 136,
+          "max_shell_bits": 131,
+          "parallel_nodes": 1,
+          "shell_hw_type": "uint192",
+          "table_bytes": 18840
+        },
+        {
+          "ball_hw_type": "uint128",
+          "depth": 1,
+          "dim": 16,
+          "max_ball_bits": 75,
+          "max_shell_bits": 69,
+          "parallel_nodes": 2,
+          "shell_hw_type": "uint128",
+          "table_bytes": 25088
+        },
+        {
+          "ball_hw_type": "uint64",
+          "depth": 2,
+          "dim": 8,
+          "max_ball_bits": 41,
+          "max_shell_bits": 34,
+          "parallel_nodes": 4,
+          "shell_hw_type": "uint64",
+          "table_bytes": 12544
+        },
+        {
+          "ball_hw_type": "uint32",
+          "depth": 3,
+          "dim": 4,
+          "max_ball_bits": 22,
+          "max_shell_bits": 14,
+          "parallel_nodes": 8,
+          "shell_hw_type": "uint16",
+          "table_bytes": 4704
+        },
+        {
+          "ball_hw_type": "uint16",
+          "depth": 4,
+          "dim": 2,
+          "max_ball_bits": 12,
+          "max_shell_bits": 5,
+          "parallel_nodes": 16,
+          "shell_hw_type": "uint16",
+          "table_bytes": 3136
+        }
+      ],
+      "max_abs_coord_observed": 27,
+      "max_mult_bits_by_level": {
+        "level_0_n32_to_n16": 130,
+        "level_1_n16_to_n8": 68,
+        "level_2_n8_to_n4": 34,
+        "level_3_n4_to_n2": 17
+      },
+      "n": 32,
+      "ranks_tested": 50,
+      "rate_overhead_bits": 0,
+      "serial_ballpack_bytes": 620928,
+      "serial_ballpack_entries": 25872,
+      "serial_critical_path_depth": 32,
+      "table_memory_reduction_ratio": {
+        "den": 17695,
+        "num": 155232
+      },
+      "total_reciprocals": 4968,
+      "tree_split_depth": 4,
+      "tree_total_bytes": 70780,
+      "valid_reciprocals": 4968,
+      "z2_lut_pairs": 2449,
+      "z2_lut_total_bytes": 6468
+    },
+    "z32_b784_exceeds_2pow136": true,
+    "z4_b6_exhaustive": {
+      "all_reciprocals_universally_valid": true,
+      "all_roundtrips_exact": true,
+      "bound": 6,
+      "codebook_bits": 8,
+      "codebook_count": 233,
+      "count_matches_ballindex_dp": true,
+      "depth_reduction_ratio": {
+        "den": 1,
+        "num": 4
+      },
+      "exhaustive_bijection_distinct": true,
+      "exhaustive_mode": true,
+      "levels": [
+        {
+          "ball_hw_type": "uint16",
+          "depth": 0,
+          "dim": 4,
+          "max_ball_bits": 8,
+          "max_shell_bits": 7,
+          "parallel_nodes": 1,
+          "shell_hw_type": "uint16",
+          "table_bytes": 16
+        },
+        {
+          "ball_hw_type": "uint16",
+          "depth": 1,
+          "dim": 2,
+          "max_ball_bits": 5,
+          "max_shell_bits": 3,
+          "parallel_nodes": 2,
+          "shell_hw_type": "uint16",
+          "table_bytes": 28
+        }
+      ],
+      "max_abs_coord_observed": 2,
+      "max_mult_bits_by_level": {
+        "level_0_n4_to_n2": 8
+      },
+      "n": 4,
+      "ranks_tested": 233,
+      "rate_overhead_bits": 0,
+      "serial_ballpack_bytes": 840,
+      "serial_ballpack_entries": 35,
+      "serial_critical_path_depth": 4,
+      "table_memory_reduction_ratio": {
+        "den": 17,
+        "num": 140
+      },
+      "total_reciprocals": 7,
+      "tree_split_depth": 1,
+      "tree_total_bytes": 102,
+      "valid_reciprocals": 7,
+      "z2_lut_pairs": 21,
+      "z2_lut_total_bytes": 58
+    },
+    "z8_b3_exhaustive": {
+      "all_reciprocals_universally_valid": true,
+      "all_roundtrips_exact": true,
+      "bound": 3,
+      "codebook_bits": 10,
+      "codebook_count": 577,
+      "count_matches_ballindex_dp": true,
+      "depth_reduction_ratio": {
+        "den": 1,
+        "num": 4
+      },
+      "exhaustive_bijection_distinct": true,
+      "exhaustive_mode": true,
+      "levels": [
+        {
+          "ball_hw_type": "uint16",
+          "depth": 0,
+          "dim": 8,
+          "max_ball_bits": 10,
+          "max_shell_bits": 9,
+          "parallel_nodes": 1,
+          "shell_hw_type": "uint16",
+          "table_bytes": 10
+        },
+        {
+          "ball_hw_type": "uint16",
+          "depth": 1,
+          "dim": 4,
+          "max_ball_bits": 7,
+          "max_shell_bits": 5,
+          "parallel_nodes": 2,
+          "shell_hw_type": "uint16",
+          "table_bytes": 16
+        },
+        {
+          "ball_hw_type": "uint16",
+          "depth": 2,
+          "dim": 2,
+          "max_ball_bits": 4,
+          "max_shell_bits": 2,
+          "parallel_nodes": 4,
+          "shell_hw_type": "uint16",
+          "table_bytes": 16
+        }
+      ],
+      "max_abs_coord_observed": 1,
+      "max_mult_bits_by_level": {
+        "level_0_n8_to_n4": 10,
+        "level_1_n4_to_n2": 7
+      },
+      "n": 8,
+      "ranks_tested": 577,
+      "rate_overhead_bits": 0,
+      "serial_ballpack_bytes": 864,
+      "serial_ballpack_entries": 36,
+      "serial_critical_path_depth": 8,
+      "table_memory_reduction_ratio": {
+        "den": 35,
+        "num": 432
+      },
+      "total_reciprocals": 11,
+      "tree_split_depth": 2,
+      "tree_total_bytes": 70,
+      "valid_reciprocals": 11,
+      "z2_lut_pairs": 9,
+      "z2_lut_total_bytes": 28
+    }
+  },
+  "pillar2_e8_4_tree_codec": {
+    "e8_1_m1_exhaustive": {
+      "all_reciprocals_universally_valid": true,
+      "all_roundtrips_exact": true,
+      "ballindex_e8_bytes": 8208,
+      "ballindex_e8_entries": 342,
+      "bound_y_sq": 2,
+      "codebook_bits": 8,
+      "codebook_count": 241,
+      "depth_to_independent_e8_blocks": 0,
+      "e8_block_hw_type": "uint16",
+      "e8_block_max_ball_bits": 8,
+      "e8_block_max_shell_bits": 8,
+      "even_pair_lut_count": 9,
+      "exhaustive_bijection_distinct": true,
+      "exhaustive_mode": true,
+      "m_max": 1,
+      "n": 8,
+      "n_blocks": 1,
+      "odd_pair_lut_count": 4,
+      "outer_levels": [
+        {
+          "ball_hw_type": "uint16",
+          "blocks": 1,
+          "depth": 0,
+          "dim": 8,
+          "max_ball_bits": 8,
+          "max_shell_bits": 8,
+          "parallel_nodes": 1,
+          "shell_hw_type": "uint16"
+        }
+      ],
+      "ranks_tested": 241,
+      "table_memory_reduction_ratio": {
+        "den": 13,
+        "num": 1026
+      },
+      "theta_series_all_shells_exact": true,
+      "total_reciprocals": 10,
+      "tree_total_bytes": 104,
+      "valid_reciprocals": 10
+    },
+    "e8_4_m1_exhaustive": {
+      "all_reciprocals_universally_valid": true,
+      "all_roundtrips_exact": true,
+      "ballindex_e8_bytes": 32184,
+      "ballindex_e8_entries": 1341,
+      "bound_y_sq": 2,
+      "codebook_bits": 10,
+      "codebook_count": 961,
+      "depth_to_independent_e8_blocks": 2,
+      "e8_block_hw_type": "uint16",
+      "e8_block_max_ball_bits": 8,
+      "e8_block_max_shell_bits": 8,
+      "even_pair_lut_count": 9,
+      "exhaustive_bijection_distinct": true,
+      "exhaustive_mode": true,
+      "m_max": 1,
+      "n": 32,
+      "n_blocks": 4,
+      "odd_pair_lut_count": 4,
+      "outer_levels": [
+        {
+          "ball_hw_type": "uint16",
+          "blocks": 4,
+          "depth": 0,
+          "dim": 32,
+          "max_ball_bits": 10,
+          "max_shell_bits": 10,
+          "parallel_nodes": 1,
+          "shell_hw_type": "uint16"
+        },
+        {
+          "ball_hw_type": "uint16",
+          "blocks": 2,
+          "depth": 1,
+          "dim": 16,
+          "max_ball_bits": 9,
+          "max_shell_bits": 9,
+          "parallel_nodes": 2,
+          "shell_hw_type": "uint16"
+        },
+        {
+          "ball_hw_type": "uint16",
+          "blocks": 1,
+          "depth": 2,
+          "dim": 8,
+          "max_ball_bits": 8,
+          "max_shell_bits": 8,
+          "parallel_nodes": 4,
+          "shell_hw_type": "uint16"
+        }
+      ],
+      "ranks_tested": 961,
+      "table_memory_reduction_ratio": {
+        "den": 5,
+        "num": 1341
+      },
+      "theta_series_all_shells_exact": true,
+      "total_reciprocals": 16,
+      "tree_total_bytes": 120,
+      "valid_reciprocals": 16
+    },
+    "e8_4_m391_136bit": {
+      "all_reciprocals_universally_valid": true,
+      "all_roundtrips_exact": true,
+      "ballindex_e8_bytes": 11189304,
+      "ballindex_e8_entries": 466221,
+      "bound_y_sq": 782,
+      "codebook_bits": 136,
+      "codebook_count": 85889107931845736051215402649708868585601,
+      "depth_to_independent_e8_blocks": 2,
+      "e8_block_hw_type": "uint64",
+      "e8_block_max_ball_bits": 41,
+      "e8_block_max_shell_bits": 34,
+      "even_pair_lut_count": 2449,
+      "exhaustive_bijection_distinct": true,
+      "exhaustive_mode": false,
+      "m_max": 391,
+      "n": 32,
+      "n_blocks": 4,
+      "odd_pair_lut_count": 2456,
+      "outer_levels": [
+        {
+          "ball_hw_type": "uint192",
+          "blocks": 4,
+          "depth": 0,
+          "dim": 32,
+          "max_ball_bits": 136,
+          "max_shell_bits": 132,
+          "parallel_nodes": 1,
+          "shell_hw_type": "uint192"
+        },
+        {
+          "ball_hw_type": "uint128",
+          "blocks": 2,
+          "depth": 1,
+          "dim": 16,
+          "max_ball_bits": 75,
+          "max_shell_bits": 70,
+          "parallel_nodes": 2,
+          "shell_hw_type": "uint128"
+        },
+        {
+          "ball_hw_type": "uint64",
+          "blocks": 1,
+          "depth": 2,
+          "dim": 8,
+          "max_ball_bits": 41,
+          "max_shell_bits": 34,
+          "parallel_nodes": 4,
+          "shell_hw_type": "uint64"
+        }
+      ],
+      "ranks_tested": 50,
+      "table_memory_reduction_ratio": {
+        "den": 9475,
+        "num": 1864884
+      },
+      "theta_series_all_shells_exact": true,
+      "total_reciprocals": 3465,
+      "tree_total_bytes": 56850,
+      "valid_reciprocals": 3465
+    },
+    "e8_4_m48_88bit": {
+      "all_reciprocals_universally_valid": true,
+      "all_roundtrips_exact": true,
+      "ballindex_e8_bytes": 1376760,
+      "ballindex_e8_entries": 57365,
+      "bound_y_sq": 96,
+      "codebook_bits": 88,
+      "codebook_count": 263197133594409826368003841,
+      "depth_to_independent_e8_blocks": 2,
+      "e8_block_hw_type": "uint32",
+      "e8_block_max_ball_bits": 29,
+      "e8_block_max_shell_bits": 25,
+      "even_pair_lut_count": 293,
+      "exhaustive_bijection_distinct": true,
+      "exhaustive_mode": false,
+      "m_max": 48,
+      "n": 32,
+      "n_blocks": 4,
+      "odd_pair_lut_count": 300,
+      "outer_levels": [
+        {
+          "ball_hw_type": "uint128",
+          "blocks": 4,
+          "depth": 0,
+          "dim": 32,
+          "max_ball_bits": 88,
+          "max_shell_bits": 86,
+          "parallel_nodes": 1,
+          "shell_hw_type": "uint128"
+        },
+        {
+          "ball_hw_type": "uint64",
+          "blocks": 2,
+          "depth": 1,
+          "dim": 16,
+          "max_ball_bits": 51,
+          "max_shell_bits": 49,
+          "parallel_nodes": 2,
+          "shell_hw_type": "uint64"
+        },
+        {
+          "ball_hw_type": "uint32",
+          "blocks": 1,
+          "depth": 2,
+          "dim": 8,
+          "max_ball_bits": 29,
+          "max_shell_bits": 25,
+          "parallel_nodes": 4,
+          "shell_hw_type": "uint32"
+        }
+      ],
+      "ranks_tested": 44,
+      "table_memory_reduction_ratio": {
+        "den": 183,
+        "num": 45892
+      },
+      "theta_series_all_shells_exact": true,
+      "total_reciprocals": 449,
+      "tree_total_bytes": 5490,
+      "valid_reciprocals": 449
+    },
+    "pillar_verified": true
+  },
+  "pillar3_shaping_and_roofline": {
+    "pillar_verified": true,
+    "shaping_and_bandwidth": {
+      "honest_cost_model_caveat": "Pure-Z/Q Python certification proves exact bijectivity, 0.000-bit rate overhead, critical-path depth collapse (32->4 for Z^32, depth 2 to 4 uint64 E_8 blocks), exact register widths, L1/L2 LUT byte bounds, and universal zero-division reciprocals; actual wall-clock weights/sec requires compiled C/SIMD microbenchmarking on target CPU/TPU.",
+      "serial_decode_gap_vs_q4km_per_core": {
+        "ballpack_c_hi_weights_per_sec": 25000000,
+        "ballpack_c_lo_weights_per_sec": 20000000,
+        "gap_ratio_at_20m": {
+          "den": 1,
+          "num": 2250
+        },
+        "gap_ratio_at_25m": {
+          "den": 1,
+          "num": 1800
+        },
+        "q4km_ref_weights_per_sec_per_core": 45000000000
+      },
+      "siliquant_issue23_bandwidth_ceilings": [
+        {
+          "bw_tps_ceiling_gain": {
+            "den": 901,
+            "num": 59
+          },
+          "bw_tps_ceiling_gain_pct": "6.55%",
+          "byte_saving": {
+            "den": 960,
+            "num": 59
+          },
+          "byte_saving_pct": "6.15%",
+          "comparison": "PZ32_4505_vs_Q4KM_480",
+          "pz_bpw": {
+            "den": 200,
+            "num": 901
+          },
+          "q4_bpw": {
+            "den": 5,
+            "num": 24
+          }
+        },
+        {
+          "bw_tps_ceiling_gain": {
+            "den": 901,
+            "num": 63
+          },
+          "bw_tps_ceiling_gain_pct": "6.99%",
+          "byte_saving": {
+            "den": 964,
+            "num": 63
+          },
+          "byte_saving_pct": "6.54%",
+          "comparison": "PZ32_4505_vs_Q4KM_482",
+          "pz_bpw": {
+            "den": 200,
+            "num": 901
+          },
+          "q4_bpw": {
+            "den": 50,
+            "num": 241
+          }
+        },
+        {
+          "bw_tps_ceiling_gain": {
+            "den": 15,
+            "num": 1
+          },
+          "bw_tps_ceiling_gain_pct": "6.67%",
+          "byte_saving": {
+            "den": 16,
+            "num": 1
+          },
+          "byte_saving_pct": "6.25%",
+          "comparison": "PZ32_4500_vs_Q4KM_480",
+          "pz_bpw": {
+            "den": 2,
+            "num": 9
+          },
+          "q4_bpw": {
+            "den": 5,
+            "num": 24
+          }
+        },
+        {
+          "bw_tps_ceiling_gain": {
+            "den": 225,
+            "num": 16
+          },
+          "bw_tps_ceiling_gain_pct": "7.11%",
+          "byte_saving": {
+            "den": 241,
+            "num": 16
+          },
+          "byte_saving_pct": "6.64%",
+          "comparison": "PZ32_4500_vs_Q4KM_482",
+          "pz_bpw": {
+            "den": 2,
+            "num": 9
+          },
+          "q4_bpw": {
+            "den": 50,
+            "num": 241
+          }
+        }
+      ],
+      "subblock_energy_monotone_worse": true,
+      "subblock_shaping_comparison": [
+        {
+          "arm": "1xZ^32",
+          "bits_per_subblock": 136,
+          "codebook_ratio_dec": "1.000000",
+          "codebook_ratio_z32_over_sub": {
+            "den": 1,
+            "num": 1
+          },
+          "mean_sq_coord_dec": "23.044067",
+          "shaping_energy_overhead_pct": "0.00%",
+          "shaping_loss_positive": false,
+          "sub_blocks": 1,
+          "sub_bound": 783,
+          "sub_codebook_count": 86775110168433561078044359892823273950209,
+          "sub_dim": 32,
+          "sum_sub_bounds": 783
+        },
+        {
+          "arm": "2xZ^16",
+          "bits_per_subblock": 68,
+          "codebook_ratio_dec": "1.007305",
+          "codebook_ratio_z32_over_sub": {
+            "den": 86145841413939765904985015662886255379969,
+            "num": 86775110168433561078044359892823273950209
+          },
+          "mean_sq_coord_dec": "24.083462",
+          "shaping_energy_overhead_pct": "4.51%",
+          "shaping_loss_positive": true,
+          "sub_blocks": 2,
+          "sub_bound": 433,
+          "sub_codebook_count": 293506118188258157313,
+          "sub_dim": 16,
+          "sum_sub_bounds": 866
+        },
+        {
+          "arm": "4xZ^8",
+          "bits_per_subblock": 34,
+          "codebook_ratio_dec": "1.037835",
+          "codebook_ratio_z32_over_sub": {
+            "den": 83611683262230390946930568085700506503041,
+            "num": 86775110168433561078044359892823273950209
+          },
+          "mean_sq_coord_dec": "25.441487",
+          "shaping_energy_overhead_pct": "10.40%",
+          "shaping_loss_positive": true,
+          "sub_blocks": 4,
+          "sub_bound": 254,
+          "sub_codebook_count": 17004612577,
+          "sub_dim": 8,
+          "sum_sub_bounds": 1016
+        },
+        {
+          "arm": "8xZ^4",
+          "bits_per_subblock": 17,
+          "codebook_ratio_dec": "1.017231",
+          "codebook_ratio_z32_over_sub": {
+            "den": 85305201421508347175695235601783287223361,
+            "num": 86775110168433561078044359892823273950209
+          },
+          "mean_sq_coord_dec": "27.126743",
+          "shaping_energy_overhead_pct": "17.72%",
+          "shaping_loss_positive": true,
+          "sub_blocks": 8,
+          "sub_bound": 162,
+          "sub_codebook_count": 130729,
+          "sub_dim": 4,
+          "sum_sub_bounds": 1296
+        }
+      ],
+      "z32_tree_shaping_loss_pct": "0.00%"
+    }
+  },
+  "pinned_artifacts": {
+    "shape/ballindex.py": {
+      "bytes": 9746,
+      "sha256": "bec9e571ab77c08a18f2ccfd94c1c3fc5321dde3e1bbb1f1a57a3ce590ab05b7"
+    },
+    "shape/ballpack.c": {
+      "bytes": 6194,
+      "sha256": "53074fbadf169650da6cad400b986e07b1ea15df180f6f148f97ef4761b33055"
+    },
+    "shape/ballpack.py": {
+      "bytes": 18607,
+      "sha256": "b804aae680baf9e9842e6bea6971f26ff1bbddad961fdd95dca41366438fa4d0"
+    }
+  },
+  "pinned_commit_sha": "20d13d5fa9c5fb2333b8faa0360a90caa1e0a43f",
+  "schema_version": "audit112.ballpack_tree_unrank.v1"
+}

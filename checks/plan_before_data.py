@@ -65,7 +65,10 @@ def main():
     folders = sorted(p for p in (ROOT / "experiments").iterdir() if p.is_dir())
     shallow = git("rev-parse", "--is-shallow-repository").strip() == "true"
     print("Plans and data in the order git has them, for every record under experiments/")
-    print(f"head {git('rev-parse', '--short', 'HEAD').strip()}" + (" (a shallow clone: the history may be cut short)" if shallow else ""))
+    # The commit goes to the standard error: an output that is committed cannot name the commit that holds it.
+    print(f"head {git('rev-parse', '--short', 'HEAD').strip()}" + (" (a shallow clone: the history may be cut short)" if shallow else ""), file=sys.stderr)
+    if shallow:
+        print("A shallow clone: the history may be cut short.")
     print()
     print("record | first plan | data files committed with it | first data after it | plan before data | plan changed before first data | plan changed after first data | of those, followed by new data | named in the README | programs changed after first data")
     bad = 0

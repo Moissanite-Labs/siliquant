@@ -1,0 +1,149 @@
+{
+  "audit_id": "AUDIT-115",
+  "certificate_sha256": "5b56e0cd950e292d8eaee68641198cd5bfd11774921ca6ecfdf0bbf60d1c2b4a",
+  "mode": "standalone_pure_zq",
+  "novelty_class": "N1",
+  "overall_verified": true,
+  "pillar1_e8had_isometry_and_hamming": {
+    "all_shells_bijective_isometry": true,
+    "h8_squared_equals_8I": true,
+    "h8_symmetric": true,
+    "hamming844_codeword_count": 16,
+    "hamming844_min_distance": 4,
+    "hamming844_weight_enumerator": {
+      "0": 1,
+      "4": 14,
+      "8": 1
+    },
+    "m_max_exhaustive": 3,
+    "pillar_verified": true,
+    "shell1_axis_vectors": 16,
+    "shell1_weight4_vectors": 224,
+    "shells": [
+      {
+        "bijective_isometry_exact": true,
+        "construction_a_count": 1,
+        "doubled_std_norm_sq": 0,
+        "e8_norm_sq": 0,
+        "m": 0,
+        "scaled_had_norm_sq": 0,
+        "std_count": 1,
+        "theta_240_sigma3": 1
+      },
+      {
+        "bijective_isometry_exact": true,
+        "construction_a_count": 240,
+        "doubled_std_norm_sq": 8,
+        "e8_norm_sq": 2,
+        "m": 1,
+        "scaled_had_norm_sq": 4,
+        "std_count": 240,
+        "theta_240_sigma3": 240
+      },
+      {
+        "bijective_isometry_exact": true,
+        "construction_a_count": 2160,
+        "doubled_std_norm_sq": 16,
+        "e8_norm_sq": 4,
+        "m": 2,
+        "scaled_had_norm_sq": 8,
+        "std_count": 2160,
+        "theta_240_sigma3": 2160
+      },
+      {
+        "bijective_isometry_exact": true,
+        "construction_a_count": 6720,
+        "doubled_std_norm_sq": 24,
+        "e8_norm_sq": 6,
+        "m": 3,
+        "scaled_had_norm_sq": 12,
+        "std_count": 6720,
+        "theta_240_sigma3": 6720
+      }
+    ],
+    "total_nonzero_vectors_verified": 9120,
+    "total_vectors_verified": 9121,
+    "wht8_add_sub_ops": 24,
+    "wht8_matches_explicit_matvec": true,
+    "wht8_multiplies": 0
+  },
+  "pillar2_dp_invariance_and_adjoint_gemv": {
+    "adjoint_all_exact": true,
+    "adjoint_identity_formula": "4 * <z, x> == <u, H_8 * x>",
+    "adjoint_ops_reduction_factor_m4096": {
+      "den": 1,
+      "num": 4096
+    },
+    "adjoint_pairs_verified": 960,
+    "adjoint_wht8_ops_per_weight_m4096": {
+      "den": 4096,
+      "num": 3
+    },
+    "adjoint_wht8_ops_per_weight_m4096_dec": "0.000732",
+    "ebg32_b136s8_bits": 136,
+    "ebg32_b136s8_compact_table_bytes": 56850,
+    "ebg32_b136s8_count": 85889107931845736051215402649708868585601,
+    "ebg32_b136s8_extra_e8had_table_bytes": 0,
+    "ebg32_b136s8_m_max": 391,
+    "ebg32_b88s8_bits": 88,
+    "ebg32_b88s8_compact_table_bytes": 5490,
+    "ebg32_b88s8_count": 263197133594409826368003841,
+    "ebg32_b88s8_extra_e8had_table_bytes": 0,
+    "ebg32_b88s8_m_max": 48,
+    "materialized_wht8_ops_per_weight": {
+      "den": 1,
+      "num": 3
+    },
+    "pillar_verified": true,
+    "shells_checked_theta_invariance": 392
+  },
+  "pillar3_pr24_correspondence_and_roofline": {
+    "bw_ratio_136_vs_q4km_480": {
+      "den": 15,
+      "num": 16
+    },
+    "bw_ratio_136_vs_q4km_480_dec": "1.0667",
+    "bw_ratio_88_vs_fp16": {
+      "den": 3,
+      "num": 16
+    },
+    "bw_ratio_88_vs_fp16_dec": "5.3333",
+    "bw_ratio_88_vs_q4km_480": {
+      "den": 5,
+      "num": 8
+    },
+    "bw_ratio_88_vs_q4km_480_dec": "1.6000",
+    "ebg32_b136s8_bpw": {
+      "den": 2,
+      "num": 9
+    },
+    "ebg32_b136s8_bpw_dec": "4.500",
+    "ebg32_b88s8_bpw": {
+      "den": 1,
+      "num": 3
+    },
+    "ebg32_b88s8_bpw_dec": "3.000",
+    "gemv_benchmark_shape": {
+      "blocks_32": 131072,
+      "cols": 1024,
+      "rows": 4096,
+      "weights": 4194304
+    },
+    "gemv_matrix_bytes_ebg32_136b": 2359296,
+    "gemv_matrix_bytes_ebg32_88b": 1572864,
+    "gemv_matrix_bytes_q4_matched_450bpw": 2359296,
+    "norm_sq_scale_identity_exact": true,
+    "pillar_verified": true,
+    "pr24_extra_permutation_needed": false,
+    "pr24_scaled_integer_factor_sq": {
+      "den": 1,
+      "num": 2
+    },
+    "pr24_u_h8_equals_h8_over_sqrt8": true,
+    "q4km_bpw_range_dec": [
+      "4.80",
+      "4.82"
+    ]
+  },
+  "schema_version": "audit115.e8had_isometry.v1"
+}
