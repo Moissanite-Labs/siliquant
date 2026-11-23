@@ -46,3 +46,27 @@ validation. Findings from this model are descriptive, not preregistered.
   State evidence limitations: rounded transcription, one model, one
   calibration seed, two texts, missing raw verification and full-file
   accounting. Keep the model-specific reports under `reports/impact/`.
+
+## Decision and scenario model
+
+Added after receiving the table, before impact calculations. Triage each
+candidate against full-text prior art and the repository's prior studies;
+distinguish a new measured Gemma data point from a new method or patent
+claim. Recommend publication, announcement, IP review, or a replication
+budget separately; disclose the limits of one model and one calibration seed.
+
+Use the smaller of the estimated real-matrix savings at Q4_K_M-imat quality
+across the two texts as a scenario anchor. Hypothetical low/mid/high inputs
+respectively: 7/27/70 billion weights, 70/85/95% covered weights, 25/50/100%
+transfer of that block-rate improvement, 100/1,000/10,000 baseline accelerator
+equivalents, 25/50/75% eligible serving load, and USD 2/3/5 per accelerator-hour.
+These are assumptions, not estimates for any particular serving operator. Fix uncovered
+weights at 16 bpw, add 20 GB for resident KV/workspace, and assume that
+non-weight traffic per decode step is 20% of baseline weight bytes.
+Use published H200 peak bandwidth and memory capacity as an illustrative
+hardware specification, not a statement about any operator's hardware. Compute
+resident size and bandwidth roofline at batch one; assume fixed demand and
+ideal fractional right-sizing of eligible serving capacity for annual gross
+cost opportunity (8,760 hours). Ignore dequantization, capex constraints,
+prefill, communication, and any mix/traffic effects not explicitly included.
+These scenario outputs are neither realized savings nor guarantees.
