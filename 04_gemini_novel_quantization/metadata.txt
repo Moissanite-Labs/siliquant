@@ -1,5 +1,0 @@
-Label: 04_gemini_novel_quantization
-Tab index: 4
-Title: Novel Quantization R&D Research - Google Gemini
-URL: https://gemini.google.com/u/2/app/d20db326f46f9a34?pageId=none
-Captured: Monday, November 16, 2026 at 9:31:01 PM
