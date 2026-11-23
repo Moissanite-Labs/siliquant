@@ -1,0 +1,3704 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Siliquant — 8D E8 Lattice Weight Quantization | Moissanite Labs</title>
+  <meta name="description" content="Siliquant quantization research working paper (23 November 2026): 8-dimensional E8 lattice codes for weight-only LLM quantization across Gemma 4 E4B, Gemma 3, Qwen2.5, SmolLM2, and Llama 3.2." />
+
+  <!-- Typography: Neutral Swiss sans + Tabular monospace for scientific precision -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    /* =========================================================================
+       DESIGN TOKENS — Swiss Technical Paper Aesthetic (Light & Dark Modes)
+       Function over form: razor-sharp hairlines, tabular numbers, zero clutter.
+       ========================================================================= */
+    :root {
+      --bg-page: #FAFAFA;
+      --bg-surface: #FFFFFF;
+      --bg-subtle: #F4F4F5;
+      --bg-hover: #F0F0F2;
+      --border-hairline: #E4E4E7;
+      --border-strong: #D4D4D8;
+
+      --text-primary: #09090B;
+      --text-secondary: #3F3F46;
+      --text-muted: #71717A;
+
+      --accent: #1D4ED8;
+      --accent-soft: #EFF6FF;
+      --accent-border: #BFDBFE;
+
+      --win: #047857;
+      --win-soft: #ECFDF5;
+      --win-border: #A7F3D0;
+
+      --warn: #B45309;
+      --warn-soft: #FFFBEB;
+      --warn-border: #FDE68A;
+
+      --fail: #BE123C;
+      --fail-soft: #FFF1F2;
+      --fail-border: #FECDD3;
+
+      --chart-grid: #E4E4E7;
+      --chart-axis: #A1A1AA;
+      --chart-e8: #1D4ED8;
+      --chart-ball: #047857;
+      --chart-q4: #71717A;
+      --chart-q4km: #52525B;
+
+      --shadow-sm: 0 1px 2px rgba(9, 9, 11, 0.04);
+      --shadow-md: 0 4px 12px rgba(9, 9, 11, 0.06);
+      --radius-sm: 4px;
+      --radius-md: 6px;
+      --radius-lg: 8px;
+
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    [data-theme="dark"] {
+      --bg-page: #09090B;
+      --bg-surface: #111113;
+      --bg-subtle: #18181B;
+      --bg-hover: #222226;
+      --border-hairline: #27272A;
+      --border-strong: #3F3F46;
+
+      --text-primary: #FAFAFA;
+      --text-secondary: #D4D4D8;
+      --text-muted: #8E8E99;
+
+      --accent: #60A5FA;
+      --accent-soft: rgba(59, 130, 246, 0.12);
+      --accent-border: rgba(96, 165, 250, 0.30);
+
+      --win: #34D399;
+      --win-soft: rgba(16, 185, 129, 0.12);
+      --win-border: rgba(52, 211, 153, 0.28);
+
+      --warn: #FBBF24;
+      --warn-soft: rgba(245, 158, 11, 0.12);
+      --warn-border: rgba(251, 191, 36, 0.28);
+
+      --fail: #FB7185;
+      --fail-soft: rgba(244, 63, 94, 0.12);
+      --fail-border: rgba(251, 113, 133, 0.28);
+
+      --chart-grid: #27272A;
+      --chart-axis: #52525B;
+      --chart-e8: #60A5FA;
+      --chart-ball: #34D399;
+      --chart-q4: #A1A1AA;
+      --chart-q4km: #71717A;
+
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+      --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
+    }
+
+    /* =========================================================================
+       RESET & BASE TYPOGRAPHY
+       ========================================================================= */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-sans);
+      background-color: var(--bg-page);
+      color: var(--text-primary);
+      line-height: 1.55;
+      overflow-x: hidden;
+      transition: background-color 150ms ease, color 150ms ease;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    code, pre, .mono {
+      font-family: var(--font-mono);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .tabular {
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Focus rings for keyboard navigation */
+    :focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    /* =========================================================================
+       TOP UTILITY BAR (Minimal, Fixed 52px, Zero CLS)
+       ========================================================================= */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      height: 52px;
+      background: color-mix(in srgb, var(--bg-page) 88%, transparent);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-hairline);
+    }
+
+    .topbar-inner {
+      max-width: 1240px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-primary);
+      font-weight: 600;
+      font-size: 0.92rem;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+    }
+    .brand:hover { text-decoration: none; }
+
+    .brand-tag {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      padding: 2px 7px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-hairline);
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      height: 32px;
+      padding: 0 11px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-hairline);
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 0.78rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+      white-space: nowrap;
+      text-decoration: none;
+    }
+    .btn:hover {
+      background: var(--bg-subtle);
+      border-color: var(--border-strong);
+      text-decoration: none;
+    }
+    .btn-accent {
+      background: var(--accent-soft);
+      border-color: var(--accent-border);
+      color: var(--accent);
+    }
+    .btn-accent:hover {
+      background: color-mix(in srgb, var(--accent) 16%, transparent);
+    }
+
+    /* Mobile quick section jump strip */
+    .mobile-toc {
+      display: none;
+      position: sticky;
+      top: 52px;
+      z-index: 35;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-hairline);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .mobile-toc::-webkit-scrollbar { display: none; }
+    .mobile-toc-inner {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 16px;
+      width: max-content;
+    }
+    .mobile-toc a {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      white-space: nowrap;
+    }
+    .mobile-toc a.active, .mobile-toc a:hover {
+      color: var(--text-primary);
+      background: var(--bg-subtle);
+      text-decoration: none;
+    }
+
+    /* =========================================================================
+       MAIN SHELL LAYOUT (Sticky Left Index Rail + Fluid Research Column)
+       ========================================================================= */
+    .layout {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 28px 20px 72px;
+      display: grid;
+      grid-template-columns: 224px minmax(0, 1fr);
+      gap: 40px;
+      align-items: start;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 76px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .toc-label {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 0 10px 6px;
+    }
+
+    .toc-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      border-left: 1px solid var(--border-hairline);
+    }
+
+    .toc-link {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      padding: 6px 10px 6px 12px;
+      margin-left: -1px;
+      border-left: 2px solid transparent;
+      font-size: 0.81rem;
+      color: var(--text-muted);
+      transition: color 120ms ease, border-color 120ms ease, background-color 120ms ease;
+    }
+    .toc-link:hover {
+      color: var(--text-primary);
+      text-decoration: none;
+    }
+    .toc-link.active {
+      color: var(--text-primary);
+      font-weight: 500;
+      border-left-color: var(--accent);
+      background: var(--bg-subtle);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    }
+    .toc-num {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .status-box {
+      padding: 12px;
+      border-radius: var(--radius-md);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-hairline);
+      font-size: 0.74rem;
+    }
+    .status-box-title {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 0;
+      gap: 8px;
+      border-top: 1px dashed var(--border-hairline);
+    }
+    .status-row:first-of-type { border-top: none; }
+    .status-k { color: var(--text-muted); }
+    .status-v {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 500;
+      text-align: right;
+    }
+
+    /* =========================================================================
+       ARTICLE HEADER & KPI HIGHLIGHTS
+       ========================================================================= */
+    .main-col {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 44px;
+    }
+
+    .paper-header {
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border-hairline);
+    }
+
+    .eyebrow-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px 14px;
+      margin-bottom: 12px;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      color: var(--text-muted);
+    }
+
+    .dot-sep {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--border-strong);
+      display: inline-block;
+    }
+
+    h1.paper-title {
+      margin: 0 0 10px;
+      font-size: clamp(1.85rem, 3vw, 2.35rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+    }
+
+    .paper-subtitle {
+      margin: 0;
+      max-width: 68ch;
+      font-size: 0.98rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .kpi-grid {
+      margin-top: 22px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .kpi-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-hairline);
+      border-radius: var(--radius-md);
+      padding: 14px 15px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .kpi-value {
+      font-family: var(--font-mono);
+      font-size: 1.24rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+    .kpi-value.win { color: var(--win); }
+    .kpi-value.accent { color: var(--accent); }
+
+    .kpi-label {
+      font-size: 0.76rem;
+      color: var(--text-secondary);
+      line-height: 1.38;
+    }
+
+    .kpi-meta {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      margin-top: auto;
+      padding-top: 4px;
+    }
+
+    /* =========================================================================
+       SECTION STRUCTURE & CARDS
+       ========================================================================= */
+    section.paper-section {
+      scroll-margin-top: 72px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .sec-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border-hairline);
+    }
+
+    .sec-title-wrap {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .sec-num {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    h2.sec-title {
+      margin: 0;
+      font-size: 1.18rem;
+      font-weight: 650;
+      letter-spacing: -0.02em;
+    }
+
+    .sec-spec {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    h3.sub-title {
+      margin: 6px 0 0;
+      font-size: 0.92rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    p.prose {
+      margin: 0;
+      max-width: 74ch;
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.62;
+    }
+
+    .panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-hairline);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .panel-tight {
+      padding: 14px 16px;
+    }
+
+    .panel-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .panel-title {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-sub {
+      font-family: var(--font-mono);
+      font-size: 0.71rem;
+      color: var(--text-muted);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .grid-asymmetric {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    /* =========================================================================
+       BADGES, PILLS & CALLOUTS (High-Signal Semantic Coding)
+       ========================================================================= */
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 7px;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 500;
+      line-height: 1.35;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+    .pill-win {
+      color: var(--win);
+      background: var(--win-soft);
+      border-color: var(--win-border);
+    }
+    .pill-warn {
+      color: var(--warn);
+      background: var(--warn-soft);
+      border-color: var(--warn-border);
+    }
+    .pill-fail {
+      color: var(--fail);
+      background: var(--fail-soft);
+      border-color: var(--fail-border);
+    }
+    .pill-accent {
+      color: var(--accent);
+      background: var(--accent-soft);
+      border-color: var(--accent-border);
+    }
+    .pill-neutral {
+      color: var(--text-secondary);
+      background: var(--bg-subtle);
+      border-color: var(--border-hairline);
+    }
+
+    .callout {
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-hairline);
+      background: var(--bg-subtle);
+      font-size: 0.81rem;
+      color: var(--text-secondary);
+      line-height: 1.55;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .callout-warn {
+      background: var(--warn-soft);
+      border-color: var(--warn-border);
+    }
+    .callout-warn .callout-tag { color: var(--warn); }
+    .callout-fail {
+      background: var(--fail-soft);
+      border-color: var(--fail-border);
+    }
+    .callout-fail .callout-tag { color: var(--fail); }
+    .callout-accent {
+      background: var(--accent-soft);
+      border-color: var(--accent-border);
+    }
+    .callout-accent .callout-tag { color: var(--accent); }
+
+    .callout-tag {
+      font-family: var(--font-mono);
+      font-size: 0.69rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* =========================================================================
+       TABLES — Scientific Booktabs Styling (Tabular Numerals, Clean Rules)
+       ========================================================================= */
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border: 1px solid var(--border-hairline);
+      border-radius: var(--radius-md);
+      background: var(--bg-surface);
+    }
+
+    table.sci-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      text-align: left;
+    }
+
+    table.sci-table thead th {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 9px 12px;
+      background: var(--bg-subtle);
+      border-bottom: 1px solid var(--border-strong);
+      white-space: nowrap;
+    }
+
+    table.sci-table tbody td {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border-hairline);
+      color: var(--text-primary);
+      vertical-align: middle;
+    }
+
+    table.sci-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    table.sci-table tbody tr:hover {
+      background: var(--bg-hover);
+    }
+
+    table.sci-table tr.row-highlight {
+      background: color-mix(in srgb, var(--accent-soft) 55%, transparent);
+    }
+    table.sci-table tr.row-context td {
+      color: var(--text-muted);
+    }
+
+    .num {
+      font-family: var(--font-mono);
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    th.num { text-align: right; }
+
+    /* =========================================================================
+       INTERACTIVE CONTROLS (Segmented Pills — Subtle & Instant)
+       ========================================================================= */
+    .seg-group {
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: 2px;
+      padding: 3px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-hairline);
+      border-radius: var(--radius-md);
+    }
+
+    .seg-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.71rem;
+      font-weight: 500;
+      padding: 5px 10px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background-color 100ms ease, color 100ms ease;
+      white-space: nowrap;
+    }
+    .seg-btn:hover {
+      color: var(--text-primary);
+    }
+    .seg-btn.active {
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* =========================================================================
+       ROOFLINE HORIZONTAL BAR VISUALS & CHARTS
+       ========================================================================= */
+    .bar-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 168px minmax(0, 1fr) 142px;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .bar-label {
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      display: flex;
+      flex-direction: column;
+      line-height: 1.25;
+    }
+    .bar-label small {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .bar-track {
+      height: 22px;
+      background: var(--bg-subtle);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-hairline);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 260ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .bar-fill.fp16 { background: var(--chart-q4); opacity: 0.55; }
+    .bar-fill.int8 { background: var(--chart-q4km); opacity: 0.75; }
+    .bar-fill.q4km { background: var(--text-muted); }
+    .bar-fill.ball { background: var(--chart-ball); }
+    .bar-fill.hadamard { background: var(--chart-e8); }
+    .bar-fill.warn { background: var(--warn); }
+
+    .bar-val {
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+      color: var(--text-primary);
+      white-space: nowrap;
+    }
+    .bar-val .ratio {
+      color: var(--text-muted);
+      font-size: 0.69rem;
+      margin-left: 4px;
+    }
+
+    /* Interactive SVG Chart Container */
+    .chart-box {
+      position: relative;
+      width: 100%;
+    }
+    .chart-svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      overflow: visible;
+    }
+    .chart-tooltip {
+      position: absolute;
+      pointer-events: none;
+      opacity: 0;
+      z-index: 20;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      padding: 8px 10px;
+      box-shadow: var(--shadow-md);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-primary);
+      line-height: 1.45;
+      min-width: 150px;
+      transition: opacity 90ms ease;
+    }
+    .chart-tooltip.visible {
+      opacity: 1;
+    }
+
+    /* Legend strip */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 14px;
+      font-family: var(--font-mono);
+      font-size: 0.71rem;
+      color: var(--text-muted);
+    }
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      display: inline-block;
+    }
+
+    /* =========================================================================
+       EXACT CLOSURES PROPORTIONAL VISUAL & SYSTEMS METRICS
+       ========================================================================= */
+    .budget-bar {
+      height: 28px;
+      width: 100%;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      display: flex;
+      border: 1px solid var(--border-hairline);
+      background: var(--bg-subtle);
+    }
+    .budget-seg {
+      height: 100%;
+      transition: opacity 150ms ease;
+    }
+
+    .metric-pair {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .mini-stat {
+      padding: 11px 12px;
+      border: 1px solid var(--border-hairline);
+      border-radius: var(--radius-md);
+      background: var(--bg-subtle);
+    }
+    .mini-stat-k {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .mini-stat-v {
+      font-family: var(--font-mono);
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-top: 3px;
+      color: var(--text-primary);
+    }
+    .mini-stat-sub {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* =========================================================================
+       METHODOLOGY & QUANTIZATION GEOMETRY (make_figs.py Vector Visualizations)
+       ========================================================================= */
+    .arm-decoder {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .arm-preset-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .arm-preset-btn {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 500;
+      padding: 4px 9px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-hairline);
+      background: var(--bg-subtle);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: background-color 110ms ease, border-color 110ms ease, color 110ms ease;
+    }
+    .arm-preset-btn:hover {
+      border-color: var(--border-strong);
+      color: var(--text-primary);
+    }
+    .arm-preset-btn.active {
+      background: var(--accent-soft);
+      border-color: var(--accent-border);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .arm-tokens {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: stretch;
+      gap: 8px;
+    }
+
+    .arm-token {
+      flex: 1 1 130px;
+      min-width: 118px;
+      padding: 10px 12px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-hairline);
+      background: var(--bg-subtle);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .arm-token.t-accent { border-color: var(--accent-border); background: var(--accent-soft); }
+    .arm-token.t-win    { border-color: var(--win-border); background: var(--win-soft); }
+    .arm-token.t-warn   { border-color: var(--warn-border); background: var(--warn-soft); }
+    .arm-token.t-fail   { border-color: var(--fail-border); background: var(--fail-soft); }
+
+    .arm-token-code {
+      font-family: var(--font-mono);
+      font-size: 0.96rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+    }
+    .arm-token.t-accent .arm-token-code { color: var(--accent); }
+    .arm-token.t-win    .arm-token-code { color: var(--win); }
+    .arm-token.t-warn   .arm-token-code { color: var(--warn); }
+    .arm-token.t-fail   .arm-token-code { color: var(--fail); }
+
+    .arm-token-role {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+    .arm-token-desc {
+      font-size: 0.74rem;
+      color: var(--text-secondary);
+      line-height: 1.38;
+    }
+
+    .arm-formula-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px 16px;
+      padding: 9px 12px;
+      border-radius: var(--radius-md);
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-hairline);
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      color: var(--text-secondary);
+    }
+
+    .arm-glossary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px 14px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--border-hairline);
+      font-size: 0.73rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+    .arm-glossary code {
+      color: var(--text-primary);
+      font-weight: 600;
+      font-size: 0.72rem;
+    }
+
+    .geo-pane {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .geo-pane.active {
+      display: flex;
+    }
+    .geo-stage.show-all .geo-pane {
+      display: flex;
+      padding-top: 18px;
+      margin-top: 18px;
+      border-top: 1px solid var(--border-hairline);
+    }
+    .geo-stage.show-all .geo-pane:first-child {
+      padding-top: 0;
+      margin-top: 0;
+      border-top: none;
+    }
+
+    .geo-caption {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px 16px;
+      font-size: 0.79rem;
+      color: var(--text-secondary);
+    }
+
+    .geo-controls {
+      display: inline-flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .range-inline {
+      accent-color: var(--accent);
+      width: 112px;
+      cursor: pointer;
+      vertical-align: middle;
+    }
+
+    .geo-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .sub-fig {
+      border: 1px solid var(--border-hairline);
+      border-radius: var(--radius-md);
+      background: var(--bg-page);
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .sub-fig-title {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 6px;
+    }
+    .sub-fig-note {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* =========================================================================
+       BIBTEX MODAL & SUBTLE TOAST (No alert/confirm ever)
+       ========================================================================= */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      background: rgba(9, 9, 11, 0.55);
+      backdrop-filter: blur(3px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-backdrop.open {
+      display: flex;
+    }
+    .modal-card {
+      width: 100%;
+      max-width: 560px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      padding: 20px;
+    }
+    .modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .modal-code {
+      margin: 0;
+      padding: 12px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-hairline);
+      border-radius: var(--radius-md);
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      line-height: 1.55;
+      color: var(--text-primary);
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 70;
+      background: var(--text-primary);
+      color: var(--bg-page);
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      padding: 9px 14px;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-md);
+      opacity: 0;
+      transform: translateY(8px);
+      pointer-events: none;
+      transition: opacity 150ms ease, transform 150ms ease;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Footer */
+    .paper-footer {
+      margin-top: 12px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border-hairline);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      font-family: var(--font-mono);
+      font-size: 0.73rem;
+      color: var(--text-muted);
+    }
+
+    /* =========================================================================
+       RESPONSIVE BREAKPOINTS
+       ========================================================================= */
+    @media (max-width: 1024px) {
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 24px;
+        padding-top: 20px;
+      }
+      .sidebar { display: none; }
+      .mobile-toc { display: block; }
+      section.paper-section { scroll-margin-top: 104px; }
+    }
+
+    @media (max-width: 820px) {
+      .kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .grid-2, .grid-asymmetric, .geo-grid-3, .arm-glossary {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .bar-row {
+        grid-template-columns: 126px minmax(0, 1fr) 114px;
+        gap: 8px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .topbar-inner { padding: 0 12px; }
+      .brand-tag { display: none; }
+      .layout { padding: 16px 12px 56px; }
+      .kpi-grid { grid-template-columns: minmax(0, 1fr); }
+      .bar-row {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 4px;
+      }
+      .bar-val { text-align: left; }
+      .btn-label-hide { display: none; }
+    }
+
+    /* =========================================================================
+       PRINT STYLESHEET (Clean PDF export for researchers)
+       ========================================================================= */
+    @media print {
+      :root, [data-theme="dark"] {
+        --bg-page: #FFFFFF;
+        --bg-surface: #FFFFFF;
+        --bg-subtle: #F4F4F5;
+        --text-primary: #000000;
+        --text-secondary: #27272A;
+        --text-muted: #52525B;
+        --border-hairline: #D4D4D8;
+      }
+      .topbar, .sidebar, .mobile-toc, .seg-group, .modal-backdrop, .toast {
+        display: none !important;
+      }
+      .layout {
+        display: block;
+        padding: 0;
+        max-width: 100%;
+      }
+      .panel, .table-wrap, .kpi-card {
+        break-inside: avoid;
+        box-shadow: none;
+      }
+      .geo-pane {
+        display: flex !important;
+        padding-top: 12px;
+        margin-top: 12px;
+        border-top: 1px solid #D4D4D8;
+      }
+      .geo-pane:first-child {
+        padding-top: 0;
+        margin-top: 0;
+        border-top: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- =======================================================================
+       TOP UTILITY BAR
+       ======================================================================= -->
+  <header class="topbar" role="banner">
+    <div class="topbar-inner">
+      <a href="#overview" class="brand" aria-label="Siliquant top">
+        <!-- Minimal geometric E8 dual-D4 lattice emblem -->
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+          <polygon points="12,2 20.5,6.8 20.5,17.2 12,22 3.5,17.2 3.5,6.8" />
+          <polygon points="12,6.2 17,9.1 17,14.9 12,17.8 7,14.9 7,9.1" stroke-opacity="0.55" />
+          <circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none" />
+        </svg>
+        <span>SILIQUANT</span>
+        <span class="brand-tag">Working Paper · 23 Nov 2026</span>
+      </a>
+
+      <div class="topbar-actions">
+        <a class="btn btn-accent" href="https://github.com/Moissanite-Labs/siliquant" target="_blank" rel="noopener noreferrer">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.57.11.78-.25.78-.55 0-.27-.01-1.18-.02-2.14-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.29 1.19-3.09-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.17 1.18a11.02 11.02 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.77.11 3.06.74.8 1.19 1.83 1.19 3.09 0 4.41-2.69 5.39-5.25 5.67.41.36.78 1.06.78 2.14 0 1.54-.01 2.79-.01 3.17 0 .31.21.67.79.55A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/>
+          </svg>
+          <span>Moissanite-Labs/siliquant</span>
+        </a>
+        <button type="button" class="btn" id="citeBtn" aria-label="Show BibTeX citation">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M10 11H6a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v6c0 2.67-1.33 4.33-4 5"/>
+            <path d="M20 11h-4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v6c0 2.67-1.33 4.33-4 5"/>
+          </svg>
+          <span class="btn-label-hide">Cite</span>
+        </button>
+        <button type="button" class="btn" id="printBtn" aria-label="Print research brief">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <polyline points="6 9 6 2 18 2 18 9"/>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+            <rect x="6" y="14" width="12" height="8"/>
+          </svg>
+          <span class="btn-label-hide">Print</span>
+        </button>
+        <button type="button" class="btn" id="themeBtn" aria-label="Toggle light or dark theme" title="Toggle theme">
+          <span id="themeIcon" aria-hidden="true">◐</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Horizontal Section Rail -->
+  <nav class="mobile-toc" aria-label="Section navigation">
+    <div class="mobile-toc-inner">
+      <a href="#overview" class="active">00 Overview</a>
+      <a href="#roofline">Roofline</a>
+      <a href="#geometry">00c Geometry</a>
+      <a href="#gemma">01 Gemma 4</a>
+      <a href="#scale-closures">02–03 Scale &amp; Closures</a>
+      <a href="#integer-ball">04 Integer Ball</a>
+      <a href="#systems">05 Matrix &amp; File</a>
+      <a href="#limits">06 Limits</a>
+    </div>
+  </nav>
+
+  <!-- =======================================================================
+       MAIN LAYOUT SHELL
+       ======================================================================= -->
+  <div class="layout">
+    <!-- Left Sticky Navigation & Artifact Verification Summary -->
+    <aside class="sidebar" aria-label="Table of contents">
+      <div>
+        <div class="toc-label">Contents</div>
+        <ul class="toc-list" id="desktopToc">
+          <li><a href="#overview" class="toc-link active"><span class="toc-num">00</span><span>Highlights</span></a></li>
+          <li><a href="#roofline" class="toc-link"><span class="toc-num">00b</span><span>TPU v5e Roofline</span></a></li>
+          <li><a href="#geometry" class="toc-link"><span class="toc-num">00c</span><span>Geometry &amp; Arms</span></a></li>
+          <li><a href="#gemma" class="toc-link"><span class="toc-num">01</span><span>Gemma 4 E4B</span></a></li>
+          <li><a href="#scale-closures" class="toc-link"><span class="toc-num">02</span><span>Scale Rule &amp; Closures</span></a></li>
+          <li><a href="#integer-ball" class="toc-link"><span class="toc-num">04</span><span>Integer Ball &amp; Sweep</span></a></li>
+          <li><a href="#systems" class="toc-link"><span class="toc-num">05</span><span>Matrix, Codec &amp; Kernel</span></a></li>
+          <li><a href="#limits" class="toc-link"><span class="toc-num">06</span><span>Limits &amp; Known Issues</span></a></li>
+        </ul>
+      </div>
+
+      <div class="status-box" aria-label="Artifact maturity summary">
+        <div class="status-box-title">Artifact Telemetry</div>
+        <div class="status-row">
+          <span class="status-k">Window</span>
+          <span class="status-v">4.0–5.0 bpw</span>
+        </div>
+        <div class="status-row">
+          <span class="status-k">Packed I/O</span>
+          <span class="status-v" style="color: var(--win);">Bit-exact</span>
+        </div>
+        <div class="status-row">
+          <span class="status-k">E8 Decoder</span>
+          <span class="status-v" style="color: var(--win);">48/48 exact</span>
+        </div>
+        <div class="status-row">
+          <span class="status-k">Stage 2 Cert</span>
+          <span class="status-v" style="color: var(--warn);">In progress</span>
+        </div>
+        <div class="status-row">
+          <span class="status-k">Pallas / TPU</span>
+          <span class="status-v" style="color: var(--warn);">Unmeasured</span>
+        </div>
+        <div class="status-row">
+          <span class="status-k">Open Bugs</span>
+          <span class="status-v" style="color: var(--fail);">2 flagged</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Technical Content Column -->
+    <main class="main-col">
+
+      <!-- ===================================================================
+           00 OVERVIEW & HIGHLIGHTS
+           =================================================================== -->
+      <section id="overview" class="paper-section">
+        <header class="paper-header">
+          <div class="eyebrow-row">
+            <span>Quantization Research</span>
+            <span class="dot-sep" aria-hidden="true"></span>
+            <a href="https://github.com/Moissanite-Labs/siliquant" target="_blank" rel="noopener noreferrer">Moissanite-Labs/siliquant</a>
+            <span class="dot-sep" aria-hidden="true"></span>
+            <span>23 November 2026</span>
+            <span class="dot-sep" aria-hidden="true"></span>
+            <span>Working Paper</span>
+          </div>
+
+          <h1 class="paper-title">Siliquant</h1>
+          <p class="paper-subtitle">
+            Weight-only LLM quantization using 8-dimensional <strong>E<sub>8</sub> lattice codes</strong> (integer ball <code>hZBG128</code> and Hadamard-turned E<sub>8</sub>) targeting memory-bound single-batch decode at 4.0–5.0 bits per weight. All measurements, preregistration failures, denominator discrepancies, and implementation limits are reported alongside primary results.
+          </p>
+
+          <!-- Four-card Highlight Strip matching paper header -->
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-value win">−36% to −52%</div>
+              <div class="kpi-label">E<sub>8</sub> KL divergence vs <code>Q4_0</code> on Gemma 4 E4B</div>
+              <div class="kpi-meta">4.005–5.005 bpw · 8-bit ref</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-value win">−19% / −25%</div>
+              <div class="kpi-label">Gemma 3 4B ball vs <code>Q4_K_M</code> across both texts</div>
+              <div class="kpi-meta">WikiText-2 / Python · ~4.5 bpw</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-value win">−17% to −43%</div>
+              <div class="kpi-label">Ball + Hadamard E<sub>8</sub> vs <code>Q4_K_M</code> on 1B–1.7B models</div>
+              <div class="kpi-meta">Qwen2.5, SmolLM2, Llama-3.2</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-value accent">3.56× ceiling</div>
+              <div class="kpi-label">HBM bandwidth over FP16 at 4.50 bpw (1.78× vs INT8)</div>
+              <div class="kpi-meta">Rational bound · Kernel separate</div>
+            </div>
+          </div>
+        </header>
+      </section>
+
+      <!-- ===================================================================
+           00b TPU v5e ROOFLINE (CEILING) + INTERACTIVE RATIONAL EXPLORER
+           =================================================================== -->
+      <section id="roofline" class="paper-section">
+        <div class="sec-head">
+          <div class="sec-title-wrap">
+            <span class="sec-num">00b</span>
+            <h2 class="sec-title">Roofline (Bandwidth Ceiling)</h2>
+          </div>
+          <span class="sec-spec">TPU v5e · 819 GB/s HBM · Weight-only · Batch 1 · Exact rational</span>
+        </div>
+
+        <p class="prose">
+          Low-batch LLM decode on TPU v5e is HBM bandwidth-bound: each generated token streams the full weight set from memory. Quantizing weights into 8-dimensional E<sub>8</sub> lattice codes directly reduces bytes moved per token. Bandwidth ratios follow strictly from bits per weight alone: <code>16 / 4.50 = 3.56×</code> and <code>8 / 4.50 = 1.78×</code> (at <code>4.47 bpw</code>, INT8 ratio is <code>1.79×</code>). Every figure below is a theoretical memory ceiling; kernel throughput is benchmarked separately in Section 5.
+        </p>
+
+        <!-- Interactive Roofline Explorer -->
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">
+                <span>Interactive HBM Bandwidth Ceiling</span>
+                <span class="pill pill-warn" id="rooflineBadge">Paper Ceiling · 819 GB/s</span>
+              </div>
+              <div class="panel-sub" id="rooflineFormula">tok/s = (819 GB/s × 8) / (Weights × bpw)</div>
+            </div>
+
+            <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
+              <div class="seg-group" role="group" aria-label="Select model weight denominator">
+                <button type="button" class="seg-btn active" data-model="gemma75">Gemma 4 E4B (7.5B actual)</button>
+                <button type="button" class="seg-btn" data-model="gemma40">Gemma cert (4.0B)</button>
+                <button type="button" class="seg-btn" data-model="qwen15">Qwen2.5-1.5B</button>
+              </div>
+              <div class="seg-group" role="group" aria-label="Select HBM bandwidth preset">
+                <button type="button" class="seg-btn active" data-bw="819">v5e 819 GB/s</button>
+                <button type="button" class="seg-btn" data-bw="1600">v6e 1.6 TB/s</button>
+                <button type="button" class="seg-btn" data-bw="2765">v5p 2.76 TB/s</button>
+                <button type="button" class="seg-btn" data-bw="3350">H100 3.35 TB/s</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="bar-stack" id="rooflineBars" aria-live="polite">
+            <!-- Populated deterministically via script -->
+          </div>
+
+          <div class="callout callout-warn" style="margin-top: 16px;">
+            <span class="callout-tag">Caveat</span>
+            <div>
+              <strong>Gemma denominator discrepancy (unflagged in certificate source):</strong> The certificate implies <code>4.0B</code> weights (yielding <code>102.4</code> FP16, <code>364.0</code> Ball, <code>366.4</code> Hadamard tok/s on v5e), whereas the scored <code>gemma-4-E4B-it</code> model contains approximately <code>7.5B</code> weights. At <code>7.5B</code> weights on TPU v5e (819 GB/s), true ceilings are approximately <code>55 tok/s</code> (FP16), <code>182 tok/s</code> (Q4_K_M), <code>194 tok/s</code> (Ball @ 4.50 bpw), and <code>195 tok/s</code> (Hadamard @ 4.47 bpw).
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           00c QUANTIZATION GEOMETRY & EXPERIMENTAL PROCEDURES (make_figs.py)
+           =================================================================== -->
+      <section id="geometry" class="paper-section">
+        <div class="sec-head">
+          <div class="sec-title-wrap">
+            <span class="sec-num">00c</span>
+            <h2 class="sec-title">Quantization Geometry &amp; Arm Procedures</h2>
+          </div>
+          <span class="sec-spec">experiments/model-output-gemma-ball-2026-11-23/run.py · Exact synthetic geometries</span>
+        </div>
+
+        <p class="prose">
+          Every experimental arm in Sections 01–06 is defined by four composable choices: lattice codebook (integer ball <code>||y||² ≤ bound</code> or E<sub>8</sub> Voronoi translates), block/group dimension, pre-rounding transform (order-8 Hadamard turn <code>H<sub>8</sub></code> and/or <code>imatrix</code> column stretching), and scale storage precision. Select any arm below to inspect its exact bit accounting, or step through the five mathematical procedures.
+        </p>
+
+        <!-- Fig. 3: Interactive Arm Nomenclature Decoder (Always Visible, Compact) -->
+        <div class="panel panel-tight arm-decoder">
+          <div class="panel-head" style="margin-bottom: 2px;">
+            <div>
+              <div class="panel-title">
+                <span>Arm Nomenclature Decoder</span>
+                <span class="pill pill-neutral">Fig. 3 · run.py spec</span>
+              </div>
+              <div class="panel-sub">Click a preset arm identifier to decode its lattice, block size, bound, and bit budget</div>
+            </div>
+            <div class="arm-preset-bar" role="group" aria-label="Select experimental arm to decode">
+              <button type="button" class="arm-preset-btn active" data-arm="zbg">ZBG128:b560s16</button>
+              <button type="button" class="arm-preset-btn" data-arm="hzbg">hZBG128:b560s16</button>
+              <button type="button" class="arm-preset-btn" data-arm="hbg">HBG128:b560s16</button>
+              <button type="button" class="arm-preset-btn" data-arm="ve8z">VE8Z32:16</button>
+              <button type="button" class="arm-preset-btn" data-arm="zbr">ZB128@R:16</button>
+              <button type="button" class="arm-preset-btn" data-arm="k10">hZBG128+K10~rand</button>
+            </div>
+          </div>
+
+          <div class="arm-tokens" id="armTokens" aria-live="polite"></div>
+          <div class="arm-formula-bar" id="armFormula"></div>
+
+          <div class="arm-glossary">
+            <div><code>h…</code> / <code>i…</code>: column weights <code>(imatrix/mean)^0.25</code> / <code>^0.5</code></div>
+            <div><code>EBG</code> / <code>HBG</code> / <code>HVE8</code>: E<sub>8</sub> lattice / Hadamard-8 turn first</div>
+            <div><code>+K10</code> / <code>~rand</code>: keep 10 loud <code>ffn_down</code> cols in fp16 / random-text imatrix</div>
+          </div>
+        </div>
+
+        <!-- Tabbed Interactive Geometry Stage (Figs 1, 2, 4, 5, 6) -->
+        <div class="panel">
+          <div class="panel-head">
+            <div class="seg-group" role="tablist" aria-label="Quantization geometry diagrams">
+              <button type="button" class="seg-btn active" role="tab" aria-selected="true" data-geotab="fig1">1 · Ball &amp; Θ-Series</button>
+              <button type="button" class="seg-btn" role="tab" aria-selected="false" data-geotab="fig2">2 · Scale &amp; Bisection</button>
+              <button type="button" class="seg-btn" role="tab" aria-selected="false" data-geotab="fig4">4 · E8 Voronoi (VE8Z)</button>
+              <button type="button" class="seg-btn" role="tab" aria-selected="false" data-geotab="fig5">5 · Hadamard H8</button>
+              <button type="button" class="seg-btn" role="tab" aria-selected="false" data-geotab="fig6">6 · Scales &amp; Imatrix</button>
+            </div>
+            <button type="button" class="btn" id="geoExpandBtn" style="height:28px; font-size:0.72rem;" aria-pressed="false">Show all 5</button>
+          </div>
+
+          <div class="geo-stage" id="geoStage">
+            <!-- FIG 1: Integer Ball Codebook + Exact Z8 vs E8 Theta Series -->
+            <div class="geo-pane active" id="geo-fig1" role="tabpanel">
+              <div class="geo-caption">
+                <div><strong>Fig. 1 · Integer-Ball Codebook (<code>ZBG</code> / <code>EBG</code> / <code>HBG</code>):</strong> Every lattice point with <code>‖y‖² ≤ bound</code>. <code>run.py</code> sums exact Θ-series shell counts to choose the largest radius fitting inside <code>2^560</code> codepoints.</div>
+                <div class="legend">
+                  <span class="legend-item"><span class="swatch" style="background: var(--chart-e8);"></span>Z<sup>8</sup> shells</span>
+                  <span class="legend-item"><span class="swatch" style="background: var(--warn);"></span>E<sub>8</sub> shells (240·σ<sub>3</sub>(m))</span>
+                </div>
+              </div>
+              <div class="grid-2">
+                <div class="sub-fig">
+                  <div class="sub-fig-title">
+                    <span>2-D Ball Cut (‖y‖² ≤ 25)</span>
+                    <span class="mono" style="color:var(--accent);">81 codepoints</span>
+                  </div>
+                  <div class="chart-box">
+                    <svg id="fig1BallSvg" class="chart-svg" viewBox="0 0 320 260" role="img" aria-label="2D integer lattice points inside radius squared 25"></svg>
+                  </div>
+                </div>
+                <div class="sub-fig">
+                  <div class="sub-fig-title">
+                    <span>Exact 8-D Shell Counts (Θ Series, log scale)</span>
+                    <span class="mono" style="color:var(--text-muted);">Hover shells</span>
+                  </div>
+                  <div class="chart-box" id="fig1ThetaWrap">
+                    <svg id="fig1ThetaSvg" class="chart-svg" viewBox="0 0 420 260" role="img" aria-label="Exact Z8 and E8 shell counts per squared radius up to 30"></svg>
+                    <div class="chart-tooltip" id="fig1ThetaTip"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- FIG 2: Scale-and-Snap + 128-dim Bisection Curve -->
+            <div class="geo-pane" id="geo-fig2" role="tabpanel">
+              <div class="geo-caption">
+                <div><strong>Fig. 2 · Block Scaling (<code>block_scales</code>):</strong> Each 128-weight block bisects the smallest scale <code>t</code> such that <code>‖round(x/t)‖² ≤ 3380</code> (verified <code>ZBG128:b560</code> bound).</div>
+                <div class="geo-controls">
+                  <label for="scaleProbeSlider">Probe scale ÷ t*: <strong id="scaleProbeVal" style="color:var(--text-primary);">1.00×</strong></label>
+                  <input id="scaleProbeSlider" class="range-inline" type="range" min="0.58" max="1.25" step="0.01" value="1.00" />
+                  <span id="scaleProbeStatus" class="pill pill-win">Inside bound</span>
+                </div>
+              </div>
+              <div class="grid-2">
+                <div class="sub-fig">
+                  <div class="sub-fig-title">
+                    <span>2-D Scale &amp; Snap Geometry</span>
+                    <span class="mono" style="color:var(--text-muted);">x → x/t → round(x/t)</span>
+                  </div>
+                  <div class="chart-box">
+                    <svg id="fig2SnapSvg" class="chart-svg" viewBox="0 0 340 250" role="img" aria-label="2D vector scaled into integer ball and snapped to nearest lattice point"></svg>
+                  </div>
+                </div>
+                <div class="sub-fig">
+                  <div class="sub-fig-title">
+                    <span>128-Dim Block Bisection (ZBG128:b560)</span>
+                    <span class="mono" id="fig2NormReadout" style="color:var(--accent);">‖y‖² ≤ 3380</span>
+                  </div>
+                  <div class="chart-box">
+                    <svg id="fig2BisectSvg" class="chart-svg" viewBox="0 0 400 250" role="img" aria-label="Squared norm of rounded 128-weight block as a function of scale multiplier"></svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- FIG 4: E8 Voronoi Geometry & Zero-Centering Flag (PR #46) -->
+            <div class="geo-pane" id="geo-fig4" role="tabpanel">
+              <div class="geo-caption">
+                <div><strong>Fig. 4 · E<sub>8</sub> Voronoi Code (<code>VE8Z32:16</code>):</strong> 8-dim E<sub>8</sub> cells, <code>q = 16</code> labels per cell, one shared scale per 32 weights. Setting <code>centred=False</code> (<code>VE8Z</code>, PR #46) anchors the code at <code>0</code> to preserve exact zeros.</div>
+                <div class="seg-group" role="group" aria-label="Toggle Voronoi centering mode">
+                  <button type="button" class="seg-btn active" data-vmode="both">Compare both</button>
+                  <button type="button" class="seg-btn" data-vmode="zero">VE8Z (centred=False)</button>
+                  <button type="button" class="seg-btn" data-vmode="centroid">Centroid (centred=True)</button>
+                </div>
+              </div>
+              <div class="grid-2">
+                <div class="sub-fig">
+                  <div class="sub-fig-title">
+                    <span>Hexagonal A<sub>2</sub> Analogy for E<sub>8</sub> Voronoi Tiling</span>
+                    <span class="mono" style="color:var(--warn);">Home cell + translates</span>
+                  </div>
+                  <div class="chart-box">
+                    <svg id="fig4HexSvg" class="chart-svg" viewBox="0 0 360 250" role="img" aria-label="Hexagonal lattice Voronoi tiling illustrating E8 Voronoi quantization cells"></svg>
+                  </div>
+                </div>
+                <div class="sub-fig">
+                  <div class="sub-fig-title">
+                    <span>PR #46 <code>centred</code> Flag: Centroid vs Origin</span>
+                    <span class="mono" style="color:var(--win);">VE8Z preserves exact 0</span>
+                  </div>
+                  <div class="chart-box">
+                    <svg id="fig4CenterSvg" class="chart-svg" viewBox="0 0 360 250" role="img" aria-label="Comparison of centroid-centered versus zero-centered Voronoi codebook points"></svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- FIG 5: Order-8 Hadamard Turn H8 -->
+            <div class="geo-pane" id="geo-fig5" role="tabpanel">
+              <div class="geo-caption">
+                <div><strong>Fig. 5 · Order-8 Hadamard Turn (<code>HBG</code> / <code>HVE8</code>):</strong> Rotating each 8-weight sub-block by orthogonal <code>H<sub>8</sub> / √8</code> (<code>H² = I</code>) distributes outlier energy uniformly across coordinates without altering <code>‖x‖²</code>.</div>
+                <div class="geo-controls">
+                  <label for="hadSpikeSlider">Outlier x<sub>0</sub>: <strong id="hadSpikeVal" style="color:var(--fail);">1.50</strong></label>
+                  <input id="hadSpikeSlider" class="range-inline" type="range" min="0.40" max="2.50" step="0.05" value="1.50" />
+                  <span id="hadInvariantPill" class="pill pill-accent">‖x‖² = ‖xH₈‖² = 2.2511</span>
+                </div>
+              </div>
+              <div class="geo-grid-3">
+                <div class="sub-fig">
+                  <div class="sub-fig-title">
+                    <span>Before Turn (Raw 8-Block)</span>
+                    <span class="mono" id="hadMaxBefore" style="color:var(--fail);">max 1.50</span>
+                  </div>
+                  <svg id="fig5BeforeSvg" class="chart-svg" viewBox="0 0 260 190" role="img" aria-label="Bar chart of raw 8-weight block dominated by a single outlier"></svg>
+                </div>
+                <div class="sub-fig">
+                  <div class="sub-fig-title">
+                    <span>After H<sub>8</sub> / √8 Rotation</span>
+                    <span class="mono" id="hadMaxAfter" style="color:var(--accent);">max 0.54</span>
+                  </div>
+                  <svg id="fig5AfterSvg" class="chart-svg" viewBox="0 0 260 190" role="img" aria-label="Bar chart of 8-weight block after Hadamard rotation showing even energy spread"></svg>
+                </div>
+                <div class="sub-fig">
+                  <div class="sub-fig-title">
+                    <span>Orthogonal Matrix H<sub>8</sub> / √8</span>
+                    <span class="mono" style="color:var(--text-muted);">±1/√8 · H² = I</span>
+                  </div>
+                  <svg id="fig5MatSvg" class="chart-svg" viewBox="0 0 220 190" role="img" aria-label="8 by 8 Hadamard orthogonal sign matrix heatmap"></svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- FIG 6: Scale Ladder, Per-Block vs Per-Row, Imatrix Ellipsoid -->
+            <div class="geo-pane" id="geo-fig6" role="tabpanel">
+              <div class="geo-caption">
+                <div><strong>Fig. 6 · Scale Mechanics (<code>SCALE_STEPS</code>, <code>@R</code>, <code>_column_weights</code>):</strong> Only <code>s8</code>/<code>s6</code> quantize scales to log<sub>2</sub> ladders (<code>16</code> or <code>8</code> steps/octave); <code>s16</code> stores bisected <code>t</code> unsnapped in fp16.</div>
+              </div>
+              <div class="geo-grid-3">
+                <div class="sub-fig">
+                  <div class="sub-fig-title">
+                    <span>SCALE_STEPS = {16: None, 8: 16, 6: 8}</span>
+                  </div>
+                  <svg id="fig6LadderSvg" class="chart-svg" viewBox="0 0 260 195" role="img" aria-label="Comparison of unsnapped s16 fp16 scales against s8 16-level-per-octave log2 ladder"></svg>
+                  <div class="sub-fig-note"><code>s16</code> uses exact bisected fp16 scale; <code>s8</code>/<code>s6</code> snap down to log<sub>2</sub> octave steps.</div>
+                </div>
+                <div class="sub-fig">
+                  <div class="sub-fig-title">
+                    <span>Per-Block (ZBG) vs Per-Row (@R)</span>
+                  </div>
+                  <svg id="fig6RowSvg" class="chart-svg" viewBox="0 0 260 195" role="img" aria-label="Bar chart comparing four per-block scales against one shared row-max scale"></svg>
+                  <div class="sub-fig-note"><code>ZB128@R</code> shares <code>max(t<sub>blk</sub>)</code> across the row (lower metadata cost, coarser resolution).</div>
+                </div>
+                <div class="sub-fig">
+                  <div class="sub-fig-title">
+                    <span>Imatrix Column Stretching (h / i)</span>
+                  </div>
+                  <svg id="fig6EllipSvg" class="chart-svg" viewBox="0 0 260 195" role="img" aria-label="Circle ball stretched into ellipsoid by importance matrix column weighting"></svg>
+                  <div class="sub-fig-note">Multiplying columns by <code>(imatrix/mean)^0.25</code> turns the isotropic ball into a sensitivity-aligned ellipsoid.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           01 GEMMA 4 E4B
+           =================================================================== -->
+      <section id="gemma" class="paper-section">
+        <div class="sec-head">
+          <div class="sec-title-wrap">
+            <span class="sec-num">01</span>
+            <h2 class="sec-title">Gemma 4 E4B Rate-Distortion</h2>
+          </div>
+          <span class="sec-spec">gemma-4-E4B-it · 7.5B weights · 294 matrices · 10,200 pos · 61 variants · 8-bit ref</span>
+        </div>
+
+        <p class="prose">
+          KL divergence measured against the 8-bit reference (lower is better). Top-1 token agreement is reported only at <code>4.5 bpw</code> (<code>91.6%</code> E<sub>8</sub> vs <code>89.4%</code> Q4_0). Evaluated separately from the Gemma 3 16-bit ball sweep in Section 4.
+        </p>
+
+        <div class="grid-asymmetric">
+          <!-- Precision SVG Rate-Distortion Chart -->
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <div class="panel-title">KL Divergence vs Bitrate (Gemma 4 E4B)</div>
+                <div class="panel-sub">Hover data points for exact values &amp; deltas</div>
+              </div>
+              <div class="legend">
+                <span class="legend-item"><span class="swatch" style="background: var(--chart-e8);"></span>E<sub>8</sub></span>
+                <span class="legend-item"><span class="swatch" style="background: var(--chart-q4);"></span>Q4_0</span>
+                <span class="legend-item"><span class="swatch" style="background: var(--warn); border-radius: 50%;"></span>Q4_K_M (ctx)</span>
+              </div>
+            </div>
+
+            <div class="chart-box" id="gemma4ChartWrap">
+              <svg id="gemma4Chart" class="chart-svg" viewBox="0 0 500 250" role="img" aria-label="Rate-distortion plot comparing E8 and Q4_0 KL divergence on Gemma 4 E4B across 4.005 to 5.005 bits per weight"></svg>
+              <div class="chart-tooltip" id="gemma4Tooltip"></div>
+            </div>
+          </div>
+
+          <!-- Exact Published Table -->
+          <div class="table-wrap">
+            <table class="sci-table">
+              <thead>
+                <tr>
+                  <th>Scheme</th>
+                  <th class="num">Bits / wt</th>
+                  <th class="num">KL ↓</th>
+                  <th>Note / Delta</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="row-highlight">
+                  <td><strong>E<sub>8</sub></strong></td>
+                  <td class="num">4.500</td>
+                  <td class="num"><strong>0.075</strong></td>
+                  <td><span class="pill pill-win">−36% vs Q4_0</span> <span class="mono" style="font-size:0.71rem; color:var(--text-muted); margin-left:4px;">Top-1 91.6%</span></td>
+                </tr>
+                <tr>
+                  <td>Q4_0</td>
+                  <td class="num">4.500</td>
+                  <td class="num">0.117</td>
+                  <td><span class="mono" style="font-size:0.71rem; color:var(--text-muted);">Top-1 89.4%</span></td>
+                </tr>
+                <tr class="row-highlight">
+                  <td><strong>E<sub>8</sub></strong></td>
+                  <td class="num">5.005</td>
+                  <td class="num"><strong>0.059</strong></td>
+                  <td><span class="pill pill-win">−50% vs Q4_0</span></td>
+                </tr>
+                <tr>
+                  <td>Q4_0</td>
+                  <td class="num">5.005</td>
+                  <td class="num">0.118</td>
+                  <td class="mono" style="color:var(--text-muted);">—</td>
+                </tr>
+                <tr class="row-highlight">
+                  <td><strong>E<sub>8</sub></strong></td>
+                  <td class="num">4.005</td>
+                  <td class="num"><strong>0.215</strong></td>
+                  <td><span class="pill pill-win">−52% vs Q4_0</span> <span class="mono" style="font-size:0.7rem; color:var(--text-muted);">(over 50% below)</span></td>
+                </tr>
+                <tr>
+                  <td>Q4_0</td>
+                  <td class="num">4.005</td>
+                  <td class="num">0.448</td>
+                  <td class="mono" style="color:var(--text-muted);">—</td>
+                </tr>
+                <tr class="row-context">
+                  <td>Q4_K_M</td>
+                  <td class="num">4.800</td>
+                  <td class="num">0.069</td>
+                  <td><span class="pill pill-neutral">Context · not bit-matched</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           02 SCALE RULE & 03 EXACT CLOSURES
+           =================================================================== -->
+      <section id="scale-closures" class="paper-section">
+        <div class="sec-head">
+          <div class="sec-title-wrap">
+            <span class="sec-num">02–03</span>
+            <h2 class="sec-title">Scale Rule, Sensitivity Probes &amp; Exact Closures</h2>
+          </div>
+          <span class="sec-spec">Outlier preservation · Spectral vs L2 predictor · Zero-load subgraphs</span>
+        </div>
+
+        <div class="grid-2">
+          <!-- Section 2: Scale Rule & Probes -->
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <div class="panel-title">02 · Scale Rule &amp; Distortion Probes</div>
+                <div class="panel-sub">Why MSE / SNR misranks KL impact</div>
+              </div>
+            </div>
+
+            <div class="bar-stack" style="margin-bottom: 16px;">
+              <div class="bar-row" style="grid-template-columns: 145px minmax(0,1fr) 74px;">
+                <div class="bar-label">Per-row max<small>Largest entry scale</small></div>
+                <div class="bar-track"><div class="bar-fill ball" style="width: 90%;"></div></div>
+                <div class="bar-val"><strong>90%</strong> <span class="ratio">Top-1</span></div>
+              </div>
+              <div class="bar-row" style="grid-template-columns: 145px minmax(0,1fr) 74px;">
+                <div class="bar-label">Per-matrix LSE<small>Least squared error</small></div>
+                <div class="bar-track"><div class="bar-fill q4km" style="width: 62%;"></div></div>
+                <div class="bar-val">62% <span class="ratio">Top-1</span></div>
+              </div>
+            </div>
+
+            <div class="table-wrap" style="margin-bottom: 14px;">
+              <table class="sci-table">
+                <thead>
+                  <tr>
+                    <th>Perturbation Probe</th>
+                    <th class="num">SNR (dB)</th>
+                    <th class="num">KL ↓</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Clipping <code>0.17%</code> of weights</td>
+                    <td class="num">−27.5 dB</td>
+                    <td class="num"><span class="pill pill-fail">0.318</span></td>
+                  </tr>
+                  <tr>
+                    <td>Rounding all weights to 5 bits</td>
+                    <td class="num">−21.7 dB</td>
+                    <td class="num"><span class="pill pill-win">0.118</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="metric-pair">
+              <div class="mini-stat">
+                <div class="mini-stat-k">Spectral Rank Corr.</div>
+                <div class="mini-stat-v" style="color: var(--win);">0.889</div>
+                <div class="mini-stat-sub">Primary KL predictor</div>
+              </div>
+              <div class="mini-stat">
+                <div class="mini-stat-k">Squared Error Corr.</div>
+                <div class="mini-stat-v">0.603</div>
+                <div class="mini-stat-sub">Weaker L2 proxy</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 3: Exact Closures -->
+          <div class="panel" style="display:flex; flex-direction:column; justify-content:space-between; gap:14px;">
+            <div>
+              <div class="panel-head">
+                <div>
+                  <div class="panel-title">03 · Exact Closures (Zero-Load Weights)</div>
+                  <div class="panel-sub">Exact KL = 0.000000 under weight zeroing</div>
+                </div>
+                <span class="pill pill-accent">Gemma 4 E4B · 7.5B total</span>
+              </div>
+
+              <p class="prose" style="font-size: 0.83rem; margin-bottom: 14px;">
+                A substantial fraction of Gemma weights carry strictly zero load for the tested text, alongside a smaller universal core that zeros out cleanly across arbitrary text without shifting output logits.
+              </p>
+
+              <!-- Proportional budget visual of 7.5B weights -->
+              <div style="margin-bottom: 14px;">
+                <div style="display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:0.7rem; color:var(--text-muted); margin-bottom:5px;">
+                  <span>Active load (~4.66B)</span>
+                  <span>Text-zeroed (2.79B · 37.2%) + Any-text (55M)</span>
+                </div>
+                <div class="budget-bar" role="img" aria-label="Weight closure budget: 2.79B weights zeroed for tested text and 55M zeroed for any text out of 7.5B total">
+                  <div class="budget-seg" style="width: 62.07%; background: var(--bg-subtle);" title="Active weights: ~4.66B"></div>
+                  <div class="budget-seg" style="width: 37.20%; background: var(--chart-e8);" title="Zeroed for tested text: 2.79B (KL 0.000000)"></div>
+                  <div class="budget-seg" style="width: 0.73%; min-width: 5px; background: var(--chart-ball);" title="Zeroed for any text: 55M (KL 0.000000)"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="metric-pair">
+              <div class="mini-stat">
+                <div class="mini-stat-k">Zeroed (Tested Text)</div>
+                <div class="mini-stat-v" style="color: var(--accent);">2.79B</div>
+                <div class="mini-stat-sub">KL <code>0.000000</code> (37.2% of 7.5B)</div>
+              </div>
+              <div class="mini-stat">
+                <div class="mini-stat-k">Zeroed (Any Text)</div>
+                <div class="mini-stat-v" style="color: var(--win);">55M</div>
+                <div class="mini-stat-sub">KL <code>0.000000</code> universal core</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           04 INTEGER BALL, HADAMARD E8 & GEMMA 3 SWEEP
+           =================================================================== -->
+      <section id="integer-ball" class="paper-section">
+        <div class="sec-head">
+          <div class="sec-title-wrap">
+            <span class="sec-num">04</span>
+            <h2 class="sec-title">Integer Ball, Hadamard E<sub>8</sub> &amp; Gemma 3 Sweep</h2>
+          </div>
+          <span class="sec-spec">hZBG128 · Hadamard-turned E8 · 16-bit ref · Preregistration scoring</span>
+        </div>
+
+        <!-- 4.1 Multi-model 4.5 bpw arms -->
+        <h3 class="sub-title">
+          <span class="mono" style="color:var(--text-muted);">4.1</span>
+          <span>Two Arms at 4.5 Bits on WikiText-2 (Merged Series)</span>
+        </h3>
+
+        <div class="callout callout-accent">
+          <span class="callout-tag">Provenance</span>
+          <div>
+            The two arms below are <strong>separate experimental runs with different references</strong> (each its own series). <strong>Hadamard-turned E<sub>8</sub></strong> measures KL against the 16-bit model with <em>no calibration data</em>. <strong>Integer ball <code>hZBG128</code></strong> uses a half-strength importance matrix and compares against <code>Q4_K_M</code> with importance matrix as baseline.
+          </div>
+        </div>
+
+        <div class="grid-asymmetric">
+          <!-- Interactive SVG Comparison Chart -->
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <div class="panel-title">Relative KL Reduction vs Q4_K_M (4.5 bpw)</div>
+                <div class="panel-sub">More negative = stronger improvement over baseline</div>
+              </div>
+              <div class="seg-group" role="group" aria-label="Chart display mode">
+                <button type="button" class="seg-btn active" data-ballmode="delta">Δ% vs Q4_K_M</button>
+                <button type="button" class="seg-btn" data-ballmode="abs">Absolute KL</button>
+              </div>
+            </div>
+            <div class="chart-box" id="armsChartWrap">
+              <svg id="armsChart" class="chart-svg" viewBox="0 0 500 225" role="img" aria-label="Comparison of Hadamard E8 and Integer Ball KL divergence versus Q4_K_M across Qwen2.5-1.5B, SmolLM2-1.7B, and Llama-3.2-1B"></svg>
+              <div class="chart-tooltip" id="armsTooltip"></div>
+            </div>
+          </div>
+
+          <!-- Exact Merged Table -->
+          <div class="table-wrap">
+            <table class="sci-table">
+              <thead>
+                <tr>
+                  <th>Model</th>
+                  <th class="num">Had. E<sub>8</sub></th>
+                  <th class="num">Q4_K_M</th>
+                  <th class="num">Gain</th>
+                  <th class="num">Ball</th>
+                  <th class="num">Q4_K_M*</th>
+                  <th class="num">Gain</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Qwen2.5-1.5B</strong></td>
+                  <td class="num">0.018875</td>
+                  <td class="num">0.033348</td>
+                  <td class="num"><span class="pill pill-win">−43.4%</span></td>
+                  <td class="num">0.0209</td>
+                  <td class="num">0.0282</td>
+                  <td class="num"><span class="pill pill-win">−26%</span></td>
+                </tr>
+                <tr>
+                  <td><strong>SmolLM2-1.7B</strong></td>
+                  <td class="num">0.051522</td>
+                  <td class="num">0.0838</td>
+                  <td class="num"><span class="pill pill-win">−38.5%</span></td>
+                  <td class="num">0.0282</td>
+                  <td class="num">0.0378</td>
+                  <td class="num"><span class="pill pill-win">−25%</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Llama-3.2-1B</strong></td>
+                  <td class="num">0.036038</td>
+                  <td class="num">0.0432</td>
+                  <td class="num"><span class="pill pill-win">−16.5%</span></td>
+                  <td class="num">0.0242</td>
+                  <td class="num">0.0359</td>
+                  <td class="num"><span class="pill pill-win">−33%</span></td>
+                </tr>
+              </tbody>
+            </table>
+            <div style="padding: 10px 12px; border-top: 1px solid var(--border-hairline); font-size: 0.75rem; color: var(--text-muted); line-height: 1.5;">
+              <div><strong>*</strong> Ball baseline uses Q4_K_M + importance matrix.</div>
+              <div><strong>Ten-column repair:</strong> Leaving 10 loud <code>ffn_down</code> columns unquantized (+<code>0.005</code> extra bpw) beats Q4_K_M on all three models: KL <code>0.0222</code>, <code>0.0528</code>, <code>0.0302</code>.</div>
+              <div><strong>Additional findings:</strong> Plain ball beats Q4_K_M on 2/3 models (Llama exception). Turned lattice is lowest or within 2 errors on all three at 4.5 bits. At <code>3.0 bpw</code>, no single arm wins. Zero-retention on smallest-magnitude weights: <code>85.9%</code> (Hadamard arm).</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4.2 Gemma 3 Ball Sweep -->
+        <h3 class="sub-title" style="margin-top: 12px;">
+          <span class="mono" style="color:var(--text-muted);">4.2</span>
+          <span>Gemma 3 Calibrated Ball Sweep (WikiText-2 &amp; Python · 10,200 pos each)</span>
+        </h3>
+
+        <p class="prose">
+          Mean KL to the 16-bit reference comparing calibrated integer ball <code>hZBG128</code> (~4.5 bpw) against calibrated <code>Q4_K_M</code>. Plain ball achieves <code>50–63%</code> lower KL than <code>Q4_0</code> across all three Gemma 3 models and both texts. Hadamard on Gemma is mixed (no 40% win: E<sub>8</sub> ball beats Hadamard on 4B on both texts; turning helps 270M; mixed on 1B). Ten-column repair adds nothing on Gemma.
+        </p>
+
+        <div class="table-wrap">
+          <table class="sci-table">
+            <thead>
+              <tr>
+                <th>Gemma 3</th>
+                <th class="num">Ball Wiki</th>
+                <th class="num">Q4_K_M Wiki</th>
+                <th class="num">Δ Wiki</th>
+                <th class="num">Ball Python</th>
+                <th class="num">Q4_K_M Python</th>
+                <th class="num">Δ Python</th>
+                <th>Outcome (~4.5 bpw)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>270M</strong></td>
+                <td class="num">0.0760</td>
+                <td class="num">0.0916</td>
+                <td class="num"><span class="pill pill-win">−17%</span></td>
+                <td class="num">0.1008</td>
+                <td class="num">0.0883</td>
+                <td class="num"><span class="pill pill-fail">+14%</span></td>
+                <td><span class="pill pill-warn">WikiText only</span></td>
+              </tr>
+              <tr>
+                <td><strong>1B</strong></td>
+                <td class="num">0.0578</td>
+                <td class="num">0.0499</td>
+                <td class="num"><span class="pill pill-fail">+16%</span></td>
+                <td class="num">0.0605</td>
+                <td class="num">0.0515</td>
+                <td class="num"><span class="pill pill-fail">+18%</span></td>
+                <td><span class="pill pill-fail">Loses both texts</span></td>
+              </tr>
+              <tr class="row-highlight">
+                <td><strong>4B</strong></td>
+                <td class="num"><strong>0.0716</strong></td>
+                <td class="num">0.0884</td>
+                <td class="num"><span class="pill pill-win">−19%</span></td>
+                <td class="num"><strong>0.0311</strong></td>
+                <td class="num">0.0417</td>
+                <td class="num"><span class="pill pill-win">−25%</span></td>
+                <td><span class="pill pill-win">Win both texts · lower bpw</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Iso-KL, 5 bpw small-model recovery, and Gemma 3 4B bitrate trajectory -->
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <div class="panel-title">Gemma 3 4B · Iso-KL Bit Savings &amp; 5 bpw Sweep</div>
+                <div class="panel-sub">Log-KL interpolation vs calibrated Q4_K_M</div>
+              </div>
+            </div>
+
+            <div class="metric-pair" style="margin-bottom: 12px;">
+              <div class="mini-stat">
+                <div class="mini-stat-k">WikiText-2 Iso-KL</div>
+                <div class="mini-stat-v" style="color: var(--win);">4.3314 bpw</div>
+                <div class="mini-stat-sub"><strong>10.04%</strong> bit saving</div>
+              </div>
+              <div class="mini-stat">
+                <div class="mini-stat-k">Python Iso-KL</div>
+                <div class="mini-stat-v" style="color: var(--win);">4.3335 bpw</div>
+                <div class="mini-stat-sub"><strong>10.00%</strong> bit saving</div>
+              </div>
+            </div>
+
+            <div class="callout" style="margin-top: 8px;">
+              <span class="callout-tag">~5 bpw</span>
+              <div>
+                At approximately <code>5 bpw</code>, the integer ball wins <strong>4 of 4</strong> small-model cells: <code>270M</code> reaches <code>0.0366</code> (WikiText) and <code>0.0558</code> (Python); <code>1B</code> reaches <code>0.0310</code> (WikiText) and <code>0.0309</code> (Python).
+              </div>
+            </div>
+          </div>
+
+          <!-- Gemma 3 4B Bitrate Window Trajectory SVG -->
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <div class="panel-title">Gemma 3 4B Ball · Bitrate Window (WikiText)</div>
+                <div class="panel-sub">KL improves steadily 4.0 → 5.0; sharp rise below 4.0 floor</div>
+              </div>
+            </div>
+            <div class="chart-box" id="windowChartWrap">
+              <svg id="windowChart" class="chart-svg" viewBox="0 0 440 160" role="img" aria-label="Gemma 3 4B Ball KL divergence at 4.0, 4.5, and 5.0 bits per weight"></svg>
+              <div class="chart-tooltip" id="windowTooltip"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4.3 Preregistration Ledger -->
+        <h3 class="sub-title" style="margin-top: 8px;">
+          <span class="mono" style="color:var(--text-muted);">4.3</span>
+          <span>Preregistration Scoring Ledger (Gemma 3 Merged)</span>
+        </h3>
+
+        <div class="table-wrap">
+          <table class="sci-table">
+            <thead>
+              <tr>
+                <th style="width:84px;">ID</th>
+                <th style="width:128px;">Status</th>
+                <th>Recorded Outcome across Gemma 3 (270M / 1B / 4B)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="mono"><strong>P1</strong></td>
+                <td><span class="pill pill-warn">PARTIAL</span></td>
+                <td>Holds on <code>4B</code> (both WikiText &amp; Python) and <code>270M</code> WikiText; fails on <code>270M</code> Python and <code>1B</code> (both texts).</td>
+              </tr>
+              <tr>
+                <td class="mono"><strong>P3</strong></td>
+                <td><span class="pill pill-win">HOLDS</span></td>
+                <td>Holds across all three Gemma 3 models (<code>270M</code>, <code>1B</code>, <code>4B</code>).</td>
+              </tr>
+              <tr>
+                <td class="mono"><strong>P4</strong></td>
+                <td><span class="pill pill-fail">FAILS</span></td>
+                <td>Fails across all three models; ten-column <code>ffn_down</code> repair does not transfer to Gemma.</td>
+              </tr>
+              <tr>
+                <td class="mono"><strong>P6</strong></td>
+                <td><span class="pill pill-fail">FAILS</span></td>
+                <td>Fails across all three Gemma 3 models.</td>
+              </tr>
+              <tr>
+                <td class="mono"><strong>P11</strong></td>
+                <td><span class="pill pill-neutral">UNSCORED</span></td>
+                <td>Not scored anywhere on Gemma 3 sweep (no MMLU run executed).</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           05 MATRIX, LATTICE, CODEC & KERNEL SYSTEMS
+           =================================================================== -->
+      <section id="systems" class="paper-section">
+        <div class="sec-head">
+          <div class="sec-title-wrap">
+            <span class="sec-num">05</span>
+            <h2 class="sec-title">Matrix, File Format, Lattice &amp; Kernel Telemetry</h2>
+          </div>
+          <span class="sec-spec">D4×D4 glue-4 · Branchless int64 · 4.505 bpw bit-exact · Zen 1 CPU vs Pallas gap</span>
+        </div>
+
+        <!-- E8 Lattice Construction & Branchless Decoder Schematic -->
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">E<sub>8</sub> Lattice Construction &amp; Branchless Integer Decoder</div>
+              <div class="panel-sub">Verified 48 / 48 exact squared-distance matches · int64 lanes mandatory</div>
+            </div>
+            <span class="pill pill-win">48/48 Exact</span>
+          </div>
+
+          <!-- Clean technical vector schematic -->
+          <svg class="chart-svg" viewBox="0 0 840 118" role="img" aria-label="E8 lattice decoder architecture from two D4 lattices and index-4 glue group to branchless int64 decoder with 52-bit intermediate peaks">
+            <defs>
+              <marker id="arrowHead" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="var(--chart-axis)" />
+              </marker>
+            </defs>
+
+            <!-- Box 1 -->
+            <rect x="4" y="14" width="186" height="90" rx="6" fill="var(--bg-subtle)" stroke="var(--border-strong)" stroke-width="1" />
+            <text x="18" y="37" fill="var(--text-muted)" font-family="var(--font-mono)" font-size="10" font-weight="600">01 · LATTICE STRUCTURE</text>
+            <text x="18" y="58" fill="var(--text-primary)" font-family="var(--font-sans)" font-size="12.5" font-weight="600">E8 = (D4 ⊕ D4) ∪ Glue</text>
+            <text x="18" y="76" fill="var(--text-secondary)" font-family="var(--font-mono)" font-size="10.5">Index-4 glue group</text>
+            <text x="18" y="92" fill="var(--text-muted)" font-family="var(--font-mono)" font-size="10">8-dim weight blocks</text>
+
+            <line x1="190" y1="59" x2="218" y2="59" stroke="var(--chart-axis)" stroke-width="1.4" marker-end="url(#arrowHead)" />
+
+            <!-- Box 2 -->
+            <rect x="222" y="14" width="194" height="90" rx="6" fill="var(--bg-subtle)" stroke="var(--accent-border)" stroke-width="1.2" />
+            <text x="236" y="37" fill="var(--accent)" font-family="var(--font-mono)" font-size="10" font-weight="600">02 · INTEGER DECODER</text>
+            <text x="236" y="58" fill="var(--text-primary)" font-family="var(--font-sans)" font-size="12.5" font-weight="600">Branchless Arithmetic</text>
+            <text x="236" y="76" fill="var(--text-secondary)" font-family="var(--font-mono)" font-size="10.5">int64 lanes mandatory</text>
+            <text x="236" y="92" fill="var(--text-muted)" font-family="var(--font-mono)" font-size="10">52-bit intermediate peaks</text>
+
+            <line x1="416" y1="59" x2="444" y2="59" stroke="var(--chart-axis)" stroke-width="1.4" marker-end="url(#arrowHead)" />
+
+            <!-- Box 3 -->
+            <rect x="448" y="14" width="184" height="90" rx="6" fill="var(--bg-subtle)" stroke="var(--border-strong)" stroke-width="1" />
+            <text x="462" y="37" fill="var(--text-muted)" font-family="var(--font-mono)" font-size="10" font-weight="600">03 · PACKED FORMAT</text>
+            <text x="462" y="58" fill="var(--text-primary)" font-family="var(--font-sans)" font-size="12.5" font-weight="600">4.505 bits / weight</text>
+            <text x="462" y="76" fill="var(--text-secondary)" font-family="var(--font-mono)" font-size="10.5">Bit-for-bit readback</text>
+            <text x="462" y="92" fill="var(--text-muted)" font-family="var(--font-mono)" font-size="10">MMLU: −0.70 to +0.15 pts</text>
+
+            <line x1="632" y1="59" x2="660" y2="59" stroke="var(--chart-axis)" stroke-width="1.4" marker-end="url(#arrowHead)" />
+
+            <!-- Box 4 -->
+            <rect x="664" y="14" width="172" height="90" rx="6" fill="var(--win-soft)" stroke="var(--win-border)" stroke-width="1.2" />
+            <text x="678" y="37" fill="var(--win)" font-family="var(--font-mono)" font-size="10" font-weight="600">04 · VERIFICATION</text>
+            <text x="678" y="58" fill="var(--text-primary)" font-family="var(--font-sans)" font-size="12.5" font-weight="600">48 / 48 Exact Matches</text>
+            <text x="678" y="76" fill="var(--text-secondary)" font-family="var(--font-mono)" font-size="10.5">Squared-distance check</text>
+            <text x="678" y="92" fill="var(--text-muted)" font-family="var(--font-mono)" font-size="10">Under Q4_K_M: 10.2–13.5 err</text>
+          </svg>
+        </div>
+
+        <div class="grid-2">
+          <!-- Data-free importance matrix & Packed File -->
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <div class="panel-title">Data-Free Importance Matrix Recovery</div>
+                <div class="panel-sub">Built from random vocabulary pieces vs real-text matrix</div>
+              </div>
+            </div>
+
+            <div class="bar-stack" style="margin-bottom: 16px;">
+              <div class="bar-row" style="grid-template-columns: 112px minmax(0,1fr) 54px;">
+                <div class="bar-label">SmolLM2</div>
+                <div class="bar-track"><div class="bar-fill ball" style="width: 96%;"></div></div>
+                <div class="bar-val"><strong>96%</strong></div>
+              </div>
+              <div class="bar-row" style="grid-template-columns: 112px minmax(0,1fr) 54px;">
+                <div class="bar-label">Qwen2.5</div>
+                <div class="bar-track"><div class="bar-fill hadamard" style="width: 77%;"></div></div>
+                <div class="bar-val"><strong>77%</strong></div>
+              </div>
+              <div class="bar-row" style="grid-template-columns: 112px minmax(0,1fr) 54px;">
+                <div class="bar-label">Llama-3.2</div>
+                <div class="bar-track"><div class="bar-fill hadamard" style="width: 69%;"></div></div>
+                <div class="bar-val"><strong>69%</strong></div>
+              </div>
+            </div>
+
+            <div style="border-top: 1px solid var(--border-hairline); padding-top: 12px; font-size: 0.79rem; color: var(--text-secondary); line-height: 1.55;">
+              <strong>Packed file (merged):</strong> <code>4.505 bpw</code>, verified bit-for-bit on readback, scoring under <code>Q4_K_M</code> by <code>10.2</code>, <code>13.5</code>, and <code>11.9</code> errors respectively. End-to-end <strong>MMLU</strong> sits within <code>−0.70</code> to <code>+0.15</code> points of the 16-bit model.
+            </div>
+          </div>
+
+          <!-- Codec Decode & Fused Kernel Bottleneck -->
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <div class="panel-title">Codec Decode &amp; Fused Kernel Bottleneck</div>
+                <div class="panel-sub">Research CPU implementation · TPU / Pallas unmeasured</div>
+              </div>
+              <span class="pill pill-warn">CPU Only</span>
+            </div>
+
+            <div class="bar-stack" style="margin-bottom: 16px;">
+              <div class="bar-row" style="grid-template-columns: 132px minmax(0,1fr) 104px;">
+                <div class="bar-label">E<sub>8</sub> compact 88b<small>Fastest measured</small></div>
+                <div class="bar-track"><div class="bar-fill hadamard" style="width: 92%;"></div></div>
+                <div class="bar-val"><strong>58–65M</strong> <span class="ratio">w/s/c</span></div>
+              </div>
+              <div class="bar-row" style="grid-template-columns: 132px minmax(0,1fr) 104px;">
+                <div class="bar-label">Ballpack baseline<small>Reference codec</small></div>
+                <div class="bar-track"><div class="bar-fill q4km" style="width: 34%;"></div></div>
+                <div class="bar-val">18–23M <span class="ratio">w/s/c</span></div>
+              </div>
+            </div>
+
+            <!-- Stage-1 Leaf Unranking Breakdown -->
+            <div style="margin-bottom: 10px;">
+              <div style="display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:0.7rem; color:var(--text-muted); margin-bottom:5px;">
+                <span>Fused Hadamard E8 GEMV (Zen 1 CPU): 178–220× slower than Q4 proxy</span>
+              </div>
+              <div class="budget-bar" style="height: 22px;" role="img" aria-label="Stage-1 leaf unranking accounts for 72 to 75 percent of stage time">
+                <div class="budget-seg" style="width: 73.5%; background: var(--fail); opacity: 0.85;" title="Stage-1 leaf unranking: 72–75%"></div>
+                <div class="budget-seg" style="width: 26.5%; background: var(--bg-subtle);" title="Remainder of stage: 25–28%"></div>
+              </div>
+              <div style="display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:0.69rem; color:var(--text-muted); margin-top:4px;">
+                <span style="color: var(--fail);">Stage-1 leaf unranking: 72–75% of stage time</span>
+                <span>Remainder: 25–28%</span>
+              </div>
+            </div>
+
+            <div class="callout callout-warn" style="padding: 9px 11px; font-size: 0.76rem;">
+              <span class="callout-tag">Status</span>
+              <div>Pallas and TPU v5e kernel speed remain <strong>unmeasured</strong>. Eliminating or vectorizing Stage-1 leaf unranking is the dominant systems bottleneck.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           06 LIMITS, OPEN ISSUES & VERIFICATION LEDGER
+           =================================================================== -->
+      <section id="limits" class="paper-section">
+        <div class="sec-head">
+          <div class="sec-title-wrap">
+            <span class="sec-num">06</span>
+            <h2 class="sec-title">Limits, Known Issues &amp; Scope Boundaries</h2>
+          </div>
+          <span class="sec-spec">Explicit audit of open defects, measurement gaps, and validity windows</span>
+        </div>
+
+        <p class="prose">
+          To support direct technical diligence, all unresolved implementation issues, unverified certificates, and negative or model-dependent regimes from the working paper are consolidated below.
+        </p>
+
+        <div class="table-wrap">
+          <table class="sci-table">
+            <thead>
+              <tr>
+                <th style="width: 148px;">Category</th>
+                <th style="width: 118px;">Severity</th>
+                <th>Exact Condition / Finding</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Hadamard Bug #1</strong></td>
+                <td><span class="pill pill-fail">UNCORRECTED</span></td>
+                <td>Merged run carries an uncorrected <code>float16</code> cast corrupting the stored-zero percentage.</td>
+              </tr>
+              <tr>
+                <td><strong>Hadamard Bug #2</strong></td>
+                <td><span class="pill pill-fail">UNCORRECTED</span></td>
+                <td><code>Format.read</code> guard gaps remain open in the merged research implementation.</td>
+              </tr>
+              <tr>
+                <td><strong>Gemma Denominator</strong></td>
+                <td><span class="pill pill-warn">DISCREPANCY</span></td>
+                <td>Roofline certificate implies <code>4.0B</code> weights while scored Gemma 4 E4B has <code>~7.5B</code> weights (unflagged in source; corrected ceilings: <code>55</code> FP16, <code>182</code> Q4_K_M, <code>194</code> Ball, <code>195</code> Hadamard tok/s).</td>
+              </tr>
+              <tr>
+                <td><strong>Stage 2 Certificate</strong></td>
+                <td><span class="pill pill-warn">IN PROGRESS</span></td>
+                <td>Stage 2 certificate verification is still running.</td>
+              </tr>
+              <tr>
+                <td><strong>Accelerator Kernels</strong></td>
+                <td><span class="pill pill-warn">UNMEASURED</span></td>
+                <td>Every roofline figure is a theoretical HBM ceiling (<code>1.79×</code> Hadamard @ 4.47 bpw, <code>1.78×</code> Ball @ 4.50 bpw vs INT8). Pallas/TPU speed unmeasured; Zen 1 CPU fused GEMV is <code>178–220×</code> slower than Q4 proxy.</td>
+              </tr>
+              <tr>
+                <td><strong>Bitrate Floor</strong></td>
+                <td><span class="pill pill-neutral">BOUNDARY</span></td>
+                <td>INT4 raw floor sets the <code>4.00 bpw</code> roofline bound. Below <code>4.0 bpw</code>, KL rises sharply in measured Gemma cells; sweet spot in <code>4.0–5.0 bpw</code> awaits hardware cost data.</td>
+              </tr>
+              <tr>
+                <td><strong>Generalization</strong></td>
+                <td><span class="pill pill-neutral">MODEL-DEP.</span></td>
+                <td>Zero-codeword behavior is model-dependent. Output law holds on two tested models; the third model breaks it.</td>
+              </tr>
+              <tr>
+                <td><strong>Evaluation Scope</strong></td>
+                <td><span class="pill pill-neutral">SCOPE</span></td>
+                <td>Gemma 3 <code>270M</code>, <code>1B</code>, <code>4B</code> evaluated on two texts (16-bit ref) plus Gemma 4 E4B bridge (8-bit ref). Decode baseline <code>18–23M</code> w/s/core (fastest <code>58–65M</code>).</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <footer class="paper-footer">
+          <div>Siliquant · Working Paper · 23 November 2026</div>
+          <div style="display:flex; gap:14px; align-items:center;">
+            <a href="https://github.com/Moissanite-Labs/siliquant" target="_blank" rel="noopener noreferrer">github.com/Moissanite-Labs/siliquant ↗</a>
+            <button type="button" class="btn" id="footerCiteBtn" style="height:26px; font-size:0.72rem;">Copy BibTeX</button>
+          </div>
+        </footer>
+      </section>
+    </main>
+  </div>
+
+  <!-- =======================================================================
+       BIBTEX CITATION MODAL
+       ======================================================================= -->
+  <div class="modal-backdrop" id="citeModal" role="dialog" aria-modal="true" aria-labelledby="citeModalTitle">
+    <div class="modal-card">
+      <div class="modal-head">
+        <strong id="citeModalTitle" style="font-size:0.9rem;">BibTeX Citation</strong>
+        <button type="button" class="btn" id="closeModalBtn" aria-label="Close citation dialog" style="height:28px;">Esc</button>
+      </div>
+      <pre class="modal-code" id="bibtexText">@misc{moissanite2026siliquant,
+  title        = {Siliquant: 8-Dimensional E8 Lattice Weight Quantization},
+  author       = {{Moissanite Labs}},
+  year         = {2026},
+  month        = nov,
+  day          = {23},
+  note         = {Working paper},
+  howpublished = {\url{https://github.com/Moissanite-Labs/siliquant}}
+}</pre>
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:12px;">
+        <button type="button" class="btn btn-accent" id="copyBibtexBtn">Copy BibTeX</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Non-blocking confirmation toast -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- =======================================================================
+       APPLICATION LOGIC — Precision SVG Charts, Roofline Explorer, Nav & Theme
+       ======================================================================= -->
+  <script>
+    (function () {
+      'use strict';
+
+      /* ---------------------------------------------------------------------
+         1. THEME MANAGEMENT (Persisted, Respects System Preference)
+         --------------------------------------------------------------------- */
+      const root = document.documentElement;
+      const themeBtn = document.getElementById('themeBtn');
+      const themeIcon = document.getElementById('themeIcon');
+
+      function applyTheme(theme) {
+        try {
+          if (theme === 'dark') {
+            root.setAttribute('data-theme', 'dark');
+            themeIcon.textContent = '☀';
+          } else {
+            root.removeAttribute('data-theme');
+            themeIcon.textContent = '◐';
+          }
+          localStorage.setItem('siliquant-theme', theme);
+        } catch (err) {
+          // Graceful fallback if storage is restricted
+        }
+      }
+
+      try {
+        const saved = localStorage.getItem('siliquant-theme');
+        if (saved === 'dark' || saved === 'light') {
+          applyTheme(saved);
+        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          applyTheme('dark');
+        }
+      } catch (err) {
+        // Default light laboratory theme
+      }
+
+      themeBtn.addEventListener('click', () => {
+        const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        applyTheme(next);
+      });
+
+      /* ---------------------------------------------------------------------
+         2. NON-BLOCKING TOAST & BIBTEX MODAL
+         --------------------------------------------------------------------- */
+      const toastEl = document.getElementById('toast');
+      let toastTimer = null;
+
+      function showToast(msg) {
+        toastEl.textContent = msg;
+        toastEl.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2100);
+      }
+
+      const citeModal = document.getElementById('citeModal');
+      const bibtexText = document.getElementById('bibtexText').textContent;
+
+      function copyText(text, successMsg) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text)
+            .then(() => showToast(successMsg))
+            .catch(() => fallbackCopy(text, successMsg));
+        } else {
+          fallbackCopy(text, successMsg);
+        }
+      }
+
+      function fallbackCopy(text, successMsg) {
+        try {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          showToast(successMsg);
+        } catch (err) {
+          showToast('Copy unavailable in this browser');
+        }
+      }
+
+      document.getElementById('citeBtn').addEventListener('click', () => {
+        citeModal.classList.add('open');
+      });
+      document.getElementById('closeModalBtn').addEventListener('click', () => {
+        citeModal.classList.remove('open');
+      });
+      citeModal.addEventListener('click', (e) => {
+        if (e.target === citeModal) citeModal.classList.remove('open');
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && citeModal.classList.contains('open')) {
+          citeModal.classList.remove('open');
+        }
+      });
+      document.getElementById('copyBibtexBtn').addEventListener('click', () => {
+        copyText(bibtexText, 'BibTeX copied to clipboard');
+      });
+      document.getElementById('footerCiteBtn').addEventListener('click', () => {
+        copyText(bibtexText, 'BibTeX copied to clipboard');
+      });
+      document.getElementById('printBtn').addEventListener('click', () => {
+        window.print();
+      });
+
+      /* ---------------------------------------------------------------------
+         3. INTERACTIVE TPU v5e ROOFLINE EXPLORER (Exact Rational Arithmetic)
+         Formula: tok/s = (BW_GBps * 8) / (Weights_B * bpw)
+         Exact published TPU v5e (819 GB/s) values preserved verbatim.
+         --------------------------------------------------------------------- */
+      const rooflineModels = {
+        gemma75: {
+          label: 'Gemma 4 E4B (7.5B actual)',
+          weightsB: 7.5,
+          paperExactAt819: { fp16: '~55', int8: '109.2', q4km: '~182', ball: '~194', hadamard: '~195' }
+        },
+        gemma40: {
+          label: 'Gemma cert (4.0B)',
+          weightsB: 4.0,
+          paperExactAt819: { fp16: '102.4', int8: '204.8', q4km: '341.3', ball: '364.0', hadamard: '366.4' }
+        },
+        qwen15: {
+          label: 'Qwen2.5-1.5B (1.54B)',
+          weightsB: 1.5437,
+          paperExactAt819: { fp16: '265.3', int8: '530.5', q4km: '884.2', ball: '943.2', hadamard: '949.5' }
+        }
+      };
+
+      const rooflineSchemes = [
+        { key: 'hadamard', name: 'Hadamard E8', sub: '4.47 bpw', bpw: 4.47, cls: 'hadamard', ratioLabel: '3.58× FP16 · 1.79× INT8' },
+        { key: 'ball',     name: 'Ball ZBG128', sub: '4.50 bpw', bpw: 4.50, cls: 'ball',     ratioLabel: '3.56× FP16 · 1.78× INT8' },
+        { key: 'q4km',     name: 'Q4_K_M',      sub: '~4.80 bpw', bpw: 4.80, cls: 'q4km',    ratioLabel: '3.33× FP16 · 1.67× INT8' },
+        { key: 'int8',     name: 'INT8 / FP8',  sub: '8.00 bpw', bpw: 8.00, cls: 'int8',     ratioLabel: '2.00× FP16' },
+        { key: 'fp16',     name: 'FP16 Baseline', sub: '16.00 bpw', bpw: 16.0, cls: 'fp16',   ratioLabel: '1.00× ref' }
+      ];
+
+      let activeModelKey = 'gemma75';
+      let activeBw = 819;
+
+      const barsContainer = document.getElementById('rooflineBars');
+      const rooflineBadge = document.getElementById('rooflineBadge');
+      const rooflineFormula = document.getElementById('rooflineFormula');
+
+      function renderRoofline() {
+        const model = rooflineModels[activeModelKey];
+        const isPaperBw = activeBw === 819;
+
+        rooflineBadge.textContent = isPaperBw
+          ? 'Paper Ceiling · TPU v5e (819 GB/s)'
+          : `Rational Extrapolation · ${activeBw.toLocaleString()} GB/s`;
+        rooflineBadge.className = isPaperBw ? 'pill pill-warn' : 'pill pill-accent';
+
+        rooflineFormula.textContent = `tok/s = (${activeBw} GB/s × 8) / (${model.weightsB}B × bpw) · ${model.label}`;
+
+        const maxTok = (activeBw * 8) / (model.weightsB * 4.47);
+        const rowsHtml = rooflineSchemes.map((s) => {
+          const val = (activeBw * 8) / (model.weightsB * s.bpw);
+          const pct = Math.max(4, Math.min(100, (val / maxTok) * 100));
+          const displayVal = isPaperBw
+            ? model.paperExactAt819[s.key]
+            : (val >= 1000 ? Math.round(val).toLocaleString() : val.toFixed(1));
+
+          return `
+            <div class="bar-row">
+              <div class="bar-label">
+                <span>${s.name}</span>
+                <small>${s.sub}</small>
+              </div>
+              <div class="bar-track" title="${s.name}: ${displayVal} tok/s (${s.ratioLabel})">
+                <div class="bar-fill ${s.cls}" style="width: ${pct.toFixed(1)}%;"></div>
+              </div>
+              <div class="bar-val">
+                <strong>${displayVal}</strong> <span class="ratio">tok/s</span>
+                <div style="font-size:0.65rem; color:var(--text-muted);">${s.ratioLabel}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        barsContainer.innerHTML = rowsHtml;
+      }
+
+      document.querySelectorAll('[data-model]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('[data-model]').forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+          activeModelKey = btn.dataset.model;
+          renderRoofline();
+        });
+      });
+
+      document.querySelectorAll('[data-bw]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('[data-bw]').forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+          activeBw = Number(btn.dataset.bw);
+          renderRoofline();
+        });
+      });
+
+      renderRoofline();
+
+      /* ---------------------------------------------------------------------
+         4. HELPER: SVG ELEMENT FACTORY & TOOLTIP POSITIONING
+         --------------------------------------------------------------------- */
+      const SVG_NS = 'http://www.w3.org/2000/svg';
+      function svgEl(tag, attrs = {}, text = null) {
+        const el = document.createElementNS(SVG_NS, tag);
+        for (const [k, v] of Object.entries(attrs)) {
+          el.setAttribute(k, String(v));
+        }
+        if (text !== null) el.textContent = text;
+        return el;
+      }
+
+      function positionTooltip(tooltipEl, wrapEl, clientX, clientY, html) {
+        tooltipEl.innerHTML = html;
+        tooltipEl.classList.add('visible');
+        const rect = wrapEl.getBoundingClientRect();
+        const ttW = tooltipEl.offsetWidth || 160;
+        let left = clientX - rect.left + 12;
+        if (left + ttW > rect.width - 8) left = clientX - rect.left - ttW - 12;
+        left = Math.max(6, left);
+        let top = clientY - rect.top - 14;
+        top = Math.max(6, Math.min(rect.height - tooltipEl.offsetHeight - 6, top));
+        tooltipEl.style.left = `${left}px`;
+        tooltipEl.style.top = `${top}px`;
+      }
+
+      /* ---------------------------------------------------------------------
+         5. CHART A: GEMMA 4 E4B RATE-DISTORTION SVG
+         --------------------------------------------------------------------- */
+      function renderGemma4Chart() {
+        const svg = document.getElementById('gemma4Chart');
+        const wrap = document.getElementById('gemma4ChartWrap');
+        const tip = document.getElementById('gemma4Tooltip');
+        svg.innerHTML = '';
+
+        const pad = { l: 46, r: 22, t: 18, b: 36 };
+        const W = 500, H = 250;
+        const innerW = W - pad.l - pad.r;
+        const innerH = H - pad.t - pad.b;
+
+        const xMin = 3.92, xMax = 5.10;
+        const yMin = 0.0, yMax = 0.48;
+        const xScale = (x) => pad.l + ((x - xMin) / (xMax - xMin)) * innerW;
+        const yScale = (y) => pad.t + innerH - ((y - yMin) / (yMax - yMin)) * innerH;
+
+        // Horizontal gridlines
+        [0, 0.1, 0.2, 0.3, 0.4].forEach((yv) => {
+          const y = yScale(yv);
+          svg.appendChild(svgEl('line', { x1: pad.l, x2: W - pad.r, y1: y, y2: y, stroke: 'var(--chart-grid)', 'stroke-width': 1 }));
+          svg.appendChild(svgEl('text', {
+            x: pad.l - 8, y: y + 3.5, 'text-anchor': 'end',
+            fill: 'var(--text-muted)', 'font-family': 'var(--font-mono)', 'font-size': 10
+          }, yv.toFixed(1)));
+        });
+
+        // X ticks
+        [4.0, 4.25, 4.5, 4.75, 5.0].forEach((xv) => {
+          const x = xScale(xv);
+          svg.appendChild(svgEl('line', { x1: x, x2: x, y1: pad.t + innerH, y2: pad.t + innerH + 4, stroke: 'var(--chart-axis)' }));
+          svg.appendChild(svgEl('text', {
+            x, y: pad.t + innerH + 17, 'text-anchor': 'middle',
+            fill: 'var(--text-muted)', 'font-family': 'var(--font-mono)', 'font-size': 10
+          }, xv.toFixed(2)));
+        });
+
+        // Axis labels
+        svg.appendChild(svgEl('text', {
+          x: pad.l + innerW / 2, y: H - 3, 'text-anchor': 'middle',
+          fill: 'var(--text-muted)', 'font-family': 'var(--font-mono)', 'font-size': 10
+        }, 'Bits per weight (bpw)'));
+        svg.appendChild(svgEl('text', {
+          x: 12, y: pad.t + innerH / 2, 'text-anchor': 'middle',
+          transform: `rotate(-90 12 ${pad.t + innerH / 2})`,
+          fill: 'var(--text-muted)', 'font-family': 'var(--font-mono)', 'font-size': 10
+        }, 'KL Divergence ↓'));
+
+        const e8Pts = [
+          { bpw: 4.005, kl: 0.215, note: '−52% vs Q4_0 (over 50% below)' },
+          { bpw: 4.500, kl: 0.075, note: '−36% vs Q4_0 · Top-1: 91.6%' },
+          { bpw: 5.005, kl: 0.059, note: '−50% vs Q4_0' }
+        ];
+        const q4Pts = [
+          { bpw: 4.005, kl: 0.448, note: 'Baseline Q4_0 @ 4.005 bpw' },
+          { bpw: 4.500, kl: 0.117, note: 'Baseline Q4_0 · Top-1: 89.4%' },
+          { bpw: 5.005, kl: 0.118, note: 'Baseline Q4_0 @ 5.005 bpw' }
+        ];
+        const ctxPt = { bpw: 4.800, kl: 0.069, note: 'Context only · not bit-matched' };
+
+        // Vertical delta guide lines between Q4_0 and E8
+        const deltas = ['−52%', '−36%', '−50%'];
+        e8Pts.forEach((p, idx) => {
+          const q = q4Pts[idx];
+          const x = xScale(p.bpw);
+          const y1 = yScale(q.kl), y2 = yScale(p.kl);
+          svg.appendChild(svgEl('line', {
+            x1: x, x2: x, y1: y1 + 5, y2: y2 - 5,
+            stroke: 'var(--win)', 'stroke-width': 1.2, 'stroke-dasharray': '3,3', 'stroke-opacity': 0.85
+          }));
+          svg.appendChild(svgEl('text', {
+            x: x + 6, y: (y1 + y2) / 2 + 3,
+            fill: 'var(--win)', 'font-family': 'var(--font-mono)', 'font-size': 9.5, 'font-weight': 600
+          }, deltas[idx]));
+        });
+
+        // Polylines
+        const toPath = (arr) => arr.map((p, i) => `${i === 0 ? 'M' : 'L'} ${xScale(p.bpw).toFixed(1)} ${yScale(p.kl).toFixed(1)}`).join(' ');
+        svg.appendChild(svgEl('path', { d: toPath(q4Pts), fill: 'none', stroke: 'var(--chart-q4)', 'stroke-width': 2, 'stroke-dasharray': '5,3' }));
+        svg.appendChild(svgEl('path', { d: toPath(e8Pts), fill: 'none', stroke: 'var(--chart-e8)', 'stroke-width': 2.5 }));
+
+        // Interactive points
+        function addPoints(arr, label, color) {
+          arr.forEach((p) => {
+            const cx = xScale(p.bpw), cy = yScale(p.kl);
+            const hit = svgEl('circle', { cx, cy, r: 11, fill: 'transparent', style: 'cursor:pointer;' });
+            const dot = svgEl('circle', { cx, cy, r: 4.5, fill: color, stroke: 'var(--bg-surface)', 'stroke-width': 1.5, style: 'pointer-events:none;' });
+            svg.appendChild(dot);
+            svg.appendChild(hit);
+
+            const show = (e) => {
+              dot.setAttribute('r', '6');
+              const pt = e.touches ? e.touches[0] : e;
+              positionTooltip(tip, wrap, pt.clientX, pt.clientY,
+                `<div><strong>${label}</strong> @ ${p.bpw} bpw</div><div>KL: <strong>${p.kl.toFixed(3)}</strong></div><div style="color:var(--text-muted); margin-top:2px;">${p.note}</div>`);
+            };
+            const hide = () => { dot.setAttribute('r', '4.5'); tip.classList.remove('visible'); };
+            hit.addEventListener('mouseenter', show);
+            hit.addEventListener('mousemove', show);
+            hit.addEventListener('mouseleave', hide);
+            hit.addEventListener('touchstart', show, { passive: true });
+          });
+        }
+
+        addPoints(q4Pts, 'Q4_0', 'var(--chart-q4)');
+        addPoints(e8Pts, 'Siliquant E8', 'var(--chart-e8)');
+        addPoints([ctxPt], 'Q4_K_M (context)', 'var(--warn)');
+      }
+
+      /* ---------------------------------------------------------------------
+         6. CHART B: MULTI-MODEL 4.5 BPW ARMS (Interactive Δ% / Absolute KL)
+         --------------------------------------------------------------------- */
+      let armsMode = 'delta';
+      const armsData = [
+        { model: 'Qwen2.5-1.5B', hadKL: 0.018875, hadBase: 0.033348, hadGain: -43.4, ballKL: 0.0209, ballBase: 0.0282, ballGain: -26.0 },
+        { model: 'SmolLM2-1.7B', hadKL: 0.051522, hadBase: 0.083800, hadGain: -38.5, ballKL: 0.0282, ballBase: 0.0378, ballGain: -25.0 },
+        { model: 'Llama-3.2-1B', hadKL: 0.036038, hadBase: 0.043200, hadGain: -16.5, ballKL: 0.0242, ballBase: 0.0359, ballGain: -33.0 }
+      ];
+
+      function renderArmsChart() {
+        const svg = document.getElementById('armsChart');
+        const wrap = document.getElementById('armsChartWrap');
+        const tip = document.getElementById('armsTooltip');
+        svg.innerHTML = '';
+
+        const pad = { l: 48, r: 16, t: 22, b: 36 };
+        const W = 500, H = 225;
+        const innerW = W - pad.l - pad.r;
+        const innerH = H - pad.t - pad.b;
+
+        const maxVal = armsMode === 'delta' ? 50 : 0.09;
+        const yScale = (v) => pad.t + innerH - (v / maxVal) * innerH;
+        const ticks = armsMode === 'delta' ? [0, 10, 20, 30, 40, 50] : [0, 0.02, 0.04, 0.06, 0.08];
+
+        ticks.forEach((tv) => {
+          const y = yScale(tv);
+          svg.appendChild(svgEl('line', { x1: pad.l, x2: W - pad.r, y1: y, y2: y, stroke: 'var(--chart-grid)', 'stroke-width': 1 }));
+          svg.appendChild(svgEl('text', {
+            x: pad.l - 8, y: y + 3.5, 'text-anchor': 'end',
+            fill: 'var(--text-muted)', 'font-family': 'var(--font-mono)', 'font-size': 10
+          }, armsMode === 'delta' ? (tv === 0 ? '0%' : `−${tv}%`) : tv.toFixed(2)));
+        });
+
+        const groupW = innerW / armsData.length;
+        armsData.forEach((d, idx) => {
+          const cx = pad.l + idx * groupW + groupW / 2;
+
+          svg.appendChild(svgEl('text', {
+            x: cx, y: pad.t + innerH + 18, 'text-anchor': 'middle',
+            fill: 'var(--text-secondary)', 'font-family': 'var(--font-mono)', 'font-size': 10.5, 'font-weight': 500
+          }, d.model));
+
+          const bars = armsMode === 'delta'
+            ? [
+                { label: 'Hadamard E8', val: Math.abs(d.hadGain), text: `${d.hadGain.toFixed(1)}%`, color: 'var(--chart-e8)', detail: `KL ${d.hadKL} vs ${d.hadBase}` },
+                { label: 'Ball hZBG128', val: Math.abs(d.ballGain), text: `${d.ballGain.toFixed(0)}%`, color: 'var(--chart-ball)', detail: `KL ${d.ballKL} vs ${d.ballBase} (imatrix)` }
+              ]
+            : [
+                { label: 'Hadamard E8', val: d.hadKL, text: d.hadKL.toFixed(3), color: 'var(--chart-e8)', detail: `Gain: ${d.hadGain}% vs Q4_K_M (${d.hadBase})` },
+                { label: 'Q4_K_M (Had ref)', val: d.hadBase, text: d.hadBase.toFixed(3), color: 'var(--chart-q4)', detail: 'Hadamard arm baseline' },
+                { label: 'Ball hZBG128', val: d.ballKL, text: d.ballKL.toFixed(3), color: 'var(--chart-ball)', detail: `Gain: ${d.ballGain}% vs Q4_K_M* (${d.ballBase})` },
+                { label: 'Q4_K_M* (imatrix)', val: d.ballBase, text: d.ballBase.toFixed(3), color: 'var(--chart-q4km)', detail: 'Ball arm baseline (with imatrix)' }
+              ];
+
+          const bw = armsMode === 'delta' ? 38 : 22;
+          const gap = armsMode === 'delta' ? 10 : 5;
+          const totalW = bars.length * bw + (bars.length - 1) * gap;
+          const startX = cx - totalW / 2;
+
+          bars.forEach((b, bi) => {
+            const bx = startX + bi * (bw + gap);
+            const by = yScale(b.val);
+            const bh = Math.max(2, pad.t + innerH - by);
+
+            const rect = svgEl('rect', {
+              x: bx, y: by, width: bw, height: bh, rx: 3,
+              fill: b.color, opacity: b.label.startsWith('Q4') ? 0.45 : 0.9,
+              style: 'cursor:pointer; transition: opacity 100ms ease;'
+            });
+            svg.appendChild(rect);
+
+            if (armsMode === 'delta') {
+              svg.appendChild(svgEl('text', {
+                x: bx + bw / 2, y: by - 5, 'text-anchor': 'middle',
+                fill: b.color, 'font-family': 'var(--font-mono)', 'font-size': 10, 'font-weight': 600
+              }, b.text));
+            }
+
+            const show = (e) => {
+              rect.setAttribute('opacity', '1');
+              const pt = e.touches ? e.touches[0] : e;
+              positionTooltip(tip, wrap, pt.clientX, pt.clientY,
+                `<div><strong>${d.model}</strong> · ${b.label}</div><div>${armsMode === 'delta' ? 'KL Delta' : 'KL'}: <strong>${b.text}</strong></div><div style="color:var(--text-muted); margin-top:2px;">${b.detail}</div>`);
+            };
+            const hide = () => {
+              rect.setAttribute('opacity', b.label.startsWith('Q4') ? '0.45' : '0.9');
+              tip.classList.remove('visible');
+            };
+            rect.addEventListener('mouseenter', show);
+            rect.addEventListener('mousemove', show);
+            rect.addEventListener('mouseleave', hide);
+            rect.addEventListener('touchstart', show, { passive: true });
+          });
+        });
+
+        // Legend in top-right of SVG
+        const legendX = W - 210;
+        svg.appendChild(svgEl('rect', { x: legendX, y: 4, width: 9, height: 9, rx: 2, fill: 'var(--chart-e8)' }));
+        svg.appendChild(svgEl('text', { x: legendX + 13, y: 12, fill: 'var(--text-muted)', 'font-family': 'var(--font-mono)', 'font-size': 9.5 }, 'Hadamard E8'));
+        svg.appendChild(svgEl('rect', { x: legendX + 98, y: 4, width: 9, height: 9, rx: 2, fill: 'var(--chart-ball)' }));
+        svg.appendChild(svgEl('text', { x: legendX + 111, y: 12, fill: 'var(--text-muted)', 'font-family': 'var(--font-mono)', 'font-size': 9.5 }, 'Ball hZBG128'));
+      }
+
+      document.querySelectorAll('[data-ballmode]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('[data-ballmode]').forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+          armsMode = btn.dataset.ballmode;
+          renderArmsChart();
+        });
+      });
+
+      /* ---------------------------------------------------------------------
+         7. CHART C: GEMMA 3 4B BITRATE WINDOW (4.0 → 4.5 → 5.0 bpw)
+         --------------------------------------------------------------------- */
+      function renderWindowChart() {
+        const svg = document.getElementById('windowChart');
+        const wrap = document.getElementById('windowChartWrap');
+        const tip = document.getElementById('windowTooltip');
+        svg.innerHTML = '';
+
+        const pad = { l: 44, r: 22, t: 16, b: 32 };
+        const W = 440, H = 160;
+        const innerW = W - pad.l - pad.r;
+        const innerH = H - pad.t - pad.b;
+
+        const xMin = 3.85, xMax = 5.15;
+        const yMin = 0, yMax = 0.16;
+        const xScale = (x) => pad.l + ((x - xMin) / (xMax - xMin)) * innerW;
+        const yScale = (y) => pad.t + innerH - ((y - yMin) / (yMax - yMin)) * innerH;
+
+        // INT4 raw floor zone (< 4.0 bpw)
+        const floorX = xScale(4.0);
+        svg.appendChild(svgEl('rect', {
+          x: pad.l, y: pad.t, width: floorX - pad.l, height: innerH,
+          fill: 'var(--fail-soft)'
+        }));
+        svg.appendChild(svgEl('line', {
+          x1: floorX, x2: floorX, y1: pad.t, y2: pad.t + innerH,
+          stroke: 'var(--fail)', 'stroke-width': 1.2, 'stroke-dasharray': '3,3'
+        }));
+        svg.appendChild(svgEl('text', {
+          x: floorX + 4, y: pad.t + 11,
+          fill: 'var(--fail)', 'font-family': 'var(--font-mono)', 'font-size': 9
+        }, '4.00 INT4 floor'));
+
+        [0, 0.05, 0.10, 0.15].forEach((yv) => {
+          const y = yScale(yv);
+          svg.appendChild(svgEl('line', { x1: pad.l, x2: W - pad.r, y1: y, y2: y, stroke: 'var(--chart-grid)', 'stroke-width': 1 }));
+          svg.appendChild(svgEl('text', {
+            x: pad.l - 7, y: y + 3.5, 'text-anchor': 'end',
+            fill: 'var(--text-muted)', 'font-family': 'var(--font-mono)', 'font-size': 9.5
+          }, yv.toFixed(2)));
+        });
+
+        const pts = [
+          { bpw: 4.0, kl: 0.131, note: 'INT4 floor boundary (sharp KL rise below 4.0)' },
+          { bpw: 4.5, kl: 0.072, note: 'Primary measured operating point (−19% vs Q4_K_M)' },
+          { bpw: 5.0, kl: 0.038, note: 'KL still improving; sweet spot awaits cost data' }
+        ];
+
+        pts.forEach((p) => {
+          svg.appendChild(svgEl('text', {
+            x: xScale(p.bpw), y: pad.t + innerH + 17, 'text-anchor': 'middle',
+            fill: 'var(--text-muted)', 'font-family': 'var(--font-mono)', 'font-size': 10
+          }, `${p.bpw.toFixed(1)} bpw`));
+        });
+
+        const pathD = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${xScale(p.bpw).toFixed(1)} ${yScale(p.kl).toFixed(1)}`).join(' ');
+        svg.appendChild(svgEl('path', { d: pathD, fill: 'none', stroke: 'var(--chart-ball)', 'stroke-width': 2.4 }));
+
+        pts.forEach((p) => {
+          const cx = xScale(p.bpw), cy = yScale(p.kl);
+          svg.appendChild(svgEl('text', {
+            x: cx, y: cy - 9, 'text-anchor': 'middle',
+            fill: 'var(--text-primary)', 'font-family': 'var(--font-mono)', 'font-size': 10, 'font-weight': 600
+          }, p.kl.toFixed(3)));
+
+          const dot = svgEl('circle', { cx, cy, r: 4.5, fill: 'var(--chart-ball)', stroke: 'var(--bg-surface)', 'stroke-width': 1.5, style: 'pointer-events:none;' });
+          const hit = svgEl('circle', { cx, cy, r: 12, fill: 'transparent', style: 'cursor:pointer;' });
+          svg.appendChild(dot);
+          svg.appendChild(hit);
+
+          const show = (e) => {
+            dot.setAttribute('r', '6');
+            const pt = e.touches ? e.touches[0] : e;
+            positionTooltip(tip, wrap, pt.clientX, pt.clientY,
+              `<div><strong>Gemma 3 4B Ball</strong> @ ${p.bpw.toFixed(1)} bpw</div><div>WikiText KL: <strong>${p.kl.toFixed(3)}</strong></div><div style="color:var(--text-muted); margin-top:2px;">${p.note}</div>`);
+          };
+          const hide = () => { dot.setAttribute('r', '4.5'); tip.classList.remove('visible'); };
+          hit.addEventListener('mouseenter', show);
+          hit.addEventListener('mousemove', show);
+          hit.addEventListener('mouseleave', hide);
+          hit.addEventListener('touchstart', show, { passive: true });
+        });
+      }
+
+      renderGemma4Chart();
+      renderArmsChart();
+      renderWindowChart();
+
+      /* ---------------------------------------------------------------------
+         7b. SECTION 00c: ARM DECODER & EXACT GEOMETRY FIGURES (make_figs.py)
+         --------------------------------------------------------------------- */
+      const armSpecs = {
+        zbg: {
+          tokens: [
+            { code: 'ZBG',  role: 'Lattice + Shape', desc: 'Z⁸ integer lattice, ball shape (‖y‖² ≤ bound)', tone: 't-accent' },
+            { code: '128',  role: 'Block Size',      desc: '128 weights share one ball & scale', tone: '' },
+            { code: 'b560', role: 'Codebook Cap',    desc: '≤ 2⁵⁶⁰ codepoints (verified ‖y‖² ≤ 3380)', tone: 't-win' },
+            { code: 's16',  role: 'Scale Precision', desc: '16-bit fp16 scale t, unsnapped (SCALE_STEPS[16]=None)', tone: 't-warn' }
+          ],
+          formula: '(log₂ ≤ 2⁵⁶⁰) / 128 + 16 / 128 = 4.375 + 0.125 = 4.500 bpw',
+          badge: 'Plain Ball · 4.50 bpw'
+        },
+        hzbg: {
+          tokens: [
+            { code: 'h',    role: 'Imatrix Weight',  desc: 'Half-strength column stretch: (imatrix/mean)^0.25', tone: 't-win' },
+            { code: 'ZBG',  role: 'Lattice + Shape', desc: 'Z⁸ ball stretched into weight-space ellipsoid', tone: 't-accent' },
+            { code: '128',  role: 'Block Size',      desc: '128 weights per block', tone: '' },
+            { code: 'b560', role: 'Codebook Cap',    desc: '≤ 2⁵⁶⁰ pts (‖y‖² ≤ 3380)', tone: 't-win' },
+            { code: 's16',  role: 'Scale Precision', desc: 'Unsnapped fp16 per-block scale', tone: 't-warn' }
+          ],
+          formula: '560 / 128 + 16 / 128 = 4.500 bpw · Gemma 3 4B: −19% Wiki / −25% Python vs Q4_K_M',
+          badge: 'Primary Ball Arm · 4.50 bpw'
+        },
+        hbg: {
+          tokens: [
+            { code: 'H',    role: 'Rotation',        desc: 'Order-8 Hadamard turn H₈/√8 per 8-block before rounding', tone: 't-fail' },
+            { code: 'BG',   role: 'Ball Codebook',   desc: 'Lattice points inside ball after outlier dispersion', tone: 't-accent' },
+            { code: '128',  role: 'Block Size',      desc: '128 weights (sixteen 8-dim H₈ sub-blocks)', tone: '' },
+            { code: 'b560', role: 'Codebook Cap',    desc: '≤ 2⁵⁶⁰ codepoints', tone: 't-win' },
+            { code: 's16',  role: 'Scale Precision', desc: 'Unsnapped fp16 scale', tone: 't-warn' }
+          ],
+          formula: 'Calibration-free Hadamard arm · Qwen2.5 −43.4%, SmolLM2 −38.5%, Llama −16.5% vs Q4_K_M',
+          badge: 'Zero-Calib Turn · ~4.47–4.50 bpw'
+        },
+        ve8z: {
+          tokens: [
+            { code: 'VE8',  role: 'Voronoi Code',    desc: '8-dim E₈ lattice Voronoi translates (D₄ ⊕ D₄ + glue-4)', tone: 't-accent' },
+            { code: 'Z',    role: 'Zero-Centred',    desc: 'centred=False (PR #46): anchors around 0 to keep exact zeros', tone: 't-win' },
+            { code: '32',   role: 'Scale Group',     desc: 'One shared scale per 32 weights (four 8-dim E₈ blocks)', tone: '' },
+            { code: ':16',  role: 'Labels / Cell',   desc: 'q = 16 Voronoi labels per dimension / cell (4 bits/wt payload)', tone: 't-warn' }
+          ],
+          formula: '4.000 bpw payload + 16 / 32 (0.500 bpw scale) = 4.500 bpw total',
+          badge: 'E8 Voronoi · 4.50 bpw'
+        },
+        zbr: {
+          tokens: [
+            { code: 'ZB',   role: 'Lattice + Shape', desc: 'Z⁸ integer ball codebook', tone: 't-accent' },
+            { code: '128',  role: 'Block Size',      desc: '128-weight quantization blocks', tone: '' },
+            { code: '@R',   role: 'Row-Shared Scale',desc: 'One scale per entire matrix row = max(t_blk) (coarser, cheaper)', tone: 't-warn' },
+            { code: ':16',  role: 'Scale Precision', desc: '16-bit fp16 row scale (negligible overhead per weight)', tone: '' }
+          ],
+          formula: 'Payload bpw + 16 / d_row ≈ payload + 0.004 bpw (vs +0.125 bpw per-128-block)',
+          badge: 'Row-Scale Tradeoff'
+        },
+        k10: {
+          tokens: [
+            { code: 'hZBG128', role: 'Base Arm',     desc: '0.25-power imatrix Z⁸ ball, 128-weight blocks', tone: 't-accent' },
+            { code: '+K10',    role: 'Outlier Repair',desc: 'Leave 10 loud ffn_down columns unquantized in fp16 (+0.005 bpw)', tone: 't-win' },
+            { code: '~rand',   role: 'Data-Free Calib',desc: 'Imatrix built from random vocab tokens (recovers 69–96% of real)', tone: 't-warn' }
+          ],
+          formula: '+0.005 bpw for +K10 beats Q4_K_M on Qwen/SmolLM2/Llama (does not transfer to Gemma)',
+          badge: 'Repair + Data-Free'
+        }
+      };
+
+      function renderArmDecoder(key) {
+        const spec = armSpecs[key];
+        if (!spec) return;
+        document.getElementById('armTokens').innerHTML = spec.tokens.map((t) => `
+          <div class="arm-token ${t.tone}">
+            <div class="arm-token-role">${t.role}</div>
+            <div class="arm-token-code">${t.code}</div>
+            <div class="arm-token-desc">${t.desc}</div>
+          </div>
+        `).join('');
+        document.getElementById('armFormula').innerHTML = `
+          <span>${spec.formula}</span>
+          <span class="pill pill-accent">${spec.badge}</span>
+        `;
+      }
+
+      document.querySelectorAll('[data-arm]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('[data-arm]').forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+          renderArmDecoder(btn.dataset.arm);
+        });
+      });
+      renderArmDecoder('zbg');
+
+      // Tab switcher & Expand-all toggle for Geometry Stage
+      const geoStage = document.getElementById('geoStage');
+      const geoExpandBtn = document.getElementById('geoExpandBtn');
+      let geoShowAll = false;
+
+      document.querySelectorAll('[data-geotab]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          if (geoShowAll) {
+            geoShowAll = false;
+            geoStage.classList.remove('show-all');
+            geoExpandBtn.textContent = 'Show all 5';
+            geoExpandBtn.setAttribute('aria-pressed', 'false');
+          }
+          document.querySelectorAll('[data-geotab]').forEach((b) => {
+            const on = b === btn;
+            b.classList.toggle('active', on);
+            b.setAttribute('aria-selected', String(on));
+          });
+          document.querySelectorAll('.geo-pane').forEach((p) => {
+            p.classList.toggle('active', p.id === `geo-${btn.dataset.geotab}`);
+          });
+        });
+      });
+
+      geoExpandBtn.addEventListener('click', () => {
+        geoShowAll = !geoShowAll;
+        geoStage.classList.toggle('show-all', geoShowAll);
+        geoExpandBtn.textContent = geoShowAll ? 'Tabbed view' : 'Show all 5';
+        geoExpandBtn.setAttribute('aria-pressed', String(geoShowAll));
+      });
+
+      /* -- EXACT 8-D THETA SERIES FOR Z^8 AND E_8 (up to r = 30) -- */
+      function computeExactShells(limit) {
+        // Z^8: theta_3(q)^8 where theta_3(q) = 1 + 2 sum_{k>=1} q^(k^2)
+        const t1 = new Array(limit + 1).fill(0);
+        t1[0] = 1;
+        for (let k = 1; k * k <= limit; k++) t1[k * k] = 2;
+
+        function polyMul(a, b) {
+          const out = new Array(limit + 1).fill(0);
+          for (let i = 0; i <= limit; i++) {
+            if (!a[i]) continue;
+            for (let j = 0; i + j <= limit; j++) {
+              out[i + j] += a[i] * b[j];
+            }
+          }
+          return out;
+        }
+        const t2 = polyMul(t1, t1);
+        const t4 = polyMul(t2, t2);
+        const z8 = polyMul(t4, t4);
+
+        // E_8: E_4(q) = 1 + 240 sum_{m>=1} sigma_3(m) q^(2m)
+        const e8 = new Array(limit + 1).fill(0);
+        e8[0] = 1;
+        for (let m = 1; 2 * m <= limit; m++) {
+          let s3 = 0;
+          for (let d = 1; d <= m; d++) {
+            if (m % d === 0) s3 += d * d * d;
+          }
+          e8[2 * m] = 240 * s3;
+        }
+        return { z8, e8 };
+      }
+
+      /* -- FIG 1: 2D Integer Ball & Exact Z8/E8 Theta Series -- */
+      function renderFig1() {
+        // Left: 2D Ball ||y||^2 <= 25
+        const svgL = document.getElementById('fig1BallSvg');
+        svgL.innerHTML = '';
+        const cx = 160, cy = 130, step = 16;
+        const R = 5 * step;
+
+        svgL.appendChild(svgEl('line', { x1: 24, x2: 296, y1: cy, y2: cy, stroke: 'var(--chart-grid)', 'stroke-width': 1 }));
+        svgL.appendChild(svgEl('line', { x1: cx, x2: cx, y1: 12, y2: 248, stroke: 'var(--chart-grid)', 'stroke-width': 1 }));
+        svgL.appendChild(svgEl('circle', { cx, cy, r: R, fill: 'var(--accent-soft)', stroke: 'var(--chart-e8)', 'stroke-width': 1.8 }));
+
+        for (let i = -7; i <= 7; i++) {
+          for (let j = -7; j <= 7; j++) {
+            const inside = (i * i + j * j) <= 25;
+            const px = cx + i * step;
+            const py = cy - j * step;
+            if (i === 0 && j === 0) {
+              svgL.appendChild(svgEl('circle', { cx: px, cy: py, r: 4, fill: 'var(--fail)' }));
+            } else {
+              svgL.appendChild(svgEl('circle', {
+                cx: px, cy: py, r: inside ? 2.8 : 1.8,
+                fill: inside ? 'var(--chart-e8)' : 'var(--chart-axis)',
+                opacity: inside ? 0.95 : 0.45
+              }));
+            }
+          }
+        }
+        svgL.appendChild(svgEl('text', { x: 14, y: 248, fill: 'var(--text-muted)', 'font-family': 'var(--font-mono)', 'font-size': 9.5 }, 'Origin (0,0) in red · radius R = 5'));
+
+        // Right: Exact Shell Counts (log10)
+        const svgR = document.getElementById('fig1ThetaSvg');
+        const wrapR = document.getElementById('fig1ThetaWrap');
+        const tipR = document.getElementById('fig1ThetaTip');
+        svgR.innerHTML = '';
+
+        const limit = 30;
+        const { z8, e8 } = computeExactShells(limit);
+        const pad = { l: 46, r: 12, t: 14, b: 34 };
+        const W = 420, H = 260;
+        const innerW = W - pad.l - pad.r;
+        const innerH = H - pad.t - pad.b;
+        const maxLog = 7.1; // max shell ~1.1e7
+        const yScale = (val) => val <= 0 ? pad.t + innerH : pad.t + innerH - (Math.log10(val) / maxLog) * innerH;
+
+        [0, 2, 4, 6].forEach((p) => {
+          const y = pad.t + innerH - (p / maxLog) * innerH;
+          svgR.appendChild(svgEl('line', { x1: pad.l, x2: W - pad.r, y1: y, y2: y, stroke: 'var(--chart-grid)', 'stroke-width': 1 }));
+          svgR.appendChild(svgEl('text', {
+            x: pad.l - 6, y: y + 3.5, 'text-anchor': 'end',
+            fill: 'var(--text-muted)', 'font-family': 'var(--font-mono)', 'font-size': 9.5
+          }, p === 0 ? '1' : `10^${p}`));
+        });
+
+        const slotW = innerW / (limit + 1);
+        let cumZ8 = 0, cumE8 = 0;
+        for (let r = 0; r <= limit; r++) {
+          cumZ8 += z8[r];
+          cumE8 += e8[r];
+          const x = pad.l + r * slotW;
+          if (r % 5 === 0) {
+            svgR.appendChild(svgEl('text', {
+              x: x + slotW / 2, y: pad.t + innerH + 15, 'text-anchor': 'middle',
+              fill: 'var(--text-muted)', 'font-family': 'var(--font-mono)', 'font-size': 9.5
+            }, String(r)));
+          }
+
+          const yZ = yScale(z8[r]);
+          svgR.appendChild(svgEl('rect', {
+            x: x + 0.6, y: yZ, width: Math.max(2, slotW * 0.44), height: Math.max(1.5, pad.t + innerH - yZ),
+            fill: 'var(--chart-e8)', opacity: 0.88
+          }));
+
+          if (e8[r] > 0) {
+            const yE = yScale(e8[r]);
+            svgR.appendChild(svgEl('rect', {
+              x: x + slotW * 0.48, y: yE, width: Math.max(2, slotW * 0.44), height: Math.max(1.5, pad.t + innerH - yE),
+              fill: 'var(--warn)', opacity: 0.92
+            }));
+          }
+
+          const cZ = cumZ8, cE = cumE8;
+          const hit = svgEl('rect', { x, y: pad.t, width: slotW, height: innerH, fill: 'transparent', style: 'cursor:pointer;' });
+          const show = (ev) => {
+            const pt = ev.touches ? ev.touches[0] : ev;
+            positionTooltip(tipR, wrapR, pt.clientX, pt.clientY,
+              `<div><strong>Shell ‖y‖² = ${r}</strong></div>` +
+              `<div>Z⁸ shell: <strong>${z8[r].toLocaleString()}</strong> <span style="color:var(--text-muted);">(cum ${cZ.toLocaleString()})</span></div>` +
+              `<div>E₈ shell: <strong>${e8[r].toLocaleString()}</strong> <span style="color:var(--text-muted);">(cum ${cE.toLocaleString()})</span></div>`);
+          };
+          hit.addEventListener('mouseenter', show);
+          hit.addEventListener('mousemove', show);
+          hit.addEventListener('mouseleave', () => tipR.classList.remove('visible'));
+          hit.addEventListener('touchstart', show, { passive: true });
+          svgR.appendChild(hit);
+        }
+
+        svgR.appendChild(svgEl('text', {
+          x: pad.l + innerW / 2, y: H - 4, 'text-anchor': 'middle',
+          fill: 'var(--text-muted)', 'font-family': 'var(--font-mono)', 'font-size': 9.5
+        }, 'Squared radius ‖y‖² (exact Θ series)'));
+      }
+
+      /* -- DETERMINISTIC SEEDED PRNG FOR SYNTHETIC 128-DIM BLOCKS (Figs 2 & 6) -- */
+      function mulberry32(seed) {
+        let a = seed >>> 0;
+        return function () {
+          a |= 0; a = (a + 0x6D2B79F5) | 0;
+          let t = Math.imul(a ^ (a >>> 15), 1 | a);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+      function randn(rng) {
+        const u1 = Math.max(1e-12, rng());
+        const u2 = rng();
+        return Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
+      }
+
+      function bisectBlockScale(vec, bound) {
+        let lo = 0.01, hi = 2.0;
+        for (let iter = 0; iter < 40; iter++) {
+          const mid = 0.5 * (lo + hi);
+          let s2 = 0;
+          for (let i = 0; i < vec.length; i++) {
+            const q = Math.round(vec[i] / mid);
+            s2 += q * q;
+          }
+          if (s2 <= bound) hi = mid;
+          else lo = mid;
+        }
+        return hi;
+      }
+
+      // Generate deterministic 128-dim block & bisection profile for Fig 2
+      const rngFig2 = mulberry32(7);
+      const fig2Vec = Array.from({ length: 128 }, () => randn(rngFig2));
+      const fig2Bound = 3380;
+      const fig2TStar = bisectBlockScale(fig2Vec, fig2Bound);
+      const fig2Curve = [];
+      for (let i = 0; i <= 64; i++) {
+        const mult = 0.58 + (i / 64) * (1.25 - 0.58);
+        const tv = mult * fig2TStar;
+        let s2 = 0;
+        for (let k = 0; k < fig2Vec.length; k++) {
+          const q = Math.round(fig2Vec[k] / tv);
+          s2 += q * q;
+        }
+        fig2Curve.push({ mult, s2 });
+      }
+
+      function renderFig2(probeMult) {
+        // Left: 2-D scale-and-snap with live scale ratio
+        const svgL = document.getElementById('fig2SnapSvg');
+        svgL.innerHTML = '';
+        const cx = 152, cy = 132, step = 14;
+        const R = 5 * step;
+
+        svgL.appendChild(svgEl('circle', { cx, cy, r: R, fill: 'var(--accent-soft)', stroke: 'var(--chart-e8)', 'stroke-width': 1.8 }));
+        for (let i = -8; i <= 8; i++) {
+          for (let j = -7; j <= 7; j++) {
+            svgL.appendChild(svgEl('circle', {
+              cx: cx + i * step, cy: cy - j * step, r: 1.3,
+              fill: 'var(--chart-axis)', opacity: 0.42
+            }));
+          }
+        }
+
+        const x = [6.9, 4.7];
+        const tBase = (Math.hypot(x[0], x[1]) / 5.0) * 1.02;
+        const tCur = tBase * probeMult;
+        const xr = [x[0] / tCur, x[1] / tCur];
+        const y = [Math.round(xr[0]), Math.round(xr[1])];
+        const in2D = (y[0] * y[0] + y[1] * y[1]) <= 25;
+
+        const px = (v) => cx + v * step;
+        const py = (v) => cy - v * step;
+
+        svgL.appendChild(svgEl('line', { x1: px(x[0]), y1: py(x[1]), x2: px(xr[0]), y2: py(xr[1]), stroke: 'var(--win)', 'stroke-width': 1.8 }));
+        svgL.appendChild(svgEl('line', { x1: px(xr[0]), y1: py(xr[1]), x2: px(y[0]), y2: py(y[1]), stroke: in2D ? 'var(--chart-e8)' : 'var(--fail)', 'stroke-width': 1.6, 'stroke-dasharray': '3,2' }));
+
+        svgL.appendChild(svgEl('circle', { cx: px(x[0]), cy: py(x[1]), r: 4.5, fill: 'var(--fail)' }));
+        svgL.appendChild(svgEl('circle', { cx: px(xr[0]), cy: py(xr[1]), r: 4.2, fill: 'var(--win)' }));
+        svgL.appendChild(svgEl('circle', { cx: px(y[0]), cy: py(y[1]), r: 5.5, fill: 'none', stroke: in2D ? 'var(--chart-e8)' : 'var(--fail)', 'stroke-width': 2 }));
+
+        svgL.appendChild(svgEl('text', { x: px(x[0]) + 7, y: py(x[1]) + 3, fill: 'var(--fail)', 'font-family': 'var(--font-mono)', 'font-size': 9.5, 'font-weight': 600 }, 'block x'));
+        svgL.appendChild(svgEl('text', { x: px(xr[0]) + 7, y: py(xr[1]) + 11, fill: 'var(--win)', 'font-family': 'var(--font-mono)', 'font-size': 9.5 }, 'x / t'));
+        svgL.appendChild(svgEl('text', { x: px(y[0]) - 22, y: py(y[1]) - 9, fill: in2D ? 'var(--chart-e8)' : 'var(--fail)', 'font-family': 'var(--font-mono)', 'font-size': 9.5, 'font-weight': 600 }, `y=(${y[0]},${y[1]})`));
+
+        // Right: 128-dim Bisection Curve
+        const svgR = document.getElementById('fig2BisectSvg');
+        svgR.innerHTML = '';
+        const pad = { l: 50, r: 16, t: 16, b: 34 };
+        const W = 400, H = 250;
+        const innerW = W - pad.l - pad.r;
+        const innerH = H - pad.t - pad.b;
+
+        const maxY = 10500;
+        const xScale = (m) => pad.l + ((m - 0.58) / (1.25 - 0.58)) * innerW;
+        const yScale = (v) => pad.t + innerH - (Math.min(maxY, v) / maxY) * innerH;
+
+        [0, 2500, 5000, 7500, 10000].forEach((yv) => {
+          const yy = yScale(yv);
+          svgR.appendChild(svgEl('line', { x1: pad.l, x2: W - pad.r, y1: yy, y2: yy, stroke: 'var(--chart-grid)', 'stroke-width': 1 }));
+          svgR.appendChild(svgEl('text', {
+            x: pad.l - 6, y: yy + 3.5, 'text-anchor': 'end',
+            fill: 'var(--text-muted)', 'font-family': 'var(--font-mono)', 'font-size': 9
+          }, yv === 0 ? '0' : `${(yv / 1000).toFixed(1)}k`));
+        });
+
+        [0.6, 0.8, 1.0, 1.2].forEach((mv) => {
+          const xx = xScale(mv);
+          svgR.appendChild(svgEl('text', {
+            x: xx, y: pad.t + innerH + 16, 'text-anchor': 'middle',
+            fill: 'var(--text-muted)', 'font-family': 'var(--font-mono)', 'font-size': 9.5
+          }, `${mv.toFixed(1)}×`));
+        });
+
+        // Bound line & bisected t* line
+        const yB = yScale(fig2Bound);
+        svgR.appendChild(svgEl('line', { x1: pad.l, x2: W - pad.r, y1: yB, y2: yB, stroke: 'var(--fail)', 'stroke-width': 1.4, 'stroke-dasharray': '4,3' }));
+        svgR.appendChild(svgEl('text', { x: W - pad.r - 4, y: yB - 5, 'text-anchor': 'end', fill: 'var(--fail)', 'font-family': 'var(--font-mono)', 'font-size': 9, 'font-weight': 600 }, 'bound = 3380'));
+
+        const xStar = xScale(1.0);
+        svgR.appendChild(svgEl('line', { x1: xStar, x2: xStar, y1: pad.t, y2: pad.t + innerH, stroke: 'var(--win)', 'stroke-width': 1.3, 'stroke-dasharray': '2,3' }));
+        svgR.appendChild(svgEl('text', { x: xStar + 4, y: pad.t + 11, fill: 'var(--win)', 'font-family': 'var(--font-mono)', 'font-size': 9 }, 'bisected t*'));
+
+        const dPath = fig2Curve.map((p, i) => `${i === 0 ? 'M' : 'L'} ${xScale(p.mult).toFixed(1)} ${yScale(p.s2).toFixed(1)}`).join(' ');
+        svgR.appendChild(svgEl('path', { d: dPath, fill: 'none', stroke: 'var(--chart-e8)', 'stroke-width': 2.2 }));
+
+        // Live probe point
+        const tvCur = probeMult * fig2TStar;
+        let curS2 = 0;
+        for (let k = 0; k < fig2Vec.length; k++) {
+          const q = Math.round(fig2Vec[k] / tvCur);
+          curS2 += q * q;
+        }
+        const ok128 = curS2 <= fig2Bound;
+        svgR.appendChild(svgEl('circle', {
+          cx: xScale(probeMult), cy: yScale(curS2), r: 5,
+          fill: ok128 ? 'var(--win)' : 'var(--fail)', stroke: 'var(--bg-surface)', 'stroke-width': 1.6
+        }));
+
+        svgR.appendChild(svgEl('text', {
+          x: pad.l + innerW / 2, y: H - 4, 'text-anchor': 'middle',
+          fill: 'var(--text-muted)', 'font-family': 'var(--font-mono)', 'font-size': 9.5
+        }, 'Scale ÷ chosen t* (128-weight block)'));
+
+        document.getElementById('scaleProbeVal').textContent = `${probeMult.toFixed(2)}×`;
+        document.getElementById('fig2NormReadout').textContent = `‖y‖² = ${curS2.toLocaleString()} (bound 3,380)`;
+        const statusEl = document.getElementById('scaleProbeStatus');
+        statusEl.textContent = ok128 ? 'Inside bound' : 'Overflow (> 3380)';
+        statusEl.className = ok128 ? 'pill pill-win' : 'pill pill-fail';
+      }
+
+      document.getElementById('scaleProbeSlider').addEventListener('input', (e) => {
+        renderFig2(Number(e.target.value));
+      });
+
+      /* -- FIG 4: E8 Voronoi Hexagonal Analogy & PR #46 Centred Flag -- */
+      let voronoiMode = 'both';
+      const rngFig4 = mulberry32(42);
+      const fig4BaseOffsets = Array.from({ length: 24 }, () => [
+        (rngFig4() - 0.5) * 0.88,
+        (rngFig4() - 0.5) * 0.78
+      ]);
+
+      function hexPoints(cx, cy, r) {
+        const pts = [];
+        for (let k = 0; k < 6; k++) {
+          const a = (Math.PI / 3) * k + Math.PI / 6;
+          pts.push(`${(cx + r * Math.cos(a)).toFixed(1)},${(cy + r * Math.sin(a)).toFixed(1)}`);
+        }
+        return pts.join(' ');
+      }
+
+      function renderFig4() {
+        // Left: A2 Hexagonal Voronoi Tiling
+        const svgL = document.getElementById('fig4HexSvg');
+        svgL.innerHTML = '';
+        const cx = 180, cy = 125, unit = 44;
+        const hexR = unit / Math.sqrt(3);
+
+        for (let i = -3; i <= 3; i++) {
+          for (let j = -3; j <= 3; j++) {
+            const px = cx + (i + 0.5 * j) * unit;
+            const py = cy - j * (unit * Math.sqrt(3) / 2);
+            if (px < 18 || px > 342 || py < 18 || py > 232) continue;
+            const isHome = (i === 0 && j === 0);
+            svgL.appendChild(svgEl('polygon', {
+              points: hexPoints(px, py, hexR),
+              fill: isHome ? 'var(--warn-soft)' : 'none',
+              stroke: isHome ? 'var(--warn)' : 'var(--border-strong)',
+              'stroke-width': isHome ? 1.8 : 0.9
+            }));
+            svgL.appendChild(svgEl('circle', { cx: px, cy: py, r: isHome ? 3.5 : 2.3, fill: 'var(--warn)' }));
+          }
+        }
+        // Sample point x/t mapping into home cell
+        const ptX = cx + 0.7 * unit, ptY = cy - 0.15 * unit;
+        svgL.appendChild(svgEl('line', { x1: ptX, y1: ptY, x2: cx + 10, y2: cy - 3, stroke: 'var(--fail)', 'stroke-width': 1.4, 'stroke-dasharray': '3,2' }));
+        svgL.appendChild(svgEl('circle', { cx: ptX, cy: ptY, r: 4.5, fill: 'var(--fail)' }));
+        svgL.appendChild(svgEl('text', { x: ptX + 7, y: ptY - 6, fill: 'var(--fail)', 'font-family': 'var(--font-mono)', 'font-size': 9.5, 'font-weight': 600 }, 'x/t → home cell'));
+
+        // Right: Centred=True vs Centred=False (VE8Z)
+        const svgR = document.getElementById('fig4CenterSvg');
+        svgR.innerHTML = '';
+        const rCx = 160, rCy = 135, sc = 96;
+        const cOff = [0.35, 0.28];
+
+        // Axes at origin (0, 0)
+        svgR.appendChild(svgEl('line', { x1: 24, x2: 336, y1: rCy, y2: rCy, stroke: 'var(--chart-grid)', 'stroke-width': 1 }));
+        svgR.appendChild(svgEl('line', { x1: rCx, x2: rCx, y1: 16, y2: 234, stroke: 'var(--chart-grid)', 'stroke-width': 1 }));
+
+        if (voronoiMode === 'both' || voronoiMode === 'centroid') {
+          const hx = rCx + cOff[0] * sc, hy = rCy - cOff[1] * sc;
+          svgR.appendChild(svgEl('polygon', {
+            points: hexPoints(hx, hy, 0.72 * sc),
+            fill: 'var(--accent-soft)', stroke: 'var(--chart-e8)', 'stroke-width': 1.4
+          }));
+          fig4BaseOffsets.forEach(([dx, dy]) => {
+            svgR.appendChild(svgEl('circle', { cx: hx + dx * sc, cy: hy - dy * sc, r: 2.8, fill: 'var(--chart-e8)', opacity: 0.9 }));
+          });
+          svgR.appendChild(svgEl('circle', { cx: hx, cy: hy, r: 4.8, fill: 'var(--chart-e8)', stroke: 'var(--bg-surface)', 'stroke-width': 1.4 }));
+          svgR.appendChild(svgEl('text', { x: hx + 8, y: hy - 8, fill: 'var(--chart-e8)', 'font-family': 'var(--font-mono)', 'font-size': 9.5, 'font-weight': 600 }, 'centroid (centred=True)'));
+        }
+
+        if (voronoiMode === 'both' || voronoiMode === 'zero') {
+          svgR.appendChild(svgEl('polygon', {
+            points: hexPoints(rCx, rCy, 0.72 * sc),
+            fill: voronoiMode === 'zero' ? 'var(--win-soft)' : 'none',
+            stroke: 'var(--win)', 'stroke-width': 1.4, 'stroke-dasharray': '4,3'
+          }));
+          fig4BaseOffsets.forEach(([dx, dy]) => {
+            const px = rCx + dx * sc, py = rCy - dy * sc;
+            svgR.appendChild(svgEl('path', {
+              d: `M ${px - 2.6} ${py - 2.6} L ${px + 2.6} ${py + 2.6} M ${px + 2.6} ${py - 2.6} L ${px - 2.6} ${py + 2.6}`,
+              stroke: 'var(--win)', 'stroke-width': 1.4
+            }));
+          });
+          svgR.appendChild(svgEl('circle', { cx: rCx, cy: rCy, r: 4.8, fill: 'var(--win)', stroke: 'var(--bg-surface)', 'stroke-width': 1.4 }));
+          svgR.appendChild(svgEl('text', { x: rCx - 118, y: rCy + 16, fill: 'var(--win)', 'font-family': 'var(--font-mono)', 'font-size': 9.5, 'font-weight': 600 }, 'origin 0 (VE8Z)'));
+        }
+      }
+
+      document.querySelectorAll('[data-vmode]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('[data-vmode]').forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+          voronoiMode = btn.dataset.vmode;
+          renderFig4();
+        });
+      });
+
+      /* -- FIG 5: Order-8 Hadamard H8 Turn -- */
+      function buildH8() {
+        let H = [[1]];
+        for (let step = 0; step < 3; step++) {
+          const n = H.length;
+          const next = Array.from({ length: 2 * n }, () => new Array(2 * n));
+          for (let r = 0; r < n; r++) {
+            for (let c = 0; c < n; c++) {
+              next[r][c] = H[r][c];
+              next[r][c + n] = H[r][c];
+              next[r + n][c] = H[r][c];
+              next[r + n][c + n] = -H[r][c];
+            }
+          }
+          H = next;
+        }
+        const inv = 1 / Math.sqrt(8);
+        return H.map((row) => row.map((v) => v * inv));
+      }
+      const H8 = buildH8();
+
+      function renderFig5(spikeVal) {
+        const x = [spikeVal, 0.02, -0.01, 0.0, 0.01, 0.0, -0.02, 0.01];
+        const y = new Array(8).fill(0);
+        for (let c = 0; c < 8; c++) {
+          for (let r = 0; r < 8; r++) y[c] += x[r] * H8[r][c];
+        }
+        const normX = x.reduce((s, v) => s + v * v, 0);
+        const maxBefore = Math.max(...x.map(Math.abs));
+        const maxAfter = Math.max(...y.map(Math.abs));
+
+        document.getElementById('hadSpikeVal').textContent = spikeVal.toFixed(2);
+        document.getElementById('hadInvariantPill').textContent = `‖x‖² = ‖xH₈‖² = ${normX.toFixed(4)}`;
+        document.getElementById('hadMaxBefore').textContent = `max ${maxBefore.toFixed(2)}`;
+        document.getElementById('hadMaxAfter').textContent = `max ${maxAfter.toFixed(2)}`;
+
+        function drawBar8(svgId, vals, colorVar) {
+          const svg = document.getElementById(svgId);
+          svg.innerHTML = '';
+          const pad = { l: 34, r: 8, t: 10, b: 24 };
+          const W = 260, H = 190;
+          const innerW = W - pad.l - pad.r;
+          const innerH = H - pad.t - pad.b;
+          const yMin = -0.8, yMax = 2.6;
+          const yScale = (v) => pad.t + innerH - ((v - yMin) / (yMax - yMin)) * innerH;
+          const y0 = yScale(0);
+
+          [-0.5, 0, 1.0, 2.0].forEach((yv) => {
+            const yy = yScale(yv);
+            svg.appendChild(svgEl('line', { x1: pad.l, x2: W - pad.r, y1: yy, y2: yy, stroke: yv === 0 ? 'var(--chart-axis)' : 'var(--chart-grid)', 'stroke-width': yv === 0 ? 1.2 : 1 }));
+            svg.appendChild(svgEl('text', { x: pad.l - 5, y: yy + 3, 'text-anchor': 'end', fill: 'var(--text-muted)', 'font-family': 'var(--font-mono)', 'font-size': 8.5 }, yv.toFixed(1)));
+          });
+
+          const slot = innerW / 8;
+          vals.forEach((v, i) => {
+            const bx = pad.l + i * slot + 4;
+            const bw = slot - 8;
+            const yv = yScale(v);
+            const top = Math.min(y0, yv);
+            const h = Math.max(1.5, Math.abs(yv - y0));
+            svg.appendChild(svgEl('rect', { x: bx, y: top, width: bw, height: h, rx: 2, fill: colorVar, opacity: 0.9 }));
+            svg.appendChild(svgEl('text', { x: bx + bw / 2, y: H - 6, 'text-anchor': 'middle', fill: 'var(--text-muted)', 'font-family': 'var(--font-mono)', 'font-size': 8.5 }, String(i)));
+          });
+        }
+
+        drawBar8('fig5BeforeSvg', x, 'var(--fail)');
+        drawBar8('fig5AfterSvg', y, 'var(--chart-e8)');
+
+        // Matrix H8 sign grid
+        const svgM = document.getElementById('fig5MatSvg');
+        svgM.innerHTML = '';
+        const cell = 19, ox = 34, oy = 14;
+        for (let r = 0; r < 8; r++) {
+          for (let c = 0; c < 8; c++) {
+            const pos = H8[r][c] > 0;
+            svgM.appendChild(svgEl('rect', {
+              x: ox + c * cell, y: oy + r * cell, width: cell - 1.5, height: cell - 1.5, rx: 2,
+              fill: pos ? 'var(--chart-e8)' : 'var(--fail)',
+              opacity: pos ? 0.85 : 0.72
+            }));
+          }
+        }
+        svgM.appendChild(svgEl('text', { x: ox + 76, y: 182, 'text-anchor': 'middle', fill: 'var(--text-muted)', 'font-family': 'var(--font-mono)', 'font-size': 8.5 }, 'Blue: +1/√8  ·  Red: −1/√8'));
+      }
+
+      document.getElementById('hadSpikeSlider').addEventListener('input', (e) => {
+        renderFig5(Number(e.target.value));
+      });
+
+      /* -- FIG 6: Scale Ladder, Per-Block vs Per-Row, Imatrix Ellipsoid -- */
+      function renderFig6() {
+        // 6a: s16 unsnapped vs s8 ladder (16 levels/octave)
+        const svgA = document.getElementById('fig6LadderSvg');
+        svgA.innerHTML = '';
+        const rngA = mulberry32(3);
+        const padA = { l: 34, r: 10, t: 14, b: 26 };
+        const WA = 260, HA = 195;
+        const iW = WA - padA.l - padA.r, iH = HA - padA.t - padA.b;
+        const xScaleA = (lg) => padA.l + ((lg - (-2.3)) / (0.1 - (-2.3))) * iW;
+        const yScaleA = (v) => padA.t + iH - ((v - 0.15) / (1.05 - 0.15)) * iH;
+
+        [0.2, 0.5, 0.8, 1.0].forEach((yv) => {
+          const yy = yScaleA(yv);
+          svgA.appendChild(svgEl('line', { x1: padA.l, x2: WA - padA.r, y1: yy, y2: yy, stroke: 'var(--chart-grid)', 'stroke-width': 1 }));
+          svgA.appendChild(svgEl('text', { x: padA.l - 5, y: yy + 3, 'text-anchor': 'end', fill: 'var(--text-muted)', 'font-family': 'var(--font-mono)', 'font-size': 8.5 }, yv.toFixed(1)));
+        });
+
+        // Ladder ticks (16 per octave)
+        for (let k = 0; k < 36; k++) {
+          const val = Math.pow(2, -k / 16);
+          const lg = -k / 16;
+          if (lg < -2.25) continue;
+          const px = xScaleA(lg), py = yScaleA(val);
+          svgA.appendChild(svgEl('line', { x1: px, x2: px, y1: py - 3, y2: py + 3, stroke: 'var(--chart-axis)', 'stroke-width': 1, opacity: 0.55 }));
+        }
+
+        for (let i = 0; i < 12; i++) {
+          const raw = 0.95 * Math.pow(2, -(rngA() * 2.1));
+          const snapped = Math.pow(2, -Math.floor(Math.log2(1.0 / raw) * 16) / 16);
+          const x1 = xScaleA(Math.log2(raw)), y1 = yScaleA(raw);
+          const x2 = xScaleA(Math.log2(snapped)), y2 = yScaleA(snapped);
+          svgA.appendChild(svgEl('line', { x1, y1, x2, y2, stroke: 'var(--win)', 'stroke-width': 1.1, opacity: 0.7 }));
+          svgA.appendChild(svgEl('circle', { cx: x1, cy: y1, r: 3.1, fill: 'var(--chart-e8)' }));
+          svgA.appendChild(svgEl('circle', { cx: x2, cy: y2, r: 2.7, fill: 'var(--win)' }));
+        }
+        svgA.appendChild(svgEl('text', { x: padA.l + 4, y: padA.t + 10, fill: 'var(--chart-e8)', 'font-family': 'var(--font-mono)', 'font-size': 8.5 }, '● s16 unsnapped'));
+        svgA.appendChild(svgEl('text', { x: padA.l + 4, y: padA.t + 22, fill: 'var(--win)', 'font-family': 'var(--font-mono)', 'font-size': 8.5 }, '● s8 ladder (16/oct)'));
+        svgA.appendChild(svgEl('text', { x: padA.l + iW / 2, y: HA - 5, 'text-anchor': 'middle', fill: 'var(--text-muted)', 'font-family': 'var(--font-mono)', 'font-size': 8.5 }, 'log₂(scale t)'));
+
+        // 6b: Per-block (ZBG) vs Per-row (ZB128@R) across 4 blocks of 128
+        const svgB = document.getElementById('fig6RowSvg');
+        svgB.innerHTML = '';
+        const rngB = mulberry32(19);
+        const tb = [0, 1, 2, 3].map((idx) => {
+          const blk = Array.from({ length: 128 }, () => randn(rngB) * (idx === 2 ? 1.24 : 0.94));
+          return bisectBlockScale(blk, 3380);
+        });
+        const tMax = Math.max(...tb);
+        const padB = { l: 36, r: 10, t: 22, b: 26 };
+        const iWB = WA - padB.l - padB.r, iHB = HA - padB.t - padB.b;
+        const yMaxB = tMax * 1.18;
+        const yScaleB = (v) => padB.t + iHB - (v / yMaxB) * iHB;
+
+        [0, 0.1, 0.2, 0.25].forEach((yv) => {
+          if (yv > yMaxB) return;
+          const yy = yScaleB(yv);
+          svgB.appendChild(svgEl('line', { x1: padB.l, x2: WA - padB.r, y1: yy, y2: yy, stroke: 'var(--chart-grid)', 'stroke-width': 1 }));
+          svgB.appendChild(svgEl('text', { x: padB.l - 5, y: yy + 3, 'text-anchor': 'end', fill: 'var(--text-muted)', 'font-family': 'var(--font-mono)', 'font-size': 8.5 }, yv.toFixed(2)));
+        });
+
+        const grpW = iWB / 4;
+        tb.forEach((v, i) => {
+          const gx = padB.l + i * grpW + grpW / 2;
+          const bw = 16;
+          svgB.appendChild(svgEl('rect', { x: gx - bw - 1.5, y: yScaleB(v), width: bw, height: padB.t + iHB - yScaleB(v), rx: 2, fill: 'var(--chart-e8)' }));
+          svgB.appendChild(svgEl('rect', { x: gx + 1.5, y: yScaleB(tMax), width: bw, height: padB.t + iHB - yScaleB(tMax), rx: 2, fill: 'var(--warn)', opacity: 0.85 }));
+          svgB.appendChild(svgEl('text', { x: gx, y: HA - 7, 'text-anchor': 'middle', fill: 'var(--text-muted)', 'font-family': 'var(--font-mono)', 'font-size': 8.5 }, `blk ${i}`));
+        });
+        svgB.appendChild(svgEl('text', { x: padB.l + 4, y: 12, fill: 'var(--chart-e8)', 'font-family': 'var(--font-mono)', 'font-size': 8.5 }, '■ ZBG (per-128)'));
+        svgB.appendChild(svgEl('text', { x: padB.l + 104, y: 12, fill: 'var(--warn)', 'font-family': 'var(--font-mono)', 'font-size': 8.5 }, '■ @R (row max)'));
+
+        // 6c: Plain ball vs Imatrix-weighted ellipsoid
+        const svgC = document.getElementById('fig6EllipSvg');
+        svgC.innerHTML = '';
+        const ecX = 130, ecY = 102;
+        svgC.appendChild(svgEl('line', { x1: 14, x2: 246, y1: ecY, y2: ecY, stroke: 'var(--chart-grid)', 'stroke-width': 1 }));
+        svgC.appendChild(svgEl('line', { x1: ecX, x2: ecX, y1: 16, y2: 184, stroke: 'var(--chart-grid)', 'stroke-width': 1 }));
+        svgC.appendChild(svgEl('circle', { cx: ecX, cy: ecY, r: 46, fill: 'var(--accent-soft)', stroke: 'var(--chart-e8)', 'stroke-width': 1.8 }));
+        svgC.appendChild(svgEl('ellipse', { cx: ecX, cy: ecY, rx: 88, ry: 26, fill: 'var(--win-soft)', stroke: 'var(--win)', 'stroke-width': 1.9 }));
+        svgC.appendChild(svgEl('text', { x: 14, y: 24, fill: 'var(--chart-e8)', 'font-family': 'var(--font-mono)', 'font-size': 8.5 }, '◯ plain ball (ZBG)'));
+        svgC.appendChild(svgEl('text', { x: 14, y: 37, fill: 'var(--win)', 'font-family': 'var(--font-mono)', 'font-size': 8.5 }, '⬭ imatrix-weighted (h/i)'));
+        svgC.appendChild(svgEl('text', { x: ecX, y: 184, 'text-anchor': 'middle', fill: 'var(--text-muted)', 'font-family': 'var(--font-mono)', 'font-size': 8.2 }, 'Finer step on high-imatrix cols'));
+      }
+
+      renderFig1();
+      renderFig2(1.0);
+      renderFig4();
+      renderFig5(1.5);
+      renderFig6();
+
+      /* ---------------------------------------------------------------------
+         8. ACTIVE TOC SCROLL-SPY (Lightweight IntersectionObserver)
+         --------------------------------------------------------------------- */
+      const sections = Array.from(document.querySelectorAll('section.paper-section'));
+      const desktopLinks = Array.from(document.querySelectorAll('#desktopToc a'));
+      const mobileLinks = Array.from(document.querySelectorAll('.mobile-toc a'));
+
+      function setActiveNav(id) {
+        desktopLinks.forEach((a) => a.classList.toggle('active', a.getAttribute('href') === `#${id}`));
+        mobileLinks.forEach((a) => a.classList.toggle('active', a.getAttribute('href') === `#${id}`));
+      }
+
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+          const visible = entries
+            .filter((e) => e.isIntersecting)
+            .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+          if (visible.length > 0) {
+            setActiveNav(visible[0].target.id);
+          }
+        }, { rootMargin: '-18% 0px -65% 0px', threshold: 0 });
+
+        sections.forEach((sec) => observer.observe(sec));
+      }
+    })();
+  </script>
+</body>
+</html>
