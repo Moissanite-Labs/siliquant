@@ -16,15 +16,17 @@ class ReceiptTests(unittest.TestCase):
             source, replay = Path(tmp) / "source", Path(tmp) / "replay"
             for repo in (source, replay):
                 run(["git", "init", "-q", repo], check=True)
+            relative = Path("experiments") / experiment.name
+            (replay / relative).mkdir(parents=True)
 
             def git(repo, *args, **kwargs):
                 return run(["git", *args], cwd=repo, check=True, capture_output=True, **kwargs).stdout
 
             for model, raw in (("270m", b'{"synthetic":270}\r\n'), ("1b", b'{"synthetic":1000}')):
-                path = source / experiment.name / "out" / f"gemma-3-{model}-it" / "results.jsonl"
+                path = source / relative / "out" / f"gemma-3-{model}-it" / "results.jsonl"
                 path.parent.mkdir(parents=True)
                 path.write_bytes(raw)
-            git(source, "add", "--", experiment.name)
+            git(source, "add", "--", str(relative))
             tree = git(source, "write-tree").decode().strip()
             identity = {f"GIT_{role}_{field}": value for role in ("AUTHOR", "COMMITTER")
                         for field, value in (("NAME", "Fixture"), ("EMAIL", "fixture@example.invalid"))}
@@ -33,9 +35,11 @@ class ReceiptTests(unittest.TestCase):
             git(source, "update-ref", "refs/heads/results", pin)
             git(replay, "remote", "add", "origin", str(source))
             pinned = recipe.splitlines()[0].removeprefix("pin=")
-            run(["sh", "-c", recipe.replace(pinned, pin)], cwd=replay, check=True, capture_output=True)
-            self.assertEqual((replay / "270m-results.jsonl").read_bytes(), b'{"synthetic":270}\r\n')
-            self.assertEqual((replay / "1b-results.jsonl").read_bytes(), b'{"synthetic":1000}')
+            directory = replay / relative
+            result = run(["sh", "-c", recipe.replace(pinned, pin)], cwd=directory, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+            self.assertEqual((directory / "270m-results.jsonl").read_bytes(), b'{"synthetic":270}\r\n')
+            self.assertEqual((directory / "1b-results.jsonl").read_bytes(), b'{"synthetic":1000}')
 
 
 if __name__ == "__main__":

@@ -19,3 +19,9 @@ Append-only findings. Attribution labels and artifact paths were normalized with
 **Pass — 51 of 51 mutants killed, zero survivors.** Use AUDIT-009 for
 the current status. AUDIT-002 remains the historical result before the
 synthetic controls were strengthened.
+
+## Review follow-up
+
+| Audit ID | Date | Author | Target / Claim | Gates | Oracle Class | Novelty | Verdict | Evidence |
+|---|---|---|---|---|---|---|---|---|
+| AUDIT-010 | 2026-11-23 | Impact analysis | Partial sweeps, interpolation refusals, chart legends and pinned replay | R4, R5 | exact | N0 | VERIFIED | Eleven analysis tests passed in each isolated mode. Synthetic chart and receipt tests passed. Fetching by commit SHA reproduces both pinned JSONL digests; regenerated impact tables and per-model PNGs are byte-identical. Current R5: 52 of 52 analysis mutants killed, zero survivors, no truncation or exemptions. This updates the mutation count in AUDIT-009. Ratchet head: `sha256:71264f436c9744da556f594a81e0f5b87fa99319dd9d8957f7f8ae10c338c8d2`. |
