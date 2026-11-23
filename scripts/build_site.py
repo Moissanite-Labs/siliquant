@@ -294,7 +294,7 @@ def open_prs(prs_json=None, pr41_body=None, fetch=False):
     if fetch:
         raw = github_api("/pulls?state=open&per_page=100")
         prs = [{"number": p["number"], "title": p["title"],
-                "head_ref": p["head"]["ref"], "url": p["html_url"],
+                "url": p["html_url"],
                 "body": p.get("body") or ""} for p in raw]
         body41 = next((p["body"] for p in prs if p["number"] == 41), None)
         if body41 is None:
@@ -308,7 +308,6 @@ def open_prs(prs_json=None, pr41_body=None, fetch=False):
             fail("need --pr41-body (or --fetch-prs) for the PR #41 claims")
     claims = parse_pr41_claims(body41)
     listed = [{"number": p["number"], "title": p["title"],
-               "head_ref": p.get("head_ref") or p.get("head", {}).get("ref", ""),
                "url": p.get("url") or p.get("html_url", ""),
                "summary": (p.get("body") or "").split("\n\n")[0][:280]}
               for p in prs]
@@ -365,7 +364,7 @@ def render(data):
         for e in data["experiments"])
     pr_rows = "".join(
         row(['<a href="%s">#%d</a>' % (p["url"], p["number"]),
-             html.escape(p["title"]), html.escape(p["head_ref"] or ""),
+             html.escape(p["title"]),
              html.escape(p["summary"])])
         for p in data["open_prs"])
 

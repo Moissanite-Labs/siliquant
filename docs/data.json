@@ -390,98 +390,84 @@
     {
       "number": 53,
       "title": "Add the Gemma 270M and 1B round to the results report",
-      "head_ref": "devin/1795440250-results-gemma-round",
       "url": "https://github.com/Moissanite-Labs/siliquant/pull/53",
       "summary": "## Summary"
     },
     {
       "number": 52,
       "title": "Publish quantisation results as the Pages homepage and a PDF",
-      "head_ref": "devin/1795438945-results-site",
       "url": "https://github.com/Moissanite-Labs/siliquant/pull/52",
       "summary": "## Summary"
     },
     {
       "number": 51,
       "title": "Gemma ball sweep: deployment impact, parser, and audit trail",
-      "head_ref": "jha/gemma-ball-impact",
       "url": "https://github.com/Moissanite-Labs/siliquant/pull/51",
       "summary": "## Summary\nReports Gemma 270M and 1B fidelity and deployment tradeoffs from pinned runner outputs. Includes strict JSONL validation, reproducible impact tables and charts, SHA-256 receipts, and an Aletheia audit under `experiments/model-output-gemma-ball-2026-11-23/` (reports in "
     },
     {
       "number": 47,
       "title": "Preregistration: integer ball on Gemma",
-      "head_ref": "amp-sumi/gemma-ball-prereg",
       "url": "https://github.com/Moissanite-Labs/siliquant/pull/47",
       "summary": "Plan before data. This PR adds only experiments/model-output-gemma-ball-2026-11-23/PREREG.md, committed before any Gemma weight passes through the ball."
     },
     {
       "number": 45,
       "title": "docs: status dashboard for latest results, open PRs, and TPU v5e roofline",
-      "head_ref": "docs/status-dashboard-tpu-2026-11-23",
       "url": "https://github.com/Moissanite-Labs/siliquant/pull/45",
       "summary": "## Summary"
     },
     {
       "number": 44,
       "title": "studies(audit121ar): zero-extra-bit graded conformal-wing E_8^Had shell packing & bulk Steiner parity wall",
-      "head_ref": "studies/audit121ar-conformal-coxeter-shells",
       "url": "https://github.com/Moissanite-Labs/siliquant/pull/44",
       "summary": "## Summary"
     },
     {
       "number": 42,
       "title": "studies(audit119br): pure-Q E_8^Had outlier anisotropy, Block-H2 == WHT_8 (3x butterfly) & Gate-8 study",
-      "head_ref": "studies/audit119br-e8had-anisotropy-block-h2",
       "url": "https://github.com/Moissanite-Labs/siliquant/pull/42",
       "summary": "## Summary"
     },
     {
       "number": 41,
       "title": "E8 turned by a Hadamard matrix on real weights (#25 step 1), the read guard of #29, and the plan-before-data header",
-      "head_ref": "bayan/charming-gates-jlas14",
       "url": "https://github.com/Moissanite-Labs/siliquant/pull/41",
       "summary": "Follows #12, which is merged. Three things, each a separate commit group."
     },
     {
       "number": 36,
       "title": "Study (AUDIT-115R): Zero-Table E_8_Had Adjoint GEMV & Real-Hardware 4-Stage Cycle Breakdown",
-      "head_ref": "studies/audit115r-e8had-adjoint-gemv",
       "url": "https://github.com/Moissanite-Labs/siliquant/pull/36",
       "summary": "## Summary"
     },
     {
       "number": 35,
       "title": "Study (AUDIT-112R + Track S15b): Zero-Division Binary-Tree Shell-Convolution Unranking & C11 Packed E_8^4 Codec (#23, #25)",
-      "head_ref": "studies/audit112r-ballpack-tree-codec",
       "url": "https://github.com/Moissanite-Labs/siliquant/pull/35",
       "summary": "## Summary"
     },
     {
       "number": 31,
       "title": "studies: gated-MLP Z2 gauge conservation (Muon + Learnable Multipliers) & weft-loom#44 / AUDIT-059 verification (AUDIT-106R)",
-      "head_ref": "studies/audit106r-gated-mlp-z2-conservation",
       "url": "https://github.com/Moissanite-Labs/siliquant/pull/31",
       "summary": "# Studies: Gated-MLP $\\mathbb{Z}_2$ Gauge Conservation (Muon + Learnable Multipliers), Symmetry-Breaking Controls & `weft-loom#44` / `AUDIT-059` Exact Verification (`AUDIT-106R`)"
     },
     {
       "number": 28,
       "title": "studies: sparse circulant weighing-matrix outlier rotations CW(120,36)/CW(180,36)/CW(98,16) & generalised.si Law-5 catalog (AUDIT-101R2)",
-      "head_ref": "feat/stream-sparse-weighing-rotations-audit101r2",
       "url": "https://github.com/Moissanite-Labs/siliquant/pull/28",
       "summary": "Adds a self-contained, independently `VERIFIED` pure-Python-3-stdlib (`int`, `fractions.Fraction`, zero floats on trust paths, zero bare `assert`s) study at `studies/expedition-generalised-si-weighing-rotations/`, with **zero edits to existing repository files**."
     },
     {
       "number": 26,
       "title": "Studies: Magnitude Autotuning, Dual-Norm Outlier-Split Quantization, & Trust-Boundary Bridge (AUDIT-068R)",
-      "head_ref": "feat/magnitude-autotune-quant-bridge",
       "url": "https://github.com/Moissanite-Labs/siliquant/pull/26",
       "summary": "## Summary"
     },
     {
       "number": 24,
       "title": "Studies: Leech/E8/Hadamard Spectral Symbiosis (AUDIT-028/031) & Reconciled Neuron Homology Unlock (AUDIT-059)",
-      "head_ref": "expedition/leech-l1-hadamard-symbiosis",
       "url": "https://github.com/Moissanite-Labs/siliquant/pull/24",
       "summary": "This Draft PR packages two strictly self-contained, zero-edit Python-stdlib research studies under `studies/` (zero changes to existing repository code, experiments, or workflows):"
     }
