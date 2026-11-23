@@ -835,7 +835,7 @@ def build_certificate_payload() -> dict[str, Any]:
             }
         )
 
-    # Pillar 5: Exact-Q Empirical Decomposition of live `bayan/charming-gates-jlas14 @ 51235fa7`
+    # Pillar 5: Exact-Q Empirical Decomposition at commit `51235fa7`
     e = EMPIRICAL_ROWS_U6
     llama_raw_drop = e["llama_4p5_ebg"]["kl_u6"] - e["llama_4p5_hbg"]["kl_u6"]
     llama_k10_drop = e["llama_4p5_ebg_k10"]["kl_u6"] - e["llama_4p5_hbg_k10"]["kl_u6"]
