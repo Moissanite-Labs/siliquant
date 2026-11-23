@@ -131,3 +131,14 @@ calibration. Keep rates and reference types visible across runs, and do
 not treat two texts as replication or block savings as whole-model savings.
 Update the transfer chart, decision triage, and ranked follow-up experiments
 without using the pending bridge to fill missing observations.
+
+## 2026-11-23 post-data amendment: Gemma 4 E4B Q8 bridge
+
+Written after the two-row handoff but before independent verification.
+Pin and hash both output blobs at
+`86bb1b2a2178bd8b68912c1e7496426f53e9ffa8`. Strictly parse the two
+bridge arms, check their embedded identifiers, and reconcile the printed
+summary. Compare equal-rate KL using the descriptive quadrature screen,
+alongside top-1 and PPL. Compare with historical runs only where arms,
+text and reference align. Keep this Q8-reference control separate from
+the 16-bit sweeps; it has no stock comparator for estimating savings.
