@@ -7,14 +7,22 @@ of them does to the output: the model's tokenizer (byte-pair merges, as GPT-2), 
 of the changed model's next-token distribution from the reference's, at the positions
 llama-perplexity scores: the second half of each passage.
 
-The tokenizer splits every digit off as its own piece before GPT-2's expression is applied,
-where GPT-2 itself keeps a run of digits together. That is llama.cpp's rule for this model, not
-a choice made here: the file names its pre-tokenizer "smollm", and for that name llama.cpp
-(src/llama-vocab.cpp at eada89c) first applies an expression that matches one number character
-at a time, and GPT-2's expression second. Without the split the token ids, and so every KL from
-this file, would not be those the harness scores. One difference is left: the class used here
-is the decimal digits, and llama.cpp's is every number character, which also takes signs such
-as a fraction. The wikitext-2 test text has 20,679 decimal digits and one other number character.
+The tokenizer splits every Unicode number character (`\\p{N}`, General Categories `Nd`, `Nl`, and
+`No`) off as its own piece before GPT-2's expression is applied, where GPT-2 itself keeps a run of
+numbers together. That is llama.cpp's rule for this model, not a choice made here: the file names
+its pre-tokenizer "smollm", and for that name llama.cpp (`src/llama-vocab.cpp` and
+`scripts/gen-unicode-data.py` at `eada89c`) first applies `\\p{N}` (one `Nd`/`Nl`/`No` character at
+a time) and GPT-2's expression second. Without the split the token ids, and so every KL from this
+file, would not be those the harness scores. `_split_unicode_numbers` delegates `\\p{N}` to stdlib
+`unicodedata.category` (`unicodedata.unidata_version`), matching llama.cpp `eada89c`'s embedded
+Unicode 15.1 table (1,831 `\\p{N}` codepoints) identically on Python 3.13 (`15.1.0`) and adding 80
+Unicode 16.0 `Nd` digits on Python 3.14 (`16.0.0`, 1,911 total, matching the prior `\\d` interpreter
+dependence). On the committed wikitext-2 test text (SHA-256 `173c87a5...`, 303,415 tokens, 20,679
+`Nd` digits, one `No` character `½` at char 1,015,754, and no Unicode 16.0 codepoints), switching
+from `\\d` to `\\p{N}` matches llama.cpp `eada89c` across all 303,415 tokens and changes only token
+indices 238,941..238,942 (passage 466 of 512-token passages), leaving the first 40 reference
+passages (20,480 tokens) and 16 scored passages (8,192 tokens) of
+`experiments/lattice-split-smollm2-2026-11-17` bit-identical.
 
 It is slow and exact enough, not fast: 32-bit floats, one passage at a time through attention.
 It handles what SmolLM2 has: as many key heads as heads, no biases, the output matrix tied to
@@ -30,6 +38,7 @@ from __future__ import annotations
 import math
 import re
 import sys
+import unicodedata
 from pathlib import Path
 
 import numpy as np
@@ -38,8 +47,24 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import ggufread  # noqa: E402
 
 KINDS = ("attn_q", "attn_k", "attn_v", "attn_output", "ffn_gate", "ffn_up", "ffn_down")
-_DIGIT = re.compile(r"(\d)")
 _PIECE = re.compile(r"'s|'t|'re|'ve|'m|'ll|'d| ?[^\W\d_]+| ?\d+| ?(?:[^\s\w]|_)+|\s+(?!\S)|\s+")
+
+
+def _split_unicode_numbers(text: str) -> list[tuple[bool, str]]:
+    """Split text into (is_number, chunk) spans for \\p{N} (Nd|Nl|No) via stdlib unicodedata."""
+    if type(text) is not str:
+        raise TypeError("text must be str")
+    spans: list[tuple[bool, str]] = []
+    start = 0
+    for i, ch in enumerate(text):
+        if unicodedata.category(ch)[0] == "N":
+            if i > start:
+                spans.append((False, text[start:i]))
+            spans.append((True, ch))
+            start = i + 1
+    if start < len(text):
+        spans.append((False, text[start:]))
+    return spans
 
 
 def _byte_names():
@@ -86,8 +111,8 @@ class Tokenizer:
 
     def encode(self, text):
         out = []
-        for chunk in _DIGIT.split(text):
-            pieces = [chunk] if len(chunk) == 1 and chunk.isdigit() else _PIECE.findall(chunk)
+        for is_num, chunk in _split_unicode_numbers(text):
+            pieces = [chunk] if is_num else _PIECE.findall(chunk)
             for piece in pieces:
                 got = self.cache.get(piece)
                 if got is None:
