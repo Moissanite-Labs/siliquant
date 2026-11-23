@@ -253,7 +253,8 @@ def fmt(value, digits=3, signed=False):
 def impact(rows, model, f16):
     lines = [f"# Descriptive impact calculations: {model}", "",
              "Positive KL gain and top-1 Δ favor the candidate. Comparisons are conditional on the inputs; "
-             "KL SE uses marginal quadrature and does not establish paired significance. Top-1 and PPL have no SE here.", ""]
+             "KL SE uses marginal quadrature and does not establish paired significance. "
+             "Top-1 and PPL deltas are descriptive; this report does not apply an uncertainty screen to them.", ""]
     anchors = []
     for text in TEXTS:
         cells = select(rows, model, text)

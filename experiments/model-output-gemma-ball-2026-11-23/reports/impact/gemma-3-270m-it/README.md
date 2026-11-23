@@ -3,7 +3,7 @@
 ## Executive summary
 
 **Fund a replication and kernel benchmark, not a rollout or a breakthrough
-announcement.** On the supplied 270M table, the 4.5178-bpw real-text-matrix
+announcement.** In the verified 270M result files, the 4.5178-bpw real-text-matrix
 ball has **85% / 82% lower mean KL** and **+17.8 / +13.2 pp top-1 keep**
 versus 4.5000-bpw Q4_0 (wikitext / Python). That is nearly rate-matched, not
 bit-identical. With plain ball at 4.4998 bpw, the strictly closer match is
@@ -20,16 +20,17 @@ memory and **0.33–7.74%** fewer fleet-equivalent accelerators at fixed
 demand (roughly **$5.8K / $0.52M / $33.9M** annual gross in the three different
 scenarios). These are what-if sensitivities, not estimates for a specific serving operator; savings
 can be zero or negative at production latency if the packed kernel loses
-bandwidth efficiency. The evidence is a rounded 270M transcription, two
-texts, and a single stated calibration seed; verify the raw receipts and
-repeat at 1B and 7B+ before any external numerical claim.
+bandwidth efficiency. The 270M raw replay confirms the rounded handoff,
+and [Gemma 1B](../gemma-3-1b-it/README.md) repeats the two headline wins.
+Both are still limited to two texts and one reported calibration draw;
+require a 7B-class and packed-serving validation before external deployment claims.
 
 The [cross-model read](../CROSS_MODEL_TRANSFER.md) finds plain-ball wins
-against Q4_0 near 4.5 bpw in all available comparisons on Gemma 270M, Qwen
+against Q4_0 near 4.5 bpw in all available comparisons on Gemma 270M and 1B, Qwen
 1.5B, and SmolLM2 1.7B (KL ratios 0.365–0.440), but no established size
 trend. Llama 1B supports the calibrated comparison, not the Q4_0
 comparison; historical Gemma E4B is Q8-reference context only. Prioritize
-matched F16 runs at 1B and 7B-class scale and packed decode before modeling
+the ongoing Gemma 4B sweep, matched F16 runs at 7B-class scale, and packed decode before modeling
 any production gain as expected.
 
 ## What matters and what to do
@@ -38,12 +39,13 @@ Numbers in [the complete impact tables](IMPACT_TABLES.md) are per text.
 They rank stock comparisons by absolute relative KL effect, show actual
 block bpw, KL ratio/gain, top-1 percentage points, and PPL change versus F16.
 The reported KL-SE screen uses marginal quadrature, not paired inference
-or family-wise significance. Top-1 and PPL have no supplied uncertainty.
+or family-wise significance. Raw rows supply marginal top-1 and PPL SEs;
+the report does not test those deltas.
 
 | Priority / finding | Effect and evidence | Novelty and recommendation |
 |---|---|---|
 | 1. Match stronger-stock fidelity using fewer block bits | At 5.0180 vs 5.4338 bpw, matrix ball KL is 0.399× / 0.631× imatrix Q4_K_M, +4.833 / +1.120 pp keep. The gains are 26.95 / 4.62 quadrature SE. The match is a linear interpolation between measured points, not a measured packed result. Plain ball never reaches the imatrix target within its measured range. | **N1 candidate, sampled/fragile:** locally useful Gemma frontier extension, not a new PTQ method. Fund matching-rate packed artifacts, replicated 1B and 7B+ plus primary Gemma, and serving benchmarks. If reproduced, publish benchmark artifacts and submit a systems/ML workshop or preprint; no patent claim on this result alone. |
-| 2. Large gain versus stock Q4_0 at nominal 4.5 bpw | Matrix gains 53.42 / 15.14 quadrature SE; PPL is +9.64% / +4.30% versus F16, compared with Q4_0's +38.09% / +42.44%. Even the closest-rate plain match is substantially lower in KL. Q4_0 is the weaker comparator; include Q4_K_M-imatrix and modern deployable alternatives in any outward benchmark. | **N1 candidate, sampled/fragile:** a local control extension of existing in-repo results. Publish as a benchmark control after raw-data verification; do not announce it as the state-of-the-art improvement or seek separate patent funding. |
+| 2. Large gain versus stock Q4_0 at nominal 4.5 bpw | Matrix gains 53.42 / 15.14 quadrature SE; PPL is +9.64% / +4.30% versus F16, compared with Q4_0's +38.09% / +42.45%. Even the closest-rate plain match is substantially lower in KL. Q4_0 is the weaker comparator; include Q4_K_M-imatrix and modern deployable alternatives in any outward benchmark. | **N1 candidate, sampled/fragile:** a local control extension of existing in-repo results. Publish as a benchmark control, not as the state-of-the-art improvement or a basis for separate patent funding. |
 | 3. Calibration without a real-text corpus | At the same 4.5178 bpw, real text gains 0.010941 / 0.003719 KL and +0.442 / +0.336 pp over the random-vocabulary matrix. Random still gains 0.414570 / 0.460555 KL against Q4_0. Real and random also beat the two zero-calibration comparators on KL, but those are different arm families, not controlled calibration-only comparisons. | **N0 method, sampled/fragile:** the repository already ran random-vocabulary imatrix on Llama. A possibly useful packaging option; repeat over calibration seeds, data access regimes and downstream tasks before advertising “no corpus needed”; no patent or separate funding priority. |
 | 4. Near-ties and rotation comparisons | The 5.0000-bpw plain ball versus 5.4338-bpw imatrix Q4_K_M on Python differs by only 1.46 quadrature SE, below the descriptive screen. Zero-calibration HBG and VE8Z differences are listed in the tables; they are not claims about mechanism or generic rotation benefits. | **N0, sampled/fragile:** don't promote the near-tie or submit an IP claim; retain as benchmark controls. |
 
@@ -112,12 +114,16 @@ bytes; ask for a small replication/benchmark budget, not fleet funding.
 ## Receipts and scope
 
 [The runner operator's forwarded transcription](RUNNER_TRANSCRIPTION.md) contains
-the 34 headline rows and the claimed SHA-256 strings. No raw JSONL/out was
-located on fetched origin branch heads; the script binds only the local
-transcription checksum. The missing bridge and primary E4B model do not
-enter the estimates. The Python text/ref cache, imatrix identity, scored
-positions, auxiliary uncertainties and non-block bytes cannot be verified
-from the message. See the [runner schema](../../../README.md#runner-contract).
+the historical handoff. The tables and chart now use [pinned raw JSONL,
+verified against both output receipts](../RESULTS_RECEIPTS.md). All 34
+keys match; KL, KL SE and top-1 match exactly, and block rates and PPL
+match at the handoff's precision. Some displayed PPL percentages move by
+0.01 percentage point and scenario display precision changes slightly;
+the headline conclusions and displayed matched rates do not change.
+The missing bridge and primary E4B model do not enter the estimates.
+The hashes embedded in rows identify inputs but do not independently
+verify the reference/cache, calibration or text bytes. The raw rows give
+no full-file byte accounting. See the [runner schema](../../../README.md#runner-contract).
 The figures establish neither downstream quality nor generalization to
 other model sizes, samples, random seeds or serving stacks.
 
@@ -126,9 +132,9 @@ other model sizes, samples, random seeds or serving stacks.
 Reproduce from the experiment directory:
 
 ```sh
-D=reports/impact/gemma-3-270m-it
-python3 -I -B analyze.py "$D/RUNNER_TRANSCRIPTION.md" --model gemma-3-270m-it \
-  --transcribed-table --f16-wikitext 50.594102 --f16-python 8.38385
-python3 -B plot_impact.py "$D/RUNNER_TRANSCRIPTION.md" --model gemma-3-270m-it \
-  --transcribed-table --out "$D/KL_VS_BPW.png"
+git show 964b5f4:experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-270m-it/results.jsonl > 270m-results.jsonl
+python3 -I -B analyze.py 270m-results.jsonl --model gemma-3-270m-it \
+  --f16-wikitext 50.594102 --f16-python 8.38385
+python3 -B plot_impact.py 270m-results.jsonl --model gemma-3-270m-it \
+  --out reports/impact/gemma-3-270m-it/KL_VS_BPW.png
 ```
