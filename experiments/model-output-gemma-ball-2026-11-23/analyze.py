@@ -282,10 +282,13 @@ def impact(rows, model, f16):
                       "", "| Family / target | Matched block bpw | Saved bpw | Block storage saved | Basis |",
                       "|---|---:|---:|---:|---|"])
         for family, arms in FAMILIES:
+            points = [(Q(cells[arm]["bits_per_weight"]), Q(cells[arm]["kl_mean"]))
+                      for arm in arms if arm in cells]
+            if len(points) < 2:
+                continue
             for baseline in (Q4, Q4KM, Q4IMAT):
-                if baseline not in cells or not all(arm in cells for arm in arms):
+                if baseline not in cells:
                     continue
-                points = [(Q(cells[arm]["bits_per_weight"]), Q(cells[arm]["kl_mean"])) for arm in arms]
                 kind, rate = matched_rate(points, cells[baseline]["kl_mean"])
                 old = Q(cells[baseline]["bits_per_weight"])
                 saved = old - rate if rate is not None else None

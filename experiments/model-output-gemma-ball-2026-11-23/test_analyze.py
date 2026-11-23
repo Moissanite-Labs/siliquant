@@ -133,6 +133,17 @@ class ImpactTests(unittest.TestCase):
         arm["kl_mean"] += Q("0.00000000000000001")
         self.assertFalse(a.comparison(arm, base, None)["screen"])
 
+    def test_impact_interpolates_two_observed_rates_but_not_one(self):
+        model = "gemma-3-270m-it"
+        baseline = synthetic_row(variant=a.Q4, bits_per_weight=4.5, kl_mean=0.2,
+                                 file_sha256="d" * 64, other_tensors_that_differ=[])
+        low = synthetic_row(variant=a.PLAIN4, bits_per_weight=4, kl_mean=0.3)
+        high = synthetic_row(variant=a.PLAIN, bits_per_weight=4.5, kl_mean=0.1)
+        report = a.impact(a.load_rows([baseline + low + high]), model, {})
+        self.assertIn(f"| Plain / {a.Q4} | 4.2500 | 0.2500 | 5.56% | interpolated |", report)
+        report = a.impact(a.load_rows([baseline + high]), model, {})
+        self.assertNotIn(f"Plain / {a.Q4}", report)
+
     def test_scenario_and_transcription(self):
         spec = ("Synthetic", 8, 100, 100, 1, 50, 2)
         label, before, after, memory, _start, _end, fleet, dollars = a.scenario(Q(6), Q(1), spec)
