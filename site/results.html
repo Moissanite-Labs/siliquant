@@ -67,7 +67,7 @@
       .mast, footer { display: none; }
       .wrap { width: auto; }
       .hero { padding: 0 0 .65rem; }
-      .hero .lede { font-size: 12pt; }
+      .hero .lede { font-size: 12pt; line-height: 1.3; }
       .chapter { margin-block: .85rem 0; }
       .page-break { break-before: page; }
       h1 { font-size: 31pt; }
@@ -77,7 +77,9 @@
       .pair { grid-template-columns: 1fr 1fr; gap: 1rem; }
       .chart { max-width: 29rem; }
       .table-scroll { overflow: visible; }
+      #rotation th, #rotation td { padding-block: .28rem; }
       .chart, table, .note, .sources { break-inside: avoid; }
+      .sources { break-before: avoid; }
       .small, .sources { font-size: 9pt; }
     }
   </style>
@@ -98,7 +100,7 @@
     <header class="hero">
       <p class="eyebrow">Siliquant research · 23 November 2026</p>
       <h1>Quantisation results</h1>
-      <p class="lede">At about 4.5 bits per weight, turned E8 gave the lowest mean KL among three ball codebooks on Qwen2.5, SmolLM2 and Llama-3.2. On Gemma 3, the calibrated integer ball beat calibrated Q4_K_M on both models and texts at about 5 bits; at 4.5, the result depended on the model and text.</p>
+      <p class="lede">At about 4.5 bits per weight, turned E8 gave the lowest mean KL among three ball codebooks on Qwen2.5, SmolLM2 and Llama-3.2. On Gemma 3 270M and 1B, the calibrated integer ball beat calibrated Q4_K_M on both texts at about 5 bpw, with mixed results near 4.5 bpw; on 4B it won on both texts at 4.5040 bpw versus 4.8151 bpw, an unequal-rate comparison.</p>
       <p>Siliquant rounds a group of weights jointly to a point in a finite codebook, cut from the integer grid or the eight-dimensional E8 lattice. The cut and the lattice orientation change which vectors can be represented at a given bit budget. The studies below ask what survives when the rounded weights are put back into the model: mean KL divergence measures the departure from the reference model’s next-token distribution (lower is closer). Bits per weight (bpw) describe the quantised matrices, not whole-model size.</p>
     </header>
 
@@ -167,7 +169,25 @@
     <section class="chapter page-break" id="gemma">
       <span class="tag pending">Measured on an unmerged branch · not on main</span>
       <h2>Gemma 3: calibration helps, but the rate matters</h2>
-      <p>At practically the same block rate, the uncalibrated 128-weight ball cuts mean KL by 58–63% versus Q4_0 across the two models and texts. Calibrated Q4_K_M is a stronger control: at about 4.5 bpw, the calibrated ball is lower only for 270M on WikiText. At about 5 bpw it is lower in all four comparisons, against stock rates of about 5.43–5.48 bpw.</p>
+      <h3>4B: the calibrated ball beats stock at its normal rate</h3>
+      <p>The 4.5040-bpw ball scores lower than calibrated Q4_K_M on both texts with the same WikiText-derived importance matrix. Q4_K_M runs at its normal 4.8151 bpw, so this is not a rate-matched comparison. The 4B stock receipts also flag a change to the token embedding (<code>token_embd.weight</code>), outside the counted blocks; the ball runner copies it unchanged from the reference.</p>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="Gemma 3 4B mean KL and block bitrate">
+        <table>
+          <caption>Gemma 3 4B IT · mean KL to 16-bit</caption>
+          <thead><tr><th scope="col">Variant</th><th scope="col">Block bpw</th><th scope="col">WikiText</th><th scope="col">Python</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Q4_K_M, calibrated</th><td>4.8151</td><td>0.088353</td><td>0.041692</td></tr>
+            <tr><th scope="row">hZBG128:b560s16</th><td>4.5040</td><td class="highlight">0.071645</td><td class="highlight">0.031101</td></tr>
+            <tr><th scope="row">hZBG128:b560s16+K10</th><td>4.5072</td><td>0.071663</td><td>0.031448</td></tr>
+            <tr><th scope="row">EBG128:b560s16</th><td>4.4999</td><td>0.094284</td><td>0.039951</td></tr>
+            <tr><th scope="row">HBG128:b560s16</th><td>4.4999</td><td>0.100675</td><td>0.041296</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Without calibration, EBG128 scores lower than HBG128 on both texts at the same reported rate. With the calibrated ball, keeping ten <code>ffn_down</code> columns per layer (340 in total) costs a little more and lowers neither measured KL.</p>
+      <p class="sources">4B sources at <code>dc10d4b</code>: <a href="https://github.com/Moissanite-Labs/siliquant/blob/dc10d4bbca8cc049f288aa22e42172aebb493363/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-4b-it/results.out">scores</a> and <a href="https://github.com/Moissanite-Labs/siliquant/blob/dc10d4bbca8cc049f288aa22e42172aebb493363/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-4b-it/results.jsonl">JSONL</a>.</p>
+      <h3>270M and 1B: the calibrated ball needs a higher rate</h3>
+      <p>At practically the same block rate, the uncalibrated 128-weight ball cuts mean KL by 58–63% versus Q4_0 across these two models and texts. Calibrated Q4_K_M is a stronger control: at about 4.5 bpw, the calibrated ball is lower only for 270M on WikiText. At about 5 bpw it is lower in all four comparisons, against stock rates of about 5.43–5.48 bpw.</p>
       <div class="table-scroll" tabindex="0" role="region" aria-label="Gemma 3 mean KL and block bitrate">
         <table class="gemma-results">
           <caption>Gemma 3 IT · mean KL to 16-bit, with block bpw below each score</caption>
@@ -180,8 +200,8 @@
           </tbody>
         </table>
       </div>
-      <p class="small">The two models use the same recorded evaluation text hashes. These are block-rate and fidelity measurements, not packed file sizes or downstream accuracy. The <a href="https://github.com/Moissanite-Labs/siliquant/pull/47">preregistered sweep (#47)</a> is still partial: the primary Gemma 4 E4B run and its Q8 bridge are not in these receipts. Draft <a href="https://github.com/Moissanite-Labs/siliquant/pull/51">PR #51</a> analyses the 270M transcription, which agrees with the raw rows at printed precision; its interpolated storage and deployment estimates are not measurements.</p>
-      <p class="sources">Sources at <code>90a3247</code>: 270M <a href="https://github.com/Moissanite-Labs/siliquant/blob/90a3247dc9bb70ca3afa0f13627ec4b569c73317/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-270m-it/results.out">scores</a> and <a href="https://github.com/Moissanite-Labs/siliquant/blob/90a3247dc9bb70ca3afa0f13627ec4b569c73317/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-270m-it/results.jsonl">JSONL</a> · 1B <a href="https://github.com/Moissanite-Labs/siliquant/blob/90a3247dc9bb70ca3afa0f13627ec4b569c73317/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-1b-it/results.out">scores</a> and <a href="https://github.com/Moissanite-Labs/siliquant/blob/90a3247dc9bb70ca3afa0f13627ec4b569c73317/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-1b-it/results.jsonl">JSONL</a>.</p>
+      <p class="small">The 270M and 1B records use the same evaluation text hashes. These are block-rate and fidelity measurements, not packed file sizes or downstream accuracy. The <a href="https://github.com/Moissanite-Labs/siliquant/pull/47">preregistered sweep (#47)</a> is still partial: Gemma 3 4B is distinct from the primary Gemma 4 E4B model, whose run and Q8 bridge are not in these receipts. Draft <a href="https://github.com/Moissanite-Labs/siliquant/pull/57">PR #57</a> analyses the 270M, 1B and 4B results; its estimates of quantized-block storage and deployment savings are not measured whole-model memory or serving savings.</p>
+      <p class="sources">Sources at <code>dc10d4b</code>: 270M <a href="https://github.com/Moissanite-Labs/siliquant/blob/dc10d4bbca8cc049f288aa22e42172aebb493363/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-270m-it/results.out">scores</a> and <a href="https://github.com/Moissanite-Labs/siliquant/blob/dc10d4bbca8cc049f288aa22e42172aebb493363/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-270m-it/results.jsonl">JSONL</a> · 1B <a href="https://github.com/Moissanite-Labs/siliquant/blob/dc10d4bbca8cc049f288aa22e42172aebb493363/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-1b-it/results.out">scores</a> and <a href="https://github.com/Moissanite-Labs/siliquant/blob/dc10d4bbca8cc049f288aa22e42172aebb493363/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-1b-it/results.jsonl">JSONL</a>.</p>
       <p class="small"><strong>Earlier E4B run, on main.</strong> Against Q8_0 on a different text, a 4.5-bpw E8 Voronoi arm scored 0.0747 mean KL versus 0.1173 for scalar rounding. It is not part of the 16-bit comparison. <a href="https://github.com/Moissanite-Labs/siliquant/blob/f32d750eb01cb4f9cae9b4f742d1c9f35a05fce5/experiments/model-output-gemma-e4b-2026-11-15/results.out#L88-L101">Scores</a> · <a href="https://github.com/Moissanite-Labs/siliquant/blob/f32d750eb01cb4f9cae9b4f742d1c9f35a05fce5/experiments/model-output-gemma-e4b-2026-11-15/README.md#L23">reference</a>.</p>
       <div class="note">
         <span class="tag open">Open PRs #35 and #36 · kernel benchmarks</span>
