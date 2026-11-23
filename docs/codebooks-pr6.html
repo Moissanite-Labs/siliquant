@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Siliquant PR #6 Empirical Results | Codebooks vs. Scalar &amp; E8</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .chart-container {
+      position: relative;
+      width: 100%;
+      max-width: 660px;
+      margin-left: auto;
+      margin-right: auto;
+      height: 295px;
+      max-height: 360px;
+    }
+    @media (min-width: 768px) {
+      .chart-container {
+        height: 335px;
+      }
+    }
+    .tab-active {
+      background-color: #0F766E;
+      color: #FFFFFF;
+      border-color: #0F766E;
+    }
+    .tab-inactive {
+      background-color: #FFFFFF;
+      color: #334155;
+      border-color: #CBD5E1;
+    }
+    .tab-inactive:hover {
+      background-color: #F1F5F9;
+    }
+  </style>
+</head>
+<body class="bg-[#FAF8F5] text-slate-800 antialiased selection:bg-teal-100 selection:text-teal-900">
+  <!-- Chosen Palette: Warm Alabaster & Slate Empirical Harmony (#FAF8F5 background, #FFFFFF cards, #1E293B slate ink, #0F766E muted teal gain accent, #B45309 amber caution accent, #BE123C rose deficit accent) -->
+  <!-- Application Structure Plan: Designed as a 5-view empirical R&D diagnostic dashboard translating the PR #6 benchmark report into interactive data exploration. View 1 presents the Executive Verdict & 6 Headline Findings alongside a Normalized Second Moment (G) vs. Packing Fraction diagnostic explaining why pyramidal Voronoi cells lose 0.68 to 1.69 dB to cubes. View 2 provides an interactive multi-dataset (Gaussian G, Student-t4 T, Real) and K-level comparator contrasting Proposed (t = 0.586) vs. the unplanned larger_t.py sweep (t = 3.2 to 4.0) against Scalar and E8 mixes, plus an interactive 1D/block geometry visualizer showing how large-t acts as a block outlier escape rather than an incentre lattice. View 3 evaluates Vortex codebooks (V16, V64 vs. Lloyd-fitted, Scalar, E8) and the 880 realisations (L880, L880w vs. Random, Fitted, and the -4.21 dB Shannon floor at 0.6987 bits). View 4 tracks all 11 preregistered predictions (#1-#8, E1-E3), hand-estimate accuracy, and protocol deviations. View 5 synthesizes experimental limits and next-step experiments (per-group largest-entry scaling and model output KL/PPL). -->
+  <!-- Visualization & Content Choices: 1) Normalized Second Moment G Comparison Bar Chart (Chart.js Canvas) contrasting F_8, F_16 (incentre & centroid), CaB_7, CaB_15 against Cube (1/12) and E8 (0.071682); 2) Interactive dB Gap Chart (Chart.js Canvas) toggling between Proposed (t = 0.586) and Free-t Sweep (t in [3.2, 4.0]) across Gaussian G, Student-t4 T, and Real matrices; 3) Interactive Outlier-Escape Geometry Strip (HTML/CSS/JS) demonstrating t = 0.586 vs. t = 3.40; 4) Vortex Codebook RSE Bar Chart (Chart.js Canvas) at 2-bit and 3-bit; 5) L880 & Shannon Floor Comparison Chart (Chart.js Canvas) at 0.6987 bits/weight. All diagrams use structured HTML/CSS/Unicode. NO SVG or Mermaid JS is used. -->
+  <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+  <header class="sticky top-0 z-30 bg-[#FAF8F5]/95 backdrop-blur border-b border-slate-200/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div>
+          <div class="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wider text-teal-800">
+            <span class="inline-block px-2 py-0.5 rounded bg-teal-100/80 border border-teal-200">PR #6 Empirical Evaluation</span>
+            <span>·</span>
+            <span class="inline-block px-2 py-0.5 rounded bg-slate-200/80 text-slate-800 border border-slate-300">PREREG 61c552b + Ext fb54260</span>
+            <span>·</span>
+            <span class="inline-block px-2 py-0.5 rounded bg-amber-100/80 text-amber-900 border border-amber-200">+ larger_t.py Sweep</span>
+          </div>
+          <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mt-1">
+            PR #6 Codebooks vs. Scalar Rounding &amp; E8 at Equal Bits per Weight
+          </h1>
+        </div>
+        <div class="flex flex-wrap items-center gap-2 text-xs text-slate-600">
+          <span class="px-2.5 py-1 rounded-md bg-white border border-slate-200 shadow-xs">
+            <strong>Status:</strong> Complete (Weight Error Only)
+          </span>
+          <span class="px-2.5 py-1 rounded-md bg-white border border-slate-200 shadow-xs">
+            <strong>Predictions:</strong> 6/8 Plan + 3/3 Ext Held
+          </span>
+        </div>
+      </div>
+
+      <nav aria-label="Empirical Analysis Sections" class="mt-4 flex flex-wrap gap-2">
+        <button data-view="verdict" class="nav-btn tab-active px-3.5 py-2 rounded-lg text-sm font-medium border transition cursor-pointer">
+          1. Verdict &amp; Cell Geometry (G)
+        </button>
+        <button data-view="fn_cab" class="nav-btn tab-inactive px-3.5 py-2 rounded-lg text-sm font-medium border transition cursor-pointer">
+          2. F_n &amp; CaB_n: Proposed vs. Free-t Sweep
+        </button>
+        <button data-view="vortex_l880" class="nav-btn tab-inactive px-3.5 py-2 rounded-lg text-sm font-medium border transition cursor-pointer">
+          3. Vortex (V16/V64) &amp; L880 Realisations
+        </button>
+        <button data-view="prereg" class="nav-btn tab-inactive px-3.5 py-2 rounded-lg text-sm font-medium border transition cursor-pointer">
+          4. Preregistration &amp; Deviations
+        </button>
+        <button data-view="limits" class="nav-btn tab-inactive px-3.5 py-2 rounded-lg text-sm font-medium border transition cursor-pointer">
+          5. Limits &amp; Next Experimental Pivot
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <section class="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+        <div class="lg:col-span-8 space-y-2">
+          <h2 class="text-lg font-bold text-slate-900">Executive Summary: What Held, What Failed, and What the Sweep Found</h2>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            Testing the three weight-only codebook families proposed in PR #6 against equal-bit scalar mixes (<code>S</code>) and <code>E8</code> mixes across Gaussian (<code>G</code>), heavy-tailed Student-<em>t</em><sub>4</sub> (<code>T</code>), and 32 real speech-model matrices (<code>Real</code>) yields a sharp split: <strong>as proposed, every candidate loses to both scalar and E8 on every family</strong> because pyramidal Voronoi cells carry a 0.68–1.69 dB normalized second-moment penalty over cubes. However, an unplanned sweep (<code>larger_t.py</code>) letting the axis offset <em>t</em> move to <strong>3.2–4.0</strong> uncovered an <strong>outlier-escape regime</strong> that beats scalar rounding in 38/40 synthetic cells (up to &minus;1.72 dB on Student-<em>t</em>) and beats E8 in 8/40 low-bit cells.
+          </p>
+        </div>
+        <div class="lg:col-span-4 grid grid-cols-2 gap-3">
+          <div class="p-3 rounded-xl bg-rose-50/70 border border-rose-200">
+            <div class="text-xs font-medium text-rose-800">Proposed F_n / CaB_n</div>
+            <div class="text-lg font-bold text-rose-900 mt-0.5">+0.01 to +3.54 dB</div>
+            <div class="text-xs text-rose-800">Worse on every family</div>
+          </div>
+          <div class="p-3 rounded-xl bg-teal-50/70 border border-teal-200">
+            <div class="text-xs font-medium text-teal-800">Free-t Sweep (t &approx; 3.4)</div>
+            <div class="text-lg font-bold text-teal-900 mt-0.5">38/40 Beat Scalar</div>
+            <div class="text-xs text-teal-800">Up to &minus;1.72 dB on T</div>
+          </div>
+          <div class="p-3 rounded-xl bg-[#FAF8F5] border border-slate-200">
+            <div class="text-xs font-medium text-slate-500">Vortex V16 / V64</div>
+            <div class="text-lg font-bold text-slate-900 mt-0.5">&minus;9.34 / &minus;14.56 dB</div>
+            <div class="text-xs text-slate-600">Ties scalar; behind E8</div>
+          </div>
+          <div class="p-3 rounded-xl bg-amber-50/70 border border-amber-200">
+            <div class="text-xs font-medium text-amber-900">L880 (0.70 bits/wt)</div>
+            <div class="text-lg font-bold text-amber-900 mt-0.5">&minus;2.42 dB (&minus;2.79w)</div>
+            <div class="text-xs text-amber-800">Floor is &minus;4.21 dB (closed)</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div id="view-verdict" class="view-section space-y-8">
+      <section class="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs space-y-6">
+        <div class="border-b border-slate-100 pb-4">
+          <span class="text-xs font-semibold uppercase tracking-wider text-teal-700">Six Headline Findings &amp; Geometric Diagnosis</span>
+          <h2 class="text-xl font-bold text-slate-900 mt-1">Why Packing Fraction (&rho;) Does Not Govern Quantization Error (G)</h2>
+          <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+            PR #6 cited sphere-packing fractions (&rho; = 0.2233 for F<sub>3</sub> and &phi; = 0.746865 for CaB<sub>6</sub>) as evidence of quantization quality. Sphere packing governs channel noise resistance, whereas fine-cell source coding distortion obeys <strong>D &approx; G &middot; V<sup>2/n</sup></strong>, where <strong>G</strong> is the dimensionless normalized second moment of the Voronoi cell. The cube achieves G = 1/12 = 0.083333 and E8 achieves 0.071682; pyramidal Voronoi cells in F<sub>n</sub> and CaB<sub>n</sub> have higher second moments, losing 0.68 to 1.69 dB before data distribution effects even enter.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <div class="lg:col-span-6 space-y-3">
+            <h3 class="text-sm font-bold text-slate-800">Normalized Second Moment G: Closed-Form vs. Measured (bounds.out §7)</h3>
+            <div class="chart-container">
+              <canvas id="gMomentChart"></canvas>
+            </div>
+            <p class="text-xs text-slate-500 bg-[#FAF8F5] p-3 rounded-lg border border-slate-200/70">
+              <strong>Precision Check:</strong> All 14 measured G values sit within 1.7 standard errors of the new closed-form expressions (0.1 and 0.9 SE on 40M-point checks for n = 8, 16). Even placing t at the pyramid centroid rather than the incentre still leaves F<sub>8</sub> 1.48 dB worse than a cube.
+            </p>
+          </div>
+
+          <div class="lg:col-span-6 space-y-3">
+            <h3 class="text-sm font-bold text-slate-800">The 6 Empirical Conclusions in Short</h3>
+            <div class="space-y-2.5 text-xs">
+              <div class="p-3 rounded-xl bg-[#FAF8F5] border border-slate-200">
+                <span class="font-bold text-rose-800">1. Proposed F_n &amp; CaB_n lose everywhere:</span> Behind scalar mix by 0.4–1.3 dB (Gaussian) and 0.0–0.8 dB (Student-t), and behind E8 by 0.7–3.5 dB across every rate tested.
+              </div>
+              <div class="p-3 rounded-xl bg-[#FAF8F5] border border-slate-200">
+                <span class="font-bold text-slate-900">2. The cell shape is the culprit:</span> Pyramidal Voronoi cells lose 1.69 dB (F<sub>8</sub>), 1.21 dB (F<sub>16</sub>), 1.04 dB (CaB<sub>7</sub>), and 0.68 dB (CaB<sub>15</sub>) relative to a cube.
+              </div>
+              <div class="p-3 rounded-xl bg-[#FAF8F5] border border-slate-200">
+                <span class="font-bold text-slate-900">3. Zero-search decoding holds for any 0 &lt; t &lt; 1:</span> Rounding to 2m and picking the largest coordinate remainder |x<sub>k</sub> &minus; 2m<sub>k</sub>| is exact for all t &isin; (0, 1)—the incentre plays no special role in it.
+              </div>
+              <div class="p-3 rounded-xl bg-teal-50/80 border border-teal-200">
+                <span class="font-bold text-teal-900">4. Free t &isin; [3.2, 4.0] creates an outlier-escape code:</span> Five to seven times the incentre (0.586), large t abandons pyramid cells and lets one coordinate per block jump 1.7 cells past the grid edge, beating scalar in 38/40 synthetic cells.
+              </div>
+              <div class="p-3 rounded-xl bg-[#FAF8F5] border border-slate-200">
+                <span class="font-bold text-slate-900">5. Vortex codebooks match scalar, trail E8:</span> V16 (&minus;9.34 dB) and V64 (&minus;14.56 dB) match optimal scalar quantisers (&minus;9.30, &minus;14.62 dB) but lag E8 (&minus;10.12, &minus;15.55 dB).
+              </div>
+              <div class="p-3 rounded-xl bg-amber-50/70 border border-amber-200">
+                <span class="font-bold text-amber-900">6. L880 loses to random points; 2-bit target is closed:</span> L880 trails 880 random Gaussian points by 0.8 dB (0.4 dB whitened); at 0.70 bits/wt, Shannon's floor is &minus;4.21 dB, ruling out matching 2-bit codes (~&minus;9.3 dB) on weight error.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs space-y-4">
+        <h3 class="text-base font-bold text-slate-900">Proof Summary: Why Pyramidal Voronoi Decoding Holds for Any t &isin; (0, 1)</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+          <div class="p-4 rounded-xl bg-[#FAF8F5] border border-slate-200 space-y-1">
+            <div class="font-bold text-teal-800">Step 1 · Cell Reduction</div>
+            <p class="text-slate-600 leading-relaxed">
+              Translate x into [-1, 1]ⁿ with x<sub>1</sub> &ge; |x<sub>j</sub>| for all j. Any point of F<sub>n</sub> has the form p = 2m + s&middot;t&middot;e<sub>k</sub> with 0 &lt; t &lt; 1.
+            </p>
+          </div>
+          <div class="p-4 rounded-xl bg-[#FAF8F5] border border-slate-200 space-y-1">
+            <div class="font-bold text-teal-800">Step 2 · Coordinate Inequality</div>
+            <p class="text-slate-600 leading-relaxed">
+              For l &ne; k, (x<sub>l</sub> &minus; 2m<sub>l</sub>)&sup2; &ge; x<sub>l</sub>&sup2; since |x<sub>l</sub>| &le; 1. On coordinate k, the nearest of 2m &plusmn; t is sign(x<sub>k</sub>)&middot;t because midpoints sit at 0 and &plusmn;1.
+            </p>
+          </div>
+          <div class="p-4 rounded-xl bg-[#FAF8F5] border border-slate-200 space-y-1">
+            <div class="font-bold text-teal-800">Step 3 · Exact Verification</div>
+            <p class="text-slate-600 leading-relaxed">
+              |x &minus; p|&sup2; &ge; |x|&sup2; &minus; 2t|x<sub>k</sub>| + t&sup2; &ge; |x &minus; t e<sub>1</sub>|&sup2;. Checked against exhaustive search on 200,000 points for n = 2..5 and 75 full codebooks (40 main + 35 sweep): max difference = 0.
+            </p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div id="view-fn_cab" class="view-section hidden space-y-8">
+      <section class="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs space-y-6">
+        <div class="border-b border-slate-100 pb-4">
+          <span class="text-xs font-semibold uppercase tracking-wider text-teal-700">Interactive Benchmark Explorer · results.out &amp; larger_t.out</span>
+          <h2 class="text-xl font-bold text-slate-900 mt-1">F<sub>n</sub> &amp; CaB<sub>n</sub>: Proposed Incentre (t = 0.586) vs. Unplanned Sweep (t &isin; [3.2, 4.0])</h2>
+          <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+            In the tables below, <strong>negative dB gaps mean the candidate has lower error (beats the reference)</strong>, while positive gaps mean higher error. Use the dataset and reference controls to compare the preregistered incentre arms (<code>t = 2 &minus; &radic;2 &approx; 0.586</code>) against the unplanned <code>larger_t.py</code> sweep (<code>t &isin; [1.1, 4.0]</code>, where optimal <em>t</em> lands at 3.2–4.0 everywhere).
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-between gap-3 bg-[#FAF8F5] p-4 rounded-xl border border-slate-200">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-xs font-bold text-slate-700">Data Family:</span>
+            <button data-family="G" class="fam-btn tab-active px-3 py-1.5 rounded-lg text-xs font-medium border cursor-pointer">Gaussian (G)</button>
+            <button data-family="T" class="fam-btn tab-inactive px-3 py-1.5 rounded-lg text-xs font-medium border cursor-pointer">Student-t4 (T)</button>
+            <button data-family="Real" class="fam-btn tab-inactive px-3 py-1.5 rounded-lg text-xs font-medium border cursor-pointer">Real Matrices (32)</button>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-xs font-bold text-slate-700">Reference Mix:</span>
+            <button data-ref="scalar" class="ref-btn tab-active px-3 py-1.5 rounded-lg text-xs font-medium border cursor-pointer">vs. Scalar Mix (S)</button>
+            <button data-ref="e8" class="ref-btn tab-inactive px-3 py-1.5 rounded-lg text-xs font-medium border cursor-pointer">vs. E8 Mix</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <div class="lg:col-span-6 space-y-3">
+            <h3 id="proposedChartTitle" class="text-sm font-bold text-slate-800">Proposed (t = 0.586): Gap to Scalar Mix in dB (Positive = Worse)</h3>
+            <div class="chart-container">
+              <canvas id="proposedGapChart"></canvas>
+            </div>
+            <p class="text-xs text-slate-500 bg-[#FAF8F5] p-3 rounded-lg border border-slate-200/70">
+              <strong>Proposed Result:</strong> Every bar is above 0 dB (except CaB15 at K = 3 on Student-t at +0.01 dB mean, winning on 1 of 3 seeds). On Real matrices, candidates lose to E8 on 31–32 of 32 matrices.
+            </p>
+          </div>
+
+          <div class="lg:col-span-6 space-y-3">
+            <h3 id="sweepChartTitle" class="text-sm font-bold text-slate-800">Free-t Sweep (t &isin; [3.2, 4.0]): Gap to Scalar Mix in dB (Negative = Better)</h3>
+            <div class="chart-container">
+              <canvas id="sweepGapChart"></canvas>
+            </div>
+            <p class="text-xs text-slate-500 bg-[#FAF8F5] p-3 rounded-lg border border-slate-200/70">
+              <strong>Sweep Discovery:</strong> With t free up to 4.0, candidates beat Scalar in 38/40 synthetic cells and 7/8 Real cells, and beat E8 in 8/40 synthetic cells at K = 2, 3 (by up to &minus;0.64 dB on Student-t). Note that 30 of 376 searches hit the 4.0 ceiling: 21 on Student-t at K = 2 to 4 and 9 on the real matrices.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs space-y-5">
+        <div class="border-b border-slate-100 pb-3">
+          <span class="text-xs font-semibold uppercase tracking-wider text-amber-800">Geometric Mechanism Behind larger_t.py</span>
+          <h3 class="text-lg font-bold text-slate-900 mt-0.5">What t = 3.4 Actually Does: A Block-Wise Outlier Escape (Not an Incentre Lattice)</h3>
+          <p class="text-sm text-slate-600 mt-1 leading-relaxed">
+            For an unbounded grid, <em>t</em> and <em>2 &minus; t</em> generate the exact same interior points, so nothing new appears inside the grid. At the boundary of a finite <em>K</em>-cell block, however, setting <strong>t &approx; 3.4</strong> leaves <em>K</em> evenly spaced scalar levels on every weight while allowing <strong>one coordinate per block to jump 1.7 cells past the grid edge</strong>—paid for with <code>log2(2n)/n</code> bits per weight. Adjust <em>t</em> below to see the structural transition.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+          <div class="lg:col-span-5 bg-[#FAF8F5] p-4 rounded-xl border border-slate-200 space-y-3">
+            <div class="flex justify-between text-xs font-bold text-slate-800">
+              <label for="tRegimeSlider">Axis Offset Parameter (t):</label>
+              <span id="tRegimeLabel" class="text-teal-800">t = 3.40 (Outlier Escape)</span>
+            </div>
+            <input id="tRegimeSlider" type="range" min="40" max="400" value="340" class="w-full accent-teal-700 cursor-pointer" />
+            <div class="flex justify-between text-[11px] text-slate-500">
+              <span>0.586 (Incentre)</span>
+              <span>1.00 (Cube Face)</span>
+              <span>3.40 (Sweep Peak)</span>
+              <span>4.00</span>
+            </div>
+            <div id="tRegimeDesc" class="text-xs text-slate-700 bg-white p-3 rounded-lg border border-slate-200 leading-relaxed"></div>
+          </div>
+
+          <div class="lg:col-span-7 bg-[#FAF8F5] p-4 rounded-xl border border-slate-200 space-y-2">
+            <div class="text-xs font-bold text-slate-800">1D Coordinate Reach of a K = 2 Block (Base Cell Centers at &minus;1 and +1)</div>
+            <div id="tVisualStrip" class="relative h-16 bg-white rounded-lg border border-slate-200 px-4 flex items-center"></div>
+            <div class="flex justify-between text-[11px] text-slate-500">
+              <span>&minus;5.0 (Tail)</span>
+              <span>&minus;2.0 (Grid Edge)</span>
+              <span>0.0 (Origin)</span>
+              <span>+2.0 (Grid Edge)</span>
+              <span>+5.0 (Tail)</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div id="view-vortex_l880" class="view-section hidden space-y-8">
+      <section class="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs space-y-6">
+        <div class="border-b border-slate-100 pb-4">
+          <span class="text-xs font-semibold uppercase tracking-wider text-teal-700">Track 3 Empirical Results · 2-Bit &amp; 3-Bit Planar VQ</span>
+          <h2 class="text-xl font-bold text-slate-900 mt-1">Vortex Codebooks (V16, V64) vs. Lloyd-Fitted, Scalar, and E8</h2>
+          <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+            From 200 random starts for 16 vortices, gradient descent found <strong>3 distinct stable equilibria</strong> (4 non-convergent); the lowest energy (&minus;87.325902, reached 150 times) places 5 points on an inner ring and 11 on an outer ring, satisfying the balance equation to 5.0e-12. For 64 vortices, 100 starts yielded <strong>7 distinct equilibria</strong> (26 non-convergent). Across all datasets, V16 and V64 perform almost identically to evenly spaced scalar levels, trail Lloyd-fitted 2D codebooks (<code>LBG16</code>, <code>LBG64</code>) by up to 3.43 dB on Student-<em>t</em>, and trail <code>E8</code> by 0.78–1.70 dB. Notably, the lowest-energy equilibrium is not even the best codebook (on <code>G/0</code>, the three V16 equilibria span &minus;9.48 to &minus;9.27 dB).
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          <div class="lg:col-span-7 space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-bold text-slate-800">Relative Squared Error in dB (More Negative = Better)</h3>
+              <select id="vortexBitSelect" class="text-xs bg-[#FAF8F5] border border-slate-300 rounded-lg px-2.5 py-1 text-slate-700">
+                <option value="2">2 Bits/Weight (V16 vs. LBG16, S q=4, E8 q=4)</option>
+                <option value="3">3 Bits/Weight (V64 vs. LBG64, S q=8, E8 q=8)</option>
+              </select>
+            </div>
+            <div class="chart-container">
+              <canvas id="vortexChart"></canvas>
+            </div>
+          </div>
+
+          <div class="lg:col-span-5 space-y-3 text-xs">
+            <div class="p-4 rounded-xl bg-[#FAF8F5] border border-slate-200 space-y-1.5">
+              <div class="font-bold text-slate-900">2-Bit Summary (V16)</div>
+              <p class="text-slate-600">
+                <strong>Gaussian:</strong> V16 (&minus;9.34 dB) vs. Scalar (&minus;9.23 dB), LBG16 (&minus;9.67 dB), E8 (&minus;10.12 dB).<br/>
+                <strong>Student-t4:</strong> V16 (&minus;6.64 dB) vs. Scalar (&minus;6.38 dB), LBG16 (&minus;8.14 dB), E8 (&minus;8.06 dB).<br/>
+                <strong>Real (32):</strong> V16 (&minus;7.38 dB) vs. Scalar (&minus;7.28 dB), E8 (&minus;8.42 dB).
+              </p>
+            </div>
+            <div class="p-4 rounded-xl bg-[#FAF8F5] border border-slate-200 space-y-1.5">
+              <div class="font-bold text-slate-900">3-Bit Summary (V64)</div>
+              <p class="text-slate-600">
+                <strong>Gaussian:</strong> V64 (&minus;14.56 dB) vs. Scalar (&minus;14.25 dB), LBG64 (&minus;15.22 dB), E8 (&minus;15.55 dB).<br/>
+                <strong>Student-t4:</strong> V64 (&minus;10.16 dB) vs. Scalar (&minus;9.66 dB), LBG64 (&minus;13.59 dB), E8 (&minus;11.86 dB).<br/>
+                <strong>Real (32):</strong> V64 (&minus;11.85 dB) vs. Scalar (&minus;11.31 dB), E8 (&minus;12.85 dB).
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs space-y-6">
+        <div class="border-b border-slate-100 pb-4">
+          <span class="text-xs font-semibold uppercase tracking-wider text-amber-800">Extension 1 · l880.out (0.6987 Bits/Weight)</span>
+          <h2 class="text-xl font-bold text-slate-900 mt-1">The 880 Realisations (L880 &amp; L880w) vs. Random Points &amp; Shannon's Floor</h2>
+          <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+            Every stored point in <code>rigid-realizations</code> satisfies all 17 bar lengths (each between 1.0003 and 1.0152) to <strong>4.4e-15</strong>. However, as a 14D codebook at <strong>log<sub>2</sub>(880)/14 = 0.6987 bits/weight</strong>, L880 is strongly anisotropic—its variance along its widest principal axis is <strong>19.8&times;</strong> that along its narrowest. Even after linear whitening (<code>L880w</code>), it lags 880 random Gaussian points by 0.44–0.61 dB. Moreover, Shannon's rate-distortion floor at 0.6987 bits on Gaussian weights is <strong>&minus;4.21 dB</strong> (whereas 2-bit scalar is &minus;9.30 dB), and chaining three blocks into 880&sup3; codewords for 42 weights is a product code with the exact same error per weight—closing PR #6's 2-bit milestone for weight error.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          <div class="lg:col-span-7 space-y-3">
+            <h3 class="text-sm font-bold text-slate-800">RSE at 0.6987 Bits/Weight (L880, L880w vs. Baselines &amp; &minus;4.21 dB Floor)</h3>
+            <div class="chart-container">
+              <canvas id="l880Chart"></canvas>
+            </div>
+          </div>
+          <div class="lg:col-span-5 bg-[#FAF8F5] p-5 rounded-xl border border-slate-200 space-y-3 text-xs">
+            <h3 class="text-sm font-bold text-slate-900">Key Takeaways from l880.out</h3>
+            <div class="p-3 rounded-lg bg-white border border-slate-200">
+              <strong>19.8&times; Aspect Ratio:</strong> Rigid unit-length bar constraints force vertices into an elongated 14D ellipsoid, costing 0.37 dB on Gaussian data before whitening (&minus;2.42 vs. &minus;2.79 dB).
+            </div>
+            <div class="p-3 rounded-lg bg-white border border-slate-200">
+              <strong>Worse Than Unstructured Random:</strong> 880 i.i.d. Gaussian vectors hit &minus;3.24 dB (G), &minus;2.98 dB (T), and &minus;2.93 dB (Real)—beating L880w by 0.44, 0.61, and 0.57 dB.
+            </div>
+            <div class="p-3 rounded-lg bg-white border border-slate-200">
+              <strong>Product-Code Invariance:</strong> Chaining 3 blocks of 14D into 42D (880&sup3; states) preserves 0.6987 bits/weight and leaves per-weight distortion unchanged at &minus;2.79 dB, well above the &minus;4.21 dB Shannon limit.
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div id="view-prereg" class="view-section hidden space-y-8">
+      <section class="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs space-y-6">
+        <div class="border-b border-slate-100 pb-4">
+          <span class="text-xs font-semibold uppercase tracking-wider text-teal-700">PREREG.md (61c552b) &amp; Extension 1 (fb54260)</span>
+          <h2 class="text-xl font-bold text-slate-900 mt-1">Preregistered Predictions Scoreboard &amp; Protocol Deviations</h2>
+          <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+            Six of the eight preregistered plan predictions and all three extension predictions held cleanly. Both plan failures (#5 and #6) occurred only when <em>t</em> was allowed to vary above the incentre value; on the proposed <em>t</em> = 0.586 codebooks, every prediction held.
+          </p>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="border-b border-slate-200 bg-[#FAF8F5] text-slate-700">
+                <th class="py-2.5 px-3 font-bold">#</th>
+                <th class="py-2.5 px-3 font-bold">Preregistered Prediction</th>
+                <th class="py-2.5 px-3 font-bold">Status</th>
+                <th class="py-2.5 px-3 font-bold">Empirical Outcome &amp; Sweep Nuance</th>
+              </tr>
+            </thead>
+            <tbody id="preregTableBody" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+          <div class="p-4 rounded-xl bg-[#FAF8F5] border border-slate-200 space-y-2 text-xs">
+            <h3 class="text-sm font-bold text-slate-900">Hand Estimates vs. Measured (Gaussian, K = 2)</h3>
+            <p class="text-slate-600 leading-relaxed">
+              <strong>Plan Hand Estimates:</strong> F<sub>8</sub> &approx; &minus;6.4 dB vs. Scalar mix &minus;6.7 dB; F<sub>16</sub> &approx; &minus;5.6 dB vs. Scalar mix &minus;5.7 dB.<br/>
+              <strong>Measured at Incentre (t = 0.586):</strong> F<sub>8</sub> = <strong>&minus;5.75 dB</strong> vs. Scalar <strong>&minus;6.66 dB</strong>; F<sub>16</sub> = <strong>&minus;5.20 dB</strong> vs. Scalar <strong>&minus;5.66 dB</strong>.<br/>
+              The hand estimates nailed the scalar mix to 0.04 dB and were 0.4–0.7 dB too generous to the incentre candidates (matching t = 1.0 at &minus;6.38 and &minus;5.62 dB).
+            </p>
+          </div>
+          <div class="p-4 rounded-xl bg-amber-50/60 border border-amber-200 space-y-2 text-xs">
+            <h3 class="text-sm font-bold text-amber-900">Logged Deviations &amp; Audit Notes</h3>
+            <ul class="list-disc pl-4 space-y-1 text-amber-950">
+              <li><strong>Run 1 Aborted (40 min):</strong> Projected 19 CPU-hours exceeded session limit; <code>Amendment 1 (b56c08e)</code> scaled matrices to 128&times;1680 and ran in 749 s.</li>
+              <li><strong>Amendment 1 Truncated t at 1.0:</strong> Cut from 1.20 to 1.00, where 344/376 searches hit the boundary—prompting unplanned <code>larger_t.py</code> (widened from 2.0 to 4.0).</li>
+              <li><strong>Equilibria Count &amp; Bar Typo:</strong> Downhill search found 3 (V16) and 7 (V64) stable equilibria vs. 20 planned; extension plan wrote 1.003 instead of actual shortest bar 1.0003.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div id="view-limits" class="view-section hidden space-y-8">
+      <section class="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs space-y-6">
+        <div class="border-b border-slate-100 pb-4">
+          <span class="text-xs font-semibold uppercase tracking-wider text-amber-800">Methodological Scope &amp; Follow-Up Priorities</span>
+          <h2 class="text-xl font-bold text-slate-900 mt-1">Six Experimental Limits &amp; Next-Step Verification Agenda</h2>
+          <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+            While these results decisively resolve the weight-error claims of PR #6 under single-matrix scaling, six structural limits govern how the <code>t &isin; [3.2, 4.0]</code> outlier-escape lead should be tested before drawing model-level conclusions.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+          <div class="p-4 rounded-xl bg-[#FAF8F5] border border-slate-200 space-y-1.5">
+            <div class="font-bold text-slate-900">1. Weight Error &ne; Model Output</div>
+            <p class="text-slate-600 leading-relaxed">
+              The second experimental record established that matrix weight MSE does not reliably predict downstream LLM perplexity or logit KL divergence.
+            </p>
+          </div>
+          <div class="p-4 rounded-xl bg-amber-50/70 border border-amber-200 space-y-1.5">
+            <div class="font-bold text-amber-900">2. Per-Matrix vs. Per-Group Scale</div>
+            <p class="text-amber-950 leading-relaxed">
+              This run used one least-squares scale per matrix. Under per-group largest-entry scaling (<code>e8-gain-largest-entry-rule-2026-11-17</code>), F<sub>8</sub> at t = 0.586 and 0.889 loses to scalar and E8 on every matrix. <strong>Large t (&approx; 3.4) has not yet been tested under per-group AbsMax scaling.</strong>
+            </p>
+          </div>
+          <div class="p-4 rounded-xl bg-[#FAF8F5] border border-slate-200 space-y-1.5">
+            <div class="font-bold text-slate-900">3. Deliberately Weak Reference Mixes</div>
+            <p class="text-slate-600 leading-relaxed">
+              The reference mixes pair two adjacent uniform level counts, and the E8 arm uses a basic out-of-range rule costing 0.19–0.26 dB at 2 bits. Beating a mix by 0.2 dB does not beat optimal non-uniform scalar or multi-shell E8 codes.
+            </p>
+          </div>
+          <div class="p-4 rounded-xl bg-[#FAF8F5] border border-slate-200 space-y-1.5">
+            <div class="font-bold text-slate-900">4. Real Matrix Slice Geometry</div>
+            <p class="text-slate-600 leading-relaxed">
+              The 32 real matrices come from one small speech model, taking the first 131,040 weights reshaped into rows of 1,680 that do not align with original matrix rows.
+            </p>
+          </div>
+          <div class="p-4 rounded-xl bg-[#FAF8F5] border border-slate-200 space-y-1.5">
+            <div class="font-bold text-slate-900">5. Synthetic Sample Size</div>
+            <p class="text-slate-600 leading-relaxed">
+              Each synthetic family (Gaussian G and Student-t<sub>4</sub> T) was evaluated across three random seeds of 128&times;1,680 matrices (215,040 weights per seed).
+            </p>
+          </div>
+          <div class="p-4 rounded-xl bg-[#FAF8F5] border border-slate-200 space-y-1.5">
+            <div class="font-bold text-slate-900">6. Unplanned Sweep &amp; Saddle Equilibria</div>
+            <p class="text-slate-600 leading-relaxed">
+              <code>larger_t.py</code> was widened twice after inspecting results (hitting 4.0 in 30/376 runs), making it a preregistration-pending lead; vortex search only reached downhill local minima.
+            </p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const gMomentData = [
+      { label: 'E8 Lattice (Ref)', val: 0.071682, gap: '+0.65 dB vs Cube', color: '#0F766E' },
+      { label: 'Cube / Scalar (1/12)', val: 0.083333, gap: '0.00 dB Baseline', color: '#475569' },
+      { label: 'CaB_15 (Measured)', val: 0.097529, gap: '−0.68 dB vs Cube', color: '#D97706' },
+      { label: 'CaB_7 (Measured)', val: 0.105819, gap: '−1.04 dB vs Cube', color: '#D97706' },
+      { label: 'F_16 Centroid', val: 0.107149, gap: '−1.09 dB vs Cube', color: '#B45309' },
+      { label: 'F_16 Incentre', val: 0.110192, gap: '−1.21 dB vs Cube', color: '#BE123C' },
+      { label: 'F_8 Centroid', val: 0.117256, gap: '−1.48 dB vs Cube', color: '#B45309' },
+      { label: 'F_8 Incentre', val: 0.122996, gap: '−1.69 dB vs Cube', color: '#BE123C' }
+    ];
+
+    const fnCabTables = {
+      G: {
+        ks: ['K=2', 'K=3', 'K=4', 'K=8', 'K=16'],
+        proposed: {
+          scalar: { F8: [0.91, 1.03, 1.08, 1.21, 1.30], F16: [0.46, 0.60, 0.71, 0.79, 0.88], CaB7: [0.88, 0.69, 0.70, 0.67, 0.74], CaB15: [0.42, 0.44, 0.46, 0.39, 0.42] },
+          e8:     { F8: [1.39, 1.94, 2.19, 2.66, 3.02], F16: [0.76, 1.38, 1.74, 2.20, 2.55], CaB7: [1.46, 1.64, 1.84, 2.15, 2.47], CaB15: [0.73, 1.25, 1.49, 1.80, 2.10] }
+        },
+        sweep: {
+          scalar: { F8: [-0.18, -0.35, -0.39, -0.25, 0.21], F16: [-0.38, -0.41, -0.40, -0.43, -0.09], CaB7: [-0.14, -0.49, -0.55, -0.59, -0.23], CaB15: [-0.40, -0.47, -0.51, -0.66, -0.44] },
+          e8:     { F8: [0.30, 0.57, 0.72, 1.21, 1.93], F16: [-0.08, 0.38, 0.63, 0.98, 1.58], CaB7: [0.44, 0.45, 0.59, 0.89, 1.50], CaB15: [-0.09, 0.34, 0.52, 0.76, 1.23] }
+        }
+      },
+      T: {
+        ks: ['K=2', 'K=3', 'K=4', 'K=8', 'K=16'],
+        proposed: {
+          scalar: { F8: [0.59, 0.47, 0.62, 0.71, 0.77], F16: [0.24, 0.21, 0.36, 0.43, 0.51], CaB7: [0.41, 0.16, 0.25, 0.32, 0.41], CaB15: [0.12, 0.01, 0.07, 0.12, 0.21] },
+          e8:     { F8: [1.79, 2.19, 2.57, 3.09, 3.54], F16: [1.27, 1.77, 2.19, 2.76, 3.21], CaB7: [1.70, 1.91, 2.24, 2.74, 3.20], CaB15: [1.16, 1.59, 1.92, 2.45, 2.92] }
+        },
+        sweep: {
+          scalar: { F8: [-1.46, -1.56, -1.29, -0.56, 0.02], F16: [-1.61, -1.63, -1.41, -0.78, -0.19], CaB7: [-1.66, -1.70, -1.49, -0.83, -0.27], CaB15: [-1.68, -1.72, -1.56, -1.01, -0.44] },
+          e8:     { F8: [-0.26, 0.16, 0.65, 1.83, 2.79], F16: [-0.58, -0.07, 0.42, 1.54, 2.51], CaB7: [-0.38, 0.05, 0.50, 1.58, 2.52], CaB15: [-0.64, -0.13, 0.28, 1.33, 2.26] }
+        }
+      },
+      Real: {
+        ks: ['K=4', 'K=16'],
+        proposed: {
+          scalar: { F8: [1.00, 1.14], F16: [0.86, 0.71], CaB7: [0.32, 0.45], CaB15: [0.36, 0.17] },
+          e8:     { F8: [2.24, 3.14], F16: [1.85, 2.72], CaB7: [1.68, 2.56], CaB15: [1.36, 2.19] }
+        },
+        sweep: {
+          scalar: { F8: [-0.61, 0.29], F16: [-0.41, -0.05], CaB7: [-1.11, -0.33], CaB15: [-0.77, -0.52] },
+          e8:     { F8: [0.63, 2.28], F16: [0.58, 1.96], CaB7: [0.25, 1.78], CaB15: [0.22, 1.50] }
+        }
+      }
+    };
+
+    const preregRows = [
+      { id: '1', text: 'Measured G of F_n within 4 SE of closed form for 7 values of n at 2 values of t; G of CaB_7 and CaB_15 above 1/12.', status: 'Holds', note: 'All 14 values within 1.7 SE; CaB_7 = 0.1058, CaB_15 = 0.0975 > 0.0833.' },
+      { id: '2', text: 'Pyramid decoding rule never names a point farther than exhaustive search.', status: 'Holds', note: 'Zero discrepancy across 200k points (n=2..5) and 75 full codebooks.' },
+      { id: '3', text: 'On G at K >= 3, every candidate (proposed and t searched) is worse than both mixes on every matrix.', status: 'Holds (Plan)', note: 'Held up to t=1.0; unplanned sweep (t > 3) beats scalar in 15/16 cells, still loses to E8 in all 16.' },
+      { id: '4', text: 'On G at K = 2, every candidate is worse than the E8 mix on every matrix.', status: 'Holds (Plan)', note: 'Held up to t=1.0; in sweep, F16t and CaB15t beat E8 on all 3 matrices by 0.08 and 0.09 dB.' },
+      { id: '5', text: 'On T at K >= 3, every candidate is worse than both mixes in the mean.', status: 'Fails in part', note: 'Proposed all lose; t <= 1.0 beats scalar in 8/16 cells; sweep beats scalar in 15/16 and E8 in 2.' },
+      { id: '6', text: 'On Real matrices at K = 4 and 16, every candidate loses to each mix on >= 24 of 32 matrices.', status: 'Fails (1 cell)', note: 'CaB7t at K=4 lost to scalar on 23/32; against E8, prediction held in all 16 cells (and sweep).' },
+      { id: '7', text: 'V16 and V64 are worse than E8 on every G/T matrix and worse than fitted codebook in mean over G.', status: 'Holds', note: 'V16/V64 behind E8 by 0.78–1.70 dB and behind LBG16/64 by 0.33 and 0.66 dB on G.' },
+      { id: '8', text: 'No row on G is under Shannon floor by more than 0.05 dB.', status: 'Holds', note: 'All Gaussian rows obey Shannon rate-distortion bound within tolerance.' },
+      { id: 'E1', text: 'Every stored L880 point meets the 17 bar lengths to 1e-6.', status: 'Holds', note: 'Verified to 4.4e-15 across all 440 chiral points.' },
+      { id: 'E2', text: 'On G, L880 and L880w are each worse than 880 random points on every matrix.', status: 'Holds', note: 'L880 (−2.42 dB) and L880w (−2.79 dB) trail random (−3.24 dB) on all 3 seeds.' },
+      { id: 'E3', text: 'On G, no arm of the extension is under Shannon floor (−4.21 dB at 0.6987 bits).', status: 'Holds', note: 'Best at 0.6987 bits is fitted (−3.41 dB), 0.80 dB above the −4.21 dB floor.' }
+    ];
+
+    function wrapLabel(str) {
+      if (str.length <= 16) return str;
+      const words = str.split(' ');
+      const lines = [];
+      let cur = '';
+      words.forEach(w => {
+        if ((cur + ' ' + w).trim().length <= 16) {
+          cur = (cur + ' ' + w).trim();
+        } else {
+          if (cur) lines.push(cur);
+          cur = w;
+        }
+      });
+      if (cur) lines.push(cur);
+      return lines;
+    }
+
+    const commonTooltip = {
+      callbacks: {
+        title: function(items) {
+          const lbl = items[0].label;
+          return Array.isArray(lbl) ? lbl.join(' ') : lbl;
+        }
+      }
+    };
+
+    let currentFamily = 'G';
+    let currentRef = 'scalar';
+    let gChart = null;
+    let proposedChart = null;
+    let sweepChart = null;
+    let vortexChart = null;
+    let l880Chart = null;
+
+    function initTabs() {
+      const btns = document.querySelectorAll('.nav-btn');
+      const views = document.querySelectorAll('.view-section');
+      btns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const target = btn.getAttribute('data-view');
+          btns.forEach(b => {
+            b.classList.remove('tab-active');
+            b.classList.add('tab-inactive');
+          });
+          btn.classList.remove('tab-inactive');
+          btn.classList.add('tab-active');
+          views.forEach(v => {
+            v.classList.toggle('hidden', v.id !== 'view-' + target);
+          });
+          if (target === 'fn_cab') {
+            renderFnCabCharts();
+            updateTVisual();
+          } else if (target === 'vortex_l880') {
+            renderVortexChart();
+            renderL880Chart();
+          }
+        });
+      });
+    }
+
+    function renderGMomentChart() {
+      const ctx = document.getElementById('gMomentChart').getContext('2d');
+      if (gChart) gChart.destroy();
+      gChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: gMomentData.map(d => wrapLabel(d.label)),
+          datasets: [{
+            label: 'Normalized Second Moment G (Lower = Better)',
+            data: gMomentData.map(d => d.val),
+            backgroundColor: gMomentData.map(d => d.color),
+            borderRadius: 5
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { min: 0.05, max: 0.135, title: { display: true, text: 'Dimensionless Second Moment G', font: { size: 11 } } }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                title: commonTooltip.callbacks.title,
+                afterLabel: (ctx) => gMomentData[ctx.dataIndex].gap
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function renderFnCabCharts() {
+      const famObj = fnCabTables[currentFamily];
+      const refName = currentRef === 'scalar' ? 'Scalar Mix' : 'E8 Mix';
+      document.getElementById('proposedChartTitle').textContent = `Proposed (t = 0.586) on ${currentFamily}: Gap to ${refName} (dB, Positive = Worse)`;
+      document.getElementById('sweepChartTitle').textContent = `Free-t Sweep (t ∈ [3.2, 4.0]) on ${currentFamily}: Gap to ${refName} (dB, Negative = Better)`;
+
+      const makeDatasets = (mode) => {
+        const src = famObj[mode][currentRef];
+        return [
+          { label: 'F8', data: src.F8, backgroundColor: '#94A3B8', borderRadius: 4 },
+          { label: 'F16', data: src.F16, backgroundColor: '#475569', borderRadius: 4 },
+          { label: 'CaB7', data: src.CaB7, backgroundColor: '#D97706', borderRadius: 4 },
+          { label: 'CaB15', data: src.CaB15, backgroundColor: '#0F766E', borderRadius: 4 }
+        ];
+      };
+
+      const pCtx = document.getElementById('proposedGapChart').getContext('2d');
+      if (proposedChart) proposedChart.destroy();
+      proposedChart = new Chart(pCtx, {
+        type: 'bar',
+        data: { labels: famObj.ks, datasets: makeDatasets('proposed') },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { y: { title: { display: true, text: 'dB Gap vs. Reference', font: { size: 11 } } } },
+          plugins: { legend: { position: 'top', labels: { boxWidth: 10, font: { size: 11 } } }, tooltip: commonTooltip }
+        }
+      });
+
+      const sCtx = document.getElementById('sweepGapChart').getContext('2d');
+      if (sweepChart) sweepChart.destroy();
+      sweepChart = new Chart(sCtx, {
+        type: 'bar',
+        data: { labels: famObj.ks, datasets: makeDatasets('sweep') },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { y: { title: { display: true, text: 'dB Gap vs. Reference', font: { size: 11 } } } },
+          plugins: { legend: { position: 'top', labels: { boxWidth: 10, font: { size: 11 } } }, tooltip: commonTooltip }
+        }
+      });
+    }
+
+    function updateTVisual() {
+      const t = parseInt(document.getElementById('tRegimeSlider').value, 10) / 100;
+      const lbl = document.getElementById('tRegimeLabel');
+      const desc = document.getElementById('tRegimeDesc');
+      const strip = document.getElementById('tVisualStrip');
+
+      let regime = '';
+      if (t < 1.0) {
+        regime = 'Pyramidal Voronoi Regime';
+        desc.innerHTML = `At <strong>t = ${t.toFixed(2)} &lt; 1</strong>, every point sits strictly inside its cube cell [2m−1, 2m+1]ⁿ. Voronoi cells are pyramids over cube facets (losing 1.2–1.7 dB to cubes), and outer spikes beyond &plusmn;2.0 clip heavily.`;
+      } else if (t <= 2.0) {
+        regime = 'Interior Grid Overlap';
+        desc.innerHTML = `For unbounded grids, <strong>t = ${t.toFixed(2)}</strong> and <strong>2 − t = ${(2 - t).toFixed(2)}</strong> produce identical interior points, while boundary points begin protruding past the &plusmn;2.0 cube edge.`;
+      } else {
+        regime = 'Block Outlier-Escape Regime';
+        desc.innerHTML = `At <strong>t = ${t.toFixed(2)}</strong>, interior points match K evenly spaced scalar levels (&minus;1, +1), while <strong>one weight per block</strong> can escape to &plusmn;(1 + t) = &plusmn;${(1 + t).toFixed(2)} (${((t - 1) / 2).toFixed(2)} cells past the grid edge). Nothing of the incentre lattice remains.`;
+      }
+      lbl.textContent = `t = ${t.toFixed(2)} (${regime})`;
+
+      const baseCenters = [-1, 1];
+      const activePoints = new Set([-1, 1]);
+      baseCenters.forEach(c => {
+        activePoints.add(Number((c - t).toFixed(2)));
+        activePoints.add(Number((c + t).toFixed(2)));
+      });
+      const pts = Array.from(activePoints).sort((a, b) => a - b);
+      const toPct = (v) => Math.max(2, Math.min(98, 50 + (v / 5.2) * 46));
+
+      strip.innerHTML = `
+        <div class="absolute inset-x-4 h-0.5 bg-slate-200"></div>
+        <div style="left: ${toPct(-2)}%; width: ${toPct(2) - toPct(-2)}%" class="absolute h-6 bg-slate-100 border-x border-dashed border-slate-400"></div>
+        ${pts.map(v => {
+          const isBase = Math.abs(v) === 1;
+          const isEscape = Math.abs(v) > 2.01;
+          const bg = isBase ? 'bg-slate-700 w-2.5 h-4' : isEscape ? 'bg-teal-700 w-3 h-7' : 'bg-amber-600 w-2.5 h-5';
+          return `<div title="x = ${v}" style="left: ${toPct(v)}%" class="absolute -translate-x-1/2 rounded-xs ${bg}"></div>`;
+        }).join('')}
+      `;
+    }
+
+    function renderVortexChart() {
+      const bits = document.getElementById('vortexBitSelect').value;
+      const ctx = document.getElementById('vortexChart').getContext('2d');
+      const labels = ['Gaussian (G)', 'Student-t4 (T)', 'Real Matrices (32)'];
+
+      const datasets = bits === '2'
+        ? [
+            { label: 'V16 (Vortex)', data: [-9.34, -6.64, -7.38], backgroundColor: '#0F766E', borderRadius: 5 },
+            { label: 'LBG16 (Fitted)', data: [-9.67, -8.14, null], backgroundColor: '#D97706', borderRadius: 5 },
+            { label: 'Scalar (q=4)', data: [-9.23, -6.38, -7.28], backgroundColor: '#94A3B8', borderRadius: 5 },
+            { label: 'E8 (q=4)', data: [-10.12, -8.06, -8.42], backgroundColor: '#1E293B', borderRadius: 5 }
+          ]
+        : [
+            { label: 'V64 (Vortex)', data: [-14.56, -10.16, -11.85], backgroundColor: '#0F766E', borderRadius: 5 },
+            { label: 'LBG64 (Fitted)', data: [-15.22, -13.59, null], backgroundColor: '#D97706', borderRadius: 5 },
+            { label: 'Scalar (q=8)', data: [-14.25, -9.66, -11.31], backgroundColor: '#94A3B8', borderRadius: 5 },
+            { label: 'E8 (q=8)', data: [-15.55, -11.86, -12.85], backgroundColor: '#1E293B', borderRadius: 5 }
+          ];
+
+      if (vortexChart) vortexChart.destroy();
+      vortexChart = new Chart(ctx, {
+        type: 'bar',
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { y: { title: { display: true, text: 'Relative Squared Error (dB)', font: { size: 11 } } } },
+          plugins: { legend: { position: 'top', labels: { boxWidth: 10, font: { size: 11 } } }, tooltip: commonTooltip }
+        }
+      });
+    }
+
+    function renderL880Chart() {
+      const ctx = document.getElementById('l880Chart').getContext('2d');
+      if (l880Chart) l880Chart.destroy();
+      l880Chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Gaussian (G)', 'Student-t4 (T)', 'Real Matrices (32)'],
+          datasets: [
+            { label: 'Scalar Mix (0.70 bpw)', data: [-2.55, -1.87, -2.00], backgroundColor: '#94A3B8', borderRadius: 4 },
+            { label: 'L880 Raw', data: [-2.42, -2.13, -2.13], backgroundColor: '#BE123C', borderRadius: 4 },
+            { label: 'L880w (Whitened)', data: [-2.79, -2.38, -2.36], backgroundColor: '#D97706', borderRadius: 4 },
+            { label: '880 Random Gaussian', data: [-3.24, -2.98, -2.93], backgroundColor: '#0F766E', borderRadius: 4 },
+            { label: '880 Fitted (LBG)', data: [-3.41, -3.89, null], backgroundColor: '#1E293B', borderRadius: 4 }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              min: -4.5,
+              max: 0,
+              title: { display: true, text: 'RSE in dB (Shannon Floor on G = −4.21 dB)', font: { size: 11 } }
+            }
+          },
+          plugins: { legend: { position: 'top', labels: { boxWidth: 10, font: { size: 10 } } }, tooltip: commonTooltip }
+        }
+      });
+    }
+
+    function renderPreregTable() {
+      const tbody = document.getElementById('preregTableBody');
+      tbody.innerHTML = preregRows.map(r => {
+        const badgeClass = r.status.startsWith('Holds')
+          ? 'bg-teal-50 text-teal-800 border-teal-200'
+          : 'bg-rose-50 text-rose-800 border-rose-200';
+        return `
+          <tr class="hover:bg-[#FAF8F5]">
+            <td class="py-2.5 px-3 font-mono font-bold text-slate-700">${r.id}</td>
+            <td class="py-2.5 px-3 text-slate-800">${r.text}</td>
+            <td class="py-2.5 px-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded border font-semibold ${badgeClass}">${r.status}</span></td>
+            <td class="py-2.5 px-3 text-slate-600">${r.note}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initTabs();
+      renderGMomentChart();
+      renderPreregTable();
+
+      document.querySelectorAll('.fam-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.fam-btn').forEach(b => {
+            b.classList.remove('tab-active');
+            b.classList.add('tab-inactive');
+          });
+          btn.classList.remove('tab-inactive');
+          btn.classList.add('tab-active');
+          currentFamily = btn.getAttribute('data-family');
+          renderFnCabCharts();
+        });
+      });
+
+      document.querySelectorAll('.ref-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.ref-btn').forEach(b => {
+            b.classList.remove('tab-active');
+            b.classList.add('tab-inactive');
+          });
+          btn.classList.remove('tab-inactive');
+          btn.classList.add('tab-active');
+          currentRef = btn.getAttribute('data-ref');
+          renderFnCabCharts();
+        });
+      });
+
+      document.getElementById('tRegimeSlider').addEventListener('input', updateTVisual);
+      document.getElementById('vortexBitSelect').addEventListener('change', renderVortexChart);
+    });
+  </script>
+</body>
+</html>
