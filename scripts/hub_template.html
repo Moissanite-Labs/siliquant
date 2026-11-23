@@ -31,6 +31,7 @@
           <p class="text-sm text-slate-600 mt-1">Mean KL against the 16-bit model, at 4.5 bits a weight unless noted. Every number below traces to a record in this repo. Nothing here is a shipped quantizer.</p>
         </div>
         <div class="flex flex-wrap items-center gap-2 text-xs text-slate-600">
+          <a class="px-3 py-1.5 rounded border border-slate-300 bg-white hover:bg-slate-50" href="index.html">Results report</a>
           <a class="px-3 py-1.5 rounded border border-slate-300 bg-white hover:bg-slate-50" href="https://github.com/Moissanite-Labs/siliquant">Repo</a>
           <a class="px-3 py-1.5 rounded border border-slate-300 bg-white hover:bg-slate-50" href="data.json">data.json</a>
           <a class="px-3 py-1.5 rounded border border-slate-300 bg-white hover:bg-slate-50" href="archive/pr6.html">PR #6 Archive</a>
@@ -75,11 +76,11 @@
         </table>
       </div>
 
-      <h3 class="text-base font-semibold text-slate-900 mt-6">Hadamard-Turned E8: Claim From Open PR #41</h3>
-      <p class="text-sm text-slate-600"><span class="badge bg-amber-100 text-amber-900 border border-amber-200">Not merged</span> These numbers are claims from the body of <a class="text-teal-700 underline" href="https://github.com/Moissanite-Labs/siliquant/pull/41">open PR #41</a>. They are not merged main data and no folder for them exists on main. The PR also states that no E8 arm in it has a file or a decoder, and nothing in it is timed.</p>
+      <h3 class="text-base font-semibold text-slate-900 mt-6">Hadamard-Turned E8</h3>
+      <p class="text-sm text-slate-600"><span class="badge bg-emerald-100 text-emerald-900 border border-emerald-200">On main · measured</span> Turned E8 at 4.5 bits, one ball per 128 weights, no calibration. The numbers come from the merged record at <a class="text-teal-700 underline" href="https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/e8-hadamard-real-weights-2026-11-22">e8-hadamard-real-weights-2026-11-22</a>, landed through <a class="text-teal-700 underline" href="https://github.com/Moissanite-Labs/siliquant/pull/41">PR #41</a>. Each KL is read from results.jsonl and checked against the results.out table. No E8 arm has a file or a decoder, and nothing here is timed.</p>
       <div class="overflow-x-auto mt-3">
         <table class="data">
-          <tr><th>Model</th><th>Mean KL, turned E8 (PR #41 claim)</th><th>Mean KL, Q4_K_M (PR #41 claim)</th></tr>
+          <tr><th>Model</th><th>Mean KL, turned E8</th><th>Mean KL, Q4_K_M, no matrix</th></tr>
           {{HADAMARD_ROWS}}
         </table>
       </div>
@@ -102,7 +103,7 @@
       <p class="text-sm text-slate-600 mt-1">{{EXPERIMENT_COUNT}} folders under experiments/. Each link opens its folder on GitHub.</p>
       <div class="overflow-x-auto mt-3">
         <table class="data">
-          <tr><th>Folder</th><th>Title</th><th>Prereg</th><th>Results</th><th>results.out</th></tr>
+          <tr><th>Folder</th><th>Title</th><th>README</th><th>Prereg</th><th>Results</th><th>results.out</th></tr>
           {{EXPERIMENT_ROWS}}
         </table>
       </div>
@@ -118,16 +119,16 @@
         </table>
       </div>
       <h3 class="text-base font-semibold text-slate-900 mt-5">Gemma Ball Preregistration</h3>
-      <p class="text-sm text-slate-600">Open PR #47 adds only a preregistration for the integer ball on Gemma, smallest models first, before any Gemma weight passes through the ball. No results yet. The preregistration lives at <a class="text-teal-700 underline" href="https://github.com/Moissanite-Labs/siliquant/blob/amp-sumi/gemma-ball-prereg/experiments/model-output-gemma-ball-2026-11-23/PREREG.md">experiments/model-output-gemma-ball-2026-11-23/PREREG.md</a> on its branch.</p>
+      <p class="text-sm text-slate-600"><a class="text-teal-700 underline" href="https://github.com/Moissanite-Labs/siliquant/pull/47">PR #47</a> landed the preregistration for the integer ball on Gemma, smallest models first, before any Gemma weight passed through the ball. It is now at <a class="text-teal-700 underline" href="https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/model-output-gemma-ball-2026-11-23">experiments/model-output-gemma-ball-2026-11-23</a>. Results from that sweep are on main; the preregistered primary Gemma 4 E4B BF16 sweep is still outstanding.</p>
       <h3 class="text-base font-semibold text-slate-900 mt-5">Hadamard-Turned E8</h3>
-      <p class="text-sm text-slate-600">Open PR #41 carries the turned E8 record, the read guard, and the plan-before-data header. Its numbers appear above as PR claims only. Still open: a packed format and decoder for the turned lattice, the Voronoi arms on Llama-3.2, and Gemma-2B.</p>
+      <p class="text-sm text-slate-600"><a class="text-teal-700 underline" href="https://github.com/Moissanite-Labs/siliquant/pull/41">PR #41</a> is merged and its turned E8 record is on main. Still open: a packed format and decoder for the turned lattice, the Voronoi arms on Llama-3.2, and Gemma-2B.</p>
     </section>
 
     <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 sm:p-6">
       <h2 class="text-lg font-bold text-slate-900">Limits</h2>
       <ul class="list-disc pl-5 mt-2 space-y-2 text-sm text-slate-700">
         <li><strong>Decode is slow.</strong> A packed ball file decodes at 20 to 25 million weights a second on one core, about a minute for a model. The file is decoded to floats first, so nothing is saved when the model runs. No run-time saving yet.</li>
-        <li><strong>Gemma is one model, one text.</strong> The Gemma record scores one model on the same 10,200 positions of text, and its reference is an 8-bit file, not the weights as trained.</li>
+        <li><strong>The Gemma 4 E4B bridge has a limit.</strong> Its two E8 Voronoi arms were scored against Q8_0, not BF16, with no stock comparison arm. The preregistered BF16 sweep is still outstanding. The E8 headline above uses an 8-bit reference, not the weights as trained.</li>
         <li><strong>The zero codeword is model-dependent.</strong> On Qwen2.5 a codeword at zero helps E8; on SmolLM2 it does not. The two models disagree about the centre.</li>
         <li><strong>The headline line fails on the third model.</strong> With no matrix on either side, the ball arm is behind Q4_K_M on Llama-3.2: 0.0478 against 0.0432 on wikitext. With a matrix it is far ahead, and with ten loud columns left whole it is ahead with no data at all.</li>
         <li><strong>Ceilings are not measurements.</strong> The roofline table is arithmetic about bandwidth. No kernel was timed.</li>

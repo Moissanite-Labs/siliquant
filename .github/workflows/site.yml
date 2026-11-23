@@ -52,10 +52,10 @@ jobs:
 
       - name: Commit the rebuilt hub
         run: |
-          if git status --porcelain docs/data.json docs/index.html | grep -q .; then
+          if git status --porcelain docs/data.json docs/hub.html | grep -q .; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add docs/data.json docs/index.html
+            git add docs/data.json docs/hub.html
             git commit -m "docs: rebuild research hub from merged records [skip ci]"
             git push
           else

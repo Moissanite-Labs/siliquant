@@ -46,6 +46,26 @@
       "bits_per_weight": 4.500028262535731
     }
   ],
+  "headline_hadamard": [
+    {
+      "model": "Qwen2.5-1.5B-Instruct",
+      "variant": "HBG128:b560s16",
+      "kl_mean": 0.018875,
+      "q4km_kl_mean": 0.033348
+    },
+    {
+      "model": "SmolLM2-1.7B-Instruct",
+      "variant": "HBG128:b560s16",
+      "kl_mean": 0.051522,
+      "q4km_kl_mean": 0.083761
+    },
+    {
+      "model": "Llama-3.2-1B-Instruct",
+      "variant": "HBG128:b560s16",
+      "kl_mean": 0.036038,
+      "q4km_kl_mean": 0.043179
+    }
+  ],
   "roofline": {
     "source": "studies/expedition-siliquant-bridges-audit103r2/SILIQUANT_BRIDGE_REPORT.md",
     "bandwidth_bytes_per_sec": 819000000000,
@@ -143,6 +163,19 @@
       "has_results": true,
       "has_results_out": true,
       "has_results_jsonl": false
+    },
+    {
+      "name": "e8-hadamard-real-weights-2026-11-22",
+      "title": "E8 turned by a Hadamard matrix, on real weights",
+      "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/e8-hadamard-real-weights-2026-11-22",
+      "has_readme": true,
+      "has_prereg": true,
+      "prereg_files": [
+        "PREREG.md"
+      ],
+      "has_results": true,
+      "has_results_out": true,
+      "has_results_jsonl": true
     },
     {
       "name": "fold-path-codebooks-2026-11-17",
@@ -250,6 +283,19 @@
       "has_results": true,
       "has_results_out": true,
       "has_results_jsonl": true
+    },
+    {
+      "name": "model-output-gemma-ball-2026-11-23",
+      "title": "model-output-gemma-ball-2026-11-23 (no README)",
+      "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/model-output-gemma-ball-2026-11-23",
+      "has_readme": false,
+      "has_prereg": true,
+      "prereg_files": [
+        "PREREG.md"
+      ],
+      "has_results": false,
+      "has_results_out": false,
+      "has_results_jsonl": false
     },
     {
       "name": "model-output-gemma-e4b-2026-11-15",
@@ -472,29 +518,10 @@
       "summary": "This Draft PR packages two strictly self-contained, zero-edit Python-stdlib research studies under `studies/` (zero changes to existing repository code, experiments, or workflows):"
     }
   ],
-  "hadamard_open_pr41_claims": [
-    {
-      "model": "Qwen2.5-1.5B-Instruct",
-      "variant": "E8 turned by Hadamard (open PR #41 claim)",
-      "kl_mean": 0.018875,
-      "q4km_kl_mean": 0.033348
-    },
-    {
-      "model": "SmolLM2-1.7B-Instruct",
-      "variant": "E8 turned by Hadamard (open PR #41 claim)",
-      "kl_mean": 0.051522,
-      "q4km_kl_mean": 0.083761
-    },
-    {
-      "model": "Llama-3.2-1B-Instruct",
-      "variant": "E8 turned by Hadamard (open PR #41 claim)",
-      "kl_mean": 0.036038,
-      "q4km_kl_mean": 0.043179
-    }
-  ],
   "hadamard_source": {
+    "record": "experiments/e8-hadamard-real-weights-2026-11-22",
+    "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/e8-hadamard-real-weights-2026-11-22",
     "pr": 41,
-    "url": "https://github.com/Moissanite-Labs/siliquant/pull/41",
-    "status": "open PR claim, not merged main data"
+    "status": "merged main record, landed through PR #41"
   }
 }

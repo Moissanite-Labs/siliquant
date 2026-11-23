@@ -2,7 +2,8 @@
 """Build the Siliquant research hub.
 
 Reads experiment records on main and writes docs/data.json and
-docs/index.html (rendered from scripts/hub_template.html).
+docs/hub.html (rendered from scripts/hub_template.html). The curated
+results report remains the Pages homepage at docs/index.html.
 
 Rules:
 - Every number in the output is parsed from a source file in this repo
@@ -10,16 +11,15 @@ Rules:
   invented. A missing or unparsable record exits non-zero.
 - Headline arms are found by parsing variant names in results.jsonl,
   never by hardcoding KL values. If a named arm is absent, exit non-zero.
-- The Hadamard-turned E8 numbers come only from open PR #41's body and
-  are labelled as claims from that open PR, never as merged main data.
+- The Hadamard-turned E8 numbers come from the merged main record and
+  are cross-checked against its results.out table.
 - Roofline figures come from the bridge report's Pillar 2 table and are
   labelled as ceilings, never as measured throughput.
 
 Usage:
-    python3 scripts/build_site.py [--prs-json FILE] [--pr41-body FILE]
-                                  [--fetch-prs] [--check]
-    --fetch-prs   fetch the open PR list and PR #41's body from the
-                  GitHub API (needs GITHUB_TOKEN in the environment).
+    python3 scripts/build_site.py [--prs-json FILE] [--fetch-prs] [--check]
+    --fetch-prs   fetch the open PR list from the GitHub API (needs
+                  GITHUB_TOKEN in the environment).
     --check       verify docs/data.json against the source files
                   instead of writing output.
 """
@@ -234,16 +234,16 @@ def experiments_index():
         if not os.path.isdir(folder):
             continue
         readme_path = os.path.join(folder, "README.md")
-        if not os.path.exists(readme_path):
-            fail("experiments/%s has no README.md" % name)
-        title = read_text(readme_path).splitlines()[0].lstrip("# ").strip()
+        has_readme = os.path.exists(readme_path)
+        title = (read_text(readme_path).splitlines()[0].lstrip("# ").strip()
+                 if has_readme else name + " (no README)")
         has_results = (os.path.exists(os.path.join(folder, "results.jsonl"))
                        or os.path.exists(os.path.join(folder, "results.json")))
         prereg = sorted(f for f in os.listdir(folder)
                         if f == "PREREG.md" or f.startswith("PREREG"))
         entry = {"name": name, "title": title,
                  "url": GITHUB + "/tree/main/experiments/" + name,
-                 "has_readme": True,
+                 "has_readme": has_readme,
                  "has_prereg": bool(prereg),
                  "prereg_files": prereg,
                  "has_results": has_results,
@@ -273,59 +273,85 @@ def github_api(path):
         fail("GitHub API request %s failed: %s" % (path, exc))
 
 
-def parse_pr41_claims(body):
-    """Hadamard-turned E8 KL numbers, claimed in open PR #41's body."""
-    if not body:
-        fail("PR #41 body is empty, cannot verify the Hadamard claims")
-    m = re.search(
-        r"KL 0\.(\d+), 0\.(\d+) and 0\.(\d+) \(Qwen2\.5, SmolLM2, Llama-3\.2\) "
-        r"against 0\.(\d+), 0\.(\d+) and 0\.(\d+)", body)
-    if not m:
-        fail("PR #41 body does not contain the Hadamard KL claim sentence")
-    nums = [float("0." + g) for g in m.groups()]
-    models = ["Qwen2.5-1.5B-Instruct", "SmolLM2-1.7B-Instruct", "Llama-3.2-1B-Instruct"]
-    return [{"model": model, "variant": "E8 turned by Hadamard (open PR #41 claim)",
-             "kl_mean": kl, "q4km_kl_mean": q4}
-            for model, kl, q4 in zip(models, nums[:3], nums[3:])]
+def headline_hadamard():
+    """Hadamard-turned E8 at 4.5 bits, from the merged record on main.
+
+    The KL values are read from results.jsonl and cross-checked against
+    the per-model summary table in results.out. Q4_K_M comes from that
+    same table. No KL value is written into this script.
+    """
+    folder = os.path.join(REPO_ROOT, "experiments/e8-hadamard-real-weights-2026-11-22")
+    rows = parse_jsonl(os.path.join(folder, "results.jsonl"))
+    out_text = read_text(os.path.join(folder, "results.out"))
+    models = [("Qwen2.5-1.5B-Instruct", "Qwen2.5-1.5B", "qwen2.5-1.5b"),
+              ("SmolLM2-1.7B-Instruct", "SmolLM2-1.7B", "smollm2-1.7b"),
+              ("Llama-3.2-1B-Instruct", "Llama-3.2-1B", "llama-3.2-1b")]
+
+    def out_kl(prefix, bits, arm, variant):
+        needle = prefix + " | " + bits + " | none | " + arm + " |"
+        matches = [ln for ln in out_text.splitlines()
+                   if ln.startswith(needle)
+                   and len(ln.split("|")) > 7
+                   and ln.split("|")[4].strip() == variant]
+        if len(matches) != 1:
+            fail("turned-E8 results.out has %d rows for %r with variant %r"
+                 % (len(matches), needle, variant))
+        cells = [c.strip() for c in matches[0].split("|")]
+        try:
+            return float(cells[7])
+        except (ValueError, IndexError):
+            fail("turned-E8 results.out row is unparsable: %r" % matches[0])
+
+    arms = []
+    for name, prefix, model_key in models:
+        found = [r for r in rows if r["variant"] == "HBG128:b560s16"
+                 and model_key in str(r.get("model", "")).lower()]
+        if len(found) != 1:
+            fail("turned-E8 results.jsonl has %d HBG128:b560s16 rows for %s"
+                 % (len(found), name))
+        kl = found[0]["kl_mean"]
+        expected = out_kl(prefix, "4.5", "E8 turned", "HBG128:b560s16")
+        if abs(kl - expected) > 1e-6:
+            fail("turned-E8 KL %r disagrees with results.out %r for %s"
+                 % (kl, expected, name))
+        arms.append({"model": name, "variant": "HBG128:b560s16",
+                     "kl_mean": kl,
+                     "q4km_kl_mean": out_kl(
+                         prefix, "4.8", "llama.cpp Q4_K_M, no matrix", "file")})
+    return arms
 
 
-def open_prs(prs_json=None, pr41_body=None, fetch=False):
-    """Live open PR list plus the PR #41 Hadamard claims."""
+def open_prs(prs_json=None, fetch=False):
+    """Live open PR list."""
     if fetch:
         raw = github_api("/pulls?state=open&per_page=100")
         prs = [{"number": p["number"], "title": p["title"],
                 "url": p["html_url"],
                 "body": p.get("body") or ""} for p in raw]
-        body41 = next((p["body"] for p in prs if p["number"] == 41), None)
-        if body41 is None:
-            fail("PR #41 is not in the live open PR list")
     else:
         if not prs_json:
             fail("need --prs-json or --fetch-prs for the live open PR list")
         prs = json.loads(read_text(prs_json))
-        body41 = pr41_body if pr41_body is not None else None
-        if body41 is None:
-            fail("need --pr41-body (or --fetch-prs) for the PR #41 claims")
-    claims = parse_pr41_claims(body41)
     listed = [{"number": p["number"], "title": p["title"],
                "url": p.get("url") or p.get("html_url", ""),
                "summary": (p.get("body") or "").split("\n\n")[0][:280]}
               for p in prs]
-    return listed, claims
+    return listed
 
 
-def build_data(prs_json=None, pr41_body=None, fetch=False):
+def build_data(prs_json=None, fetch=False):
     data = {"generated_from": "scripts/build_site.py",
             "headline_gemma_e8": headline_gemma_e8(),
             "headline_integer_ball": headline_ball(),
             "headline_packed_file": headline_packed_file(),
+            "headline_hadamard": headline_hadamard(),
             "roofline": roofline(),
             "experiments": experiments_index()}
-    prs, claims = open_prs(prs_json, pr41_body, fetch)
-    data["open_prs"] = prs
-    data["hadamard_open_pr41_claims"] = claims
-    data["hadamard_source"] = {"pr": 41, "url": GITHUB + "/pull/41",
-                               "status": "open PR claim, not merged main data"}
+    data["open_prs"] = open_prs(prs_json, fetch)
+    data["hadamard_source"] = {
+        "record": "experiments/e8-hadamard-real-weights-2026-11-22",
+        "url": GITHUB + "/tree/main/experiments/e8-hadamard-real-weights-2026-11-22",
+        "pr": 41, "status": "merged main record, landed through PR #41"}
     return data
 
 
@@ -348,7 +374,7 @@ def render(data):
         for a in data["headline_packed_file"])
     had_rows = "".join(
         row([html.escape(a["model"]), "%.6g" % a["kl_mean"], "%.6g" % a["q4km_kl_mean"]])
-        for a in data["hadamard_open_pr41_claims"])
+        for a in data["headline_hadamard"])
     roof = data["roofline"]["formats"]
     roof_rows = "".join(
         row([html.escape(name), "%.2f" % roof[name]["bpw"],
@@ -358,6 +384,7 @@ def render(data):
     exp_rows = "".join(
         row(['<a href="%s">%s</a>' % (e["url"], html.escape(e["name"])),
              html.escape(e["title"]),
+             "yes" if e["has_readme"] else "no",
              "yes" if e["has_prereg"] else "no",
              "yes" if e["has_results"] else "no",
              "yes" if e["has_results_out"] else "no"])
@@ -394,39 +421,35 @@ def main():
     ap = argparse.ArgumentParser(description="Build the Siliquant research hub.")
     ap.add_argument("--prs-json", default=None,
                     help="JSON file with the live open PR list (from gh pr list)")
-    ap.add_argument("--pr41-body", default=None,
-                    help="file holding the live body text of PR #41")
     ap.add_argument("--fetch-prs", action="store_true",
-                    help="fetch the open PR list and PR #41 body from the GitHub API")
+                    help="fetch the open PR list from the GitHub API")
     ap.add_argument("--check", action="store_true",
                     help="verify docs/data.json against the sources, do not write")
     args = ap.parse_args()
 
-    pr41_body = read_text(args.pr41_body) if args.pr41_body else None
     if args.check:
         stored_path = os.path.join(REPO_ROOT, "docs/data.json")
         try:
             stored = json.loads(read_text(stored_path))
         except json.JSONDecodeError as exc:
             fail("docs/data.json does not parse: %s" % exc)
-        fresh = build_data(args.prs_json, pr41_body, args.fetch_prs)
+        fresh = build_data(args.prs_json, args.fetch_prs)
         for key in ("headline_gemma_e8", "headline_integer_ball",
-                    "headline_packed_file", "roofline", "experiments"):
+                    "headline_packed_file", "headline_hadamard", "roofline",
+                    "experiments"):
             if stored.get(key) != fresh.get(key):
                 fail("--check: docs/data.json section %r differs from the sources" % key)
         if args.prs_json or args.fetch_prs:
             if [p["number"] for p in stored.get("open_prs", [])] != \
                [p["number"] for p in fresh.get("open_prs", [])]:
                 fail("--check: open PR list in docs/data.json is stale")
-            if stored.get("hadamard_open_pr41_claims") != fresh.get("hadamard_open_pr41_claims"):
-                fail("--check: PR #41 Hadamard claims in docs/data.json differ from the live PR body")
         print("check ok: docs/data.json matches the sources")
         return
 
-    data = build_data(args.prs_json, pr41_body, args.fetch_prs)
+    data = build_data(args.prs_json, args.fetch_prs)
     rendered = render(data)
     data_path = os.path.join(REPO_ROOT, "docs/data.json")
-    html_path = os.path.join(REPO_ROOT, "docs/index.html")
+    html_path = os.path.join(REPO_ROOT, "docs/hub.html")
     with open(data_path, "w", encoding="utf-8") as fh:
         json.dump(data, fh, indent=2)
         fh.write("\n")
