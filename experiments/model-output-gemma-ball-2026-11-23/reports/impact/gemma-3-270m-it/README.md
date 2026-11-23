@@ -129,7 +129,8 @@ other model sizes, samples, random seeds or serving stacks.
 
 ![Mean KL against F16 versus reported block bpw, two texts](KL_VS_BPW.png)
 
-Reproduce from the experiment directory:
+Reproduce from the experiment directory after fetching the pinned commit
+as described in the [results receipts](../RESULTS_RECEIPTS.md):
 
 ```sh
 git show 964b5f4:experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-270m-it/results.jsonl > 270m-results.jsonl

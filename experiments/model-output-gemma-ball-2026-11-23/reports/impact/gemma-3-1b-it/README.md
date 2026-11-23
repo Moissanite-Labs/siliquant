@@ -78,7 +78,8 @@ are supplied. The raw runner's F16 PPL fields supply the baselines below.
 
 ![Mean KL against F16 versus reported block bpw, two texts](KL_VS_BPW.png)
 
-From the experiment directory, with the pinned results commit available locally:
+From the experiment directory after fetching the pinned commit as described
+in the [results receipts](../RESULTS_RECEIPTS.md):
 
 ```sh
 git show 964b5f4:experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-1b-it/results.jsonl > 1b-results.jsonl

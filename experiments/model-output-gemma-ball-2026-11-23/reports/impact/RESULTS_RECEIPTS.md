@@ -3,6 +3,16 @@
 Pinned to results commit `964b5f4ac988cac176ee4a5825ad1575430a56ab`.
 SHA-256 was computed over the Git blob bytes, with no newline normalization.
 
+From the experiment directory in a clone with the repository as `origin`,
+fetch the pinned commit and extract the JSONL blobs for replay:
+
+```sh
+pin=964b5f4ac988cac176ee4a5825ad1575430a56ab
+git fetch origin "$pin" &&
+git show "$pin:experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-270m-it/results.jsonl" > 270m-results.jsonl &&
+git show "$pin:experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-1b-it/results.jsonl" > 1b-results.jsonl
+```
+
 | Model | Pinned result | SHA-256 | Check |
 |---|---|---|---|
 | 270M | [results.jsonl](https://github.com/Moissanite-Labs/siliquant/blob/964b5f4ac988cac176ee4a5825ad1575430a56ab/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-270m-it/results.jsonl) | `dafe50f93262be5628b97a83b915a0f65aa4eaa52f09b1b9bfd36381c4b34a83` | Matches forwarded receipt |
