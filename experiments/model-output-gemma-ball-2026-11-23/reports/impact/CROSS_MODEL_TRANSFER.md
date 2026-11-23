@@ -65,7 +65,7 @@ Different model families, references, texts or text windows, runner builds, rate
 ## Next experiments, in impact order
 
 1. **Pack a 4B candidate near 4.38 block bpw and benchmark decode.** Verify KL on both texts before measuring file bytes, resident memory, throughput and latency at batch 1 and at a realistic batch against calibrated stock.
-2. **Finish and verify the in-flight E4B bridge in parallel.** Record receipts, text/reference, and the exact comparable arm set. Treat bridge-only findings as scoped controls, not a full stock/ball parity benchmark.
+2. **Finish and verify the in-flight E4B BF16 sweep in parallel.** The [verified Q8 bridge](gemma-4-E4B-it-bridge/README.md) showed a 0.79-SE E8-arm KL gap at equal rate but had no stock baseline; it does not change the ranking or replace the 16-bit comparison.
 3. **Replicate a compact full sweep on a 7B-class target.** Use the same reference precision within the run, Q4_0, calibrated Q4_K_M, and enough nearby ball rates to bracket parity. Track actual stock rates and format assignments. The historical Q8 E4B record cannot answer this.
 4. **Run paired downstream evals on baseline and matched candidate.** Prioritize held-out language and code tasks, plus a narrow regression panel; KL, top-1 and PPL are not deployment acceptance criteria.
 5. **Repeat real/random calibration across seeds and a held-out domain.** Keep the same arm/rate and quantify paired variation. Promote random calibration only if it preserves quality under this check.
