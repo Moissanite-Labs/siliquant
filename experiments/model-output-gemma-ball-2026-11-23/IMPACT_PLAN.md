@@ -70,3 +70,28 @@ ideal fractional right-sizing of eligible serving capacity for annual gross
 cost opportunity (8,760 hours). Ignore dequantization, capex constraints,
 prefill, communication, and any mix/traffic effects not explicitly included.
 These scenario outputs are neither realized savings nor guarantees.
+
+## 2026-11-23 post-data amendment: transfer across committed runs
+
+After seeing the Gemma 270M table and locating the historical experiment
+records, but before calculating cross-model ratios, compare the committed
+Qwen2.5, SmolLM2, Llama 3.2 and Gemma E4B records with the 270M transcription.
+Pin each source by commit and path, preserve its text, reference precision,
+arm and reported block bpw, and record only measured KL and top-1. Use
+the plain b560 ball vs Q4_0 as the primary same-budget ratio; keep real
+matrix vs Q4_K_M-imatrix and real vs random matrix separate. Report exact
+b624 ratios where observed; show same-run b560 alternatives (with rates)
+where not. Retain Hadamard, E8, and unrelated Q8-reference evidence as
+context, not substitutes for missing contrasts. Do not join records across
+incompatible texts, references or calibration settings. Report explicit
+gaps, including where a matching text lacks a baseline.
+
+Calculate candidate/baseline KL ratios and real-minus-random KL on exact
+serialized decimals, with no pooling, size fit, or inferred error bars.
+Plot the primary ratio versus stated model size, preserving text/family
+and missing comparisons. Describe consistency and reversals, not mechanisms
+or size extrapolation. Narrow the illustrative 25/50/100% transfer inputs
+only if the records actually constrain the same iso-quality savings;
+otherwise label them sensitivity assumptions and include no transfer as
+an explicit downside. Rank follow-up experiments by decision value,
+giving priority to resolving gaps that block a deployment claim.
