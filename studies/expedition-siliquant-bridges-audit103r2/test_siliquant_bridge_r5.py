@@ -452,6 +452,9 @@ class TestPillars2To5AndLiveDiagnostics(unittest.TestCase):
                 "refs/remotes/origin/feat/magnitude-autotune-quant-bridge",
                 "refs/remotes/origin/feat/round8-inkling-loom-speculative-tomography",
             )
+            subprocess.run(["git", "-C", td, "update-ref", refs[0], base_sha], check=True)
+            with self.assertRaisesRegex(o.SiliquantBridgeError, "fetch the full history of origin/main"):
+                a.compute_live_siliquant_diagnostics(td)
             subprocess.run(["git", "-C", td, "update-ref", refs[0], main_sha], check=True)
             ref_shas = [pr12_sha, main_sha]
             for idx_r, ref in enumerate(refs[1:], start=2):

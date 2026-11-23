@@ -156,7 +156,10 @@ def compute_live_siliquant_diagnostics(repo_dir):
         repo_dir,
     )
     if not found or len(parents.split()) != 2:
-        raise SiliquantBridgeError("GIT_REF_MISSING", "cannot resolve the merge for PR #12")
+        raise SiliquantBridgeError(
+            "GIT_REF_MISSING",
+            "cannot resolve the merge for PR #12; fetch the full history of origin/main if the clone is shallow",
+        )
     _, pr12_sha = parents.split()
     pr24_sha = _git_rev_parse(repo_dir, "origin/expedition/leech-l1-hadamard-symbiosis")
     pr26_sha = _git_rev_parse(repo_dir, "origin/feat/magnitude-autotune-quant-bridge")
