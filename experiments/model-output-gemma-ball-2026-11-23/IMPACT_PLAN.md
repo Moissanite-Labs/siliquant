@@ -113,3 +113,21 @@ raw, retain the b560 comparison with calibrated stock as a rate tradeoff,
 and update the cross-model contrasts and the next-experiment ranking.
 Do not treat model-shape-specific stock rates as transferable or narrow
 scenario transfer without like-for-like evidence at deployment scale.
+
+## 2026-11-23 post-data amendment: Gemma 4B impact
+
+Written after the 4B headline handoff but before independently computing
+the impact estimates. Pin and hash both output blobs at
+`dc10d4bbca8cc049f288aa22e42172aebb493363`. Strictly parse the two-text
+sweep, check the embedded identifiers and printed summary, and distinguish
+the reported BF16 reference and stock format behavior from what the rows
+can independently establish.
+
+Reuse the exact-arithmetic comparisons, quadrature screen, monotone
+bracketing and deployment sensitivity rules above. Test transfer at the
+observed calibrated stock rate: report the b560 contrasts on both texts,
+the b496–b624 measured points, interpolated KL parity, and real-versus-random
+calibration. Keep rates and reference types visible across runs, and do
+not treat two texts as replication or block savings as whole-model savings.
+Update the transfer chart, decision triage, and ranked follow-up experiments
+without using the pending bridge to fill missing observations.
