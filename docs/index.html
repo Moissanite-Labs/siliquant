@@ -1428,10 +1428,9 @@
               <div class="kpi-meta">4.005–5.005 bpw · 8-bit ref</div>
             </div>
             <div class="kpi-card">
-              <div class="kpi-value win">4.5040 bpw</div>
-              <div class="kpi-label">Gemma 3 4B ball: lower mean KL on both texts</div>
-              <div class="kpi-meta">Calibrated Q4_K_M: 4.8151 bpw · unequal rates</div>
-              <div class="kpi-meta">Receipts on an unmerged branch</div>
+              <div class="kpi-value win">−19% / −25%</div>
+              <div class="kpi-label">Gemma 3 4B ball vs <code>Q4_K_M</code> across both texts</div>
+              <div class="kpi-meta">WikiText-2 / Python · ~4.5 bpw · unequal rates</div>
             </div>
             <div class="kpi-card">
               <div class="kpi-value win">−17% to −43%</div>
@@ -1444,7 +1443,6 @@
               <div class="kpi-meta">Rational bound · Kernel separate</div>
             </div>
           </div>
-          <p class="prose"><a href="siliquant-results.pdf">Full results report (PDF)</a></p>
         </header>
       </section>
 
@@ -1740,7 +1738,7 @@
         </div>
 
         <p class="prose">
-          KL divergence measured against the 8-bit reference (lower is better). Top-1 token agreement is reported only at <code>4.5 bpw</code> (<code>91.6%</code> E<sub>8</sub> vs <code>89.4%</code> Q4_0). Evaluated separately from the Gemma 3 16-bit ball sweep in Section 4.
+          KL divergence measured against the 8-bit reference (lower is better). Top-1 token agreement is reported only at <code>4.5 bpw</code> (<code>91.6%</code> E<sub>8</sub> vs <code>89.4%</code> Q4_0). Evaluated separately from the Gemma 3 16-bit ball sweep in Section 4. A separate <a href="https://github.com/Moissanite-Labs/siliquant/blob/main/site/results.html#e4b-bridge">Q8_0 bridge run</a> re-measures the <code>4.5 bpw</code> E<sub>8</sub> arm at <code>0.074682 ± 0.002264</code> (centred <code>VE832:16</code>) and <code>0.077252 ± 0.002314</code> (uncentred <code>VE8Z32:16</code>), against the Q8_0 reference with no stock arm. The BF16 sweep remains outstanding.
         </p>
 
         <div class="grid-asymmetric">
@@ -1820,13 +1818,6 @@
                 </tr>
               </tbody>
             </table>
-          </div>
-        </div>
-        <div class="callout callout-accent">
-          <span class="callout-tag">Q8_0 bridge</span>
-          <div>
-            <div><span class="pill pill-neutral">Unmerged branch · not on main</span></div>
-            At <code>4.5000 bpw</code>, the separate <a href="https://github.com/Moissanite-Labs/siliquant/blob/86bb1b2a2178bd8b68912c1e7496426f53e9ffa8/experiments/model-output-gemma-ball-2026-11-23/out/gemma-4-E4B-it-bridge/results.out">bridge run</a> measured mean KL of <code>0.074682 ± 0.002264</code> for centred <code>VE832:16</code> and <code>0.077252 ± 0.002314</code> for uncentred <code>VE8Z32:16</code> (± standard error). The centred result meets the preregistered tolerance around the earlier <code>0.0747</code>. The bridge has no stock arm and uses Q8_0 as its reference; the BF16 sweep remains outstanding.
           </div>
         </div>
       </section>
@@ -2040,15 +2031,11 @@
             <div style="padding: 10px 12px; border-top: 1px solid var(--border-hairline); font-size: 0.75rem; color: var(--text-muted); line-height: 1.5;">
               <div><strong>*</strong> Ball baseline uses Q4_K_M + importance matrix.</div>
               <div><strong>Ten-column repair:</strong> Leaving 10 loud <code>ffn_down</code> columns unquantized (+<code>0.005</code> extra bpw) beats Q4_K_M on all three models: KL <code>0.0222</code>, <code>0.0528</code>, <code>0.0302</code>.</div>
-              <div><strong>Turned E<sub>8</sub>:</strong> Mean KL is <code>43.4%</code>, <code>38.5%</code> and <code>16.5%</code> lower than uncalibrated stock <code>Q4_K_M</code> on Qwen2.5, SmolLM2 and Llama-3.2, respectively. The ball arms count about <code>4.5 bpw</code> against stock’s roughly <code>4.8 bpw</code>; that count is not a packed file size. <a href="https://github.com/Moissanite-Labs/siliquant/blob/ab1022b0ec17b9c6dcd9fb3ce25d9f7b1ec9cb3b/experiments/e8-hadamard-real-weights-2026-11-22/results.out#L1-L41">Turned E8 scores and standard errors</a>.</div>
               <div><strong>Additional findings:</strong> Plain ball beats Q4_K_M on 2/3 models (Llama exception). Turned lattice is lowest or within 2 errors on all three at 4.5 bits. At <code>3.0 bpw</code>, no single arm wins. Zero-retention on smallest-magnitude weights: <code>85.9%</code> (Hadamard arm).</div>
+              <div><strong>Counted bits:</strong> The ball arms count about <code>4.5 bpw</code> against stock’s roughly <code>4.8 bpw</code>. That count is not a packed file size.</div>
             </div>
           </div>
         </div>
-
-        <p class="prose">
-          The <a href="https://github.com/Moissanite-Labs/siliquant/blob/f32d750eb01cb4f9cae9b4f742d1c9f35a05fce5/experiments/packed-kept-columns-2026-11-19/results.out#L1-L20">packed-ball readback</a> measures fidelity after writing and reading an actual file. On Llama-3.2, preserving the ten columns of each feed-forward down projection most affected by clipping lowered mean KL from <code>0.051877</code> to <code>0.033987</code> at <code>4.50542 bpw</code>. The packed ball with kept columns beats uncalibrated <code>Q4_K_M</code> on all three models; against calibrated stock it stays ahead on Qwen2.5 and Llama but falls behind on SmolLM2. This is not an inference-speed measurement.
-        </p>
 
         <!-- 4.2 Gemma 3 Ball Sweep -->
         <h3 class="sub-title" style="margin-top: 12px;">
@@ -2056,12 +2043,11 @@
           <span>Gemma 3 Calibrated Ball Sweep (WikiText-2 &amp; Python · 10,200 pos each)</span>
         </h3>
 
-        <p class="prose"><span class="pill pill-neutral">Measured on an unmerged branch · not on main</span></p>
         <p class="prose">
-          Mean KL to the 16-bit reference. At about <code>4.5 bpw</code>, the calibrated ball beats calibrated <code>Q4_K_M</code> only on WikiText for the <a href="https://github.com/Moissanite-Labs/siliquant/blob/86bb1b2a2178bd8b68912c1e7496426f53e9ffa8/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-270m-it/results.out">270M</a> model and on neither text for <a href="https://github.com/Moissanite-Labs/siliquant/blob/86bb1b2a2178bd8b68912c1e7496426f53e9ffa8/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-1b-it/results.out">1B</a>. At about <code>5 bpw</code>, it is lower on both texts for both models, against stock rates of about <code>5.43–5.48 bpw</code>.
+          Mean KL to the 16-bit reference. At about <code>4.5 bpw</code>, the calibrated ball beats calibrated <code>Q4_K_M</code> only on WikiText for the <a href="https://github.com/Moissanite-Labs/siliquant/blob/main/site/results.html#gemma">270M</a> model and on neither text for <a href="https://github.com/Moissanite-Labs/siliquant/blob/main/site/results.html#gemma">1B</a>. At about <code>5 bpw</code>, it is lower on both texts for both models, against stock rates of about <code>5.43–5.48 bpw</code>.
         </p>
         <p class="prose">
-          On <a href="https://github.com/Moissanite-Labs/siliquant/blob/86bb1b2a2178bd8b68912c1e7496426f53e9ffa8/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-4b-it/results.out">4B</a>, the calibrated ball at <code>4.5040 bpw</code> scores lower on both texts than calibrated <code>Q4_K_M</code> at its normal <code>4.8151 bpw</code>. The rates are unequal, and the <a href="https://github.com/Moissanite-Labs/siliquant/blob/86bb1b2a2178bd8b68912c1e7496426f53e9ffa8/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-4b-it/results.jsonl">stock receipts</a> flag a change to <code>token_embd.weight</code> outside the counted blocks; the ball runner copies it unchanged from the reference.
+          On <a href="https://github.com/Moissanite-Labs/siliquant/blob/main/site/results.html#gemma">4B</a>, the calibrated ball at <code>4.5040 bpw</code> scores lower on both texts than calibrated <code>Q4_K_M</code> at its normal <code>4.8151 bpw</code>. The rates are unequal, and the <a href="https://github.com/Moissanite-Labs/siliquant/blob/main/site/results.html#gemma">stock receipts</a> flag a change to <code>token_embd.weight</code> outside the counted blocks; the ball runner copies it unchanged from the reference.
         </p>
 
         <div class="table-wrap">
@@ -2081,31 +2067,31 @@
             <tbody>
               <tr>
                 <td><strong>270M</strong></td>
-                <td class="num">0.076017</td>
-                <td class="num">0.091622</td>
+                <td class="num">0.0760</td>
+                <td class="num">0.0916</td>
                 <td class="num"><span class="pill pill-win">−17%</span></td>
-                <td class="num">0.100806</td>
-                <td class="num">0.088345</td>
+                <td class="num">0.1008</td>
+                <td class="num">0.0883</td>
                 <td class="num"><span class="pill pill-fail">+14%</span></td>
                 <td><span class="pill pill-warn">WikiText only</span></td>
               </tr>
               <tr>
                 <td><strong>1B</strong></td>
-                <td class="num">0.057824</td>
-                <td class="num">0.049941</td>
+                <td class="num">0.0578</td>
+                <td class="num">0.0499</td>
                 <td class="num"><span class="pill pill-fail">+16%</span></td>
-                <td class="num">0.060526</td>
-                <td class="num">0.051476</td>
+                <td class="num">0.0605</td>
+                <td class="num">0.0515</td>
                 <td class="num"><span class="pill pill-fail">+18%</span></td>
                 <td><span class="pill pill-fail">Loses both texts</span></td>
               </tr>
               <tr class="row-highlight">
                 <td><strong>4B</strong></td>
-                <td class="num"><strong>0.071645</strong></td>
-                <td class="num">0.088353</td>
+                <td class="num"><strong>0.0716</strong></td>
+                <td class="num">0.0884</td>
                 <td class="num"><span class="pill pill-win">−19%</span></td>
-                <td class="num"><strong>0.031101</strong></td>
-                <td class="num">0.041692</td>
+                <td class="num"><strong>0.0311</strong></td>
+                <td class="num">0.0417</td>
                 <td class="num"><span class="pill pill-win">−25%</span></td>
                 <td><span class="pill pill-win">Win both texts · lower bpw</span></td>
               </tr>
@@ -2139,7 +2125,7 @@
             <div class="callout" style="margin-top: 8px;">
               <span class="callout-tag">~5 bpw</span>
               <div>
-                At approximately <code>5 bpw</code>, mean KL is <code>0.036582</code> on WikiText and <code>0.055786</code> on Python for <code>270M</code>, and <code>0.030960</code> and <code>0.030943</code> for <code>1B</code>.
+                At approximately <code>5 bpw</code>, the integer ball wins <strong>4 of 4</strong> small-model cells. <code>270M</code> reaches <code>0.0366</code> (WikiText) and <code>0.0558</code> (Python), and <code>1B</code> reaches <code>0.0310</code> (WikiText) and <code>0.0309</code> (Python).
               </div>
             </div>
           </div>
@@ -2300,7 +2286,7 @@
             </div>
 
             <div style="border-top: 1px solid var(--border-hairline); padding-top: 12px; font-size: 0.79rem; color: var(--text-secondary); line-height: 1.55;">
-              <strong>Packed file (merged):</strong> <code>4.505 bpw</code>, verified bit-for-bit on readback, scoring under <code>Q4_K_M</code> by <code>10.2</code>, <code>13.5</code>, and <code>11.9</code> errors respectively. End-to-end <strong>MMLU</strong> sits within <code>−0.70</code> to <code>+0.15</code> points of the 16-bit model.
+              <strong>Packed file (merged):</strong> <code>4.505 bpw</code>, verified bit-for-bit on readback, scoring under <code>Q4_K_M</code> by <code>10.2</code>, <code>13.5</code>, and <code>11.9</code> errors respectively. On Llama-3.2, keeping the ten loud <code>ffn_down</code> columns lowers mean KL from <code>0.051877</code> to <code>0.033987</code> at <code>4.50542 bpw</code>. End-to-end <strong>MMLU</strong> sits within <code>−0.70</code> to <code>+0.15</code> points of the 16-bit model.
             </div>
           </div>
 
@@ -2424,6 +2410,7 @@
           <div>Siliquant · Working Paper · 23 November 2026</div>
           <div style="display:flex; gap:14px; align-items:center;">
             <a href="https://github.com/Moissanite-Labs/siliquant" target="_blank" rel="noopener noreferrer">github.com/Moissanite-Labs/siliquant ↗</a>
+            <a href="siliquant-results.pdf">Full results report (PDF)</a>
             <button type="button" class="btn" id="footerCiteBtn" style="height:26px; font-size:0.72rem;">Copy BibTeX</button>
           </div>
         </footer>
