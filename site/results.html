@@ -168,7 +168,7 @@
       <span class="tag pending">Measured on an unmerged branch · not on main</span>
       <h2>Gemma 3: calibration helps, but the rate matters</h2>
       <h3>4B: the calibrated ball beats stock at its normal rate</h3>
-      <p>The 4.5040-bpw ball scores lower than calibrated Q4_K_M on both texts with the same WikiText-derived importance matrix. Q4_K_M runs at its normal 4.8151 bpw, so this is not a rate-matched comparison.</p>
+      <p>The 4.5040-bpw ball scores lower than calibrated Q4_K_M on both texts with the same WikiText-derived importance matrix. Q4_K_M runs at its normal 4.8151 bpw, so this is not a rate-matched comparison. The 4B stock receipts also flag a change to the token embedding (<code>token_embd.weight</code>), outside the counted blocks; the ball runner copies it unchanged from the reference.</p>
       <div class="table-scroll" tabindex="0" role="region" aria-label="Gemma 3 4B mean KL and block bitrate">
         <table>
           <caption>Gemma 3 4B IT · mean KL to 16-bit</caption>
