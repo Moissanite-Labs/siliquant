@@ -302,7 +302,7 @@ class Format:
 
     @staticmethod
     def read(path):
-        """A file as (Format, list of (name, stored)). A file that is cut short or does not hold what its header says is refused with a ValueError."""
+        """A file as (Format, list of (name, stored)). A file that is cut short, does not hold what its header says, or holds a scale, a column weight or a kept entry that encode never writes is refused with a ValueError."""
         with open(path, "rb") as f:
             blob = f.read()
         if blob[:8] != MAGIC:

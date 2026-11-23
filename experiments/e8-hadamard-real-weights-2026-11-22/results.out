@@ -1,0 +1,84 @@
+E8 turned by the Hadamard matrix of order 8, against E8 and integer levels, each in one ball per group of 128 weights. No calibration data.
+wikitext-2 test text, 10,200 positions. An error of a gap is the root of the sum of the squares of the two standard errors.
+
+model | bits | columns kept | arm | variant | bits a weight | weight error, dB | mean KL | its standard error | first choice kept, percent | scored in | under Q4_K_M with no matrix by, errors
+Qwen2.5-1.5B | 4.5 | none | integer levels | ZBG128:b560s16 | 4.49980 | -24.922 | 0.022750 | 0.000632 | 92.75 | an earlier record | 11.4
+Qwen2.5-1.5B | 4.5 | none | E8 | EBG128:b560s16 | 4.49990 | -25.587 | 0.019549 | 0.000437 | 93.08 | an earlier record | 17.0
+Qwen2.5-1.5B | 4.5 | none | E8 turned | HBG128:b560s16 | 4.49990 | -25.586 | 0.018875 | 0.000405 | 92.89 | this record | 18.2
+Qwen2.5-1.5B | 3.0 | none | integer levels | ZBG128:b368s16 | 2.99968 | -15.797 | 0.215147 | 0.003372 | 78.48 | this record | 
+Qwen2.5-1.5B | 3.0 | none | E8 | EBG128:b368s16 | 2.99708 | -16.455 | 0.169338 | 0.003095 | 80.75 | this record | 
+Qwen2.5-1.5B | 3.0 | none | E8 turned | HBG128:b368s16 | 2.99708 | -16.453 | 0.178526 | 0.003104 | 79.78 | this record | 
+Qwen2.5-1.5B | 4.8 | none | llama.cpp Q4_K_M, no matrix | file | 4.81197 | -23.037 | 0.033348 | 0.000682 | 91.11 | an earlier record | 
+SmolLM2-1.7B | 4.5 | none | integer levels | ZBG128:b560s16 | 4.49980 | -24.928 | 0.055962 | 0.001060 | 88.25 | an earlier record | 14.7
+SmolLM2-1.7B | 4.5 | none | E8 | EBG128:b560s16 | 4.49990 | -25.585 | 0.060861 | 0.001352 | 87.50 | an earlier record | 11.1
+SmolLM2-1.7B | 4.5 | none | E8 turned | HBG128:b560s16 | 4.49990 | -25.585 | 0.051522 | 0.001057 | 88.60 | this record | 17.1
+SmolLM2-1.7B | 3.0 | none | integer levels | ZBG128:b368s16 | 2.99968 | -15.798 | 0.419643 | 0.006104 | 69.52 | this record | 
+SmolLM2-1.7B | 3.0 | none | E8 | EBG128:b368s16 | 2.99708 | -16.452 | 0.664189 | 0.008467 | 63.41 | this record | 
+SmolLM2-1.7B | 3.0 | none | E8 turned | HBG128:b368s16 | 2.99708 | -16.452 | 0.629902 | 0.008413 | 62.84 | this record | 
+SmolLM2-1.7B | 4.8 | none | llama.cpp Q4_K_M, no matrix | file | 4.82227 | -23.550 | 0.083761 | 0.001559 | 85.52 | an earlier record | 
+Llama-3.2-1B | 4.5 | none | integer levels | ZBG128:b560s16 | 4.49980 | -24.928 | 0.047808 | 0.000725 | 88.86 | an earlier record | -4.9
+Llama-3.2-1B | 4.5 | none | E8 | EBG128:b560s16 | 4.49990 | -25.585 | 0.040161 | 0.000635 | 89.93 | this record | 3.4
+Llama-3.2-1B | 4.5 | none | E8 turned | HBG128:b560s16 | 4.49990 | -25.585 | 0.036038 | 0.000526 | 90.11 | this record | 8.9
+Llama-3.2-1B | 4.5 | ten of each ffn_down | integer levels | ZBG128:b560s16+K10 | 4.50519 | -24.930 | 0.030223 | 0.000446 | 90.97 | an earlier record | 17.3
+Llama-3.2-1B | 4.5 | ten of each ffn_down | E8 | EBG128:b560s16+K10 | 4.50529 | -25.587 | 0.025378 | 0.000358 | 91.95 | this record | 25.4
+Llama-3.2-1B | 4.5 | ten of each ffn_down | E8 turned | HBG128:b560s16+K10 | 4.50529 | -25.586 | 0.025204 | 0.000356 | 91.69 | this record | 25.6
+Llama-3.2-1B | 4.8 | none | llama.cpp Q4_K_M, no matrix | file | 4.80226 | -23.260 | 0.043179 | 0.000604 | 89.03 | an earlier record | 
+
+Gaps, in errors. Positive: the first arm has the lower KL.
+model | bits | columns kept | turned under E8 | turned under integer levels | E8 under integer levels | lowest arm | turned within 2 errors of the lowest
+Qwen2.5-1.5B | 4.5 | none | 1.1 | 5.2 | 4.2 | E8 turned | yes
+Qwen2.5-1.5B | 3.0 | none | -2.1 | 8.0 | 10.0 | E8 | no
+SmolLM2-1.7B | 4.5 | none | 5.4 | 3.0 | -2.9 | E8 turned | yes
+SmolLM2-1.7B | 3.0 | none | 2.9 | -20.2 | -23.4 | integer levels | no
+Llama-3.2-1B | 4.5 | none | 5.0 | 13.1 | 7.9 | E8 turned | yes
+Llama-3.2-1B | 4.5 | ten of each ffn_down | 0.3 | 8.8 | 8.5 | E8 turned | yes
+
+The turned lattice in a Voronoi code: 16 points a weight and one scale per group of 32 weights, 4.5 bits, a codeword at zero in both.
+model | arm | variant | weight error, dB | mean KL | its standard error | first choice kept, percent | scored in | turned under plain by, errors | under Q4_K_M with no matrix by, errors
+Qwen2.5-1.5B | E8, Voronoi code | VE8Z32:16 | -22.606 | 0.043414 | 0.000896 | 89.55 | an earlier record |  | -8.9
+Qwen2.5-1.5B | E8 turned, Voronoi code | VH8Z32:16 | -22.564 | 0.046466 | 0.001021 | 89.35 | this record | -2.2 | -10.7
+SmolLM2-1.7B | E8, Voronoi code | VE8Z32:16 | -22.617 | 0.124728 | 0.002244 | 82.75 | an earlier record |  | -15.0
+SmolLM2-1.7B | E8 turned, Voronoi code | VH8Z32:16 | -22.608 | 0.110103 | 0.001945 | 83.61 | this record | 4.9 | -10.6
+
+What each arm does to the small weights, from the weights alone. Small: under 0.05, 0.1 or 0.2 of the root mean square of the weight's matrix.
+model | bits | columns kept | arm | weight error, dB | stored as zero, percent of all weights | of attention's | of the feed-forward's | under 0.05: percent of weights, stored as zero percent, error over size dB | under 0.1: the same | under 0.2: the same
+Qwen2.5-1.5B | 4.5 | none | integer levels | -24.922 | 8.04 | 8.23 | 8.01 | 4.49, 98.7, -0.33 | 8.95, 86.3, -1.19 | 17.71, 45.4, -6.79
+Qwen2.5-1.5B | 4.5 | none | E8 | -25.587 | 4.03 | 4.12 | 4.01 | 4.49, 59.1, 4.36 | 8.95, 42.6, -1.62 | 17.71, 22.7, -7.53
+Qwen2.5-1.5B | 4.5 | none | E8 turned | -25.586 | 5.69 | 5.83 | 5.67 | 4.49, 83.7, 3.15 | 8.95, 60.1, -1.22 | 17.71, 32.1, -7.62
+Qwen2.5-1.5B | 4.5 | none | E8, Voronoi code | -22.606 | 5.47 | 5.64 | 5.45 | 4.49, 62.4, 7.25 | 8.95, 50.5, 1.15 | 17.71, 30.5, -4.73
+Qwen2.5-1.5B | 4.5 | none | E8 turned, Voronoi code | -22.564 | 2.39 | 2.55 | 2.37 | 4.49, 26.4, 4.89 | 8.95, 21.7, 1.06 | 17.71, 13.2, -4.63
+Qwen2.5-1.5B | 3.0 | none | integer levels | -15.797 | 22.65 | 23.11 | 22.59 | 4.49, 99.9, -0.05 | 8.95, 99.6, -0.15 | 17.71, 96.6, -0.44
+Qwen2.5-1.5B | 3.0 | none | E8 | -16.455 | 11.41 | 11.65 | 11.38 | 4.49, 67.8, 13.68 | 8.95, 63.8, 7.61 | 17.71, 52.9, 1.56
+Qwen2.5-1.5B | 3.0 | none | E8 turned | -16.453 | 16.11 | 16.44 | 16.06 | 4.49, 93.9, 9.09 | 8.95, 89.4, 5.03 | 17.71, 75.0, 1.46
+SmolLM2-1.7B | 4.5 | none | integer levels | -24.928 | 7.84 | 7.94 | 7.81 | 4.18, 99.7, -0.03 | 8.35, 91.4, -0.40 | 16.58, 47.3, -6.48
+SmolLM2-1.7B | 4.5 | none | E8 | -25.585 | 3.93 | 3.98 | 3.91 | 4.18, 60.7, 4.92 | 8.35, 44.6, -1.09 | 16.58, 23.7, -7.08
+SmolLM2-1.7B | 4.5 | none | E8 turned | -25.585 | 5.55 | 5.62 | 5.53 | 4.18, 85.9, 3.75 | 8.35, 63.0, -0.57 | 16.58, 33.5, -7.16
+SmolLM2-1.7B | 4.5 | none | E8, Voronoi code | -22.617 | 5.31 | 5.36 | 5.29 | 4.18, 63.6, 7.78 | 8.35, 52.5, 1.62 | 16.58, 31.8, -4.32
+SmolLM2-1.7B | 4.5 | none | E8 turned, Voronoi code | -22.608 | 2.22 | 2.26 | 2.21 | 4.18, 26.1, 5.38 | 8.35, 21.8, 1.67 | 16.58, 13.3, -4.29
+SmolLM2-1.7B | 3.0 | none | integer levels | -15.798 | 22.17 | 22.39 | 22.10 | 4.18, 100.0, -0.00 | 8.35, 99.9, -0.01 | 16.58, 98.9, -0.07
+SmolLM2-1.7B | 3.0 | none | E8 | -16.452 | 11.15 | 11.27 | 11.10 | 4.18, 68.1, 14.27 | 8.35, 64.7, 8.15 | 16.58, 54.7, 2.00
+SmolLM2-1.7B | 3.0 | none | E8 turned | -16.452 | 15.76 | 15.92 | 15.70 | 4.18, 94.4, 9.61 | 8.35, 90.7, 5.51 | 16.58, 77.8, 2.02
+Llama-3.2-1B | 4.5 | none | integer levels | -24.928 | 7.96 | 8.17 | 7.91 | 4.38, 99.2, -0.08 | 8.74, 87.8, -0.80 | 17.31, 45.9, -6.68
+Llama-3.2-1B | 4.5 | none | E8 | -25.585 | 3.98 | 4.09 | 3.96 | 4.38, 59.7, 4.64 | 8.74, 43.2, -1.37 | 17.31, 23.0, -7.33
+Llama-3.2-1B | 4.5 | none | E8 turned | -25.585 | 5.63 | 5.79 | 5.60 | 4.38, 84.5, 3.48 | 8.74, 61.0, -0.96 | 17.31, 32.5, -7.39
+Llama-3.2-1B | 4.5 | ten of each ffn_down | integer levels | -24.930 | 7.95 | 8.17 | 7.91 | 4.38, 99.1, -0.08 | 8.74, 87.8, -0.81 | 17.31, 45.9, -6.68
+Llama-3.2-1B | 4.5 | ten of each ffn_down | E8 | -25.587 | 3.98 | 4.09 | 3.96 | 4.38, 59.7, 4.64 | 8.74, 43.2, -1.37 | 17.31, 23.0, -7.34
+Llama-3.2-1B | 4.5 | ten of each ffn_down | E8 turned | -25.586 | 5.63 | 5.79 | 5.60 | 4.38, 84.4, 3.48 | 8.74, 61.0, -0.97 | 17.31, 32.5, -7.39
+
+The check
+C1 | E8 on SmolLM2 scored again through this program: 0.060861, and the committed row has 0.060861. They differ by +0.000000, where a tenth of the standard error is 0.000135 | holds
+
+The predictions of PREREG.md
+prediction | holds
+H1 | yes
+H2 | yes
+H3 | yes
+H4 | yes
+H5 | yes
+H6 | yes
+H7 | yes
+H8 | yes
+H9 | yes
+H10 | yes
+H11 | no
+H12 | yes

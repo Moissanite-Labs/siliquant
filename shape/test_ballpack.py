@@ -270,6 +270,36 @@ class Format32(unittest.TestCase):
             for value in (np.nan, np.inf, -np.inf):
                 refused(bad_float(kept_at, value))                            # a kept entry that is not finite
 
+    def test_a_number_the_encoder_never_writes_is_refused(self):
+        fmt = self.fmt
+        W = self.matrices()["gauss"]
+        cols = np.exp(self.rng.standard_normal(256) * 0.5)
+        f2 = lambda v: np.array([v], dtype="<f2").tobytes()
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "c.sqbp")
+            fmt.write(path, [("a", fmt.encode(W, cols, keep=np.array([3, 9]))[0])])
+            with open(path, "rb") as f:
+                good = f.read()
+            ballpack.Format.read(path)
+            top = 28 + 2 + 1 + 9                                                # the largest scale of the matrix
+            weights = top + 2                                                   # its 256 column weights
+            kept = weights + 2 * 256 + 4 + 4 * 2                                # the entries of its two kept columns
+
+            def put(at, value):
+                with open(path, "wb") as f:
+                    f.write(good[:at] + f2(value) + good[at + 2:])
+
+            for at in (top, weights, weights + 2 * 100, kept, kept + 2 * 5):
+                for bad in (np.nan, np.inf, -np.inf) + (() if at >= kept else (0.0, -1.0)):
+                    put(at, bad)
+                    with self.assertRaises(ValueError):
+                        ballpack.Format.read(path)
+            put(kept, -1.0)                                                     # a kept entry may be any finite number
+            _, tensors = ballpack.Format.read(path)
+            self.assertEqual(float(tensors[0][1]["kept"][0, 0]), -1.0)
+            put(top, 6e-08)                                                     # the scale encode gives a matrix of zeros
+            ballpack.Format.read(path)
+
     def test_the_compiled_coder_is_loaded_from_a_directory_of_this_user_alone(self):
         d = ballpack._build_dir()
         st = os.stat(d)
