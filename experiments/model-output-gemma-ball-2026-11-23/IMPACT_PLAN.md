@@ -95,3 +95,19 @@ only if the records actually constrain the same iso-quality savings;
 otherwise label them sensitivity assumptions and include no transfer as
 an explicit downside. Rank follow-up experiments by decision value,
 giving priority to resolving gaps that block a deployment claim.
+
+## 2026-11-23 post-data amendment: raw 270M replay and Gemma 1B
+
+Written after the 1B headline handoff but before computing our 1B
+impact estimates. Pin the four result blobs at `964b5f4`. Hash each;
+check the prior 270M receipts and embedded reference/text identifiers,
+distinguishing recorded identifiers from independent artifact hashes.
+Reconcile every transcribed cell with the strict JSONL parse, separating
+rounding from substantive discrepancies, and regenerate the 270M tables
+and plot from raw. Preserve the historical transcription. Apply the same
+comparison, interpolation, calibration, and deployment sensitivity rules
+to 1B, using the handed-off F16 PPLs. Check the headline claims against
+raw, retain the b560 comparison with calibrated stock as a rate tradeoff,
+and update the cross-model contrasts and the next-experiment ranking.
+Do not treat model-shape-specific stock rates as transferable or narrow
+scenario transfer without like-for-like evidence at deployment scale.
