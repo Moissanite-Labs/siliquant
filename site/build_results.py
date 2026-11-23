@@ -13,7 +13,9 @@ def main():
     args = parser.parse_args()
     source = Path(__file__).resolve().with_name("results.html")
     docs = source.parents[1] / "docs"
-    with TemporaryDirectory(prefix="siliquant-results-") as work:
+    build = source.parent / ".build"
+    build.mkdir(exist_ok=True)
+    with TemporaryDirectory(prefix="siliquant-results-", dir=build) as work:
         work = Path(work)
         pdf = work / "siliquant-results.pdf"
         subprocess.run(
@@ -27,8 +29,8 @@ def main():
             ],
             check=True,
         )
-        shutil.copyfile(source, docs / "index.html")
         shutil.copyfile(pdf, docs / pdf.name)
+        shutil.copyfile(source, docs / "index.html")
     print("Built docs/index.html and docs/siliquant-results.pdf")
 
 
