@@ -82,6 +82,29 @@ VORONOI_RE = re.compile(r"^(H?)VE8(Z?)(\d+|R):(\d+)$")
 
 LOUD_LIMIT_SIGMA = 5.0
 SCALE_STEPS = {16: None, 8: 16, 6: 8}
+_TOKEN_EMBD_TYPE_MAP = {
+    "BF16": "bf16",
+    "F16": "f16",
+    "F32": "f32",
+}
+_GGML_TYPE_CODES = {
+    0: "F32",
+    1: "F16",
+    30: "BF16",
+}
+
+
+def arm_needs_real_imat(arm):
+    """True when `arm` requires the real-text (wikitext) importance matrix."""
+    if arm == "file:Q4_K_M-imat":
+        return True
+    if arm.endswith("~rand"):
+        return False
+    if WEIGHTED_BALL_RE.match(arm):
+        return True
+    if LOUD_BALL_RE.match(arm) and arm.startswith("h"):
+        return True
+    return False
 
 # Worker process globals (populated via Pool initializer or direct call)
 _worker_model_path = None
@@ -728,10 +751,42 @@ def ensure_imatrix(model_path, text_path, imatrix_path, binary, chunks, ctx, bat
     return cmd
 
 
-def quantize_tensor_type_flags(tensor_names):
-    """Preserve non-block Gemma tensors (token_embd + E4B proj/gate tensors if present)."""
-    flags = ["--tensor-type", r"^token_embd\.weight$=f16"]
-    names = set(tensor_names)
+def _ggml_type_flag(tensor_type):
+    """Map a GGUF tensor_type (enum, string, or GGML type code) to a llama-quantize --tensor-type value."""
+    name = getattr(tensor_type, "name", None)
+    if name is not None:
+        key = str(name).upper()
+    elif isinstance(tensor_type, str):
+        key = tensor_type.upper()
+    elif isinstance(tensor_type, int) and not isinstance(tensor_type, bool):
+        key = _GGML_TYPE_CODES.get(int(tensor_type))
+    else:
+        key = None
+    if key in _TOKEN_EMBD_TYPE_MAP:
+        return _TOKEN_EMBD_TYPE_MAP[key]
+    raise ValueError(f"unsupported token_embd.weight tensor_type: {tensor_type!r} (expected BF16, F16, or F32)")
+
+
+def quantize_tensor_type_flags(tensors, token_embd_type=None):
+    """Preserve non-block Gemma tensors (token_embd in its source dtype + E4B proj/gate tensors if present).
+
+    `tensors` may be an iterable of GGUF tensor objects (with `.name` and `.tensor_type`)
+    or plain tensor name strings. When `token_embd_type` is omitted, it is inferred from
+    the `token_embd.weight` tensor object if present, defaulting to `f16`.
+    """
+    names = set()
+    inferred_type = token_embd_type
+    for item in tensors:
+        if isinstance(item, str):
+            names.add(item)
+        else:
+            tname = item.name
+            names.add(tname)
+            if inferred_type is None and tname == "token_embd.weight":
+                inferred_type = getattr(item, "tensor_type", None)
+
+    embd_flag = _ggml_type_flag(inferred_type) if inferred_type is not None else "f16"
+    flags = ["--tensor-type", rf"^token_embd\.weight$={embd_flag}"]
     if any("per_layer_model_proj" in n for n in names):
         flags.extend(["--tensor-type", "per_layer_model_proj=f32"])
     if any("inp_gate" in n for n in names):
@@ -741,11 +796,11 @@ def quantize_tensor_type_flags(tensor_names):
     return flags
 
 
-def ensure_baseline_gguf(model_path, out_path, qtype, binary, tensor_names, imatrix_path=None, threads=4, dry_run=False):
+def ensure_baseline_gguf(model_path, out_path, qtype, binary, tensors, imatrix_path=None, threads=4, dry_run=False, token_embd_type=None):
     cmd = [binary]
     if imatrix_path:
         cmd.extend(["--imatrix", str(imatrix_path)])
-    cmd.extend(quantize_tensor_type_flags(tensor_names))
+    cmd.extend(quantize_tensor_type_flags(tensors, token_embd_type=token_embd_type))
     cmd.extend([str(model_path), str(out_path), qtype, str(threads)])
     if dry_run or os.path.exists(out_path):
         return cmd
@@ -957,16 +1012,13 @@ def run_sweep(args):
         raise RuntimeError(f"no block matrices found in {args.model_path}")
     names = [t.name for t in all_targets]
     n_layers = len({int(BLOCK.match(n).group(1)) for n in names})
-    all_tensor_names = [t.name for t in rd.tensors]
+    all_tensors = list(rd.tensors)
 
     # Step 3 safety gate before scoring: verify zero-codeword preservation on layer 0
     if not bridge_mode:
         verify_zero_codeword_matrix(_matrix_of(all_targets[0]))
 
-    needs_real_imat = any(
-        a == "file:Q4_K_M-imat" or a.startswith("hZBG") and not a.endswith("~rand")
-        for a in arms
-    )
+    needs_real_imat = any(arm_needs_real_imat(a) for a in arms)
     needs_rand_imat = any(a.endswith("~rand") for a in arms)
 
     imat_real_sha = None
@@ -989,11 +1041,11 @@ def run_sweep(args):
 
     # Ensure quantized baselines if requested
     if "file:Q4_0" in arms:
-        ensure_baseline_gguf(args.model_path, baseline_paths["file:Q4_0"], "Q4_0", args.llama_quantize, all_tensor_names, threads=args.threads)
+        ensure_baseline_gguf(args.model_path, baseline_paths["file:Q4_0"], "Q4_0", args.llama_quantize, all_tensors, threads=args.threads)
     if "file:Q4_K_M" in arms:
-        ensure_baseline_gguf(args.model_path, baseline_paths["file:Q4_K_M"], "Q4_K_M", args.llama_quantize, all_tensor_names, threads=args.threads)
+        ensure_baseline_gguf(args.model_path, baseline_paths["file:Q4_K_M"], "Q4_K_M", args.llama_quantize, all_tensors, threads=args.threads)
     if "file:Q4_K_M-imat" in arms:
-        ensure_baseline_gguf(args.model_path, baseline_paths["file:Q4_K_M-imat"], "Q4_K_M", args.llama_quantize, all_tensor_names, imatrix_path=imatrix_real, threads=args.threads)
+        ensure_baseline_gguf(args.model_path, baseline_paths["file:Q4_K_M-imat"], "Q4_K_M", args.llama_quantize, all_tensors, imatrix_path=imatrix_real, threads=args.threads)
 
     # Load already-completed (model_id, text, variant) keys for clean resume
     done = set()
@@ -1032,7 +1084,7 @@ def run_sweep(args):
             "ngl": args.ngl,
             "bridge": bridge_mode,
         }
-        if arm in ("file:Q4_K_M-imat",) or (arm.startswith("hZBG") and not arm.endswith("~rand")):
+        if arm_needs_real_imat(arm):
             base_row["imatrix_sha256"] = imat_real_sha
         elif arm.endswith("~rand"):
             base_row["imatrix_sha256"] = imat_rand_sha
