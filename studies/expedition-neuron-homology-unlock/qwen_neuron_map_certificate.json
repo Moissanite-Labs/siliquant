@@ -1,0 +1,609 @@
+{
+  "arm": "R5-4",
+  "audit_id": "AUDIT-059",
+  "canonical_sha256": "4abe60205f6b6a43762a19711d4a72936ca34e67cf751410a825ef1e7f478289",
+  "honest_novelty_class": "N1",
+  "oracle_class": "exact+anchor",
+  "part1_provenance_and_hygiene": {
+    "alphaxiv_flint_goalkeeper_neuron": {
+      "clean_read_only": true,
+      "head_sha": "6ece43a96cef46e7013cae4b0423ee60c29c1ab5",
+      "repo": "alphaxiv-flint-goalkeeper-neuron"
+    },
+    "alphaxiv_weight_edit_minimization": {
+      "clean_read_only": true,
+      "head_sha": "768d7340142b1882d4bd2740b4723274e4c9278d",
+      "repo": "alphaxiv-weight-edit-minimization"
+    },
+    "hygiene_bare_asserts": {
+      "FG_01_flint_goalkeeper_neuron": [
+        [
+          "recount.py",
+          39
+        ],
+        [
+          "recount.py",
+          45
+        ]
+      ],
+      "WE_01_weight_edit_minimization": [
+        [
+          "weight-edit-minimization.py",
+          1104
+        ]
+      ]
+    },
+    "qwen_neuron_map_fetched_pages": 15,
+    "qwen_neuron_map_sha256": {
+      "4b.html": "cfc229397e1e98d46ccaa270295bcb02114159bfb2ed79cc77f7f6262220f22d",
+      "compare.html": "bb30932da8bc529977c6092cd168394829fbb306541887777dd65e7fb241de8e",
+      "g4e4.html": "f1340b4f09edd898c39e566669463ac41450e1a506024456f23868f3955710d3",
+      "index.html": "179059c77f9702b3ba65d2a266ecfea92afe3458cc1b7dbe7310595dbd55ec78",
+      "py0.html": "4b08cddc5d8a980377670562fe6defb03a9479deb49c95cb6e7d25094ca7e8c3",
+      "py0a.html": "4534691a7ae69ade0d1dff044950b60b25f134ea815a99f3ca80e4c71f492774",
+      "py0b.html": "48cdb68d70897e36ef04824a430b7d3fd5cbfb4d09f421d063aa4b5941fd8bdd",
+      "py0c.html": "b231493347a06d18d187c7d5383553f7e0e815acc592962ceb5070ff35d902a3",
+      "py1.html": "443d3fac680a0afa8d63a0f6c3a5b642062ebfe30b345a6d2a061cf660b59bab",
+      "py2.html": "c29b46f4393c924227364f31db8e8b68136405bb05c2e2d2814273d61fdaa5b8",
+      "q08.html": "1292ab4889313caa3a91976488e8de7b6aa4353e3d99b68bf8f7c4e226c371fa",
+      "q2.html": "9c38e3c9102b526418295ceefcbe07afbaecf3314010423e8adaa8bab00633e9",
+      "s135.html": "3f06b5d778345180004c608211428d29ecb818967186b4a99ca66a9acea6cba4",
+      "s17.html": "51e6f077d4abd5032a378fb3d04dc324c0357196803ae137aa3b59c3d46464b9",
+      "smol.html": "139c9af65dce4799ceacce3170d574f0749638147ae60d02b53b85fe859b76ee"
+    }
+  },
+  "part2_atlas_30models_13full_and_z2_confounder": {
+    "full_neuron_models_parsed": 13,
+    "labs_count": 11,
+    "models_30_count": 30,
+    "models_30_dark_max_slug": "py0a",
+    "models_30_dark_min_slug": "27b",
+    "per_model_13_summary": {
+      "4b": {
+        "dark_fraction_exact": "30059/294912",
+        "dark_hi_3_7_exact": "6641/63200",
+        "dark_lo_1_7_exact": "2297/21056",
+        "dark_neurons": 30059,
+        "families_present": 303,
+        "hi_to_lo_dark_ratio_exact": "4369778/4536575",
+        "layers": 32,
+        "neurons": 294912,
+        "title": "Qwen3.5-4B \u00b7 294,912 MLP neurons",
+        "width": 9216
+      },
+      "g4e4": {
+        "dark_fraction_exact": "31139/215040",
+        "dark_hi_3_7_exact": "2957/20482",
+        "dark_lo_1_7_exact": "423/2924",
+        "dark_neurons": 62278,
+        "families_present": 200,
+        "hi_to_lo_dark_ratio_exact": "4323134/4331943",
+        "layers": 42,
+        "neurons": 430080,
+        "title": "Gemma 4 E4B \u00b7 430,080 MLP neurons",
+        "width": 10240
+      },
+      "py0": {
+        "dark_fraction_exact": "349/6144",
+        "dark_hi_3_7_exact": "99/1756",
+        "dark_lo_1_7_exact": "139/2628",
+        "dark_neurons": 2094,
+        "families_present": 159,
+        "hi_to_lo_dark_ratio_exact": "65043/61021",
+        "layers": 12,
+        "neurons": 36864,
+        "title": "Pythia-160m \u00b7 36,864 MLP neurons",
+        "width": 3072
+      },
+      "py0a": {
+        "dark_fraction_exact": "751/4608",
+        "dark_hi_3_7_exact": "2551/15804",
+        "dark_lo_1_7_exact": "289/1752",
+        "dark_neurons": 6008,
+        "families_present": 119,
+        "hi_to_lo_dark_ratio_exact": "372446/380613",
+        "layers": 12,
+        "neurons": 36864,
+        "title": "Pythia-160m at step 1,000 of 143,000 \u00b7 36,864 MLP neurons",
+        "width": 3072
+      },
+      "py0b": {
+        "dark_fraction_exact": "67/1536",
+        "dark_hi_3_7_exact": "727/15804",
+        "dark_lo_1_7_exact": "113/2628",
+        "dark_neurons": 1608,
+        "families_present": 145,
+        "hi_to_lo_dark_ratio_exact": "53071/49607",
+        "layers": 12,
+        "neurons": 36864,
+        "title": "Pythia-160m at step 8,000 of 143,000 \u00b7 36,864 MLP neurons",
+        "width": 3072
+      },
+      "py0c": {
+        "dark_fraction_exact": "695/18432",
+        "dark_hi_3_7_exact": "203/5268",
+        "dark_lo_1_7_exact": "97/2628",
+        "dark_neurons": 1390,
+        "families_present": 156,
+        "hi_to_lo_dark_ratio_exact": "44457/42583",
+        "layers": 12,
+        "neurons": 36864,
+        "title": "Pythia-160m at step 32,000 of 143,000 \u00b7 36,864 MLP neurons",
+        "width": 3072
+      },
+      "py1": {
+        "dark_fraction_exact": "659/12288",
+        "dark_hi_3_7_exact": "413/7902",
+        "dark_lo_1_7_exact": "95/1752",
+        "dark_neurons": 1977,
+        "families_present": 160,
+        "hi_to_lo_dark_ratio_exact": "120596/125115",
+        "layers": 12,
+        "neurons": 36864,
+        "title": "Pythia-160m, seed 1 \u00b7 36,864 MLP neurons",
+        "width": 3072
+      },
+      "py2": {
+        "dark_fraction_exact": "2099/36864",
+        "dark_hi_3_7_exact": "907/15804",
+        "dark_lo_1_7_exact": "4/73",
+        "dark_neurons": 2099,
+        "families_present": 163,
+        "hi_to_lo_dark_ratio_exact": "66211/63216",
+        "layers": 12,
+        "neurons": 36864,
+        "title": "Pythia-160m, seed 2 \u00b7 36,864 MLP neurons",
+        "width": 3072
+      },
+      "q08": {
+        "dark_fraction_exact": "2507/28672",
+        "dark_hi_3_7_exact": "1849/18432",
+        "dark_lo_1_7_exact": "397/6144",
+        "dark_neurons": 7521,
+        "families_present": 314,
+        "hi_to_lo_dark_ratio_exact": "1849/1191",
+        "layers": 24,
+        "neurons": 86016,
+        "title": "Qwen3.5-0.8B \u00b7 86,016 MLP neurons",
+        "width": 3584
+      },
+      "q2": {
+        "dark_fraction_exact": "1643/24576",
+        "dark_hi_3_7_exact": "260/3951",
+        "dark_lo_1_7_exact": "707/10524",
+        "dark_neurons": 9858,
+        "families_present": 321,
+        "hi_to_lo_dark_ratio_exact": "912080/931119",
+        "layers": 24,
+        "neurons": 147456,
+        "title": "Qwen3.5-2B \u00b7 147,456 MLP neurons",
+        "width": 6144
+      },
+      "s135": {
+        "dark_fraction_exact": "3359/46080",
+        "dark_hi_3_7_exact": "244/3295",
+        "dark_lo_1_7_exact": "151/2190",
+        "dark_neurons": 3359,
+        "families_present": 194,
+        "hi_to_lo_dark_ratio_exact": "106872/99509",
+        "layers": 30,
+        "neurons": 46080,
+        "title": "SmolLM2-135M \u00b7 46,080 MLP neurons",
+        "width": 1536
+      },
+      "s17": {
+        "dark_fraction_exact": "295/32768",
+        "dark_hi_3_7_exact": "755/84264",
+        "dark_lo_1_7_exact": "1/108",
+        "dark_neurons": 1770,
+        "families_present": 230,
+        "hi_to_lo_dark_ratio_exact": "6795/7022",
+        "layers": 24,
+        "neurons": 196608,
+        "title": "SmolLM2-1.7B \u00b7 196,608 MLP neurons",
+        "width": 8192
+      },
+      "smol": {
+        "dark_fraction_exact": "1077/20480",
+        "dark_hi_3_7_exact": "463/8784",
+        "dark_lo_1_7_exact": "627/11680",
+        "dark_neurons": 4308,
+        "families_present": 258,
+        "hi_to_lo_dark_ratio_exact": "337990/344223",
+        "layers": 32,
+        "neurons": 81920,
+        "title": "SmolLM2-360M \u00b7 81,920 MLP neurons",
+        "width": 2560
+      }
+    },
+    "pythia_non_monotonic_collapse_and_rebound_verified": true,
+    "smollm2_monotonic_dark_decay_verified": true,
+    "total_neurons_parsed": 1504256,
+    "z2_sign_symmetry_lineage_proofs": {
+      "pythia_vs_falcon_h1_confounder_85pct": {
+        "centered_excess": "0",
+        "chance_agreement": "17/20",
+        "cohen_kappa": "0",
+        "indicates_shared_origin": false,
+        "observed_agreement": "17/20",
+        "p_pos_1": "1",
+        "p_pos_2": "17/20"
+      },
+      "qwen35_08b_vs_2b_true_lineage_93pct": {
+        "centered_excess": "43/100",
+        "chance_agreement": "1/2",
+        "cohen_kappa": "43/50",
+        "indicates_shared_origin": true,
+        "observed_agreement": "93/100",
+        "p_pos_1": "1/2",
+        "p_pos_2": "1/2"
+      },
+      "qwen35_4b_vs_9b_true_lineage_98pct": {
+        "centered_excess": "12/25",
+        "chance_agreement": "1/2",
+        "cohen_kappa": "24/25",
+        "indicates_shared_origin": true,
+        "observed_agreement": "49/50",
+        "p_pos_1": "1/2",
+        "p_pos_2": "1/2"
+      },
+      "qwen3_06b_vs_17b_true_lineage_88pct": {
+        "centered_excess": "19/50",
+        "chance_agreement": "1/2",
+        "cohen_kappa": "19/25",
+        "indicates_shared_origin": true,
+        "observed_agreement": "22/25",
+        "p_pos_1": "1/2",
+        "p_pos_2": "1/2"
+      },
+      "unrelated_swiglu_null": {
+        "centered_excess": "0",
+        "chance_agreement": "1/2",
+        "cohen_kappa": "0",
+        "indicates_shared_origin": false,
+        "observed_agreement": "1/2",
+        "p_pos_1": "1/2",
+        "p_pos_2": "1/2"
+      }
+    }
+  },
+  "part3_q08_weight_edit_empirical_join": {
+    "cross_layer_residual_axis_u15_u19": {
+      "cos_sq_x10000": 7208,
+      "dim0_is_rank1_row_linf_both_layers": true,
+      "dot_positive": true,
+      "identical_top5_set": true,
+      "top5_dims_L15": [
+        37,
+        0,
+        5,
+        18,
+        15
+      ],
+      "top5_dims_L19": [
+        0,
+        37,
+        18,
+        5,
+        15
+      ]
+    },
+    "exp8_paired_mcnemar_1152_problems": {
+      "exact_mcnemar_p_lt_1e_150": true,
+      "losses": 5,
+      "rescues": 579
+    },
+    "layer_joins": {
+      "L15": {
+        "adjacent_brackets": {
+          "all": {
+            "bg": [
+              77,
+              3584
+            ],
+            "enrich_x100": 1163,
+            "exact_hypergeom_p_lt_1e_4": true,
+            "sel": [
+              16,
+              64
+            ]
+          },
+          "strat_col_ge_512": {
+            "bg": [
+              48,
+              3072
+            ],
+            "exact_hypergeom_p_lt_1e_1": true,
+            "sel": [
+              7,
+              24
+            ]
+          },
+          "strat_col_lt_512": {
+            "bg": [
+              29,
+              512
+            ],
+            "exact_hypergeom_p_lt_1e_2": true,
+            "sel": [
+              9,
+              40
+            ]
+          }
+        },
+        "dark_layer_bg": [
+          333,
+          3584
+        ],
+        "dark_selected": [
+          5,
+          64
+        ],
+        "equations_numbers_units": {
+          "bg": [
+            364,
+            3584
+          ],
+          "enrich_x100": 338,
+          "exact_hypergeom_p_lt_1e_3": true,
+          "sel": [
+            22,
+            64
+          ]
+        },
+        "kurtosis_ratio_gt_2_5x": true,
+        "nonselected_mean_kurt_x100": 403,
+        "nonselected_mean_linf_x10000": 342,
+        "permutation_null_1000_l15": {
+          "empirical_p_exact": "1/1001",
+          "exceed_count": 0,
+          "max_null_hits": 6,
+          "mean_null_exact": "1421/1000",
+          "n_perms": 1000,
+          "observed_hits": 16,
+          "population": 3584,
+          "sample_size": 64,
+          "seed": 20261121,
+          "target_count": 77
+        },
+        "selected_col_lt_1024": 50,
+        "selected_col_lt_512": 40,
+        "selected_count": 64,
+        "selected_mean_kurt_x100": 1044,
+        "selected_mean_linf_x10000": 508,
+        "top20_linf_in_col_lt_512": 15,
+        "top_row_linf_residual_dim": 0
+      },
+      "L19": {
+        "adjacent_brackets": {
+          "all": {
+            "bg": [
+              11,
+              3584
+            ],
+            "enrich_x100": 2036,
+            "exact_hypergeom_p_lt_1e_4": true,
+            "sel": [
+              4,
+              64
+            ]
+          },
+          "strat_col_ge_512": {
+            "bg": [
+              3,
+              3072
+            ],
+            "exact_hypergeom_p_lt_1e_1": true,
+            "sel": [
+              1,
+              29
+            ]
+          },
+          "strat_col_lt_512": {
+            "bg": [
+              8,
+              512
+            ],
+            "exact_hypergeom_p_lt_1e_2": false,
+            "sel": [
+              3,
+              35
+            ]
+          }
+        },
+        "dark_layer_bg": [
+          460,
+          3584
+        ],
+        "dark_selected": [
+          11,
+          64
+        ],
+        "equations_numbers_units": {
+          "bg": [
+            291,
+            3584
+          ],
+          "enrich_x100": 288,
+          "exact_hypergeom_p_lt_1e_3": true,
+          "sel": [
+            15,
+            64
+          ]
+        },
+        "kurtosis_ratio_gt_2_5x": true,
+        "nonselected_mean_kurt_x100": 345,
+        "nonselected_mean_linf_x10000": 336,
+        "permutation_null_1000_l15": null,
+        "selected_col_lt_1024": 46,
+        "selected_col_lt_512": 35,
+        "selected_count": 64,
+        "selected_mean_kurt_x100": 1218,
+        "selected_mean_linf_x10000": 503,
+        "top20_linf_in_col_lt_512": 14,
+        "top_row_linf_residual_dim": 0
+      }
+    },
+    "q08_24layer_column_anisotropy": {
+      "exact_binomial_sign_p": "1/1048576",
+      "middle_layers_L02_to_L22_hi_gt_lo": "21/21",
+      "peak_layer_L16_ratio_exact": "106/33",
+      "peak_layer_L21_ratio_exact": "209/69"
+    },
+    "top40_linf_outliers_in_col_lt_512": {
+      "background": [
+        1024,
+        7168
+      ],
+      "count": [
+        29,
+        40
+      ],
+      "exact_hypergeom_p_lt_1e_14": true
+    }
+  },
+  "part4_gemma4_e4b_layer10_siliquant_bridge": {
+    "first_code_gt_prose_layer": 10,
+    "layer10_active_families_rank": 3,
+    "layer10_top6_dark_hub_count": 4,
+    "layer10_top6_groups": [
+      {
+        "count": 358,
+        "gid": 35,
+        "is_dark_hub": true,
+        "out_milli": 305
+      },
+      {
+        "count": 311,
+        "gid": 36,
+        "is_dark_hub": true,
+        "out_milli": 605
+      },
+      {
+        "count": 241,
+        "gid": 9,
+        "is_dark_hub": false,
+        "out_milli": 428
+      },
+      {
+        "count": 230,
+        "gid": 3,
+        "is_dark_hub": true,
+        "out_milli": 699
+      },
+      {
+        "count": 208,
+        "gid": 22,
+        "is_dark_hub": false,
+        "out_milli": 240
+      },
+      {
+        "count": 202,
+        "gid": 165,
+        "is_dark_hub": true,
+        "out_milli": 229
+      }
+    ],
+    "layers": 42,
+    "rank1_active_families_layer": 4,
+    "rank1_mean_out_layer": 10,
+    "rank2_mean_out_layer": 9,
+    "siliquant_cross_reference": {
+      "experiment": "Moissanite-Labs/siliquant/experiments/output-budget-gemma-e4b-2026-11-17",
+      "l10_kl_share_exact": "60/67"
+    },
+    "top5_layers_by_mean_out": [
+      {
+        "active_families": 191,
+        "dark_fraction_exact": "407/2048",
+        "layer": 10,
+        "mean_out_x100000": 23511
+      },
+      {
+        "active_families": 188,
+        "dark_fraction_exact": "1533/10240",
+        "layer": 9,
+        "mean_out_x100000": 23208
+      },
+      {
+        "active_families": 164,
+        "dark_fraction_exact": "337/5120",
+        "layer": 41,
+        "mean_out_x100000": 23039
+      },
+      {
+        "active_families": 190,
+        "dark_fraction_exact": "337/2560",
+        "layer": 6,
+        "mean_out_x100000": 22770
+      },
+      {
+        "active_families": 174,
+        "dark_fraction_exact": "233/1280",
+        "layer": 22,
+        "mean_out_x100000": 22375
+      }
+    ],
+    "total_neurons": 430080,
+    "width": 10240
+  },
+  "part5_flint_goalkeeper_hardened_recount": {
+    "fixed_bonferroni_6_exact": "1/1661656248570",
+    "fixed_bonferroni_6_lt_1e_12": true,
+    "fixed_replication": {
+      "control_hits": 0,
+      "control_total": 48,
+      "counts": {
+        "baseline": [
+          0,
+          16
+        ],
+        "matched_neuron": [
+          0,
+          16
+        ],
+        "opposite_pole": [
+          0,
+          16
+        ],
+        "target": [
+          15,
+          16
+        ]
+      },
+      "exact_fisher_p": "1/9969937491420",
+      "prompt_leaks": 0,
+      "target_hits": 15,
+      "target_total": 16
+    },
+    "ood_p_lt_1e_14": true,
+    "out_of_domain_preregistered": {
+      "control_hits": 0,
+      "control_total": 48,
+      "counts": {
+        "baseline": [
+          0,
+          16
+        ],
+        "matched_neuron": [
+          0,
+          16
+        ],
+        "opposite_pole": [
+          0,
+          16
+        ],
+        "target": [
+          16,
+          16
+        ]
+      },
+      "exact_fisher_p": "1/488526937079580",
+      "prompt_leaks": 0,
+      "target_hits": 16,
+      "target_total": 16
+    },
+    "search_ledger_null_runs": 5,
+    "search_ledger_total_runs": 6
+  }
+}
