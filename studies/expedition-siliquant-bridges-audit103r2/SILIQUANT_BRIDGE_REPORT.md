@@ -4,7 +4,7 @@
 - **Governance Standard:** Aletheia v2.0.0 (`OWN_TERMS_FIRST`, Law 2b, Law 4 honest `N0`/`N1` attribution, Law 5 strict zero-metaphor exact operators, strict **Part E vs. Part I** separation)
 - **Audited Repository (Strictly Read-Only Local Clone, `0` GitHub Writes / Pushes):** `Moissanite-Labs/siliquant`
   - `origin/main`: `67b29a4e18cd5d93e1f3701a34030f2e089e7312`
-  - PR `#12` (`origin/bayan/charming-gates-jlas14`): `20d13d5fa9c5fb2333b8faa0360a90caa1e0a43f`
+  - PR `#12`: `20d13d5fa9c5fb2333b8faa0360a90caa1e0a43f`
   - Draft PR `#24` (`origin/expedition/leech-l1-hadamard-symbiosis`): `d4c54e43bc9f24fd76d57a7467b0c726dd0acd1f`
   - Draft PR `#26` (`origin/feat/magnitude-autotune-quant-bridge`): `7eb484d7d5274482f4d4a73d4012277438bf3c36`
   - Draft PR `#27` (`origin/feat/round8-inkling-loom-speculative-tomography`): `8cf8d2447ab639b065c71c8edab898c66c0dfbeb`
