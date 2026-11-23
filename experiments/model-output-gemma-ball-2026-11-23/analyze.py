@@ -343,6 +343,7 @@ def main(argv=None):
         require(all(value is None or value > 0 for value in f16.values()), "F16 PPL must be positive")
         rows = load_transcribed_table(raw[0], args.model) if args.transcribed_table else load_rows(raw)
         require(any(m == args.model and t in TEXTS for m, t, _ in rows), "no headline cells for model")
+        require(any(select(rows, args.model, text) for text in TEXTS), "no headline KL measurements for model")
         report = impact(rows, args.model, f16)
     except (ValueError, OSError, RecursionError) as exc:
         parser.exit(2, f"gemma impact: {exc}\n")

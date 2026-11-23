@@ -37,6 +37,9 @@ def main():
                            color="#263346", s=40, marker=shape, label=label)
         ax.set(title=title, xlabel="Block bits per weight")
         ax.grid(alpha=0.23)
+    if not any(ax.lines or ax.collections for ax in axes):
+        plt.close(fig)
+        parser.exit(2, "gemma plot: no plottable KL measurements for model\n")
     axes[0].set_ylabel("Mean KL against F16 (lower is better)")
     axes[1].legend(loc="upper right", fontsize=8)
     suffix = " · rounded transcription, raw receipts unverified" if args.transcribed_table else ""

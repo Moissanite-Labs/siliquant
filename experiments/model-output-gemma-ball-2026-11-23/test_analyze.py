@@ -33,6 +33,13 @@ def fenced(body):
     return ("\x60\x60\x60text\n" + body + "\x60\x60\x60\n").encode()
 
 
+def metrics_only_row():
+    row = json.loads(synthetic_row())
+    for key in ("kl_mean", "kl_mean_se", "same_top", "ppl", "score_seconds"):
+        del row[key]
+    return (json.dumps(row) + "\n").encode()
+
+
 TRANSCRIBED_ROW = a.PLAIN + " | wikitext | 4.5 | 0.2 | 0.01 | 5.5 | 90\n"
 
 
@@ -174,6 +181,17 @@ class ImpactTests(unittest.TestCase):
                     self.assertEqual(exit_info.exception.code, 2)
                     self.assertIn(diagnostic, err.getvalue())
                     self.assertEqual(out.getvalue(), "")
+
+    def test_cli_refuses_metrics_only_sweep(self):
+        with TemporaryDirectory() as tmp:
+            raw = Path(tmp) / "metrics.jsonl"
+            raw.write_bytes(metrics_only_row())
+            out, err = StringIO(), StringIO()
+            with redirect_stdout(out), redirect_stderr(err), self.assertRaises(SystemExit) as exit_info:
+                a.main([str(raw), "--model", "gemma-3-270m-it"])
+            self.assertEqual(exit_info.exception.code, 2)
+            self.assertIn("no headline KL measurements for model", err.getvalue())
+            self.assertEqual(out.getvalue(), "")
 
 
 if __name__ == "__main__":
