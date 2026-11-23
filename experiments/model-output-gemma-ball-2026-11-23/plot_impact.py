@@ -41,7 +41,12 @@ def main():
         plt.close(fig)
         parser.exit(2, "gemma plot: no plottable KL measurements for model\n")
     axes[0].set_ylabel("Mean KL against F16 (lower is better)")
-    axes[1].legend(loc="upper right", fontsize=8)
+    legend = {}
+    for ax in reversed(axes):
+        handles, labels = ax.get_legend_handles_labels()
+        for handle, label in zip(handles, labels):
+            legend.setdefault(label, handle)
+    axes[1].legend(legend.values(), legend.keys(), loc="upper right", fontsize=8)
     suffix = " · rounded transcription, raw receipts unverified" if args.transcribed_table else ""
     fig.suptitle(args.model + suffix, fontsize=13)
     fig.savefig(args.out, dpi=180)

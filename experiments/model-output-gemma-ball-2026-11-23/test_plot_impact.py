@@ -33,6 +33,13 @@ class PlotImpactTests(unittest.TestCase):
             self.assertIn("no plottable KL measurements for model", err.getvalue())
             self.assertFalse(self.chart.exists())
 
+    def test_wikitext_only_plot_includes_legend(self):
+        self.plot(synthetic_row())
+        legend = plot.plt.gcf().axes[1].get_legend()
+        self.assertEqual([label.get_text() for label in legend.get_texts()],
+                         ["Ours: calibrated ball (real-text imatrix)"])
+        self.assertTrue(self.chart.is_file())
+
 
 if __name__ == "__main__":
     unittest.main()
