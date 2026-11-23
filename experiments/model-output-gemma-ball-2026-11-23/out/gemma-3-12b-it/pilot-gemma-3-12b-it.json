@@ -1,0 +1,59 @@
+{
+  "mode": "pilot",
+  "model_id": "gemma-3-12b-it",
+  "model_path": "/Users/kethuda/models/gemma-sweep/gemma-3-12b-it-BF16.gguf",
+  "model_sha256": "276920b11d80002d45b9b85291e333d9a7798df92b148ba9ae3d0625dd9f82f2",
+  "n_layers": 48,
+  "pilot_layer": 0,
+  "matrices_total": 336,
+  "matrices_active": 336,
+  "weights_total": 10758389760,
+  "weights_active": 10758389760,
+  "peak_rss_mb": 10070.2,
+  "zero_codeword_checks": {
+    "ZBG128:b560s16": {
+      "synth_zero_ghost_rate": 0.0,
+      "real_zero_ghost_rate": 0.0,
+      "passed": true
+    },
+    "VE8Z32:16": {
+      "synth_zero_ghost_rate": 0.0,
+      "real_zero_ghost_rate": 0.0,
+      "passed": true
+    },
+    "HBG128:b560s16": {
+      "synth_zero_ghost_rate": 0.0,
+      "real_zero_ghost_rate": 0.0,
+      "passed": true
+    },
+    "HVE8Z32:16": {
+      "synth_zero_ghost_rate": 0.0,
+      "real_zero_ghost_rate": 0.0,
+      "passed": true
+    }
+  },
+  "pilot_timings": {
+    "ZBG128:b560s16": {
+      "layer_seconds": 7.841,
+      "est_full_model_seconds_1worker": 376.4,
+      "est_full_model_seconds_workers": 94.1,
+      "bits_per_weight": 4.4998,
+      "weight_err_db_mean": -24.927
+    },
+    "VE8Z32:16": {
+      "layer_seconds": 180.122,
+      "est_full_model_seconds_1worker": 8645.9,
+      "est_full_model_seconds_workers": 2161.5,
+      "bits_per_weight": 4.5,
+      "weight_err_db_mean": -22.602
+    },
+    "HBG128:b560s16": {
+      "layer_seconds": 79.205,
+      "est_full_model_seconds_1worker": 3801.8,
+      "est_full_model_seconds_workers": 950.5,
+      "bits_per_weight": 4.4999,
+      "weight_err_db_mean": -25.584
+    }
+  },
+  "timestamp_utc": "2026-11-23T15:54:08.907944+00:00"
+}
