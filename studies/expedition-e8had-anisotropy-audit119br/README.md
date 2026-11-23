@@ -5,7 +5,7 @@
 - **Novelty Class:** `N1` — exact-$\mathbb{Q}$ mechanistic proofs explaining three empirical real-weight regimes, global $O(8)$ minimax optimality and uniqueness up to $S_8$ via doubly-even self-dual `[8,4,4]` codes, the infinite-lattice `Block-H2 == WHT_8` `3x` butterfly-cut identity, and a cryptographically anchored Gate-8 pre-registration (`G8-P1`..`G8-P4`).
 - **Attribution & Empirical Snapshot Anchor:**
   - $E_8^{\mathrm{Had}} = U E_8$ ($U = H_8 / \sqrt{8}$) construction credited to `Moissanite-Labs/siliquant` PR `#24` (`AUDIT-028`).
-  - Live real-weight evaluation runs (`Llama-3.2-1B`, `SmolLM2-1.7B`, `Qwen2.5-1.5B`) credited to `Moissanite-Labs/siliquant` branch `bayan/charming-gates-jlas14` @ `51235fa753ecd32a15c9af0251560156e3bf440f` (`2026-11-22T23:06:57Z`), `experiments/e8-hadamard-real-weights-2026-11-22/results.jsonl` (`13/15` scored rows landed, SHA-256 `e4023053b6f17cd7a0e820cc591a328d0b4ad6738d10c40d8a5f9e2a9920aa5c`; `Qwen2.5 EBG128:b368s16` and `Qwen2.5 HBG128:b368s16` strictly unlanded at this snapshot).
+  - Live real-weight evaluation runs (`Llama-3.2-1B`, `SmolLM2-1.7B`, `Qwen2.5-1.5B`) credited to `Moissanite-Labs/siliquant` at `51235fa753ecd32a15c9af0251560156e3bf440f` (`2026-11-22T23:06:57Z`), `experiments/e8-hadamard-real-weights-2026-11-22/results.jsonl` (`13/15` scored rows landed, SHA-256 `e4023053b6f17cd7a0e820cc591a328d0b4ad6738d10c40d8a5f9e2a9920aa5c`; `Qwen2.5 EBG128:b368s16` and `Qwen2.5 HBG128:b368s16` strictly unlanded at this snapshot).
 
 ---
 
@@ -16,7 +16,7 @@
 | [`E8HAD_ANISOTROPY_GATE8_REPORT.md`](./E8HAD_ANISOTROPY_GATE8_REPORT.md) | `103` | `15,884` | `91b56a6855c6e548d5ee22208076dc7f8509f7b0de7a8666c44aa75849fba65f` | Full mathematical derivations, empirical decomposition (`51235fa7`), Gate-8 pre-registration table, and Law-4 scope boundaries |
 | [`e8had_anisotropy_oracle.py`](./e8had_anisotropy_oracle.py) | `1,039` | `48,286` | `dc13922753737ec127cd59817479680d7615b2a326d2664b56d0016fb146dc72` | Pure-$\mathbb{Z}/\mathbb{Q}$ exact lattice oracle (`k`-sparse Voronoi error, 8 orthogonal coset families, `Block-H2 == WHT_8` proof, `51235fa7` decomposition, deterministic `evaluate_gate8_rows` scorer) |
 | [`e8had_anisotropy_audit.py`](./e8had_anisotropy_audit.py) | `141` | `5,865` | `574f39a049287706026adbd072d78d10b463ae29f8b65ee337d3201fc238b561` | Standalone read-only verifier (`--check`), canonical JSON parser, and Zone-B I/O boundary checks |
-| [`e8had_anisotropy_certificate.json`](./e8had_anisotropy_certificate.json) | `1` | `10,262` | `84e79bb9f2dab219228b5fc80688301fde92710f9c0978f6385f6a7f30ee4b0d` | Sealed canonical JSON certificate (`payload_sha256: 83b8caa4...`, `certificate_sha256: 2a889f74...`) |
+| [`e8had_anisotropy_certificate.json`](./e8had_anisotropy_certificate.json) | `1` | `10,252` | `444fb585f18f79f4073b21edacc54991bfad90c51d2cc3fe5275047eb38d4f6f` | Sealed canonical JSON certificate (`payload_sha256: a7453fbf...`, `certificate_sha256: d7002dbc...`) |
 | [`test_e8had_anisotropy_r5.py`](./test_e8had_anisotropy_r5.py) | `628` | `32,824` | `bd4051d8ef553d46c174acb6c345bc367e4067d6f7a3a52fe002be9821fbcb14` | Adversarial R5 & Zone-B regression suite (`6` test classes covering mathematical identities, must-fail certificate tampers, and public-API strict type hardening) |
 
 ---
@@ -31,7 +31,7 @@ python3 -I -B e8had_anisotropy_oracle.py --standalone --json | sha256sum
 python3 -I -O -B e8had_anisotropy_oracle.py --standalone --json | sha256sum
 python3 -I -B -W error e8had_anisotropy_oracle.py --standalone --json | sha256sum
 PYTHONHASHSEED=42 python3 -I -B e8had_anisotropy_oracle.py --standalone --json | sha256sum
-# Expected SHA-256 (all 4 modes): 84e79bb9f2dab219228b5fc80688301fde92710f9c0978f6385f6a7f30ee4b0d
+# Expected SHA-256 (all 4 modes): 444fb585f18f79f4073b21edacc54991bfad90c51d2cc3fe5275047eb38d4f6f
 
 # 2. Standalone read-only certificate audit across all 3 isolated interpreter modes
 python3 -I -B e8had_anisotropy_audit.py --check e8had_anisotropy_certificate.json
@@ -60,4 +60,4 @@ python3 -I -B -W error test_e8had_anisotropy_r5.py
 ## Scope Limits (Law 4)
 
 - Lattice theorems (`Laws 1–5`) are exact mathematical statements in $\mathbb{R}^8$ proved over $\mathbb{Z}/\mathbb{Q}$ independent of any neural network.
-- Empirical decomposition is scoped strictly to the `13/15` committed `wikitext-2` rows across `Llama-3.2-1B`, `SmolLM2-1.7B`, and `Qwen2.5-1.5B` at `bayan/charming-gates-jlas14 @ 51235fa7`; no claims are extrapolated to larger parameter counts, alternate calibration/imatrix schemes, or non-`ffn_down` column-keeping heuristics beyond the explicitly falsifiable criteria in `G8-P1`..`G8-P4`.
+- Empirical decomposition is scoped strictly to the `13/15` committed `wikitext-2` rows across `Llama-3.2-1B`, `SmolLM2-1.7B`, and `Qwen2.5-1.5B` at `51235fa7`; no claims are extrapolated to larger parameter counts, alternate calibration/imatrix schemes, or non-`ffn_down` column-keeping heuristics beyond the explicitly falsifiable criteria in `G8-P1`..`G8-P4`.

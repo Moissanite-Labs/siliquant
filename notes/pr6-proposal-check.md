@@ -144,7 +144,7 @@ Where its five sections stand is the table of the five experiments above: the fi
 
 ## Sources
 
-- The report: `04_gemini_novel_quantization/page_full_text.txt` on the branch of PR #6, commit `6ecc87d`.
+- The research conversation shared in PR #6 is the source of the proposal, not an experiment record.
 - Foundation-0/incentre-lattices at commit `2d374ff`: `results/rigidity-nd/PROOF.md`, `results/cab6-packing/PROOF.md`, `results/fold-close-packing/PROOF.md`, `results/fold-end-exact/PROOF.md`, `results/fold-continuous-fcc/PROOF.md`. **Checked.**
 - Foundation-0/rigid-realizations at commit `298926c`: `l880_certificate.json`, SHA-256 `583fec3591b377a883afe17104aa25c0835115e47eda2a3c861b8e17721cf92d`. **Checked.**
 - Foundation-0/point-charges, relative-equilibria and gfq-codes: their READMEs. **Reported**, with the lines quoted in the tables **checked**.

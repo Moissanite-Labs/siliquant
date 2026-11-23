@@ -280,7 +280,7 @@ Three figures its two workstreams can use, all by the formula and none scored:
 
 ## Sources
 
-- The records `model-output-qwen25-2026-11-17`, `ball-dimension-no-clip-rule-2026-11-17`, `fold-path-codebooks-2026-11-17`, `imatrix-baseline-2026-11-17` and `model-output-smollm2-2026-11-17` on the branch `bayan/charming-gates-jlas14`, and `shape/ballindex.out`. **Checked.**
+- The records `model-output-qwen25-2026-11-17`, `ball-dimension-no-clip-rule-2026-11-17`, `fold-path-codebooks-2026-11-17`, `imatrix-baseline-2026-11-17` and `model-output-smollm2-2026-11-17` from PR #12, and `shape/ballindex.out`. **Checked.**
 - Issues #14, #15 and #16 and their comments as they stood at 19:30 UTC on 2026-11-17. **Checked.**
 - The record `lattice-split-smollm2-2026-11-17` on this branch: `results.out`, `layer_error.out`, `build.out`. Its rows are this session's. **Checked.**
 

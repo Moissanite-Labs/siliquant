@@ -30,14 +30,14 @@ MAX_INT_BITS = 2048
 MAX_INT_DIGITS = 620
 _HEX_LOWER = frozenset("0123456789abcdef")
 
-# Exact read-only empirical snapshot pinned to Moissanite-Labs/siliquant branch
-# `bayan/charming-gates-jlas14` at commit `51235fa753ecd32a15c9af0251560156e3bf440f`
+# Exact read-only empirical snapshot pinned to Moissanite-Labs/siliquant
+# at commit `51235fa753ecd32a15c9af0251560156e3bf440f`
 # (2026-11-22T23:06:57Z, 13/15 planned scored rows landed; the 2 remaining Qwen2.5
 # 3.0-bit rows `EBG128:b368s16` & `HBG128:b368s16` plus Qwen2.5 +K10, Llama VH8Z32,
 # and Block-H2 replay rows are strictly UNLANDED / UNRUN).
 SNAPSHOT_METADATA: dict[str, Any] = {
     "repo": "Moissanite-Labs/siliquant",
-    "branch": "bayan/charming-gates-jlas14",
+    "branch": "refs/pull/41/head",
     "commit_sha": "51235fa753ecd32a15c9af0251560156e3bf440f",
     "commit_utc": "2026-11-22T23:06:57Z",
     "experiment_dir": "experiments/e8-hadamard-real-weights-2026-11-22",

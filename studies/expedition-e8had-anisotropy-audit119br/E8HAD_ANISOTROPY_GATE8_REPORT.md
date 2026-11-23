@@ -1,14 +1,14 @@
 # Track S20b (`AUDIT-119B`): Exact-$\mathbb{Q}$ Coordinate-Axis Outlier Anisotropy Law, Low-Bitrate Shell-Gap/Steiner Crossover, `Block-H2 == WHT_8` Identity, and Gate-8 Pre-Registration for $E_8^{\mathrm{Had}}$
 
 - **Oracle Class:** `exact+empirical-corpus` (pure-stdlib $\mathbb{Z}/\mathbb{Q}$, zero floats on all trust/certificate paths, zero bare `assert`s, full Zone-B I/O hardening)
-- **Novelty Class:** `N1` (exact-$\mathbb{Q}$ mechanistic proofs of all 3 live regimes — Llama `+K10` collapse, Qwen2.5 `VH8Z32` `H11` falsification, and SmolLM2 3.0-bit `ZBG` crossover — plus global $O(8)$ minimax optimality + uniqueness proof via doubly-even self-dual `[8,4,4]` codes, algebraic `Block-H2 == WHT_8` $3\times$ butterfly-reduction identity, and cryptographically pinned Gate-8 pre-registration on unlanded real-weight rows; $E_8^{\mathrm{Had}}$ construction credited to `Moissanite-Labs/siliquant` Draft PR `#24` and live empirical runs credited to `Moissanite-Labs/siliquant` branch `bayan/charming-gates-jlas14` @ `51235fa7`)
-- **Empirical Snapshot Anchor (Read-Only):** `Moissanite-Labs/siliquant`, branch `bayan/charming-gates-jlas14`, commit `51235fa753ecd32a15c9af0251560156e3bf440f` (`2026-11-22T23:06:57Z`), `experiments/e8-hadamard-real-weights-2026-11-22/results.jsonl` (`13/15` scored rows landed, SHA-256 `e4023053b6f17cd7a0e820cc591a328d0b4ad6738d10c40d8a5f9e2a9920aa5c`; `Qwen2.5 EBG128:b368s16` and `Qwen2.5 HBG128:b368s16` strictly UNLANDED!)
+- **Novelty Class:** `N1` (exact-$\mathbb{Q}$ mechanistic proofs of all 3 live regimes — Llama `+K10` collapse, Qwen2.5 `VH8Z32` `H11` falsification, and SmolLM2 3.0-bit `ZBG` crossover — plus global $O(8)$ minimax optimality + uniqueness proof via doubly-even self-dual `[8,4,4]` codes, algebraic `Block-H2 == WHT_8` $3\times$ butterfly-reduction identity, and cryptographically pinned Gate-8 pre-registration on unlanded real-weight rows; $E_8^{\mathrm{Had}}$ construction credited to `Moissanite-Labs/siliquant` Draft PR `#24` and live empirical runs credited to `Moissanite-Labs/siliquant` at `51235fa7`)
+- **Empirical Snapshot Anchor (Read-Only):** `Moissanite-Labs/siliquant`, commit `51235fa753ecd32a15c9af0251560156e3bf440f` (`2026-11-22T23:06:57Z`), `experiments/e8-hadamard-real-weights-2026-11-22/results.jsonl` (`13/15` scored rows landed, SHA-256 `e4023053b6f17cd7a0e820cc591a328d0b4ad6738d10c40d8a5f9e2a9920aa5c`; `Qwen2.5 EBG128:b368s16` and `Qwen2.5 HBG128:b368s16` strictly UNLANDED!)
 
 ---
 
 ## 1. Executive Summary
 
-Live real-weight evaluation of $E_8^{\mathrm{Had}} = U E_8$ ($U = H_8/\sqrt{8}$) on `bayan/charming-gates-jlas14 @ 51235fa7` exhibits **three sharp, seemingly paradoxical anomalies** despite $U$ being a Euclidean isometry:
+Live real-weight evaluation of $E_8^{\mathrm{Had}} = U E_8$ ($U = H_8/\sqrt{8}$) on `51235fa7` exhibits **three sharp, seemingly paradoxical anomalies** despite $U$ being a Euclidean isometry:
 
 1. **Llama-3.2 4.5-bit `+K10` Collapse:** `HBG128:b560s16` cuts KL by **`10.27%`** (`0.040161 -> 0.036038`, $5.00\sigma$) at identical pooled weight error (`-25.585 dB`), yet collapses to **`0.69%`** (`0.025378 -> 0.025204`, $0.34\sigma$) once `+K10` keeps 10 loud columns per `ffn_down`.
 2. **Qwen2.5 4.5-bit Voronoi Reversal (`H11` Falsified):** Under `VH8Z32:16`, Qwen2.5 KL **worsens** by **`+7.03%`** (`0.043414 -> 0.046466`, $2.25\sigma$) with `+0.187 dB` weight-error degradation on `attn_k`, even while `HBG128` beats `EBG128` (`0.019549 -> 0.018875`).
@@ -67,7 +67,7 @@ For reference, an ergodic (isotropic) ray through $\mathbb{R}^8 / E_8$ has Conwa
 
 ---
 
-## 4. Exact-$\mathbb{Q}$ Empirical Decomposition (`bayan/charming-gates-jlas14 @ 51235fa7`)
+## 4. Exact-$\mathbb{Q}$ Empirical Decomposition (`51235fa7`)
 
 1. **Llama-3.2-1B `+K10` Collapse (`14.97x` relative gap collapse):**
    - Without `+K10`: `EBG128` (`40161/10^6`) vs `HBG128` (`36038/10^6`) $\Rightarrow$ exact relative drop **`4123/40161` (`10.266%`)**, $z^2 = 16999129/679901 \approx 25.00$ (`5.00σ`), while `stored_zero (<0.05 RMS)` is `59.69%` vs `84.51%`.
@@ -85,7 +85,7 @@ For reference, an ergodic (isotropic) ray through $\mathbb{R}^8 / E_8$ has Conwa
 
 ## 5. Cryptographically Pinned Gate-8 Pre-Registered Predictions (`G8-P1`..`G8-P4`)
 
-**Strict Temporal Lock:** Pinned to `Moissanite-Labs/siliquant` branch `bayan/charming-gates-jlas14` commit `51235fa753ecd32a15c9af0251560156e3bf440f` (`2026-11-22T23:06:57Z`, `13/15` scored rows landed). Every target below is **strictly unlanded / unrun** as of this commit, and can be scored pass/fail deterministically with zero hindsight via `e8had_anisotropy_oracle.evaluate_gate8_rows(rows)`:
+**Strict Temporal Lock:** Pinned to `Moissanite-Labs/siliquant` commit `51235fa753ecd32a15c9af0251560156e3bf440f` (`2026-11-22T23:06:57Z`, `13/15` scored rows landed). Every target below is **strictly unlanded / unrun** as of this commit, and can be scored pass/fail deterministically with zero hindsight via `e8had_anisotropy_oracle.evaluate_gate8_rows(rows)`:
 
 | ID | Target (Strictly Unlanded / Unrun at `51235fa7`) | Concrete Quantitative Pre-Registration (Exact Integer Micro-Units) | Falsification Criterion |
 |---|---|---|---|
