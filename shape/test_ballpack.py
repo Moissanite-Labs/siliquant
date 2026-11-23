@@ -257,6 +257,18 @@ class Format32(unittest.TestCase):
             rows, cols_ = struct.unpack_from("<II", good, at)
             refused(good[:at] + struct.pack("<II", rows, cols_ + 1) + good[at + 8:])   # a row the blocks do not tile
             refused(good[:at + 8] + bytes([4]) + good[at + 9:])                 # a flag this reader does not know
+            top_at = at + 9
+            colscale_at = top_at + 2
+            kept_at = colscale_at + 2 * cols_ + 4 + 4 * 2                     # after the weights and [3, 9]
+
+            def bad_float(where, value):
+                return good[:where] + struct.pack("<e", value) + good[where + 2:]
+
+            for value in (np.nan, np.inf, 0.0, -1.0):
+                refused(bad_float(top_at, value))                             # a scale the encoder cannot write
+                refused(bad_float(colscale_at, value))                        # a column weight the encoder cannot write
+            for value in (np.nan, np.inf, -np.inf):
+                refused(bad_float(kept_at, value))                            # a kept entry that is not finite
 
     def test_the_compiled_coder_is_loaded_from_a_directory_of_this_user_alone(self):
         d = ballpack._build_dir()
