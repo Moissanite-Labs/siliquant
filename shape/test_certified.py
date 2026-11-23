@@ -1,5 +1,7 @@
 """Tests of shape/certified.py and shape/check_certificate.py. Run from the root of a checkout: python3 -m unittest shape/test_certified.py"""
+import copy
 import importlib.util
+import json
 import math
 import sys
 import unittest
@@ -97,6 +99,61 @@ class TestExactFormula(unittest.TestCase):
         self.assertEqual(C.compare((F(3), 0), (F(3), 0)), 0)
 
 
+class TestBridgeReceipts(unittest.TestCase):
+    def setUp(self):
+        W = np.random.default_rng(21).standard_t(5, size=(16, 256)).astype(np.float32)
+        self.best, self.cert = C.pick(candidates(W, {32: 1 << 32, 128: 1 << 35}), budget=F(9, 2))
+
+    def test_boolean_pick_is_not_integer_zero(self):
+        one = {"budget": None, "candidates": [self.cert["candidates"][self.best]], "pick": 0}
+        self.assertEqual(K.check(one), [])
+        self.assertEqual(K.check_bound(one, K.certificate_sha256(one)), [])
+        for invalid in (False, 0.0, "0", None):
+            forged = dict(one, pick=invalid)
+            self.assertTrue(K.check(forged), invalid)
+
+    def test_receipt_digest_binds_the_whole_claim(self):
+        digest = K.certificate_sha256(self.cert)
+        self.assertRegex(digest, r"^[0-9a-f]{64}$")
+        reordered = {"pick": self.cert["pick"], "candidates": self.cert["candidates"], "budget": self.cert["budget"]}
+        self.assertEqual(K.certificate_sha256(reordered), digest)
+        self.assertEqual(K.check_bound(reordered, digest), [])
+        self.assertTrue(K.check_bound(self.cert, "0" * 64))
+        forged = copy.deepcopy(self.cert)
+        forged["candidates"][self.best]["codewords"] = str(int(forged["candidates"][self.best]["codewords"]) + 1)
+        self.assertNotEqual(K.certificate_sha256(forged), digest)
+        self.assertTrue(K.check_bound(forged, digest))
+
+    def test_malformed_bridge_inputs_fail_closed(self):
+        for path, value in ((("pick",), False), (("candidates", 0, "size"), True), (("candidates", 0, "codewords"), 1.5)):
+            forged = copy.deepcopy(self.cert)
+            target = forged
+            for key in path[:-1]:
+                target = target[key]
+            target[path[-1]] = value
+            self.assertTrue(K.check(forged), path)
+            self.assertTrue(K.check_bound(forged, "0" * 64), path)
+        self.assertTrue(K.check(dict(self.cert, unbound_evidence={})))
+        self.assertTrue(K.check_bound(self.cert, "not-a-digest"))
+
+    def test_real_g0_receipt_and_boolean_mutation(self):
+        path = HERE.parent / "experiments" / "shape-formula-held-out-2026-11-17" / "results.certificates.json"
+        cert = json.loads(path.read_text())["G/0"]
+        self.assertEqual(K.check(cert), [])
+        self.assertEqual(K.certificate_sha256(cert), "2afb503bedb75184ada25dbd3023d398655c48fb6257d4998d1a59cbd80be791")
+        one = dict(cert, candidates=[cert["candidates"][cert["pick"]]], pick=0)
+        self.assertEqual(K.check(one), [])
+        self.assertTrue(K.check(dict(one, pick=False)))
+
+    def test_negative_matrix_metadata_is_rejected(self):
+        one = {"budget": None, "candidates": [copy.deepcopy(self.cert["candidates"][self.best])], "pick": 0}
+        candidate = one["candidates"][0]
+        count = int(candidate["terms"]["count"])
+        candidate["size"] = -8
+        candidate["terms"]["groups"] = str(-count // 8)
+        self.assertTrue(K.check(one))
+
+
 class TestForAnyWeights(unittest.TestCase):
     def test_identities(self):
         self.assertTrue(K.identities())
@@ -173,6 +230,49 @@ class TestCountsTwice(unittest.TestCase):
                     self.assertEqual(table[radius], c.N, (cap, lattice, p))
                     bigger = [r for r in range(radius + 1, radius + 4) if table[r] > c.N]
                     self.assertTrue(bigger and table[bigger[0]] > cap, (cap, lattice, p))
+
+
+class TestReviewEdgeCases(unittest.TestCase):
+    def setUp(self):
+        W = np.random.default_rng(21).standard_t(5, size=(16, 256)).astype(np.float32)
+        self.best, self.cert = C.pick(candidates(W, {32: 1 << 32, 128: 1 << 35}), budget=F(9, 2))
+
+    def test_oversized_whole_numbers_return_findings(self):
+        huge_string = copy.deepcopy(self.cert)
+        huge_string["candidates"][0]["codewords"] = "9" * 5000
+        self.assertTrue(K.check(huge_string))
+        self.assertTrue(K.check_bound(huge_string, "0" * 64))
+
+        huge_int = copy.deepcopy(self.cert)
+        huge_int["candidates"][0]["terms"]["sum_sq"] = 10 ** 5000
+        self.assertTrue(K.check_bound(huge_int, "0" * 64))
+
+    def test_lone_surrogate_arm_is_a_finding(self):
+        forged = copy.deepcopy(self.cert)
+        forged["candidates"][0]["arm"] = "\ud800"
+        self.assertTrue(K.check(forged))
+        with self.assertRaises(ValueError):
+            K.certificate_sha256(forged)
+
+    def test_zero_cube_bound_is_rejected(self):
+        forged = copy.deepcopy(self.cert)
+        terms = forged["candidates"][self.best]["terms"]
+        for key in ("top_cube", "top_ball", "top_cross"):
+            terms[key] = "0"
+        self.assertTrue(any("cube bound" in finding for finding in K.check(forged)))
+
+    def test_mixed_integer_and_string_representations(self):
+        receipt = copy.deepcopy(self.cert)
+        candidate = receipt["candidates"][self.best]
+        candidate["codewords"] = str(int(candidate["codewords"]))
+        for key in ("count", "groups", "sum_sq", "top_cube", "top_ball", "top_cross"):
+            candidate["terms"][key] = str(int(candidate["terms"][key]))
+        self.assertEqual(K.check(receipt), [])
+
+    def test_huge_budget_numerator_fails_closed(self):
+        forged = copy.deepcopy(self.cert)
+        forged["budget"] = [10 ** 9, 2]
+        self.assertTrue(K.check(forged))
 
 
 if __name__ == "__main__":
