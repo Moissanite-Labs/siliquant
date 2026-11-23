@@ -1,0 +1,149 @@
+#!/usr/bin/env python3
+"""
+Track S21a (`AUDIT-121A`): Zone-B-Hardened Fail-Closed Certificate Auditor
+(`conformal_coxeter_audit.py`).
+
+Independently verifies canonical JSON bytes, symlink/ancestor safety, CR/CRLF
+rejection, UTF-8 + unpaired-surrogate rejection, pre-read size cap, strict
+Zone-B JSON parsing, constant-time 64-lowercase-ASCII-hex digest comparison
+BEFORE `hmac.compare_digest`, and exact standalone recomputation parity against
+`conformal_coxeter_oracle.py`.
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import os
+from pathlib import Path
+import sys
+from typing import Any
+
+_HERE = Path(__file__).resolve().parent
+if str(_HERE) not in sys.path:
+    sys.path.insert(0, str(_HERE))
+
+from conformal_coxeter_oracle import (  # noqa: E402
+    MAX_JSON_BYTES,
+    MAX_JSON_DEPTH,
+    ConformalError,
+    _require_valid_utf8_str,
+    canonical_json_bytes,
+    canonical_sha256,
+    constant_time_hex64_equal,
+    generate_certificate,
+    parse_strict_json_text,
+    require_hex64_ascii,
+    validate_cli_argv,
+)
+
+_EXPECTED_SCHEMA = "aletheia.track_s21a.conformal_coxeter_shells.v1"
+_REQUIRED_TOP_KEYS = frozenset({"schema", "payload_sha256", "certificate_sha256", "payload"})
+
+
+def require_no_symlink_path(path: Path) -> None:
+    if type(path) is not type(Path()):
+        raise ConformalError("INVALID_PATH_TYPE", "path must be strict concrete pathlib.Path")
+    raw_s = str(path)
+    _require_valid_utf8_str(raw_s, "path")
+    if "\x00" in raw_s:
+        raise ConformalError("INVALID_PATH_NUL", "NUL byte forbidden in path")
+    if path.is_symlink():
+        raise ConformalError("SYMLINK_FORBIDDEN", "symlink target path forbidden")
+    for parent in path.parents:
+        if parent.is_symlink():
+            raise ConformalError("SYMLINK_ANCESTOR_FORBIDDEN", "symlink ancestor directory forbidden")
+    if not path.is_absolute():
+        pwd_env = os.environ.get("PWD")
+        if pwd_env is not None and os.path.realpath(pwd_env) == os.path.realpath(os.getcwd()):
+            pwd_p = Path(pwd_env)
+            if pwd_p.is_symlink() or any(p.is_symlink() for p in pwd_p.parents):
+                raise ConformalError("SYMLINK_ANCESTOR_FORBIDDEN", "symlinked working directory forbidden")
+
+
+def verify_certificate_dict(cert: Any) -> dict[str, Any]:
+    if type(cert) is not dict:
+        raise ConformalError("INVALID_CERT_TYPE", "certificate must be strict dict")
+    if set(cert.keys()) != _REQUIRED_TOP_KEYS:
+        raise ConformalError("INVALID_CERT_KEYS", "certificate top-level keys mismatch")
+    if type(cert["schema"]) is not str or cert["schema"] != _EXPECTED_SCHEMA:
+        raise ConformalError("INVALID_SCHEMA", "unexpected certificate schema")
+    if type(cert["payload"]) is not dict:
+        raise ConformalError("INVALID_PAYLOAD_TYPE", "payload must be strict dict")
+
+    claimed_payload_sha = require_hex64_ascii(cert["payload_sha256"], "payload_sha256")
+    claimed_cert_sha = require_hex64_ascii(cert["certificate_sha256"], "certificate_sha256")
+
+    actual_payload_sha = canonical_sha256(cert["payload"])
+    if not constant_time_hex64_equal(actual_payload_sha, claimed_payload_sha, "payload_sha256"):
+        raise ConformalError("PAYLOAD_SHA_MISMATCH", "payload_sha256 mismatch")
+
+    cert_body = {
+        "schema": cert["schema"],
+        "payload_sha256": claimed_payload_sha,
+        "payload": cert["payload"],
+    }
+    actual_cert_sha = canonical_sha256(cert_body)
+    if not constant_time_hex64_equal(actual_cert_sha, claimed_cert_sha, "certificate_sha256"):
+        raise ConformalError("CERT_SHA_MISMATCH", "certificate_sha256 mismatch")
+
+    expected = generate_certificate()
+    if not constant_time_hex64_equal(actual_payload_sha, expected["payload_sha256"], "recompute_payload_sha256"):
+        raise ConformalError("RECOMPUTE_PAYLOAD_MISMATCH", "certificate payload diverges from standalone oracle")
+
+    return {
+        "valid": True,
+        "schema": _EXPECTED_SCHEMA,
+        "payload_sha256": actual_payload_sha,
+        "certificate_sha256": actual_cert_sha,
+    }
+
+
+def verify_certificate_file(path: Path) -> dict[str, Any]:
+    require_no_symlink_path(path)
+    if not path.is_file():
+        raise ConformalError("FILE_NOT_FOUND", "certificate file not found")
+    if path.stat().st_size > MAX_JSON_BYTES:
+        raise ConformalError("FILE_TOO_LARGE", f"certificate file exceeds {MAX_JSON_BYTES} bytes")
+    raw = path.read_bytes()
+    if b"\r" in raw:
+        raise ConformalError("CR_FORBIDDEN", "CR/CRLF line endings forbidden in certificate")
+    try:
+        text = raw.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise ConformalError("INVALID_UTF8", f"invalid UTF-8: {exc}") from exc
+    parsed = parse_strict_json_text(text, require_object=True, max_depth=MAX_JSON_DEPTH)
+    canonical_raw = canonical_json_bytes(parsed)
+    if raw not in (canonical_raw, canonical_raw + b"\n"):
+        raise ConformalError("NON_CANONICAL_BYTES", "certificate file is not canonical JSON")
+    res = verify_certificate_dict(parsed)
+    res["file_sha256"] = hashlib.sha256(raw).hexdigest()
+    return res
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Track S21a fail-closed certificate auditor")
+    parser.add_argument("--check", type=str, default=None, help="Verify canonical certificate JSON file")
+    parser.add_argument("--standalone", action="store_true", help="Audit freshly generated standalone certificate")
+    parser.add_argument("--json", action="store_true", help="Emit canonical JSON audit verdict")
+    try:
+        checked_argv = validate_cli_argv(argv)
+        args = parser.parse_args(checked_argv)
+        if args.check is not None:
+            res = verify_certificate_file(Path(args.check))
+        else:
+            res = verify_certificate_dict(generate_certificate())
+    except ConformalError as exc:
+        sys.stderr.write(f"FAIL {exc.code}: {exc.message}\n")
+        return 1
+    if args.json:
+        sys.stdout.write(canonical_json_bytes(res).decode("ascii") + "\n")
+        return 0
+    print(
+        f"OK TRACK-S21A-AUDIT payload_sha256={res['payload_sha256']} "
+        f"certificate_sha256={res['certificate_sha256']}"
+    )
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
