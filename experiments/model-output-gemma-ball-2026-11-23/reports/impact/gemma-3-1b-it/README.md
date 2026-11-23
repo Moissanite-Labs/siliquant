@@ -78,11 +78,10 @@ are supplied. The raw runner's F16 PPL fields supply the baselines below.
 
 ![Mean KL against F16 versus reported block bpw, two texts](KL_VS_BPW.png)
 
-From the experiment directory after fetching the pinned commit as described
-in the [results receipts](../RESULTS_RECEIPTS.md):
+From the experiment directory, extract the pinned JSONL with the
+[results receipts recipe](../RESULTS_RECEIPTS.md), then run:
 
 ```sh
-git show 964b5f4:experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-1b-it/results.jsonl > 1b-results.jsonl
 python3 -I -B analyze.py 1b-results.jsonl --model gemma-3-1b-it \
   --f16-wikitext 27.164816 --f16-python 6.467454
 python3 -B plot_impact.py 1b-results.jsonl --model gemma-3-1b-it \

@@ -129,11 +129,10 @@ other model sizes, samples, random seeds or serving stacks.
 
 ![Mean KL against F16 versus reported block bpw, two texts](KL_VS_BPW.png)
 
-Reproduce from the experiment directory after fetching the pinned commit
-as described in the [results receipts](../RESULTS_RECEIPTS.md):
+From the experiment directory, extract the pinned JSONL with the
+[results receipts recipe](../RESULTS_RECEIPTS.md), then run:
 
 ```sh
-git show 964b5f4:experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-270m-it/results.jsonl > 270m-results.jsonl
 python3 -I -B analyze.py 270m-results.jsonl --model gemma-3-270m-it \
   --f16-wikitext 50.594102 --f16-python 8.38385
 python3 -B plot_impact.py 270m-results.jsonl --model gemma-3-270m-it \

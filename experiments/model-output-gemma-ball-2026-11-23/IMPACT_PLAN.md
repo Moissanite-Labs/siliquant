@@ -99,7 +99,9 @@ giving priority to resolving gaps that block a deployment claim.
 ## 2026-11-23 post-data amendment: raw 270M replay and Gemma 1B
 
 Written after the 1B headline handoff but before computing our 1B
-impact estimates. Pin the four result blobs at `964b5f4`. Hash each;
+impact estimates. The original replay pinned the four result blobs at
+`964b5f4`; use the [current results receipts](reports/impact/RESULTS_RECEIPTS.md)
+to retrieve the same bytes. Hash each;
 check the prior 270M receipts and embedded reference/text identifiers,
 distinguishing recorded identifiers from independent artifact hashes.
 Reconcile every transcribed cell with the strict JSONL parse, separating

@@ -1,13 +1,13 @@
 # Gemma runner output receipts
 
-Pinned to results commit `964b5f4ac988cac176ee4a5825ad1575430a56ab`.
+Pinned to results commit `90a3247dc9bb70ca3afa0f13627ec4b569c73317`.
 SHA-256 was computed over the Git blob bytes, with no newline normalization.
 
 From the experiment directory in a clone with the repository as `origin`,
 fetch the pinned commit and extract the JSONL blobs for replay:
 
 ```sh
-pin=964b5f4ac988cac176ee4a5825ad1575430a56ab
+pin=90a3247dc9bb70ca3afa0f13627ec4b569c73317
 git fetch origin "$pin" &&
 git show "$pin:experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-270m-it/results.jsonl" > 270m-results.jsonl &&
 git show "$pin:experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-1b-it/results.jsonl" > 1b-results.jsonl
@@ -15,10 +15,10 @@ git show "$pin:experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-1b-it/
 
 | Model | Pinned result | SHA-256 | Check |
 |---|---|---|---|
-| 270M | [results.jsonl](https://github.com/Moissanite-Labs/siliquant/blob/964b5f4ac988cac176ee4a5825ad1575430a56ab/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-270m-it/results.jsonl) | `dafe50f93262be5628b97a83b915a0f65aa4eaa52f09b1b9bfd36381c4b34a83` | Matches forwarded receipt |
-| 270M | [results.out](https://github.com/Moissanite-Labs/siliquant/blob/964b5f4ac988cac176ee4a5825ad1575430a56ab/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-270m-it/results.out) | `4c31bb3b85082db734887b4899bc3e5781c4ec835a20f89ba15cc919c22520b5` | Matches forwarded receipt |
-| 1B | [results.jsonl](https://github.com/Moissanite-Labs/siliquant/blob/964b5f4ac988cac176ee4a5825ad1575430a56ab/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-1b-it/results.jsonl) | `040717b2d9c24d47e64fcc3b41156a375d651f180cd7b9f558ec603c60f7733f` | Computed from pinned blob; no separately supplied digest |
-| 1B | [results.out](https://github.com/Moissanite-Labs/siliquant/blob/964b5f4ac988cac176ee4a5825ad1575430a56ab/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-1b-it/results.out) | `aeea9b43446c4f62bb924aaf706f555d47ba498855cc1372546c64de1468429b` | Computed from pinned blob; no separately supplied digest |
+| 270M | [results.jsonl](https://github.com/Moissanite-Labs/siliquant/blob/90a3247dc9bb70ca3afa0f13627ec4b569c73317/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-270m-it/results.jsonl) | `dafe50f93262be5628b97a83b915a0f65aa4eaa52f09b1b9bfd36381c4b34a83` | Matches forwarded receipt |
+| 270M | [results.out](https://github.com/Moissanite-Labs/siliquant/blob/90a3247dc9bb70ca3afa0f13627ec4b569c73317/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-270m-it/results.out) | `4c31bb3b85082db734887b4899bc3e5781c4ec835a20f89ba15cc919c22520b5` | Matches forwarded receipt |
+| 1B | [results.jsonl](https://github.com/Moissanite-Labs/siliquant/blob/90a3247dc9bb70ca3afa0f13627ec4b569c73317/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-1b-it/results.jsonl) | `040717b2d9c24d47e64fcc3b41156a375d651f180cd7b9f558ec603c60f7733f` | Computed from pinned blob; no separately supplied digest |
+| 1B | [results.out](https://github.com/Moissanite-Labs/siliquant/blob/90a3247dc9bb70ca3afa0f13627ec4b569c73317/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-1b-it/results.out) | `aeea9b43446c4f62bb924aaf706f555d47ba498855cc1372546c64de1468429b` | Computed from pinned blob; no separately supplied digest |
 
 Both JSONLs passed the strict parser: 34 unique headline rows each, 17
 arms on each of two texts, no reported errors. The 270M transcription's

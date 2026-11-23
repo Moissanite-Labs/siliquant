@@ -68,8 +68,8 @@ Different model families, texts or text windows, runner builds, rate overheads, 
 
 ## Pinned source records
 
-[G]: https://github.com/Moissanite-Labs/siliquant/blob/964b5f4ac988cac176ee4a5825ad1575430a56ab/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-270m-it/results.jsonl
-[I]: https://github.com/Moissanite-Labs/siliquant/blob/964b5f4ac988cac176ee4a5825ad1575430a56ab/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-1b-it/results.jsonl
+[G]: https://github.com/Moissanite-Labs/siliquant/blob/90a3247dc9bb70ca3afa0f13627ec4b569c73317/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-270m-it/results.jsonl
+[I]: https://github.com/Moissanite-Labs/siliquant/blob/90a3247dc9bb70ca3afa0f13627ec4b569c73317/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-1b-it/results.jsonl
 [L]: https://github.com/Moissanite-Labs/siliquant/blob/15383d5b0c44da1ed1271bd46f54b2b8934d6ba0/experiments/third-model-llama32-2026-11-18/results.out
 [Q]: https://github.com/Moissanite-Labs/siliquant/blob/b522426596e9a874f22a84f2427e80238caacc6c/experiments/model-output-qwen25-2026-11-17/results.out
 [S]: https://github.com/Moissanite-Labs/siliquant/blob/63dfd5254271d712dabe0c88346ea01fc14a9b31/experiments/model-output-smollm2-2026-11-17/results.out
