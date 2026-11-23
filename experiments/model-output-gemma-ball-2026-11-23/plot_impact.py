@@ -22,13 +22,15 @@ def main():
     fig, axes = plt.subplots(1, 2, figsize=(10.5, 4.6), sharey=True, layout="constrained")
     for ax, text, title in zip(axes, TEXTS, ("Wikitext-2", "Python")):
         cells = select(rows, args.model, text)
-        for (family, arms), color in zip(FAMILIES, ("#056a90", "#96334f")):
+        for (_, arms), color, label in zip(
+                FAMILIES, ("#056a90", "#96334f"),
+                ("Ours: plain ball", "Ours: calibrated ball (real-text imatrix)")):
             points = [(float(cells[a]["bits_per_weight"]), float(cells[a]["kl_mean"]))
                       for a in arms if a in cells]
             if points:
-                ax.plot(*zip(*points), marker="o", linewidth=2, color=color, label=family)
+                ax.plot(*zip(*points), marker="o", linewidth=2, color=color, label=label)
         for arm, shape, label in zip((Q4, Q4KM, Q4IMAT), ("s", "^", "D"),
-                                      ("Q4_0", "Q4_K_M", "Q4_K_M + imatrix")):
+                                      ("Stock: Q4_0", "Stock: Q4_K_M", "Stock: Q4_K_M + imatrix")):
             if arm in cells:
                 r = cells[arm]
                 ax.scatter(float(r["bits_per_weight"]), float(r["kl_mean"]),
