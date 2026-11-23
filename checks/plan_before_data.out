@@ -6,7 +6,7 @@ bit-split-held-out-qwen25-2026-11-18 | 4ce900b | 0 | 07c66d9 | yes | 0 | 0 | 0 |
 clip-by-layer-qwen25-2026-11-18 | 4ce900b | 1 | 681972b | yes | 0 | 0 | 0 | 0 of 0 | 0
 clip-by-layer-smollm2-2026-11-18 | a6598fa | 2 | edbf5bb | yes | 0 | 0 | 0 | 0 of 0 | 0
 e8-gain-largest-entry-rule-2026-11-17 | 61c552b | 0 | affbdfd | yes | 0 | 0 | 0 | 0 of 0 | 1
-e8-hadamard-real-weights-2026-11-22 | 3f21683 | 0 | none yet | yes | 1 | 0 | 0 | 0 of 0 | 0
+e8-hadamard-real-weights-2026-11-22 | 3f21683 | 0 | 54a9434 | yes | 1 | 0 | 0 | 0 of 0 | 0
 fold-path-codebooks-2026-11-17 | cae753e | 0 | cda52eb | yes | 0 | 1 | 1 | 1 of 1 | 0
 imatrix-baseline-2026-11-17 | 86a18b5 | 0 | ee48f57 | yes | 0 | 2 | 2 | 2 of 2 | 2
 imatrix-gain-parts-2026-11-18 | 453d907 | 1 | 0cdc5f4 | yes | 0 | 2 | 2 | 2 of 2 | 6

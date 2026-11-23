@@ -61,7 +61,7 @@ The conventions are those of [weft-loom's CONTRIBUTING.md](https://github.com/Mo
 
 ## Status
 
-Twenty-three studies so far. The newest results are at the end of this section. The last of them changes how the earlier ones should be read: the lead of the ball arm with no data and no kept columns holds on two models of three.
+Twenty-four studies so far. The newest results are at the end of this section. The last of them changes how the earlier ones should be read: the lead of the ball arm with no data and no kept columns holds on two models of three.
 
 The first measured weight error only: at 2 bits per weight the lattice E8 beats scalar rounding on every matrix tried, and the lattice the starting briefs proposed, A8\*, gains less than half as much in the mean of each family of data.
 
@@ -183,6 +183,11 @@ The twenty-third, of 2026-11-19, gives that arm a file. The packed format of the
 - **A file of 4.5 bits a weight, made from the weights alone, is ahead of `Q4_K_M` at 4.8 bits with no matrix on all three models**: mean KL 0.0247 against 0.0333, 0.0581 against 0.0838 and 0.0340 against 0.0432, which is 10.2, 13.5 and 11.9 errors. No data is read and the model is never run. Each file was read back from disk bit for bit.
 - **On Llama-3.2 the kept columns are what the file needs**: 0.0519 without them, 9.0 errors behind `Q4_K_M`, and 0.0340 with them. On the other two models they cost nothing.
 - It is not ahead of `Q4_K_M` made with an importance matrix on SmolLM2. And no engine reads the file: it is decoded to floats first.
+
+The twenty-fourth, of 2026-11-23, runs the proposal of draft pull request 24 on real weights: E8 turned by a Hadamard matrix of order 8.
+
+- **At 4.5 bits with no data the turned lattice is the lowest arm, or within 2 errors of it, on all three models, and ahead of `Q4_K_M` on all three**: mean KL 0.018875, 0.051522 and 0.036038 against 0.033348, 0.083761 and 0.043179. On SmolLM2 it is 5.4 errors under plain E8 and 3.0 under integer levels, with the weight error unchanged: it stores 85.9 percent of the smallest weights as zero where E8 stores 60.7.
+- **At 3.0 bits there is no single winner**, and in a Voronoi code turning helps on one model, hurts on the other and does not reach `Q4_K_M`. No E8 arm has a file or a decoder yet.
 
 ## Licence
 
