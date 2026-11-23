@@ -53,21 +53,32 @@ def closest_E8(x):
 
 
 class Code:
-    """The Voronoi code L / qL with the centre and the offset of the reference code."""
+    """The Voronoi code L / qL with optional mean-zero centring (Issue #16).
+
+    With ``centred=True`` (the historical default used by the gemma record),
+    ``self.centre`` is the codebook centroid from ``lattice.codebook_centroid``
+    and zero is not a codeword. With ``centred=False``, ``self.centre`` is the
+    zero vector so ``0`` remains an exact codeword of the Voronoi codebook.
+    """
 
     _cache = {}
 
-    def __new__(cls, name, q):
-        key = (name, q)
+    def __new__(cls, name, q, centred=True):
+        if type(centred) is not bool:
+            raise TypeError("centred must be a bool")
+        if type(q) is not int or q < 2:
+            raise ValueError("q must be an integer >= 2")
+        key = (name, q, centred)
         if key not in cls._cache:
             self = super().__new__(cls)
             lat = {"Z8": L.Zn(8), "E8": L.E8()}[name]
             f32 = dict(dtype=torch.float32, device=DEV)
-            self.name, self.q, self.volume = name, q, lat.volume
+            self.name, self.q, self.volume, self.centred = name, q, lat.volume, centred
             self.G = torch.tensor(lat.G, **f32)
             self.Ginv = torch.tensor(lat.Ginv, **f32)
             self.a = torch.tensor(L.default_offset(8), **f32)
-            self.centre = torch.tensor(L.codebook_centroid(lat, q), **f32)
+            centre = L.codebook_centroid(lat, q) if centred else np.zeros(8, dtype=np.float64)
+            self.centre = torch.tensor(centre, **f32)
             self.closest = {"Z8": closest_Z, "E8": closest_E8}[name]
             cls._cache[key] = self
         return cls._cache[key]
@@ -286,7 +297,7 @@ def maxscale_round_sbit(W, q, group, bits):
     return _finish(W, Wh, over, math.log2(q) + bits / size + 16.0 / n, {"scale_ok": bool(np.all(s >= a))})
 
 
-def maxscale_voronoi(W, q, group, name="E8", steps=14):
+def maxscale_voronoi(W, q, group, name="E8", steps=14, centred=True):
     """A Voronoi code with one scale per group of weights and nothing shrunk: the lattice form of maxscale_round.
 
     Each block of 8 has a smallest scale at which it lies inside the code's region (its nearest
@@ -295,8 +306,10 @@ def maxscale_voronoi(W, q, group, name="E8", steps=14):
     inside the ball of its covering radius times q. A group takes the largest of its blocks'
     scales, so no block of the group is shrunk. group is a number of consecutive weights in a row
     (a multiple of 8) or "R" for a row. The scale is counted at 16 bits per group.
+    With ``centred=False`` (Issue #16), the codebook centre is zero so ``0`` is an exact codeword;
+    ``centred=True`` preserves the historical mean-zero shifted codebook used by the gemma record.
     """
-    code = Code(name, q)
+    code = Code(name, q, centred=centred)
     m, n = W.shape
     Wt = torch.from_numpy(np.ascontiguousarray(W)).to(DEV)
     size = n if group == "R" else int(group)
@@ -346,7 +359,7 @@ def path_scales(Wt, row_w, col_w, iters=4):
     return torch.sqrt(d2).float().to(Wt.device), torch.sqrt(e2).float().to(Wt.device), rw, cw
 
 
-def round_matrix(W, arm, q, seed=0, sample=SAMPLE_BLOCKS, row_w=None, col_w=None, row_power=None):
+def round_matrix(W, arm, q, seed=0, sample=SAMPLE_BLOCKS, row_w=None, col_w=None, row_power=None, centred=True):
     """Round one matrix (NumPy float32, entries a multiple of 8) with one arm at q levels per weight.
 
     Arms: "S" scalar, "Z8", "E8", each with an optional prefix: "D+" rows and columns balanced,
@@ -355,8 +368,11 @@ def round_matrix(W, arm, q, seed=0, sample=SAMPLE_BLOCKS, row_w=None, col_w=None
     with weights row_w[i] * col_w[j] (see path_scales) and searches the step on that weighted error.
     With row_power p and prefix "R+", rows are divided by their standard deviation to the power p.
     "B32+" gives each block of 32 consecutive weights in a row its own scale (its root mean square).
+    For lattice arms ("Z8", "E8"), ``centred=False`` keeps zero as an exact codeword (Issue #16).
     Returns (the rounded matrix as float16, a dict of what happened).
     """
+    if type(centred) is not bool:
+        raise TypeError("centred must be a bool")
     prefix, base = (arm[:2], arm[2:]) if arm[:2] in ("D+", "R+", "C+", "P+") else ("", arm)
     blk = re.match(r"^B(\d+)\+(.*)$", arm)
     if blk:
@@ -420,7 +436,7 @@ def round_matrix(W, arm, q, seed=0, sample=SAMPLE_BLOCKS, row_w=None, col_w=None
         def rec(x, tt):
             return scalar_round(x, q, tt), None
     else:
-        code = Code(base, q)
+        code = Code(base, q, centred=centred)
         t0 = t0 / code.volume ** (1.0 / 8.0)
 
         def rec(x, tt):
