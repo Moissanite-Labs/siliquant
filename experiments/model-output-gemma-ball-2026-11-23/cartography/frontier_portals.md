@@ -23,3 +23,13 @@ To revisit the opportunity, measure the exact same baseline and candidate
 on independent hardened serving kernels, record effective bandwidth and
 TTFT/TPOT under matched traffic, and rerun the scenario using those
 measurements rather than the peak bandwidth assumption.
+
+## Portal 3 — Test transfer without changing the reference
+
+The [cross-model comparison](../reports/impact/CROSS_MODEL_TRANSFER.md)
+finds no matched F16 evidence at 7B scale. A Q8-reference E4B comparison
+cannot close that gap. Re-enter the runner outputs at Gemma 1B and then
+at 7B-class scale: keep the same text and F16 reference across arms,
+bracket calibrated stock KL, and retain the raw receipts and packed
+bytes. At 1B, check whether the 270M Python b560 loss reverses at b624
+again before choosing which rate to benchmark.

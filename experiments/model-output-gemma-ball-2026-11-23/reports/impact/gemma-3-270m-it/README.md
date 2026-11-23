@@ -24,6 +24,14 @@ bandwidth efficiency. The evidence is a rounded 270M transcription, two
 texts, and a single stated calibration seed; verify the raw receipts and
 repeat at 1B and 7B+ before any external numerical claim.
 
+The [cross-model read](../CROSS_MODEL_TRANSFER.md) finds plain-ball wins
+against Q4_0 near 4.5 bpw in all available comparisons on Gemma 270M, Qwen
+1.5B, and SmolLM2 1.7B (KL ratios 0.365–0.440), but no established size
+trend. Llama 1B supports the calibrated comparison, not the Q4_0
+comparison; historical Gemma E4B is Q8-reference context only. Prioritize
+matched F16 runs at 1B and 7B-class scale and packed decode before modeling
+any production gain as expected.
+
 ## What matters and what to do
 
 Numbers in [the complete impact tables](IMPACT_TABLES.md) are per text.
@@ -75,8 +83,11 @@ This is a disclosure flag, not legal advice.
 The [scenario table](IMPACT_TABLES.md#illustrative-deployment-scenarios)
 anchors on the smaller measured-text match (0.7776 block bpw); 7B / 27B /
 70B parameter counts, 70% / 85% / 95% quantized coverage, and 25% / 50% /
-100% transfer are **scenario inputs**, not observations from any serving operator. For each
-scenario, weight bytes are parameters × [covered fraction × effective bpw
+100% transfer are **scenario inputs**, not observations from any serving operator. Historical
+comparisons do not constrain those percentages; at 0% transfer the
+model gives zero savings, and real runtime regressions could make net
+savings negative. For each scenario, weight bytes are parameters ×
+[covered fraction × effective bpw
 + uncovered fraction × 16] ÷ 8. Resident bytes add 20 GB of assumed KV and
 workspace, and batch-one traffic adds a fixed 20% of baseline weight bytes.
 [NVIDIA H200](https://www.nvidia.com/en-us/data-center/h200/) specifies
