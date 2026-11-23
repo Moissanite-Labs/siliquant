@@ -1,0 +1,514 @@
+{
+  "generated_from": "scripts/build_site.py",
+  "headline_gemma_e8": {
+    "model": "gemma-4-E4B-it",
+    "variant": "VE832:16",
+    "kl_mean": 0.074728,
+    "bits_per_weight": 4.5,
+    "scalar_kl_mean": 0.117297,
+    "scalar_variant": "X32:16",
+    "q4km_kl_mean": 0.068869
+  },
+  "headline_integer_ball": [
+    {
+      "model": "Qwen2.5-1.5B-Instruct",
+      "variant": "hZBG128:b560s16",
+      "kl_mean": 0.020898,
+      "bits_per_weight": 4.506011288896256,
+      "q4km_kl_mean": 0.033348
+    },
+    {
+      "model": "SmolLM2-1.7B-Instruct",
+      "variant": "hZBG128:b560s16",
+      "kl_mean": 0.028205,
+      "bits_per_weight": 4.504679115401857,
+      "q4km_kl_mean": 0.083761
+    },
+    {
+      "model": "Llama-3.2-1B-Instruct",
+      "variant": "hZBG128:b560s16",
+      "kl_mean": 0.024224,
+      "bits_per_weight": 4.505184233936341,
+      "q4km_kl_mean": 0.043179
+    }
+  ],
+  "headline_packed_file": [
+    {
+      "model": "Qwen2.5-1.5B-Instruct",
+      "variant": "PZ32:b136s8",
+      "kl_mean": 0.024517,
+      "bits_per_weight": 4.500040604620755
+    },
+    {
+      "model": "SmolLM2-1.7B-Instruct",
+      "variant": "PZ32:b136s8",
+      "kl_mean": 0.058855,
+      "bits_per_weight": 4.500028262535731
+    }
+  ],
+  "roofline": {
+    "source": "studies/expedition-siliquant-bridges-audit103r2/SILIQUANT_BRIDGE_REPORT.md",
+    "bandwidth_bytes_per_sec": 819000000000,
+    "basis": "Part E exact rational arithmetic, TPU v5e, weight-only batch-1. No kernel was measured.",
+    "formats": {
+      "FP16": {
+        "bpw": 16.0,
+        "qwen_ceiling_tok_s": 265.269292,
+        "gemma_ceiling_tok_s": 102.375
+      },
+      "Q4_K_M": {
+        "bpw": 4.8,
+        "qwen_ceiling_tok_s": 884.230972,
+        "gemma_ceiling_tok_s": 341.25
+      },
+      "ZBG128:b560s16": {
+        "bpw": 4.5,
+        "qwen_ceiling_tok_s": 943.179704,
+        "gemma_ceiling_tok_s": 364.0
+      },
+      "E8_Had": {
+        "bpw": 4.47,
+        "qwen_ceiling_tok_s": 949.509769,
+        "gemma_ceiling_tok_s": 366.442953
+      },
+      "INT4 (raw floor)": {
+        "bpw": 4.0,
+        "qwen_ceiling_tok_s": 1061.077167,
+        "gemma_ceiling_tok_s": 409.5
+      }
+    }
+  },
+  "experiments": [
+    {
+      "name": "ball-dimension-no-clip-rule-2026-11-17",
+      "title": "A ball over more than 8 weights, under the rule that clips nothing",
+      "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/ball-dimension-no-clip-rule-2026-11-17",
+      "has_readme": true,
+      "has_prereg": true,
+      "prereg_files": [
+        "PREREG.md"
+      ],
+      "has_results": true,
+      "has_results_out": true,
+      "has_results_jsonl": false
+    },
+    {
+      "name": "bit-split-held-out-qwen25-2026-11-18",
+      "title": "Bits split by kind of matrix, fitted on one text and scored on another",
+      "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/bit-split-held-out-qwen25-2026-11-18",
+      "has_readme": true,
+      "has_prereg": true,
+      "prereg_files": [
+        "PREREG.md"
+      ],
+      "has_results": true,
+      "has_results_out": true,
+      "has_results_jsonl": true
+    },
+    {
+      "name": "clip-by-layer-qwen25-2026-11-18",
+      "title": "The clip of `ffn_down` on each layer of Qwen2.5 alone",
+      "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/clip-by-layer-qwen25-2026-11-18",
+      "has_readme": true,
+      "has_prereg": true,
+      "prereg_files": [
+        "PREREG.md"
+      ],
+      "has_results": true,
+      "has_results_out": true,
+      "has_results_jsonl": true
+    },
+    {
+      "name": "clip-by-layer-smollm2-2026-11-18",
+      "title": "The clip of `ffn_down` on each layer of SmolLM2 alone",
+      "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/clip-by-layer-smollm2-2026-11-18",
+      "has_readme": true,
+      "has_prereg": true,
+      "prereg_files": [
+        "PREREG.md"
+      ],
+      "has_results": true,
+      "has_results_out": true,
+      "has_results_jsonl": true
+    },
+    {
+      "name": "e8-gain-largest-entry-rule-2026-11-17",
+      "title": "Why E8 gains more than its cell is worth under the largest-entry rule",
+      "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/e8-gain-largest-entry-rule-2026-11-17",
+      "has_readme": true,
+      "has_prereg": true,
+      "prereg_files": [
+        "PREREG.md"
+      ],
+      "has_results": true,
+      "has_results_out": true,
+      "has_results_jsonl": false
+    },
+    {
+      "name": "fold-path-codebooks-2026-11-17",
+      "title": "The fold as a path of codebooks over 3 weights",
+      "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/fold-path-codebooks-2026-11-17",
+      "has_readme": true,
+      "has_prereg": true,
+      "prereg_files": [
+        "PREREG.md"
+      ],
+      "has_results": true,
+      "has_results_out": true,
+      "has_results_jsonl": false
+    },
+    {
+      "name": "imatrix-baseline-2026-11-17",
+      "title": "llama.cpp's files made with an importance matrix, beside the ball arms",
+      "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/imatrix-baseline-2026-11-17",
+      "has_readme": true,
+      "has_prereg": true,
+      "prereg_files": [
+        "PREREG.md"
+      ],
+      "has_results": true,
+      "has_results_out": true,
+      "has_results_jsonl": true
+    },
+    {
+      "name": "imatrix-gain-parts-2026-11-18",
+      "title": "What the gain of an importance matrix is made of",
+      "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/imatrix-gain-parts-2026-11-18",
+      "has_readme": true,
+      "has_prereg": true,
+      "prereg_files": [
+        "PREREG.md"
+      ],
+      "has_results": true,
+      "has_results_out": true,
+      "has_results_jsonl": true
+    },
+    {
+      "name": "incentre-vortex-codebooks-2026-11-17",
+      "title": "The codebooks proposed in PR #6 against scalar rounding and E8 at equal bits per weight",
+      "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/incentre-vortex-codebooks-2026-11-17",
+      "has_readme": true,
+      "has_prereg": true,
+      "prereg_files": [
+        "PREREG.md"
+      ],
+      "has_results": true,
+      "has_results_out": true,
+      "has_results_jsonl": false
+    },
+    {
+      "name": "lattice-split-smollm2-2026-11-17",
+      "title": "What in E8's error costs SmolLM2 more than its size",
+      "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/lattice-split-smollm2-2026-11-17",
+      "has_readme": true,
+      "has_prereg": true,
+      "prereg_files": [
+        "PREREG-extension-1.md",
+        "PREREG-extension-2.md",
+        "PREREG-extension-3.md",
+        "PREREG.md"
+      ],
+      "has_results": true,
+      "has_results_out": true,
+      "has_results_jsonl": true
+    },
+    {
+      "name": "lattice-vs-scalar-rounding-2026-11-15",
+      "title": "Lattice rounding against scalar rounding at equal bits per weight",
+      "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/lattice-vs-scalar-rounding-2026-11-15",
+      "has_readme": true,
+      "has_prereg": true,
+      "prereg_files": [
+        "PREREG.md"
+      ],
+      "has_results": true,
+      "has_results_out": true,
+      "has_results_jsonl": false
+    },
+    {
+      "name": "loud-columns-2026-11-18",
+      "title": "The loud columns of `ffn_down`",
+      "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/loud-columns-2026-11-18",
+      "has_readme": true,
+      "has_prereg": true,
+      "prereg_files": [
+        "PREREG.md"
+      ],
+      "has_results": true,
+      "has_results_out": true,
+      "has_results_jsonl": true
+    },
+    {
+      "name": "mmlu-subset-2026-11-18",
+      "title": "A subset of MMLU, for the arms of issue #14",
+      "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/mmlu-subset-2026-11-18",
+      "has_readme": true,
+      "has_prereg": true,
+      "prereg_files": [
+        "PREREG.md"
+      ],
+      "has_results": true,
+      "has_results_out": true,
+      "has_results_jsonl": true
+    },
+    {
+      "name": "model-output-gemma-e4b-2026-11-15",
+      "title": "Rounding a real model: what its output follows",
+      "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/model-output-gemma-e4b-2026-11-15",
+      "has_readme": true,
+      "has_prereg": true,
+      "prereg_files": [
+        "PREREG.md"
+      ],
+      "has_results": true,
+      "has_results_out": true,
+      "has_results_jsonl": true
+    },
+    {
+      "name": "model-output-qwen25-2026-11-17",
+      "title": "The E8 result on a second model and text, and one ball per group on a model's output",
+      "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/model-output-qwen25-2026-11-17",
+      "has_readme": true,
+      "has_prereg": true,
+      "prereg_files": [
+        "PREREG-arms.md",
+        "PREREG.md"
+      ],
+      "has_results": true,
+      "has_results_out": true,
+      "has_results_jsonl": true
+    },
+    {
+      "name": "model-output-smollm2-2026-11-17",
+      "title": "The ball arms and the zero codeword on a third model",
+      "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/model-output-smollm2-2026-11-17",
+      "has_readme": true,
+      "has_prereg": true,
+      "prereg_files": [
+        "PREREG.md"
+      ],
+      "has_results": true,
+      "has_results_out": true,
+      "has_results_jsonl": true
+    },
+    {
+      "name": "output-budget-gemma-e4b-2026-11-17",
+      "title": "Where the bits and the damage go on a real model's output",
+      "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/output-budget-gemma-e4b-2026-11-17",
+      "has_readme": true,
+      "has_prereg": true,
+      "prereg_files": [
+        "PREREG-extension-1.md",
+        "PREREG-extension-2.md",
+        "PREREG.md"
+      ],
+      "has_results": true,
+      "has_results_out": true,
+      "has_results_jsonl": true
+    },
+    {
+      "name": "packed-ball-format-2026-11-18",
+      "title": "A packed file for the integer ball arm, and the model read back from it",
+      "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/packed-ball-format-2026-11-18",
+      "has_readme": true,
+      "has_prereg": true,
+      "prereg_files": [
+        "PREREG.md"
+      ],
+      "has_results": true,
+      "has_results_out": true,
+      "has_results_jsonl": true
+    },
+    {
+      "name": "packed-kept-columns-2026-11-19",
+      "title": "The arm with kept columns, as a file",
+      "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/packed-kept-columns-2026-11-19",
+      "has_readme": true,
+      "has_prereg": true,
+      "prereg_files": [
+        "PREREG.md"
+      ],
+      "has_results": true,
+      "has_results_out": true,
+      "has_results_jsonl": true
+    },
+    {
+      "name": "region-shapes-no-clip-rule-2026-11-17",
+      "title": "Codebooks cut from a lattice by a ball or a cross-polytope, under the rule that clips nothing",
+      "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/region-shapes-no-clip-rule-2026-11-17",
+      "has_readme": true,
+      "has_prereg": true,
+      "prereg_files": [
+        "PREREG.md"
+      ],
+      "has_results": true,
+      "has_results_out": true,
+      "has_results_jsonl": false
+    },
+    {
+      "name": "second-text-python-2026-11-18",
+      "title": "The headline comparisons on a second text",
+      "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/second-text-python-2026-11-18",
+      "has_readme": true,
+      "has_prereg": true,
+      "prereg_files": [
+        "PREREG.md"
+      ],
+      "has_results": true,
+      "has_results_out": true,
+      "has_results_jsonl": true
+    },
+    {
+      "name": "shape-formula-held-out-2026-11-17",
+      "title": "The formula of issue #10, on matrices no codebook had been run on",
+      "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/shape-formula-held-out-2026-11-17",
+      "has_readme": true,
+      "has_prereg": true,
+      "prereg_files": [
+        "PREREG-extension-1.md",
+        "PREREG.md"
+      ],
+      "has_results": true,
+      "has_results_out": true,
+      "has_results_jsonl": false
+    },
+    {
+      "name": "third-model-llama32-2026-11-18",
+      "title": "A third model: Llama-3.2-1B-Instruct",
+      "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/third-model-llama32-2026-11-18",
+      "has_readme": true,
+      "has_prereg": true,
+      "prereg_files": [
+        "PREREG.md"
+      ],
+      "has_results": false,
+      "has_results_out": true,
+      "has_results_jsonl": false
+    }
+  ],
+  "open_prs": [
+    {
+      "number": 53,
+      "title": "Add the Gemma 270M and 1B round to the results report",
+      "head_ref": "devin/1795440250-results-gemma-round",
+      "url": "https://github.com/Moissanite-Labs/siliquant/pull/53",
+      "summary": "## Summary"
+    },
+    {
+      "number": 52,
+      "title": "Publish quantisation results as the Pages homepage and a PDF",
+      "head_ref": "devin/1795438945-results-site",
+      "url": "https://github.com/Moissanite-Labs/siliquant/pull/52",
+      "summary": "## Summary"
+    },
+    {
+      "number": 51,
+      "title": "Gemma ball sweep: deployment impact, parser, and audit trail",
+      "head_ref": "jha/gemma-ball-impact",
+      "url": "https://github.com/Moissanite-Labs/siliquant/pull/51",
+      "summary": "## Summary\nReports Gemma 270M and 1B fidelity and deployment tradeoffs from pinned runner outputs. Includes strict JSONL validation, reproducible impact tables and charts, SHA-256 receipts, and an Aletheia audit under `experiments/model-output-gemma-ball-2026-11-23/` (reports in "
+    },
+    {
+      "number": 47,
+      "title": "Preregistration: integer ball on Gemma",
+      "head_ref": "amp-sumi/gemma-ball-prereg",
+      "url": "https://github.com/Moissanite-Labs/siliquant/pull/47",
+      "summary": "Plan before data. This PR adds only experiments/model-output-gemma-ball-2026-11-23/PREREG.md, committed before any Gemma weight passes through the ball."
+    },
+    {
+      "number": 45,
+      "title": "docs: status dashboard for latest results, open PRs, and TPU v5e roofline",
+      "head_ref": "docs/status-dashboard-tpu-2026-11-23",
+      "url": "https://github.com/Moissanite-Labs/siliquant/pull/45",
+      "summary": "## Summary"
+    },
+    {
+      "number": 44,
+      "title": "studies(audit121ar): zero-extra-bit graded conformal-wing E_8^Had shell packing & bulk Steiner parity wall",
+      "head_ref": "studies/audit121ar-conformal-coxeter-shells",
+      "url": "https://github.com/Moissanite-Labs/siliquant/pull/44",
+      "summary": "## Summary"
+    },
+    {
+      "number": 42,
+      "title": "studies(audit119br): pure-Q E_8^Had outlier anisotropy, Block-H2 == WHT_8 (3x butterfly) & Gate-8 study",
+      "head_ref": "studies/audit119br-e8had-anisotropy-block-h2",
+      "url": "https://github.com/Moissanite-Labs/siliquant/pull/42",
+      "summary": "## Summary"
+    },
+    {
+      "number": 41,
+      "title": "E8 turned by a Hadamard matrix on real weights (#25 step 1), the read guard of #29, and the plan-before-data header",
+      "head_ref": "bayan/charming-gates-jlas14",
+      "url": "https://github.com/Moissanite-Labs/siliquant/pull/41",
+      "summary": "Follows #12, which is merged. Three things, each a separate commit group."
+    },
+    {
+      "number": 36,
+      "title": "Study (AUDIT-115R): Zero-Table E_8_Had Adjoint GEMV & Real-Hardware 4-Stage Cycle Breakdown",
+      "head_ref": "studies/audit115r-e8had-adjoint-gemv",
+      "url": "https://github.com/Moissanite-Labs/siliquant/pull/36",
+      "summary": "## Summary"
+    },
+    {
+      "number": 35,
+      "title": "Study (AUDIT-112R + Track S15b): Zero-Division Binary-Tree Shell-Convolution Unranking & C11 Packed E_8^4 Codec (#23, #25)",
+      "head_ref": "studies/audit112r-ballpack-tree-codec",
+      "url": "https://github.com/Moissanite-Labs/siliquant/pull/35",
+      "summary": "## Summary"
+    },
+    {
+      "number": 31,
+      "title": "studies: gated-MLP Z2 gauge conservation (Muon + Learnable Multipliers) & weft-loom#44 / AUDIT-059 verification (AUDIT-106R)",
+      "head_ref": "studies/audit106r-gated-mlp-z2-conservation",
+      "url": "https://github.com/Moissanite-Labs/siliquant/pull/31",
+      "summary": "# Studies: Gated-MLP $\\mathbb{Z}_2$ Gauge Conservation (Muon + Learnable Multipliers), Symmetry-Breaking Controls & `weft-loom#44` / `AUDIT-059` Exact Verification (`AUDIT-106R`)"
+    },
+    {
+      "number": 28,
+      "title": "studies: sparse circulant weighing-matrix outlier rotations CW(120,36)/CW(180,36)/CW(98,16) & generalised.si Law-5 catalog (AUDIT-101R2)",
+      "head_ref": "feat/stream-sparse-weighing-rotations-audit101r2",
+      "url": "https://github.com/Moissanite-Labs/siliquant/pull/28",
+      "summary": "Adds a self-contained, independently `VERIFIED` pure-Python-3-stdlib (`int`, `fractions.Fraction`, zero floats on trust paths, zero bare `assert`s) study at `studies/expedition-generalised-si-weighing-rotations/`, with **zero edits to existing repository files**."
+    },
+    {
+      "number": 26,
+      "title": "Studies: Magnitude Autotuning, Dual-Norm Outlier-Split Quantization, & Trust-Boundary Bridge (AUDIT-068R)",
+      "head_ref": "feat/magnitude-autotune-quant-bridge",
+      "url": "https://github.com/Moissanite-Labs/siliquant/pull/26",
+      "summary": "## Summary"
+    },
+    {
+      "number": 24,
+      "title": "Studies: Leech/E8/Hadamard Spectral Symbiosis (AUDIT-028/031) & Reconciled Neuron Homology Unlock (AUDIT-059)",
+      "head_ref": "expedition/leech-l1-hadamard-symbiosis",
+      "url": "https://github.com/Moissanite-Labs/siliquant/pull/24",
+      "summary": "This Draft PR packages two strictly self-contained, zero-edit Python-stdlib research studies under `studies/` (zero changes to existing repository code, experiments, or workflows):"
+    }
+  ],
+  "hadamard_open_pr41_claims": [
+    {
+      "model": "Qwen2.5-1.5B-Instruct",
+      "variant": "E8 turned by Hadamard (open PR #41 claim)",
+      "kl_mean": 0.018875,
+      "q4km_kl_mean": 0.033348
+    },
+    {
+      "model": "SmolLM2-1.7B-Instruct",
+      "variant": "E8 turned by Hadamard (open PR #41 claim)",
+      "kl_mean": 0.051522,
+      "q4km_kl_mean": 0.083761
+    },
+    {
+      "model": "Llama-3.2-1B-Instruct",
+      "variant": "E8 turned by Hadamard (open PR #41 claim)",
+      "kl_mean": 0.036038,
+      "q4km_kl_mean": 0.043179
+    }
+  ],
+  "hadamard_source": {
+    "pr": 41,
+    "url": "https://github.com/Moissanite-Labs/siliquant/pull/41",
+    "status": "open PR claim, not merged main data"
+  }
+}

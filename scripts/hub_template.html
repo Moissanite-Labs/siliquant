@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Siliquant Research Hub | Quantization Results</title>
+  <meta name="description" content="Siliquant research hub: measured quantization results on real models, roofline ceilings, and open work. Every number traces to a record in the repo." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .chart-container { position: relative; width: 100%; max-width: 660px; margin-left: auto; margin-right: auto; height: 300px; }
+    @media (min-width: 768px) { .chart-container { height: 340px; } }
+    table.data { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    table.data th, table.data td { border-bottom: 1px solid #E2E8F0; padding: 0.5rem 0.75rem; text-align: left; vertical-align: top; }
+    table.data th { background: #F1F5F9; color: #0F766E; font-weight: 600; }
+    table.data tr:hover td { background: #F8FAFC; }
+    .badge { display: inline-block; padding: 0.125rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+  </style>
+</head>
+<body class="bg-[#FAF8F5] text-slate-800 antialiased selection:bg-teal-100 selection:text-teal-900">
+  <header class="sticky top-0 z-30 bg-[#FAF8F5]/95 backdrop-blur border-b border-slate-200/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div>
+          <div class="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wider text-teal-800">
+            <span class="inline-block px-2 py-0.5 rounded bg-teal-100/80 border border-teal-200">Siliquant</span>
+            <span class="inline-block px-2 py-0.5 rounded bg-slate-200/80 text-slate-800 border border-slate-300">Research Hub</span>
+            <span class="inline-block px-2 py-0.5 rounded bg-amber-100/80 text-amber-900 border border-amber-200">Working Paper, Not Peer Reviewed</span>
+          </div>
+          <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mt-1">Siliquant: Quantization That Keeps Model Output Close</h1>
+          <p class="text-sm text-slate-600 mt-1">Mean KL against the 16-bit model, at 4.5 bits a weight unless noted. Every number below traces to a record in this repo. Nothing here is a shipped quantizer.</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2 text-xs text-slate-600">
+          <a class="px-3 py-1.5 rounded border border-slate-300 bg-white hover:bg-slate-50" href="https://github.com/Moissanite-Labs/siliquant">Repo</a>
+          <a class="px-3 py-1.5 rounded border border-slate-300 bg-white hover:bg-slate-50" href="data.json">data.json</a>
+          <a class="px-3 py-1.5 rounded border border-slate-300 bg-white hover:bg-slate-50" href="archive/pr6.html">PR #6 Archive</a>
+          <a class="px-3 py-1.5 rounded border border-slate-300 bg-white hover:bg-slate-50" href="siliquant-one-pager.pdf">One Pager (PDF)</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+    <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 sm:p-6">
+      <h2 class="text-lg font-bold text-slate-900">Latest Results</h2>
+      <p class="text-sm text-slate-600 mt-1">Lower mean KL is closer to the 16-bit model. KL is measured on wikitext-2 test text, 10,200 positions, unless a row says otherwise.</p>
+
+      <h3 class="text-base font-semibold text-slate-900 mt-5">Gemma E8</h3>
+      <p class="text-sm text-slate-600">E8 at 4.5 bits on gemma-4-E4B-it, from <a class="text-teal-700 underline" href="https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/model-output-gemma-e4b-2026-11-15">model-output-gemma-e4b-2026-11-15</a>. The reference is an 8-bit file, not the weights as trained.</p>
+      <div class="overflow-x-auto mt-3">
+        <table class="data">
+          <tr><th>Arm</th><th>Mean KL</th><th>Q4_K_M</th><th>Scalar, same bits</th></tr>
+          {{GEMMA_ROWS}}
+        </table>
+      </div>
+
+      <h3 class="text-base font-semibold text-slate-900 mt-6">Integer Ball on Three Models</h3>
+      <p class="text-sm text-slate-600">The half-strength matrix arm hZBG128:b560s16 at 4.5 bits, with the importance matrix on both sides for Qwen2.5 and SmolLM2, and the wikitext matrix on both sides for Llama-3.2. Sources: <a class="text-teal-700 underline" href="https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/imatrix-baseline-2026-11-17">imatrix-baseline-2026-11-17</a> and <a class="text-teal-700 underline" href="https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/third-model-llama32-2026-11-18">third-model-llama32-2026-11-18</a>.</p>
+      <div class="overflow-x-auto mt-3">
+        <table class="data">
+          <tr><th>Model</th><th>Mean KL, ball</th><th>Mean KL, Q4_K_M</th><th>Bits a weight</th></tr>
+          {{BALL_ROWS}}
+        </table>
+      </div>
+      <div class="chart-container mt-4"><canvas id="ballChart"></canvas></div>
+      <p class="text-xs text-slate-500 mt-2">Chart: mean KL, integer ball arm against Q4_K_M, by model. Same numbers as the table above.</p>
+
+      <h3 class="text-base font-semibold text-slate-900 mt-6">Packed Ball File</h3>
+      <p class="text-sm text-slate-600">The same arm stored as a file and read back bit for bit, from <a class="text-teal-700 underline" href="https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/packed-ball-format-2026-11-18">packed-ball-format-2026-11-18</a>. The file saves disk space only. No engine reads it.</p>
+      <div class="overflow-x-auto mt-3">
+        <table class="data">
+          <tr><th>Model</th><th>Mean KL, from the file</th><th>Bits a weight</th></tr>
+          {{PACKED_ROWS}}
+        </table>
+      </div>
+
+      <h3 class="text-base font-semibold text-slate-900 mt-6">Hadamard-Turned E8: Claim From Open PR #41</h3>
+      <p class="text-sm text-slate-600"><span class="badge bg-amber-100 text-amber-900 border border-amber-200">Not merged</span> These numbers are claims from the body of <a class="text-teal-700 underline" href="https://github.com/Moissanite-Labs/siliquant/pull/41">open PR #41</a>. They are not merged main data and no folder for them exists on main. The PR also states that no E8 arm in it has a file or a decoder, and nothing in it is timed.</p>
+      <div class="overflow-x-auto mt-3">
+        <table class="data">
+          <tr><th>Model</th><th>Mean KL, turned E8 (PR #41 claim)</th><th>Mean KL, Q4_K_M (PR #41 claim)</th></tr>
+          {{HADAMARD_ROWS}}
+        </table>
+      </div>
+    </section>
+
+    <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 sm:p-6">
+      <h2 class="text-lg font-bold text-slate-900">Roofline Ceilings</h2>
+      <p class="text-sm text-slate-600 mt-1">Every figure in this table is a <strong>ceiling</strong>, not measured throughput. Source: <a class="text-teal-700 underline" href="https://github.com/Moissanite-Labs/siliquant/blob/main/studies/expedition-siliquant-bridges-audit103r2/SILIQUANT_BRIDGE_REPORT.md">SILIQUANT_BRIDGE_REPORT.md</a>, Pillar 2. Part E exact rational arithmetic at TPU v5e 819 GB/s, weight-only, batch 1. No kernel token rate was measured. Real kernel speed, dequant latency, KV-cache traffic, and cost are open work.</p>
+      <div class="overflow-x-auto mt-3">
+        <table class="data">
+          <tr><th>Format</th><th>Bits a weight</th><th>Qwen2.5 ceiling, tok/s</th><th>Gemma ceiling, tok/s</th></tr>
+          {{ROOFLINE_ROWS}}
+        </table>
+      </div>
+      <p class="text-sm text-slate-600 mt-3">At 4.5 bits the integer ball ceiling is 943.2 tok/s on Qwen2.5 and 364.0 tok/s on Gemma, against FP16 ceilings of 265.3 and 102.4. A ceiling says what bandwidth allows. It does not say what a kernel reaches.</p>
+    </section>
+
+    <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 sm:p-6">
+      <h2 class="text-lg font-bold text-slate-900">Experiments Index</h2>
+      <p class="text-sm text-slate-600 mt-1">{{EXPERIMENT_COUNT}} folders under experiments/. Each link opens its folder on GitHub.</p>
+      <div class="overflow-x-auto mt-3">
+        <table class="data">
+          <tr><th>Folder</th><th>Title</th><th>Prereg</th><th>Results</th><th>results.out</th></tr>
+          {{EXPERIMENT_ROWS}}
+        </table>
+      </div>
+    </section>
+
+    <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 sm:p-6">
+      <h2 class="text-lg font-bold text-slate-900">Preregistered and In-Flight Work</h2>
+      <p class="text-sm text-slate-600 mt-1">Open pull requests, fetched live when this page was last built. {{OPEN_PR_COUNT}} open. The list below is never a frozen copy: the build script fetches it fresh on each run.</p>
+      <div class="overflow-x-auto mt-3">
+        <table class="data">
+          <tr><th>PR</th><th>Title</th><th>Branch</th><th>Summary</th></tr>
+          {{OPEN_PR_ROWS}}
+        </table>
+      </div>
+      <h3 class="text-base font-semibold text-slate-900 mt-5">Gemma Ball Preregistration</h3>
+      <p class="text-sm text-slate-600">Open PR #47 adds only a preregistration for the integer ball on Gemma, smallest models first, before any Gemma weight passes through the ball. No results yet. The preregistration lives at <a class="text-teal-700 underline" href="https://github.com/Moissanite-Labs/siliquant/blob/amp-sumi/gemma-ball-prereg/experiments/model-output-gemma-ball-2026-11-23/PREREG.md">experiments/model-output-gemma-ball-2026-11-23/PREREG.md</a> on its branch.</p>
+      <h3 class="text-base font-semibold text-slate-900 mt-5">Hadamard-Turned E8</h3>
+      <p class="text-sm text-slate-600">Open PR #41 carries the turned E8 record, the read guard, and the plan-before-data header. Its numbers appear above as PR claims only. Still open: a packed format and decoder for the turned lattice, the Voronoi arms on Llama-3.2, and Gemma-2B.</p>
+    </section>
+
+    <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 sm:p-6">
+      <h2 class="text-lg font-bold text-slate-900">Limits</h2>
+      <ul class="list-disc pl-5 mt-2 space-y-2 text-sm text-slate-700">
+        <li><strong>Decode is slow.</strong> A packed ball file decodes at 20 to 25 million weights a second on one core, about a minute for a model. The file is decoded to floats first, so nothing is saved when the model runs. No run-time saving yet.</li>
+        <li><strong>Gemma is one model, one text.</strong> The Gemma record scores one model on the same 10,200 positions of text, and its reference is an 8-bit file, not the weights as trained.</li>
+        <li><strong>The zero codeword is model-dependent.</strong> On Qwen2.5 a codeword at zero helps E8; on SmolLM2 it does not. The two models disagree about the centre.</li>
+        <li><strong>The headline line fails on the third model.</strong> With no matrix on either side, the ball arm is behind Q4_K_M on Llama-3.2: 0.0478 against 0.0432 on wikitext. With a matrix it is far ahead, and with ten loud columns left whole it is ahead with no data at all.</li>
+        <li><strong>Ceilings are not measurements.</strong> The roofline table is arithmetic about bandwidth. No kernel was timed.</li>
+        <li><strong>Accuracy is a bound, not a win.</strong> On the MMLU subset the ball arms sit within 0.70 points of the 16-bit model, and the run can only see a loss of 1.1 to 1.3 points.</li>
+      </ul>
+    </section>
+
+    <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 sm:p-6">
+      <h2 class="text-lg font-bold text-slate-900">Sources</h2>
+      <ul class="list-disc pl-5 mt-2 space-y-1 text-sm text-slate-700">
+        <li>Repo: <a class="text-teal-700 underline" href="https://github.com/Moissanite-Labs/siliquant">Moissanite-Labs/siliquant</a></li>
+        <li>All experiment records: <a class="text-teal-700 underline" href="https://github.com/Moissanite-Labs/siliquant/tree/main/experiments">experiments/</a>, indexed above</li>
+        <li>Roofline ceilings: <a class="text-teal-700 underline" href="https://github.com/Moissanite-Labs/siliquant/blob/main/studies/expedition-siliquant-bridges-audit103r2/SILIQUANT_BRIDGE_REPORT.md">studies/expedition-siliquant-bridges-audit103r2/SILIQUANT_BRIDGE_REPORT.md</a>, Pillar 2</li>
+        <li>Machine-readable data for this page: <a class="text-teal-700 underline" href="data.json">data.json</a>, generated by <a class="text-teal-700 underline" href="https://github.com/Moissanite-Labs/siliquant/blob/main/scripts/build_site.py">scripts/build_site.py</a></li>
+        <li>Earlier site, preserved verbatim: <a class="text-teal-700 underline" href="archive/pr6.html">archive/pr6.html</a> (PR #6 empirical results)</li>
+        <li>One pager: <a class="text-teal-700 underline" href="siliquant-one-pager.pdf">siliquant-one-pager.pdf</a></li>
+      </ul>
+      <p class="text-xs text-slate-500 mt-4">This hub rebuilds itself on every merge to main that touches an experiment, the builder, or the site files. See .github/workflows/site.yml.</p>
+    </section>
+
+  </main>
+
+  <script id="hub-data" type="application/json">{{DATA_JSON}}</script>
+  <script>
+    (function () {
+      var data = JSON.parse(document.getElementById('hub-data').textContent);
+      var ball = data.headline_integer_ball;
+      new Chart(document.getElementById('ballChart'), {
+        type: 'bar',
+        data: {
+          labels: ball.map(function (a) { return a.model.replace('-1.5B-Instruct', '').replace('-1.7B-Instruct', '').replace('-1B-Instruct', ''); }),
+          datasets: [
+            { label: 'Integer ball hZBG128, mean KL', data: ball.map(function (a) { return a.kl_mean; }), backgroundColor: '#0F766E' },
+            { label: 'Q4_K_M, mean KL', data: ball.map(function (a) { return a.q4km_kl_mean; }), backgroundColor: '#CBD5E1' }
+          ]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true, title: { display: true, text: 'Mean KL (lower is closer)' } } } }
+      });
+    })();
+  </script>
+</body>
+</html>

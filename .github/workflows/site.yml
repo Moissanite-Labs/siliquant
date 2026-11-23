@@ -1,0 +1,63 @@
+# Rebuild the Siliquant research hub on every merge to main that touches
+# an experiment, the builder, or the site files, and commit the result
+# back to main. This workflow only regenerates files under docs/; it does
+# not change the Pages build type or source (legacy build, main, /docs).
+#
+# Loop guard: the bot commit message carries [skip ci], and this job
+# skips runs whose head commit was made by the bot.
+name: Rebuild research hub
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'experiments/**'
+      - 'scripts/build_site.py'
+      - 'scripts/hub_template.html'
+      - 'docs/**'
+      - '.github/workflows/site.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: siliquant-hub
+  cancel-in-progress: false
+
+jobs:
+  rebuild:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build the hub
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 scripts/build_site.py --fetch-prs
+
+      - name: Verify the build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 scripts/build_site.py --check --fetch-prs
+
+      - name: Commit the rebuilt hub
+        run: |
+          if git status --porcelain docs/data.json docs/index.html | grep -q .; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add docs/data.json docs/index.html
+            git commit -m "docs: rebuild research hub from merged records [skip ci]"
+            git push
+          else
+            echo "Hub is already up to date, nothing to commit."
+          fi
