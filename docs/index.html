@@ -1431,6 +1431,7 @@
               <div class="kpi-value win">4.5040 bpw</div>
               <div class="kpi-label">Gemma 3 4B ball: lower mean KL on both texts</div>
               <div class="kpi-meta">Calibrated Q4_K_M: 4.8151 bpw · unequal rates</div>
+              <div class="kpi-meta">Receipts on an unmerged branch</div>
             </div>
             <div class="kpi-card">
               <div class="kpi-value win">−17% to −43%</div>
@@ -1824,6 +1825,7 @@
         <div class="callout callout-accent">
           <span class="callout-tag">Q8_0 bridge</span>
           <div>
+            <div><span class="pill pill-neutral">Unmerged branch · not on main</span></div>
             At <code>4.5000 bpw</code>, the separate <a href="https://github.com/Moissanite-Labs/siliquant/blob/86bb1b2a2178bd8b68912c1e7496426f53e9ffa8/experiments/model-output-gemma-ball-2026-11-23/out/gemma-4-E4B-it-bridge/results.out">bridge run</a> measured mean KL of <code>0.074682 ± 0.002264</code> for centred <code>VE832:16</code> and <code>0.077252 ± 0.002314</code> for uncentred <code>VE8Z32:16</code> (± standard error). The centred result meets the preregistered tolerance around the earlier <code>0.0747</code>. The bridge has no stock arm and uses Q8_0 as its reference; the BF16 sweep remains outstanding.
           </div>
         </div>
@@ -2054,6 +2056,7 @@
           <span>Gemma 3 Calibrated Ball Sweep (WikiText-2 &amp; Python · 10,200 pos each)</span>
         </h3>
 
+        <p class="prose"><span class="pill pill-neutral">Measured on an unmerged branch · not on main</span></p>
         <p class="prose">
           Mean KL to the 16-bit reference. At about <code>4.5 bpw</code>, the calibrated ball beats calibrated <code>Q4_K_M</code> only on WikiText for the <a href="https://github.com/Moissanite-Labs/siliquant/blob/86bb1b2a2178bd8b68912c1e7496426f53e9ffa8/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-270m-it/results.out">270M</a> model and on neither text for <a href="https://github.com/Moissanite-Labs/siliquant/blob/86bb1b2a2178bd8b68912c1e7496426f53e9ffa8/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-1b-it/results.out">1B</a>. At about <code>5 bpw</code>, it is lower on both texts for both models, against stock rates of about <code>5.43–5.48 bpw</code>.
         </p>
