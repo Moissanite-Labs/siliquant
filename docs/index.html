@@ -98,7 +98,7 @@
     <header class="hero">
       <p class="eyebrow">Siliquant research · 23 November 2026</p>
       <h1>Quantisation results</h1>
-      <p class="lede">At about 4.5 bits per weight, turned E8 gave the lowest mean KL among three ball codebooks on Qwen2.5, SmolLM2 and Llama-3.2. On Gemma 3, the calibrated integer ball beat calibrated Q4_K_M on both models and texts at about 5 bits; at 4.5, the result depended on the model and text.</p>
+      <p class="lede">At about 4.5 bits per weight, turned E8 gave the lowest mean KL among three ball codebooks on Qwen2.5, SmolLM2 and Llama-3.2. On Gemma 3 270M and 1B, the calibrated integer ball beat calibrated Q4_K_M on both texts at about 5 bpw, with mixed results near 4.5 bpw; on 4B it won on both texts at 4.5040 bpw versus 4.8151 bpw, an unequal-rate comparison.</p>
       <p>Siliquant rounds a group of weights jointly to a point in a finite codebook, cut from the integer grid or the eight-dimensional E8 lattice. The cut and the lattice orientation change which vectors can be represented at a given bit budget. The studies below ask what survives when the rounded weights are put back into the model: mean KL divergence measures the departure from the reference model’s next-token distribution (lower is closer). Bits per weight (bpw) describe the quantised matrices, not whole-model size.</p>
     </header>
 
