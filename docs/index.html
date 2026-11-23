@@ -182,7 +182,7 @@
           </tbody>
         </table>
       </div>
-      <p>Without calibration, EBG128 scores lower than HBG128 on both texts at the same reported rate. Keeping ten columns with the calibrated ball costs a little more and lowers neither measured KL.</p>
+      <p>Without calibration, EBG128 scores lower than HBG128 on both texts at the same reported rate. With the calibrated ball, keeping ten <code>ffn_down</code> columns per layer (340 in total) costs a little more and lowers neither measured KL.</p>
       <p class="sources">4B sources at <code>dc10d4b</code>: <a href="https://github.com/Moissanite-Labs/siliquant/blob/dc10d4bbca8cc049f288aa22e42172aebb493363/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-4b-it/results.out">scores</a> and <a href="https://github.com/Moissanite-Labs/siliquant/blob/dc10d4bbca8cc049f288aa22e42172aebb493363/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-4b-it/results.jsonl">JSONL</a>.</p>
       <h3>270M and 1B: the calibrated ball needs a higher rate</h3>
       <p>At practically the same block rate, the uncalibrated 128-weight ball cuts mean KL by 58–63% versus Q4_0 across these two models and texts. Calibrated Q4_K_M is a stronger control: at about 4.5 bpw, the calibrated ball is lower only for 270M on WikiText. At about 5 bpw it is lower in all four comparisons, against stock rates of about 5.43–5.48 bpw.</p>
