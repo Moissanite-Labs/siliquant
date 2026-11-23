@@ -99,6 +99,9 @@ class TestVilleSupermartingale(unittest.TestCase):
         self.assertEqual(mod.uncorrected_fwer(1, Fraction(1, 20)), Fraction(1, 20))
         self.assertEqual(mod.uncorrected_fwer(2, Fraction(1, 10)), Fraction(19, 100))
         self.assertGreater(mod.uncorrected_fwer(20, Fraction(1, 20)), Fraction(64, 100))
+        self.assertEqual(mod.bonferroni_fwer_upper_bound(2, Fraction(1, 20)), Fraction(1, 10))
+        self.assertEqual(mod.bonferroni_fwer_upper_bound(20, Fraction(1, 20)), Fraction(1, 1))
+        self.assertEqual(mod.bonferroni_fwer_upper_bound(30, Fraction(1, 20)), Fraction(1, 1))
         for bad in (
             (0, Fraction(1, 20)),
             (True, Fraction(1, 20)),
@@ -108,21 +111,30 @@ class TestVilleSupermartingale(unittest.TestCase):
         ):
             with self.assertRaises(ValueError):
                 mod.uncorrected_fwer(*bad)  # type: ignore[arg-type]
+            with self.assertRaises(ValueError):
+                mod.bonferroni_fwer_upper_bound(*bad)  # type: ignore[arg-type]
 
     def test_legacy_verdict_exact_boundaries(self) -> None:
         self.assertEqual(mod.magnitude_legacy_verdict(6, 0, Fraction(1, 20)), "undecided")
         self.assertEqual(mod.magnitude_legacy_verdict(7, 0, Fraction(1, 20)), "leads")
         self.assertEqual(mod.magnitude_legacy_verdict(0, 7, Fraction(1, 20)), "trails")
+        # Tied rounds increment total rounds (statistics.rs:185-210): M_8(7) = 251/36 < 20
+        self.assertEqual(mod.ville_mixture_ratio(8, 7), Fraction(251, 36))
+        self.assertEqual(mod.magnitude_legacy_verdict(7, 0, Fraction(1, 20), ties=1), "undecided")
+        self.assertEqual(mod.magnitude_legacy_verdict(0, 7, Fraction(1, 20), ties=1), "undecided")
+        self.assertEqual(mod.magnitude_legacy_verdict(7, 0, Fraction(1, 20), 0), "leads")
         self.assertEqual(mod.magnitude_legacy_verdict(1, 0, Fraction(2, 3)), "leads")
         self.assertEqual(mod.magnitude_legacy_verdict(0, 1, Fraction(2, 3)), "trails")
         for bad in (
-            (1, 0, Fraction(0, 1)),
-            (1, 0, Fraction(1, 1)),
-            (1, 0, 0.05),
-            (-1, 0, Fraction(1, 20)),
-            (0, -1, Fraction(1, 20)),
-            (True, 0, Fraction(1, 20)),
-            (0, True, Fraction(1, 20)),
+            (1, 0, Fraction(0, 1), 0),
+            (1, 0, Fraction(1, 1), 0),
+            (1, 0, 0.05, 0),
+            (-1, 0, Fraction(1, 20), 0),
+            (0, -1, Fraction(1, 20), 0),
+            (1, 0, Fraction(1, 20), -1),
+            (True, 0, Fraction(1, 20), 0),
+            (0, True, Fraction(1, 20), 0),
+            (0, 0, Fraction(1, 20), True),
         ):
             with self.assertRaises(ValueError):
                 mod.magnitude_legacy_verdict(*bad)  # type: ignore[arg-type]
@@ -131,6 +143,8 @@ class TestVilleSupermartingale(unittest.TestCase):
         res7 = mod.hardened_supermartingale_gate(
             7, 0, Fraction(1, 20), 1, Fraction(1, 10), Fraction(1, 50), True
         )
+        self.assertEqual(res7["rounds"], 7)
+        self.assertEqual(res7["ties"], 0)
         self.assertEqual(res7["verdict"], "undecided")
         self.assertFalse(res7["promote"])
         self.assertEqual(res7["threshold"], {"num": 40, "den": 1})
@@ -138,8 +152,20 @@ class TestVilleSupermartingale(unittest.TestCase):
         res8 = mod.hardened_supermartingale_gate(
             8, 0, Fraction(1, 20), 1, Fraction(1, 50), Fraction(1, 50), True
         )
+        self.assertEqual(res8["rounds"], 8)
         self.assertEqual(res8["verdict"], "leads")
         self.assertTrue(res8["promote"])
+
+        # Tied round weakens M_8(8)=511/9 to M_9(8)=1013/90 < 40 -> undecided, promote=False
+        self.assertEqual(mod.ville_mixture_ratio(9, 8), Fraction(1013, 90))
+        res8_tie = mod.hardened_supermartingale_gate(
+            8, 0, Fraction(1, 20), 1, Fraction(1, 10), Fraction(1, 50), True, ties=1
+        )
+        self.assertEqual(res8_tie["rounds"], 9)
+        self.assertEqual(res8_tie["ties"], 1)
+        self.assertEqual(res8_tie["verdict"], "undecided")
+        self.assertFalse(res8_tie["promote"])
+        self.assertEqual(res8_tie["lead_ratio"], {"num": 1013, "den": 90})
 
         res_slow = mod.hardened_supermartingale_gate(
             8, 0, Fraction(1, 20), 1, Fraction(1, 51), Fraction(1, 50), True
@@ -174,23 +200,25 @@ class TestVilleSupermartingale(unittest.TestCase):
         self.assertEqual(res_k2["verdict"], "undecided")
         self.assertEqual(res_k2["threshold"], {"num": 80, "den": 1})
 
-        # Input guards (float, bool-as-int, non-bool anchor)
+        # Input guards (float, bool-as-int, negative/bool ties, non-bool anchor)
         for bad in (
-            (1, 0, Fraction(0, 1), 1, Fraction(1, 10), Fraction(1, 50), True),
-            (1, 0, Fraction(1, 1), 1, Fraction(1, 10), Fraction(1, 50), True),
-            (1, 0, 0.05, 1, Fraction(1, 10), Fraction(1, 50), True),
-            (1, 0, Fraction(1, 20), 0, Fraction(1, 10), Fraction(1, 50), True),
-            (-1, 0, Fraction(1, 20), 1, Fraction(1, 10), Fraction(1, 50), True),
-            (0, -1, Fraction(1, 20), 1, Fraction(1, 10), Fraction(1, 50), True),
-            (1, 0, Fraction(1, 20), 1, Fraction(1, 10), Fraction(0, 1), True),
-            (True, 0, Fraction(1, 20), 1, Fraction(1, 10), Fraction(1, 50), True),
-            (0, True, Fraction(1, 20), 1, Fraction(1, 10), Fraction(1, 50), True),
-            (1, 0, Fraction(1, 20), True, Fraction(1, 10), Fraction(1, 50), True),
-            (8, 0, Fraction(1, 20), 1, True, Fraction(1, 50), True),
-            (8, 0, Fraction(1, 20), 1, Fraction(1, 10), True, True),
-            (8, 0, Fraction(1, 20), 1, 0.1, Fraction(1, 50), True),
-            (8, 0, Fraction(1, 20), 1, Fraction(1, 10), 0.02, True),
-            (8, 0, Fraction(1, 20), 1, Fraction(1, 10), Fraction(1, 50), "yes"),
+            (1, 0, Fraction(0, 1), 1, Fraction(1, 10), Fraction(1, 50), True, 0),
+            (1, 0, Fraction(1, 1), 1, Fraction(1, 10), Fraction(1, 50), True, 0),
+            (1, 0, 0.05, 1, Fraction(1, 10), Fraction(1, 50), True, 0),
+            (1, 0, Fraction(1, 20), 0, Fraction(1, 10), Fraction(1, 50), True, 0),
+            (-1, 0, Fraction(1, 20), 1, Fraction(1, 10), Fraction(1, 50), True, 0),
+            (0, -1, Fraction(1, 20), 1, Fraction(1, 10), Fraction(1, 50), True, 0),
+            (1, 0, Fraction(1, 20), 1, Fraction(1, 10), Fraction(1, 50), True, -1),
+            (1, 0, Fraction(1, 20), 1, Fraction(1, 10), Fraction(0, 1), True, 0),
+            (True, 0, Fraction(1, 20), 1, Fraction(1, 10), Fraction(1, 50), True, 0),
+            (0, True, Fraction(1, 20), 1, Fraction(1, 10), Fraction(1, 50), True, 0),
+            (1, 0, Fraction(1, 20), True, Fraction(1, 10), Fraction(1, 50), True, 0),
+            (1, 0, Fraction(1, 20), 1, Fraction(1, 10), Fraction(1, 50), True, True),
+            (8, 0, Fraction(1, 20), 1, True, Fraction(1, 50), True, 0),
+            (8, 0, Fraction(1, 20), 1, Fraction(1, 10), True, True, 0),
+            (8, 0, Fraction(1, 20), 1, 0.1, Fraction(1, 50), True, 0),
+            (8, 0, Fraction(1, 20), 1, Fraction(1, 10), 0.02, True, 0),
+            (8, 0, Fraction(1, 20), 1, Fraction(1, 10), Fraction(1, 50), "yes", 0),
         ):
             with self.assertRaises(ValueError):
                 mod.hardened_supermartingale_gate(*bad)  # type: ignore[arg-type]
@@ -213,12 +241,57 @@ class TestRoundingAndAdmission(unittest.TestCase):
         # Exact min_normal_exp boundary (2^-14 in F16): gap_below == gap_above == 2^-24 (NO 3/4 factor!)
         self.assertEqual(mod.ieee_rounding_step(Fraction(1, 2**14), "F16"), Fraction(1, 2**24))
         self.assertEqual(mod.ieee_rounding_step(Fraction(1, 2**15), "F16"), Fraction(1, 2**24))
-        # BF16 vs F32 ratio at 1.0 is still exact 65536
+        # Upper edge of min_normal binade (exp == min_normal_exp, k == 2^p - 1 odd, rem == 1/2) rounds to 2^-13!
         self.assertEqual(
-            mod.ieee_rounding_step(Fraction(1, 1), "BF16")
-            / mod.ieee_rounding_step(Fraction(1, 1), "F32"),
-            Fraction(65536, 1),
+            mod.ieee_rounding_step(Fraction(1, 2**13) - Fraction(1, 2**25), "F16"),
+            Fraction(3, 2**25),
         )
+        # Cross-format nearest-cell rounding (comparison.rs:146-166, 589-650):
+        # 1 - 2^-24 rounds UP to BF16 1 (width 3/512, NOT 1/256)
+        self.assertEqual(
+            mod.ieee_rounding_step(Fraction(1, 1) - Fraction(1, 2**24), "BF16"),
+            Fraction(3, 512),
+        )
+        # 1 - 2^-9 is exact tie between 255/256 (odd payload) and 1 (even payload) -> rounds to 1 (3/512)
+        self.assertEqual(
+            mod.ieee_rounding_step(Fraction(1, 1) - Fraction(1, 512), "BF16"),
+            Fraction(3, 512),
+        )
+        # 1 - 2^-8 + 2^-10 (< midpoint) stays in 255/256 cell (width 1/256)
+        self.assertEqual(
+            mod.ieee_rounding_step(Fraction(1, 1) - Fraction(1, 256) + Fraction(1, 1024), "BF16"),
+            Fraction(1, 256),
+        )
+        # 1 + 2^-8 is exact tie between 1 (even payload) and 1 + 2^-7 (odd payload) -> stays at 1 (3/512)
+        self.assertEqual(
+            mod.ieee_rounding_step(Fraction(1, 1) + Fraction(1, 256), "BF16"),
+            Fraction(3, 512),
+        )
+        # 1 + 2^-8 + 2^-10 (> midpoint) rounds UP to 1 + 2^-7 (width 1/128)
+        self.assertEqual(
+            mod.ieee_rounding_step(Fraction(1, 1) + Fraction(1, 256) + Fraction(1, 1024), "BF16"),
+            Fraction(1, 128),
+        )
+        # Largest finite cells match upstream Rust lattice.rs:458-461 & comparison.rs:508-512
+        # (inward gap on both sides: [max - inward/2, max + inward/2) -> full inward gap):
+        self.assertEqual(mod.ieee_rounding_step(Fraction(65504, 1), "F16"), Fraction(32, 1))
+        self.assertEqual(mod.ieee_rounding_step(Fraction(65519, 1), "F16"), Fraction(32, 1))
+        self.assertIsNone(mod.ieee_rounding_step(Fraction(65520, 1), "F16"))
+        f32_max = (Fraction(2, 1) - Fraction(1, 2**23)) * (Fraction(2, 1) ** 127)
+        bf16_max = (Fraction(2, 1) - Fraction(1, 2**7)) * (Fraction(2, 1) ** 127)
+        self.assertEqual(mod.ieee_rounding_step(f32_max, "F32"), Fraction(2, 1) ** 104)
+        self.assertEqual(mod.ieee_rounding_step(bf16_max, "BF16"), Fraction(2, 1) ** 120)
+        self.assertIsNone(mod.ieee_rounding_step(f32_max, "BF16"))
+        # BF16 vs F32 ratio at 1.0 is still exact 65536; absent cell raises in _finite_step_ratio
+        self.assertEqual(mod._finite_step_ratio(Fraction(1, 1), "BF16", "F32"), Fraction(65536, 1))
+        with self.assertRaises(ValueError):
+            mod._finite_step_ratio(f32_max, "BF16", "F32")
+        with self.assertRaises(ValueError):
+            mod._finite_step_ratio(f32_max, "F32", "BF16")
+        # _within_cap boundary & None guard
+        self.assertFalse(mod._within_cap(None, Fraction(4, 1)))
+        self.assertTrue(mod._within_cap(Fraction(4, 1), Fraction(4, 1)))
+        self.assertFalse(mod._within_cap(Fraction(5, 1), Fraction(4, 1)))
         # Reject unknown format or raw float
         with self.assertRaises(ValueError):
             mod.ieee_rounding_step(Fraction(1, 1), "FP8")
@@ -263,6 +336,32 @@ class TestRoundingAndAdmission(unittest.TestCase):
         res_subj = mod.magnitude_rms_admission(ref, cand_sq, "F32", "BF16", Fraction(4, 1), "subject")
         self.assertEqual(res_subj["step_fmt"], "F32")
         self.assertFalse(res_subj["admitted"])
+
+        # Absent cell (f32_max judged as BF16): nonzero error -> infinite ratio -> rejected;
+        # exact match (zero error) -> ratio_sq == 0 -> admitted (comparison.rs:80-83, 604-605)
+        f32_max = (Fraction(2, 1) - Fraction(1, 2**23)) * (Fraction(2, 1) ** 127)
+        f32_prev = f32_max - (Fraction(2, 1) ** 104)
+        abs_fail = mod.magnitude_rms_admission(
+            [f32_max], [f32_prev], "F32", "BF16", Fraction(8, 1), "activation"
+        )
+        self.assertFalse(abs_fail["admitted"])
+        self.assertEqual(abs_fail["ratio_sq"], "infinite")
+        abs_zero = mod.magnitude_rms_admission(
+            [f32_max], [f32_max], "F32", "BF16", Fraction(8, 1), "activation"
+        )
+        self.assertTrue(abs_zero["admitted"])
+        self.assertEqual(abs_zero["ratio_sq"], {"num": 0, "den": 1})
+        # Mixed absent + present cell: absent element contributes 0 step power, present contributes its own
+        mixed = mod.magnitude_rms_admission(
+            [f32_max, Fraction(3, 2)],
+            [f32_max, Fraction(3, 2) + Fraction(1, 128)],
+            "F32",
+            "BF16",
+            Fraction(8, 1),
+            "activation",
+        )
+        self.assertTrue(mixed["admitted"])
+        self.assertEqual(mixed["ratio_sq"], {"num": 12, "den": 1})
 
         # Guards (incl. float alpha / float elements)
         for bad in (
@@ -343,6 +442,22 @@ class TestRoundingAndAdmission(unittest.TestCase):
         self.assertEqual(rec["step_fmt"], "F32")
         self.assertFalse(rec["admitted"])
 
+        # Absent cell in hardened dual-norm admission: nonzero error -> infinite max_ulp -> rejected;
+        # exact zero error -> admitted
+        f32_max = (Fraction(2, 1) - Fraction(1, 2**23)) * (Fraction(2, 1) ** 127)
+        f32_prev = f32_max - (Fraction(2, 1) ** 104)
+        h_abs_fail = mod.hardened_dual_norm_admission(
+            [f32_max], [f32_prev], "F32", "BF16", Fraction(8, 1), Fraction(16, 1), Fraction(4, 1), False
+        )
+        self.assertFalse(h_abs_fail["admitted"])
+        self.assertEqual(h_abs_fail["max_ulp"], "infinite")
+        self.assertEqual(h_abs_fail["bulk_ratio_sq"], "infinite")
+        h_abs_zero = mod.hardened_dual_norm_admission(
+            [f32_max], [f32_max], "F32", "BF16", Fraction(8, 1), Fraction(16, 1), Fraction(4, 1), False
+        )
+        self.assertTrue(h_abs_zero["admitted"])
+        self.assertEqual(h_abs_zero["max_ulp"], {"num": 0, "den": 1})
+
         # Guards (incl. floats & non-bool is_recurrent_state)
         for bad in (
             ([], [], "BF16", "BF16", Fraction(8, 1), Fraction(4, 1), Fraction(4, 1), False),
@@ -404,14 +519,22 @@ class TestLineageAndTrustBoundary(unittest.TestCase):
     def test_trust_boundary_every_single_invariant_and_red_team_bypass(self) -> None:
         base = _valid_trust_config()
         self.assertEqual(mod.evaluate_trust_boundary(base), {"admitted": True, "reasons": []})
+        empty_res = mod.evaluate_trust_boundary({})
+        self.assertFalse(empty_res["admitted"])
+        self.assertEqual(len(empty_res["reasons"]), 9)
+        with self.assertRaises(ValueError):
+            mod.evaluate_trust_boundary(None)  # type: ignore[arg-type]
 
-        # 1. Bind & auth token (whitespace, list, non-str host, short token)
+        # 1. Bind & auth token (whitespace, internal-space padding, list, non-str host, short token)
         self.assertTrue(mod.evaluate_trust_boundary(dict(base, bind_host="0.0.0.0", auth_token="a" * 16))["admitted"])
+        self.assertTrue(mod.evaluate_trust_boundary(dict(base, bind_host="0.0.0.0", auth_token="a" * 8 + " " + "b" * 8))["admitted"])
         self.assertTrue(mod.evaluate_trust_boundary(dict(base, bind_host="::1", auth_token=""))["admitted"])
         for overrides in (
             {"bind_host": 127},
             {"bind_host": "0.0.0.0", "auth_token": "a" * 15},
             {"bind_host": "0.0.0.0", "auth_token": " " * 16},
+            {"bind_host": "0.0.0.0", "auth_token": "a" + " " * 14 + "b"},
+            {"bind_host": "0.0.0.0", "auth_token": "a" * 8 + " " * 8 + "b" * 7},
             {"bind_host": "0.0.0.0", "auth_token": ["x"] * 16},
         ):
             self.assertEqual(
@@ -615,9 +738,30 @@ class TestAnchorsSuiteAndCli(unittest.TestCase):
             {"num": 17179869184, "den": 3},
         )
 
+        self.assertEqual(
+            proofs["mag02b_cross_format_and_absent_cell"]["f32_one_minus_2m24_as_bf16_width"],
+            {"num": 3, "den": 512},
+        )
+        self.assertEqual(
+            proofs["mag02b_cross_format_and_absent_cell"]["f16_max_65504_width"],
+            {"num": 32, "den": 1},
+        )
+        self.assertTrue(proofs["mag02b_cross_format_and_absent_cell"]["f16_overflow_65520_absent"])
+        self.assertTrue(proofs["mag02b_cross_format_and_absent_cell"]["f32_max_as_bf16_absent"])
+        self.assertFalse(proofs["mag02b_cross_format_and_absent_cell"]["f32_max_vs_prev_bf16_legacy_admitted"])
+        self.assertEqual(proofs["mag02b_cross_format_and_absent_cell"]["f32_max_vs_prev_bf16_legacy_ratio_sq"], "infinite")
+        self.assertFalse(proofs["mag02b_cross_format_and_absent_cell"]["f32_max_vs_prev_bf16_hardened_admitted"])
+        self.assertEqual(proofs["mag02b_cross_format_and_absent_cell"]["f32_max_vs_prev_bf16_hardened_max_ulp"], "infinite")
+
         self.assertTrue(proofs["mag03_ville_supermartingale"]["martingale_exact_identity"])
+        self.assertEqual(proofs["mag03_ville_supermartingale"]["m8_7"], {"num": 251, "den": 36})
+        self.assertEqual(proofs["mag03_ville_supermartingale"]["m9_8"], {"num": 1013, "den": 90})
+        self.assertEqual(proofs["mag03_ville_supermartingale"]["bonferroni_upper_bound_k20_alpha_1_20"], {"num": 1, "den": 1})
         self.assertEqual(proofs["mag03_ville_supermartingale"]["legacy_7_0_verdict"], "leads")
+        self.assertEqual(proofs["mag03_ville_supermartingale"]["legacy_7_0_tie1_verdict"], "undecided")
         self.assertEqual(proofs["mag03_ville_supermartingale"]["hardened_7_0_verdict"], "undecided")
+        self.assertEqual(proofs["mag03_ville_supermartingale"]["hardened_8_0_tie1_verdict"], "undecided")
+        self.assertFalse(proofs["mag03_ville_supermartingale"]["hardened_8_0_tie1_promote"])
         self.assertFalse(proofs["mag03_ville_supermartingale"]["hardened_8_0_anchor_fail_promote"])
         self.assertTrue(proofs["mag03_ville_supermartingale"]["hardened_8_0_pass_promote"])
 

@@ -6,7 +6,7 @@
     "anchors_verified": 0,
     "pinned_commit": "d89dfffcbb2f27251e99163934c04770b453339c"
   },
-  "canonical_sha256": "c2f7d096f48762e54e0d9aed1e10b05d8150dc589a8ce0992a939c4dbe4f1cd1",
+  "canonical_sha256": "a52bc9ef7aeb81a4b3f82eb36e3737a80229411902200102f9953cddb2728a50",
   "cross_pollination_targets": [
     "Moissanite-Labs/warp-drive",
     "Moissanite-Labs/siliquant#24",
@@ -62,10 +62,38 @@
         "num": 4
       }
     },
+    "mag02b_cross_format_and_absent_cell": {
+      "f16_max_65504_width": {
+        "den": 1,
+        "num": 32
+      },
+      "f16_overflow_65520_absent": true,
+      "f32_max_as_bf16_absent": true,
+      "f32_max_vs_prev_bf16_hardened_admitted": false,
+      "f32_max_vs_prev_bf16_hardened_max_ulp": "infinite",
+      "f32_max_vs_prev_bf16_legacy_admitted": false,
+      "f32_max_vs_prev_bf16_legacy_ratio_sq": "infinite",
+      "f32_one_minus_2m24_as_bf16_width": {
+        "den": 512,
+        "num": 3
+      }
+    },
     "mag03_ville_supermartingale": {
+      "bonferroni_upper_bound_k20_alpha_1_20": {
+        "den": 1,
+        "num": 1
+      },
+      "fwer_independence_assumption": "1-(1-alpha)^K requires mutually independent null tests each with exact rejection probability alpha; arbitrary dependence under conservative Ville bounds obeys only Bonferroni FWER <= min(1, K*alpha)",
       "hardened_7_0_verdict": "undecided",
       "hardened_8_0_anchor_fail_promote": false,
       "hardened_8_0_pass_promote": true,
+      "hardened_8_0_tie1_promote": false,
+      "hardened_8_0_tie1_verdict": "undecided",
+      "independent_calibrated_fwer_k20_alpha_1_20": {
+        "den": 104857600000000000000000000,
+        "num": 67267626542454041806644399
+      },
+      "legacy_7_0_tie1_verdict": "undecided",
       "legacy_7_0_verdict": "leads",
       "m6_6": {
         "den": 7,
@@ -75,15 +103,19 @@
         "den": 8,
         "num": 255
       },
+      "m8_7": {
+        "den": 36,
+        "num": 251
+      },
       "m8_8": {
         "den": 9,
         "num": 511
       },
-      "martingale_exact_identity": true,
-      "uncorrected_fwer_k20_alpha_1_20": {
-        "den": 104857600000000000000000000,
-        "num": 67267626542454041806644399
-      }
+      "m9_8": {
+        "den": 90,
+        "num": 1013
+      },
+      "martingale_exact_identity": true
     },
     "mag04_05_06_08_trust_boundary": {
       "hardened_admitted": true,

@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 from fractions import Fraction
+from functools import lru_cache
 import hashlib
 import json
 import math
@@ -34,10 +35,21 @@ ALLOWED_JIT_SYMBOLS = frozenset(
     ("expf", "logf", "sqrtf", "tanhf", "erff", "powf", "sinf", "cosf")
 )
 
-IEEE_FORMATS: dict[str, tuple[int, int, int]] = {
-    "F32": (23, -126, -149),
-    "F16": (10, -14, -24),
-    "BF16": (7, -126, -133),
+# (mantissa_bits, min_normal_exp, max_normal_exp, min_subnormal_exp)
+IEEE_FORMATS: dict[str, tuple[int, int, int, int]] = {
+    "F32": (23, -126, 127, -149),
+    "F16": (10, -14, 15, -24),
+    "BF16": (7, -126, 127, -133),
+}
+
+_IEEE_CELL_PARAMS: dict[str, tuple[int, int, Fraction, Fraction]] = {
+    fmt: (
+        p,
+        e_min,
+        Fraction(1, 1 << (-e_sub)),
+        (Fraction(2, 1) - Fraction(1, 1 << (p + 1))) * (Fraction(1 << e_max, 1)),
+    )
+    for fmt, (p, e_min, e_max, e_sub) in IEEE_FORMATS.items()
 }
 
 ANCHOR_SPECS: tuple[tuple[str, str, int, str], ...] = (
@@ -162,6 +174,24 @@ def _rat(value: Fraction) -> dict[str, int]:
     return {"num": value.numerator, "den": value.denominator}
 
 
+def _rat_or_inf(value: Fraction | None) -> dict[str, int] | str:
+    if value is None:
+        return "infinite"
+    return _rat(value)
+
+
+def _within_cap(value: Fraction | None, cap: Fraction) -> bool:
+    return value is not None and value <= cap
+
+
+def _finite_step_ratio(value: Fraction, num_fmt: str, den_fmt: str) -> Fraction:
+    num_w = ieee_rounding_step(value, num_fmt)
+    den_w = ieee_rounding_step(value, den_fmt)
+    if num_w is None or den_w is None:
+        raise ValueError("rounding step absent for one or both formats")
+    return num_w / den_w
+
+
 def _is_int(value: object) -> bool:
     return isinstance(value, int) and not isinstance(value, bool)
 
@@ -202,7 +232,13 @@ def ville_mixture_ratio(rounds: int, wins: int) -> Fraction:
 
 
 def uncorrected_fwer(num_candidates: int, alpha: Fraction) -> Fraction:
-    """Exact family-wise Type-I error 1 - (1 - alpha)^K for K null challengers."""
+    """Illustrative FWER 1 - (1 - alpha)^K for K mutually independent null challengers
+    each calibrated at exact rejection probability alpha.
+
+    Neither independence nor exact alpha-calibration follows from Ville's inequality
+    alone; for arbitrary dependence with conservative bounds P(reject) <= alpha,
+    use `bonferroni_fwer_upper_bound`.
+    """
     if (
         not _is_int(num_candidates)
         or not isinstance(alpha, Fraction)
@@ -214,19 +250,40 @@ def uncorrected_fwer(num_candidates: int, alpha: Fraction) -> Fraction:
     return Fraction(1, 1) - (Fraction(1, 1) - alpha) ** num_candidates
 
 
-def magnitude_legacy_verdict(ahead: int, behind: int, alpha: Fraction) -> str:
-    """Reproduces Magnitude Tally::verdict (statistics.rs:202-210) at unsplit alpha."""
+def bonferroni_fwer_upper_bound(num_candidates: int, alpha: Fraction) -> Fraction:
+    """Dependence-robust union bound min(1, K * alpha) for K null challengers with P(reject) <= alpha."""
+    if (
+        not _is_int(num_candidates)
+        or not isinstance(alpha, Fraction)
+        or num_candidates < 1
+        or alpha <= 0
+        or alpha >= 1
+    ):
+        raise ValueError("num_candidates >= 1 and exact Fraction 0 < alpha < 1 required")
+    return min(Fraction(1, 1), num_candidates * alpha)
+
+
+def magnitude_legacy_verdict(
+    ahead: int, behind: int, alpha: Fraction, ties: int = 0
+) -> str:
+    """Reproduces Magnitude Tally::observe/verdict (statistics.rs:185-210) at unsplit alpha.
+
+    Every observation increments `rounds = ahead + behind + ties`; tied rounds
+    increment neither `ahead` nor `behind`.
+    """
     if (
         not _is_int(ahead)
         or not _is_int(behind)
+        or not _is_int(ties)
         or not isinstance(alpha, Fraction)
         or alpha <= 0
         or alpha >= 1
         or ahead < 0
         or behind < 0
+        or ties < 0
     ):
         raise ValueError("invalid legacy verdict inputs")
-    rounds = ahead + behind
+    rounds = ahead + behind + ties
     threshold = Fraction(1, 1) / alpha
     if ville_mixture_ratio(rounds, ahead) >= threshold:
         return "leads"
@@ -243,11 +300,17 @@ def hardened_supermartingale_gate(
     observed_speedup: Fraction,
     min_speedup: Fraction,
     outside_anchor_ok: bool,
+    ties: int = 0,
 ) -> dict[str, Any]:
-    """Two-sided Bonferroni pure-Q Ville gate + hillclimb#4 outside-anchor ratification."""
+    """Two-sided Bonferroni pure-Q Ville gate + hillclimb#4 outside-anchor ratification.
+
+    Includes tied observations in `rounds = ahead + behind + ties` so ties weaken
+    the mixture ratio identically to Magnitude `Tally::observe`.
+    """
     if (
         not _is_int(ahead)
         or not _is_int(behind)
+        or not _is_int(ties)
         or not _is_int(num_candidates)
         or not isinstance(alpha, Fraction)
         or not isinstance(observed_speedup, Fraction)
@@ -258,10 +321,11 @@ def hardened_supermartingale_gate(
         or num_candidates < 1
         or ahead < 0
         or behind < 0
+        or ties < 0
         or min_speedup <= 0
     ):
         raise ValueError("invalid hardened supermartingale gate inputs")
-    rounds = ahead + behind
+    rounds = ahead + behind + ties
     threshold = Fraction(2 * num_candidates, 1) / alpha
     lead_ratio = ville_mixture_ratio(rounds, ahead)
     trail_ratio = ville_mixture_ratio(rounds, behind)
@@ -277,6 +341,8 @@ def hardened_supermartingale_gate(
         and outside_anchor_ok
     )
     return {
+        "rounds": rounds,
+        "ties": ties,
         "verdict": verdict,
         "promote": promote,
         "threshold": _rat(threshold),
@@ -285,30 +351,58 @@ def hardened_supermartingale_gate(
     }
 
 
-def ieee_rounding_step(value: Fraction, fmt: str) -> Fraction:
-    """Exact IEEE-754 RoundingCells::width w_T(value) matching lattice.rs:448-462.
+@lru_cache
+def _pow2_frac(exp: int) -> Fraction:
+    return Fraction(2, 1) ** exp
 
-    For finite IEEE values, width = (gap_below + gap_above) / 2. At exact normal
-    powers of two 2^e with e > min_normal_exp, gap_below = ulp / 2 and
-    gap_above = ulp, so w_T(2^e) = (3/4) * ulp.
-    """
-    if not isinstance(value, Fraction) or fmt not in IEEE_FORMATS:
-        raise ValueError(f"unsupported value or IEEE format: {fmt}")
-    mantissa_bits, min_normal_exp, min_subnormal_exp = IEEE_FORMATS[fmt]
-    mag = abs(value)
+
+@lru_cache
+def _ieee_rounding_step_mag(mag: Fraction, fmt: str) -> Fraction | None:
+    mantissa_bits, min_normal_exp, sub_ulp, overflow_threshold = _IEEE_CELL_PARAMS[fmt]
     if mag == 0:
-        return Fraction(2, 1) ** min_subnormal_exp
+        return sub_ulp
+    if mag >= overflow_threshold:
+        return None
     exp = mag.numerator.bit_length() - mag.denominator.bit_length()
-    pow_exp = Fraction(2, 1) ** exp
+    pow_exp = _pow2_frac(exp)
     if mag < pow_exp:
         exp -= 1
-        pow_exp = Fraction(2, 1) ** exp
+        pow_exp = _pow2_frac(exp)
     if exp < min_normal_exp:
-        return Fraction(2, 1) ** min_subnormal_exp
-    ulp = Fraction(2, 1) ** (exp - mantissa_bits)
-    if mag == pow_exp and exp > min_normal_exp:
+        return sub_ulp
+    ulp = _pow2_frac(exp - mantissa_bits)
+    scaled = (mag - pow_exp) / ulp
+    k = scaled.numerator // scaled.denominator
+    rem = scaled - k
+    if rem > Fraction(1, 2) or (rem == Fraction(1, 2) and (k & 1) == 1):
+        k += 1
+        if k == (1 << mantissa_bits):
+            exp += 1
+            k = 0
+            ulp = _pow2_frac(exp - mantissa_bits)
+    if k == 0 and exp > min_normal_exp:
         return Fraction(3, 4) * ulp
     return ulp
+
+
+def ieee_rounding_step(value: Fraction, fmt: str) -> Fraction | None:
+    """Exact IEEE-754 RoundingCells::width w_T(q_T(value)) matching lattice.rs:448-462
+    and comparison.rs:146-166, 203-224, 508-512.
+
+    First locates the containing finite rounding cell of `fmt` (round-to-nearest-even
+    payload, matching `Enumerated::containing`). Returns None when `|value|` lies at
+    or beyond the overflow boundary `max_finite + ulp_max / 2` (absent cell -> zero
+    step power in comparison.rs:212).
+
+    For any containing finite cell, width = (gap_below + gap_above) / 2:
+    - Zero, subnormals, and `2^min_normal_exp`: `2^min_subnormal_exp`.
+    - Exact normal powers of two `2^e` with `e > min_normal_exp`: `(3/4) * ulp`.
+    - Interior normals and `max_finite` (`0.5 * inward + 0.5 * inward = inward`,
+      matching lattice.rs:458-461 & comparison.rs:508-512): full `ulp`.
+    """
+    if not isinstance(value, Fraction) or fmt not in _IEEE_CELL_PARAMS:
+        raise ValueError(f"unsupported value or IEEE format: {fmt}")
+    return _ieee_rounding_step_mag(abs(value), fmt)
 
 
 def _subset_rms_ratio_sq(
@@ -316,13 +410,20 @@ def _subset_rms_ratio_sq(
     candidate: list[Fraction],
     indices: list[int],
     step_fmt: str,
-) -> Fraction:
+) -> Fraction | None:
     if not indices:
         return Fraction(0, 1)
     err_sq = sum((candidate[i] - reference[i]) ** 2 for i in indices)
-    step_power = sum(
-        ieee_rounding_step(reference[i], step_fmt) ** 2 for i in indices
-    ) / Fraction(12, 1)
+    if err_sq == 0:
+        return Fraction(0, 1)
+    step_power = Fraction(0, 1)
+    for i in indices:
+        w = ieee_rounding_step(reference[i], step_fmt)
+        if w is not None:
+            step_power += w * w
+    step_power /= Fraction(12, 1)
+    if step_power == 0:
+        return None
     return err_sq / step_power
 
 
@@ -359,10 +460,10 @@ def magnitude_rms_admission(
         step_fmt = subject_fmt
     indices = list(range(len(reference)))
     ratio_sq = _subset_rms_ratio_sq(reference, candidate, indices, step_fmt)
-    admitted = ratio_sq <= alpha * alpha
+    admitted = _within_cap(ratio_sq, alpha * alpha)
     return {
         "step_fmt": step_fmt,
-        "ratio_sq": _rat(ratio_sq),
+        "ratio_sq": _rat_or_inf(ratio_sq),
         "alpha_sq": _rat(alpha * alpha),
         "admitted": admitted,
     }
@@ -397,10 +498,18 @@ def hardened_dual_norm_admission(
         step_fmt = subject_fmt
     else:
         step_fmt = activation_fmt
-    max_ulp = max(
-        abs(c - d) / ieee_rounding_step(d, step_fmt)
-        for c, d in zip(candidate, reference)
-    )
+    best_ulp = Fraction(0, 1)
+    has_absent_error = False
+    for c, d in zip(candidate, reference):
+        err = abs(c - d)
+        if err == 0:
+            continue
+        w = ieee_rounding_step(d, step_fmt)
+        if w is None:
+            has_absent_error = True
+            break
+        best_ulp = max(best_ulp, err / w)
+    max_ulp: Fraction | None = None if has_absent_error else best_ulp
     med_mag = _median_magnitude(reference)
     cutoff = outlier_ratio_threshold * med_mag
     outlier_idx = [i for i, d in enumerate(reference) if abs(d) > cutoff]
@@ -409,17 +518,17 @@ def hardened_dual_norm_admission(
     outlier_ratio_sq = _subset_rms_ratio_sq(reference, candidate, outlier_idx, step_fmt)
     alpha_sq = alpha_rms * alpha_rms
     admitted = (
-        max_ulp <= max_ulp_cap
-        and bulk_ratio_sq <= alpha_sq
-        and outlier_ratio_sq <= alpha_sq
+        _within_cap(max_ulp, max_ulp_cap)
+        and _within_cap(bulk_ratio_sq, alpha_sq)
+        and _within_cap(outlier_ratio_sq, alpha_sq)
     )
     return {
         "step_fmt": step_fmt,
         "outlier_count": len(outlier_idx),
         "bulk_count": len(bulk_idx),
-        "max_ulp": _rat(max_ulp),
-        "bulk_ratio_sq": _rat(bulk_ratio_sq),
-        "outlier_ratio_sq": _rat(outlier_ratio_sq),
+        "max_ulp": _rat_or_inf(max_ulp),
+        "bulk_ratio_sq": _rat_or_inf(bulk_ratio_sq),
+        "outlier_ratio_sq": _rat_or_inf(outlier_ratio_sq),
         "admitted": admitted,
     }
 
@@ -463,76 +572,94 @@ def weight_sample_matches(
 
 def evaluate_trust_boundary(config: dict[str, Any]) -> dict[str, Any]:
     """Warp-drive <-> Magnitude fail-closed execution, cache, lineage, and bank-flush gate."""
+    if not isinstance(config, dict):
+        raise ValueError("config must be a dict")
     reasons: list[str] = []
-    if not isinstance(config["bind_host"], str) or (
-        config["bind_host"] not in LOOPBACK_HOSTS
+    bind_host = config.get("bind_host")
+    auth_token = config.get("auth_token")
+    if not isinstance(bind_host, str) or (
+        bind_host not in LOOPBACK_HOSTS
         and (
-            not isinstance(config["auth_token"], str)
-            or len(config["auth_token"].strip()) < MIN_AUTH_TOKEN_BYTES
+            not isinstance(auth_token, str)
+            or sum(1 for ch in auth_token if not ch.isspace())
+            < MIN_AUTH_TOKEN_BYTES
         )
     ):
         reasons.append("BIND_UNAUTHENTICATED_NON_LOOPBACK")
-    if not isinstance(config["verifier_mode"], bool) or (
-        config["verifier_mode"]
+    verifier_mode = config.get("verifier_mode")
+    temperature = config.get("temperature")
+    top_p = config.get("top_p")
+    explicit_seed = config.get("explicit_seed")
+    if not isinstance(verifier_mode, bool) or (
+        verifier_mode
         and (
-            not _is_exact_rat(config["temperature"])
-            or config["temperature"] != 0
-            or not _is_exact_rat(config["top_p"])
-            or config["top_p"] != 1
-            or not _is_int(config["explicit_seed"])
+            not _is_exact_rat(temperature)
+            or temperature != 0
+            or not _is_exact_rat(top_p)
+            or top_p != 1
+            or not _is_int(explicit_seed)
         )
     ):
         reasons.append("SAMPLING_NON_DETERMINISTIC")
-    if not isinstance(config["verifier_mode"], bool) or (
-        config["verifier_mode"]
-        and not _is_sha256_hex(config["tuning_identity_sha256"])
+    if not isinstance(verifier_mode, bool) or (
+        verifier_mode
+        and not _is_sha256_hex(config.get("tuning_identity_sha256"))
     ):
         reasons.append("TUNING_IDENTITY_UNPINNED")
+    cache_mode = config.get("cache_mode")
     if (
-        config["cache_privacy"] != "owner"
-        or not _is_int(config["cache_mode"])
-        or config["cache_mode"] < 0
-        or config["cache_mode"] > 0o777
-        or (config["cache_mode"] & 0o077) != 0
-        or config["cache_o_nofollow"] is not True
+        config.get("cache_privacy") != "owner"
+        or not _is_int(cache_mode)
+        or cache_mode < 0
+        or cache_mode > 0o777
+        or (cache_mode & 0o077) != 0
+        or config.get("cache_o_nofollow") is not True
     ):
         reasons.append("CACHE_PRIVACY_NOT_OWNER")
     if (
-        not _is_sha256_hex(config["evidence_digest_hex"])
-        or config["evidence_hash_verified"] is not True
+        not _is_sha256_hex(config.get("evidence_digest_hex"))
+        or config.get("evidence_hash_verified") is not True
     ):
         reasons.append("EVIDENCE_DIGEST_UNVERIFIED")
+    jit_symbols = config.get("jit_library_symbols")
     if (
-        config["jit_pointer_authenticated"] is not True
-        or not isinstance(config["jit_library_symbols"], (list, tuple))
+        config.get("jit_pointer_authenticated") is not True
+        or not isinstance(jit_symbols, (list, tuple))
         or any(
             not isinstance(sym, str) or sym not in ALLOWED_JIT_SYMBOLS
-            for sym in config["jit_library_symbols"]
+            for sym in jit_symbols
         )
     ):
         reasons.append("JIT_ARTIFACT_UNTRUSTED")
+    checkpoint_sha = config.get("checkpoint_sha256")
     if (
-        not _is_sha256_hex(config["checkpoint_sha256"])
-        or config["checkpoint_sha256"] != config["expected_checkpoint_sha256"]
+        not _is_sha256_hex(checkpoint_sha)
+        or checkpoint_sha != config.get("expected_checkpoint_sha256")
     ):
         reasons.append("CHECKPOINT_SHA256_MISMATCH")
-    if not isinstance(config["prefix_cache_reused"], bool) or (
-        config["prefix_cache_reused"]
+    prefix_reused = config.get("prefix_cache_reused")
+    req_tenant = config.get("request_tenant_id")
+    cached_tenant = config.get("cached_prefix_tenant_id")
+    if not isinstance(prefix_reused, bool) or (
+        prefix_reused
         and (
-            not _is_nonempty_str(config["request_tenant_id"])
-            or not _is_nonempty_str(config["cached_prefix_tenant_id"])
-            or config["request_tenant_id"] != config["cached_prefix_tenant_id"]
+            not _is_nonempty_str(req_tenant)
+            or not _is_nonempty_str(cached_tenant)
+            or req_tenant != cached_tenant
         )
     ):
         reasons.append("PREFIX_CACHE_TENANT_MISMATCH")
+    tainted_rows = config.get("tainted_rows")
+    active_banks = config.get("active_banks")
+    zeroed_banks = config.get("zeroed_banks")
     if (
-        not _is_int(config["tainted_rows"])
-        or config["tainted_rows"] != 0
-        or not isinstance(config["active_banks"], (list, tuple))
-        or not isinstance(config["zeroed_banks"], (list, tuple))
-        or len(config["active_banks"]) == 0
-        or any(not _is_nonempty_str(bank) for bank in config["active_banks"])
-        or set(config["zeroed_banks"]) != set(config["active_banks"])
+        not _is_int(tainted_rows)
+        or tainted_rows != 0
+        or not isinstance(active_banks, (list, tuple))
+        or not isinstance(zeroed_banks, (list, tuple))
+        or len(active_banks) == 0
+        or any(not _is_nonempty_str(bank) for bank in active_banks)
+        or set(zeroed_banks) != set(active_banks)
     ):
         reasons.append("STATE_BANKS_NOT_FLUSHED")
     return {"admitted": len(reasons) == 0, "reasons": reasons}
@@ -619,9 +746,7 @@ def run_audit_suite(repo_root: Path | None) -> dict[str, Any]:
 
     # MAG-02: F32 recurrent DeltaState at 1.0 off by 16384 F32 ULPs (1/512)
     # admitted under BF16 Activation step (ratio^2 = 4/3 < 64), rejected under F32 Subject
-    f32_width_at_one = ieee_rounding_step(Fraction(1, 1), "F32")
-    bf16_width_at_one = ieee_rounding_step(Fraction(1, 1), "BF16")
-    relaxation_factor = bf16_width_at_one / f32_width_at_one
+    relaxation_factor = _finite_step_ratio(Fraction(1, 1), "BF16", "F32")
     ref_recurrent = [Fraction(1, 1)] * 8
     cand_recurrent = [Fraction(1, 1) + Fraction(1, 512)] * 8
     mag02_legacy = magnitude_rms_admission(
@@ -638,18 +763,46 @@ def run_audit_suite(repo_root: Path | None) -> dict[str, Any]:
         True,
     )
 
-    # MAG-03: Ville supermartingale exact rational ladder & multiplicity inflation
+    # Cross-format nearest-cell & absent-cell controls (matching comparison.rs:146-166, 508-606)
+    f32_near_one_bf16_w = ieee_rounding_step(Fraction(1, 1) - Fraction(1, 1 << 24), "BF16")
+    f16_max_w = ieee_rounding_step(Fraction(65504, 1), "F16")
+    f16_overflow_w = ieee_rounding_step(Fraction(65520, 1), "F16")
+    f32_max = (Fraction(2, 1) - Fraction(1, 1 << 23)) * (Fraction(2, 1) ** 127)
+    f32_prev = f32_max - (Fraction(2, 1) ** 104)
+    f32_max_as_bf16_w = ieee_rounding_step(f32_max, "BF16")
+    absent_legacy = magnitude_rms_admission(
+        [f32_max], [f32_prev], "F32", "BF16", STANDARD_ALPHA, "activation"
+    )
+    absent_hardened = hardened_dual_norm_admission(
+        [f32_max],
+        [f32_prev],
+        "F32",
+        "BF16",
+        STANDARD_ALPHA,
+        Fraction(16, 1),
+        Fraction(16, 1),
+        False,
+    )
+
+    # MAG-03: Ville supermartingale exact rational ladder, tied rounds & multiplicity
     m6_6 = ville_mixture_ratio(6, 6)
     m7_7 = ville_mixture_ratio(7, 7)
     m8_8 = ville_mixture_ratio(8, 8)
+    m8_7 = ville_mixture_ratio(8, 7)
+    m9_8 = ville_mixture_ratio(9, 8)
     martingale_lhs = (
         ville_mixture_ratio(6, 3) + ville_mixture_ratio(6, 4)
     ) / Fraction(2, 1)
     martingale_rhs = ville_mixture_ratio(5, 3)
-    fwer_20 = uncorrected_fwer(20, DEFAULT_ERROR_RATE)
+    fwer_20_indep = uncorrected_fwer(20, DEFAULT_ERROR_RATE)
+    fwer_20_bonf = bonferroni_fwer_upper_bound(20, DEFAULT_ERROR_RATE)
     mag03_legacy_7 = magnitude_legacy_verdict(7, 0, DEFAULT_ERROR_RATE)
+    mag03_legacy_7_tie1 = magnitude_legacy_verdict(7, 0, DEFAULT_ERROR_RATE, ties=1)
     mag03_hardened_7 = hardened_supermartingale_gate(
         7, 0, DEFAULT_ERROR_RATE, 1, Fraction(1, 20), Fraction(1, 50), True
+    )
+    mag03_hardened_8_tie1 = hardened_supermartingale_gate(
+        8, 0, DEFAULT_ERROR_RATE, 1, Fraction(1, 10), Fraction(1, 50), True, ties=1
     )
     mag03_hardened_8_anchor_fail = hardened_supermartingale_gate(
         8, 0, DEFAULT_ERROR_RATE, 1, Fraction(1, 20), Fraction(1, 50), False
@@ -763,14 +916,35 @@ def run_audit_suite(repo_root: Path | None) -> dict[str, Any]:
                 "hardened_bulk_ratio_sq": mag02_hardened["bulk_ratio_sq"],
                 "hardened_max_ulp": mag02_hardened["max_ulp"],
             },
+            "mag02b_cross_format_and_absent_cell": {
+                "f32_one_minus_2m24_as_bf16_width": _rat_or_inf(f32_near_one_bf16_w),
+                "f16_max_65504_width": _rat_or_inf(f16_max_w),
+                "f16_overflow_65520_absent": f16_overflow_w is None,
+                "f32_max_as_bf16_absent": f32_max_as_bf16_w is None,
+                "f32_max_vs_prev_bf16_legacy_admitted": absent_legacy["admitted"],
+                "f32_max_vs_prev_bf16_legacy_ratio_sq": absent_legacy["ratio_sq"],
+                "f32_max_vs_prev_bf16_hardened_admitted": absent_hardened["admitted"],
+                "f32_max_vs_prev_bf16_hardened_max_ulp": absent_hardened["max_ulp"],
+            },
             "mag03_ville_supermartingale": {
                 "m6_6": _rat(m6_6),
                 "m7_7": _rat(m7_7),
                 "m8_8": _rat(m8_8),
+                "m8_7": _rat(m8_7),
+                "m9_8": _rat(m9_8),
                 "martingale_exact_identity": martingale_lhs == martingale_rhs,
-                "uncorrected_fwer_k20_alpha_1_20": _rat(fwer_20),
+                "independent_calibrated_fwer_k20_alpha_1_20": _rat(fwer_20_indep),
+                "bonferroni_upper_bound_k20_alpha_1_20": _rat(fwer_20_bonf),
+                "fwer_independence_assumption": (
+                    "1-(1-alpha)^K requires mutually independent null tests each with "
+                    "exact rejection probability alpha; arbitrary dependence under "
+                    "conservative Ville bounds obeys only Bonferroni FWER <= min(1, K*alpha)"
+                ),
                 "legacy_7_0_verdict": mag03_legacy_7,
+                "legacy_7_0_tie1_verdict": mag03_legacy_7_tie1,
                 "hardened_7_0_verdict": mag03_hardened_7["verdict"],
+                "hardened_8_0_tie1_verdict": mag03_hardened_8_tie1["verdict"],
+                "hardened_8_0_tie1_promote": mag03_hardened_8_tie1["promote"],
                 "hardened_8_0_anchor_fail_promote": mag03_hardened_8_anchor_fail["promote"],
                 "hardened_8_0_pass_promote": mag03_hardened_8_pass["promote"],
             },
