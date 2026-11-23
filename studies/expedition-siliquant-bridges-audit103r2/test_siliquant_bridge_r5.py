@@ -435,16 +435,26 @@ class TestPillars2To5AndLiveDiagnostics(unittest.TestCase):
             pr12_sha = subprocess.run(["git", "-C", td, "rev-parse", "HEAD"], capture_output=True, text=True, check=True).stdout.strip()
             # Missing ref guard before creating refs
             self._assert_err("GIT_REF_MISSING", a.compute_live_siliquant_diagnostics, td)
+            tree_sha = subprocess.check_output(
+                ["git", "-C", td, "rev-parse", "HEAD^{tree}"], text=True
+            ).strip()
+            base_sha = subprocess.check_output(
+                ["git", "-C", td, "commit-tree", tree_sha, "-m", "base snapshot"], text=True
+            ).strip()
+            main_sha = subprocess.check_output(
+                ["git", "-C", td, "commit-tree", tree_sha, "-p", base_sha, "-p", pr12_sha,
+                 "-m", "Merge pull request #12 (reviewed snapshot)"],
+                text=True,
+            ).strip()
             refs = (
-                "refs/remotes/origin/bayan/charming-gates-jlas14",
                 "refs/remotes/origin/main",
                 "refs/remotes/origin/expedition/leech-l1-hadamard-symbiosis",
                 "refs/remotes/origin/feat/magnitude-autotune-quant-bridge",
                 "refs/remotes/origin/feat/round8-inkling-loom-speculative-tomography",
             )
-            subprocess.run(["git", "-C", td, "update-ref", refs[0], pr12_sha], check=True)
-            ref_shas = [pr12_sha]
-            for idx_r, ref in enumerate(refs[1:], start=1):
+            subprocess.run(["git", "-C", td, "update-ref", refs[0], main_sha], check=True)
+            ref_shas = [pr12_sha, main_sha]
+            for idx_r, ref in enumerate(refs[1:], start=2):
                 subprocess.run(["git", "-C", td, "commit", "--allow-empty", "-q", "-m", f"ref{idx_r}"], check=True)
                 rsha = subprocess.run(["git", "-C", td, "rev-parse", "HEAD"], capture_output=True, text=True, check=True).stdout.strip()
                 subprocess.run(["git", "-C", td, "update-ref", ref, rsha], check=True)
@@ -454,6 +464,7 @@ class TestPillars2To5AndLiveDiagnostics(unittest.TestCase):
             self.assertIs(live_c["live_repo_recounted"], True)
             live_d = live_c["live_siliquant_repo_diagnostics"]
             self.assertEqual(live_d["main_commit"], ref_shas[1])
+            self.assertEqual(live_d["pr12_head_commit"], pr12_sha)
             self.assertTrue(live_d["pr12_design_out_has_smollm2_fix"])
             self.assertTrue(live_d["pr12_plan_before_data_exit_zero"])
 
