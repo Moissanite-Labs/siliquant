@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Siliquant's measured results on low-bitrate weight quantisation, with sources and evidence status.">
+  <title>Siliquant · Quantisation results</title>
+  <style>
+    :root { color-scheme: light; --ink: #182a2b; --muted: #465e5e; --line: #ccdad6; --teal: #075e50; --mint: #e1f2eb; --paper: #f7f8f3; }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: var(--paper); font: 1rem/1.58 system-ui, sans-serif; }
+    a { color: var(--teal); text-underline-offset: .18em; }
+    a:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
+    .wrap { width: min(68rem, calc(100% - 3rem)); margin-inline: auto; }
+    .mast { padding-block: 1rem; border-bottom: 1px solid var(--line); }
+    .mast .wrap, nav { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .65rem 1.25rem; }
+    .brand { font-weight: 750; letter-spacing: .1em; text-transform: uppercase; }
+    nav { justify-content: flex-start; font-size: .88rem; }
+    nav a { font-weight: 650; }
+    .button { color: white; background: var(--teal); padding: .38rem .8rem; border-radius: .25rem; text-decoration: none; }
+    .hero { padding: 2.7rem 0 1.8rem; border-bottom: 1px solid var(--line); }
+    .hero .lede { color: var(--muted); font-size: 1.15rem; max-width: 47rem; }
+    .eyebrow { color: var(--teal); font-weight: 750; letter-spacing: .12em; text-transform: uppercase; font-size: .76rem; }
+    h1, h2, h3 { font-family: Georgia, serif; line-height: 1.14; margin: 0; }
+    h1 { font-size: clamp(2.3rem, 7vw, 4.5rem); letter-spacing: -.05em; }
+    h2 { font-size: clamp(1.65rem, 4vw, 2.65rem); letter-spacing: -.03em; margin: .55rem 0 .75rem; }
+    h3 { font-size: 1.28rem; margin-bottom: .35rem; }
+    p { margin: .65em 0; }
+    .chapter { margin-block: 2rem 2.7rem; }
+    .split, .pair { display: grid; grid-template-columns: 1.1fr 1fr; gap: 1.5rem; align-items: start; margin: .9rem 0; }
+    .pair { grid-template-columns: 1fr 1fr; }
+    .tag { display: inline-block; border: 1px solid var(--line); border-radius: .25rem; padding: .16rem .46rem; font-weight: 750; font-size: .71rem; letter-spacing: .08em; text-transform: uppercase; color: #254a43; background: var(--mint); }
+    .tag.open { color: #693f12; background: #f8ecd8; border-color: #e7d3b1; }
+    .tag.pending { color: #52456b; background: #f0eaf6; border-color: #ded2e8; }
+    .table-scroll { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; font-size: .9rem; }
+    caption { text-align: left; color: var(--muted); font-weight: 650; margin-bottom: .4rem; font-size: .83rem; }
+    th, td { padding: .48rem .58rem; border-bottom: 1px solid var(--line); text-align: right; }
+    th:first-child { text-align: left; }
+    thead th { background: #edf1ed; font-size: .84em; vertical-align: bottom; }
+    .highlight { background: var(--mint); color: #174d40; font-weight: 750; }
+    .gemma-results small { display: block; font-weight: 400; }
+    .chart { background: white; border: 1px solid var(--line); padding: .8rem 1rem; margin: 0; border-radius: .25rem; }
+    .chart figcaption { font-weight: 650; font-size: .88rem; margin-bottom: .55rem; }
+    .chart dl { margin: 0; }
+    .chart .row { display: grid; grid-template-columns: 5.2rem 1fr 3.4rem; gap: .5rem; align-items: center; }
+    .chart dt, .chart dd { font-size: .78rem; margin: .2rem 0; }
+    .chart dd { display: contents; }
+    .chart .track { height: .62rem; background: #edf1ed; border-radius: 2rem; }
+    .chart .bar { height: 100%; background: var(--teal); border-radius: inherit; }
+    .chart .num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; }
+    .chart .scale { margin-left: 5.7rem; margin-right: 3.9rem; display: flex; justify-content: space-between; color: var(--muted); font-size: .7rem; }
+    .small, .sources { color: var(--muted); font-size: .86rem; }
+    .sources { border-left: 2px solid var(--line); padding-left: .65rem; }
+    .note { border-top: 1px solid var(--line); padding-top: .9rem; }
+    footer { border-top: 1px solid var(--line); padding: 1.5rem 0 2rem; font-size: .9rem; }
+    @media (max-width: 720px) {
+      .wrap { width: calc(100% - 2rem); }
+      .split, .pair { grid-template-columns: 1fr; gap: 1rem; }
+      .hero { padding-top: 1.5rem; }
+      th, td { padding: .35rem .27rem; }
+    }
+    @page { size: A4; margin: 15mm 17mm; }
+    @media print {
+      * { print-color-adjust: exact; }
+      body { background: white; font-size: 10.5pt; line-height: 1.48; }
+      .mast, footer { display: none; }
+      .wrap { width: auto; }
+      .hero { padding: 0 0 .65rem; }
+      .hero .lede { font-size: 12pt; line-height: 1.3; }
+      .chapter { margin-block: .85rem 0; }
+      .page-break { break-before: page; }
+      h1 { font-size: 31pt; }
+      h2 { font-size: 21pt; }
+      h3 { font-size: 13pt; }
+      .split { grid-template-columns: 1fr; gap: .6rem; }
+      .pair { grid-template-columns: 1fr 1fr; gap: 1rem; }
+      .chart { max-width: 29rem; }
+      .table-scroll { overflow: visible; }
+      #rotation th, #rotation td { padding-block: .28rem; }
+      .chart, table, .note, .sources { break-inside: avoid; }
+      .sources { break-before: avoid; }
+      .small, .sources { font-size: 9pt; }
+    }
+  </style>
+</head>
+<body>
+  <header class="mast">
+    <div class="wrap">
+      <span class="brand">Siliquant</span>
+      <nav aria-label="Report">
+        <a href="#rotation">Turned E8</a>
+        <a href="#packed">Packed results</a>
+        <a href="#gemma">Gemma &amp; kernels</a>
+        <a class="button" href="../siliquant-results.pdf">Read as PDF</a>
+      </nav>
+    </div>
+  </header>
+  <main class="wrap">
+    <header class="hero">
+      <p class="eyebrow">Siliquant research · 23 November 2026</p>
+      <h1>Quantisation results</h1>
+      <p class="lede">At about 4.5 bits per weight, turned E8 gave the lowest mean KL among three ball codebooks on Qwen2.5, SmolLM2 and Llama-3.2. On Gemma 3 270M and 1B, the calibrated integer ball beat calibrated Q4_K_M on both texts at about 5 bpw, with mixed results near 4.5 bpw; on 4B it won on both texts at 4.5040 bpw versus 4.8151 bpw, an unequal-rate comparison. The separate Gemma 4 E4B bridge matches the earlier Q8_0-based result within the preregistered tolerance.</p>
+      <p>Siliquant rounds a group of weights jointly to a point in a finite codebook, cut from the integer grid or the eight-dimensional E8 lattice. The cut and the lattice orientation change which vectors can be represented at a given bit budget. The studies below ask what survives when the rounded weights are put back into the model: mean KL divergence measures the departure from the reference model’s next-token distribution (lower is closer). Bits per weight (bpw) describe the quantised matrices, not whole-model size.</p>
+    </header>
+
+    <section class="chapter" id="rotation">
+      <span class="tag">On main · measured</span>
+      <h2>Turning E8 pays at 4.5 bpw, not uniformly at 3</h2>
+      <p>One ball per 128 weights, no calibration or kept columns. Turned E8 and plain E8 have nearly identical aggregate weight error, yet their output KL differs. At 4.5 bpw the Qwen2.5 gap between them is only 1.1 combined standard errors; it is 5.4 for SmolLM2 and 5.0 for Llama.</p>
+      <div class="split">
+        <div class="table-scroll" tabindex="0" role="region" aria-label="Turned E8 and baseline mean KL">
+          <table>
+            <caption>Mean KL to 16-bit · WikiText-2 test, 10,200 positions</caption>
+            <thead><tr><th scope="col">Model</th><th scope="col">Integer<br>ball</th><th scope="col">Plain<br>E8</th><th scope="col">Turned<br>E8</th><th scope="col">Stock<br>Q4_K_M</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Qwen2.5-1.5B</th><td>0.022750</td><td>0.019549</td><td class="highlight">0.018875</td><td>0.033348</td></tr>
+              <tr><th scope="row">SmolLM2-1.7B</th><td>0.055962</td><td>0.060861</td><td class="highlight">0.051522</td><td>0.083761</td></tr>
+              <tr><th scope="row">Llama-3.2-1B</th><td>0.047808</td><td>0.040161</td><td class="highlight">0.036038</td><td>0.043179</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <figure class="chart">
+          <figcaption>Turned E8: mean KL reduction vs. stock Q4_K_M</figcaption>
+          <dl>
+            <div class="row"><dt>Qwen2.5</dt><dd><span class="track" aria-hidden="true"><span class="bar" style="display:block;width:86.8%"></span></span><span class="num">43.4%</span></dd></div>
+            <div class="row"><dt>SmolLM2</dt><dd><span class="track" aria-hidden="true"><span class="bar" style="display:block;width:77%"></span></span><span class="num">38.5%</span></dd></div>
+            <div class="row"><dt>Llama-3.2</dt><dd><span class="track" aria-hidden="true"><span class="bar" style="display:block;width:33%"></span></span><span class="num">16.5%</span></dd></div>
+          </dl>
+          <div class="scale" aria-hidden="true"><span>0%</span><span>50%</span></div>
+        </figure>
+      </div>
+      <p class="small">The three ball arms count about 4.5 bpw; stock Q4_K_M uses about 4.8 bpw without an importance matrix. The figure divides the KL difference by stock KL. The turned arm’s bit count is not a measured packed file size.</p>
+      <p>At 3 bpw, plain E8 wins on Qwen2.5 (0.169338 vs. turned E8 at 0.178526); integer levels win on SmolLM2 (0.419643 vs. 0.629902). In the separate 4.5-bpw Voronoi code, turning helps SmolLM2 but hurts Qwen2.5, and both turned arms trail stock Q4_K_M.</p>
+      <p class="sources">Sources: <a href="https://github.com/Moissanite-Labs/siliquant/pull/41">PR #41</a> · <a href="https://github.com/Moissanite-Labs/siliquant/blob/ab1022b0ec17b9c6dcd9fb3ce25d9f7b1ec9cb3b/experiments/e8-hadamard-real-weights-2026-11-22/results.out#L1-L41">turned-E8 scores and standard errors</a>.</p>
+    </section>
+
+    <section class="chapter page-break" id="packed">
+      <span class="tag">On main · measured</span>
+      <h2>Integer balls survive the write to disk</h2>
+      <p>The packed format stores 32 weights in 18 bytes before kept columns and other file data. The experiment wrote the file, read it back and scored the reconstructed model. Keeping the ten columns of each feed-forward down projection most affected by clipping reduced Llama’s KL by 34.5%, from 0.051877 to 0.033987, at 4.50542 bpw. The same repair barely moves Qwen2.5 or SmolLM2.</p>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="Packed integer ball and Q4_K_M mean KL">
+        <table>
+          <caption>Mean KL to 16-bit · WikiText-2 test, 10,200 positions</caption>
+          <thead><tr><th scope="col">Model</th><th scope="col">Packed ball<br>plain</th><th scope="col">Packed ball<br>kept columns</th><th scope="col">Q4_K_M<br>no matrix</th><th scope="col">Q4_K_M<br>with matrix</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Qwen2.5-1.5B</th><td class="highlight">0.024517</td><td>0.024719</td><td>0.033348</td><td>0.028205</td></tr>
+            <tr><th scope="row">SmolLM2-1.7B</th><td>0.058855</td><td>0.058117</td><td>0.083761</td><td class="highlight">0.037827</td></tr>
+            <tr><th scope="row">Llama-3.2-1B</th><td>0.051877</td><td class="highlight">0.033987</td><td>0.043179</td><td>0.035923</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>The calibration-free packed ball with kept columns beats uncalibrated Q4_K_M on all three models. Giving stock Q4_K_M an importance matrix, which uses model activations to weight columns, changes the comparison: the packed ball remains ahead on Qwen2.5 and Llama but falls behind on SmolLM2. Readback establishes fidelity, not inference speed.</p>
+      <p class="sources">Source: <a href="https://github.com/Moissanite-Labs/siliquant/blob/f32d750eb01cb4f9cae9b4f742d1c9f35a05fce5/experiments/packed-kept-columns-2026-11-19/results.out#L1-L20">packed scores and file bytes</a> (main snapshot).</p>
+      <div class="pair note">
+        <div>
+          <h3>A second text</h3>
+          <p>On a Python source sample, SmolLM2’s 128-weight integer ball with a WikiText-derived importance matrix scores 0.016664 against 0.023435 for Q4_K_M with that matrix. On Qwen2.5, the plain ball scores 0.013971, the ball with the importance matrix 0.015366, and Q4_K_M with that same matrix 0.019446. This test uses counted balls, not the 32-weight packed files above.</p>
+          <p class="sources">Source: <a href="https://github.com/Moissanite-Labs/siliquant/blob/f32d750eb01cb4f9cae9b4f742d1c9f35a05fce5/experiments/second-text-python-2026-11-18/results.out#L1-L17">Python and WikiText scores</a> (main snapshot).</p>
+        </div>
+        <div>
+          <h3>Downstream accuracy</h3>
+          <p>On 2,000 MMLU questions, the calibrated ball versus calibrated Q4_K_M differed by −0.10 ± 0.55 percentage points on Qwen2.5 and +0.75 ± 0.51 on SmolLM2 (paired standard errors). The subset does not establish an accuracy advantage for the calibrated ball.</p>
+          <p class="sources">Source: <a href="https://github.com/Moissanite-Labs/siliquant/blob/f32d750eb01cb4f9cae9b4f742d1c9f35a05fce5/experiments/mmlu-subset-2026-11-18/results.out#L1-L40">MMLU scores and paired differences</a> (main snapshot).</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter page-break" id="gemma">
+      <span class="tag pending">Measured on an unmerged branch · not on main</span>
+      <h2>Gemma: calibration and the E4B bridge</h2>
+      <h3>4B: the calibrated ball beats stock at its normal rate</h3>
+      <p>The 4.5040-bpw ball scores lower than calibrated Q4_K_M on both texts with the same WikiText-derived importance matrix. Q4_K_M runs at its normal 4.8151 bpw, so this is not a rate-matched comparison. The 4B stock receipts also flag a change to the token embedding (<code>token_embd.weight</code>), outside the counted blocks; the ball runner copies it unchanged from the reference.</p>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="Gemma 3 4B mean KL and block bitrate">
+        <table>
+          <caption>Gemma 3 4B IT · mean KL to 16-bit</caption>
+          <thead><tr><th scope="col">Variant</th><th scope="col">Block bpw</th><th scope="col">WikiText</th><th scope="col">Python</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Q4_K_M, calibrated</th><td>4.8151</td><td>0.088353</td><td>0.041692</td></tr>
+            <tr><th scope="row">hZBG128:b560s16</th><td>4.5040</td><td class="highlight">0.071645</td><td class="highlight">0.031101</td></tr>
+            <tr><th scope="row">hZBG128:b560s16+K10</th><td>4.5072</td><td>0.071663</td><td>0.031448</td></tr>
+            <tr><th scope="row">EBG128:b560s16</th><td>4.4999</td><td>0.094284</td><td>0.039951</td></tr>
+            <tr><th scope="row">HBG128:b560s16</th><td>4.4999</td><td>0.100675</td><td>0.041296</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Without calibration, EBG128 scores lower than HBG128 on both texts at the same reported rate. With the calibrated ball, keeping ten <code>ffn_down</code> columns per layer (340 in total) costs a little more and lowers neither measured KL.</p>
+      <p class="sources">4B sources at <code>86bb1b2</code>: <a href="https://github.com/Moissanite-Labs/siliquant/blob/86bb1b2a2178bd8b68912c1e7496426f53e9ffa8/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-4b-it/results.out">scores</a> and <a href="https://github.com/Moissanite-Labs/siliquant/blob/86bb1b2a2178bd8b68912c1e7496426f53e9ffa8/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-4b-it/results.jsonl">JSONL</a>.</p>
+      <h3>270M and 1B: the calibrated ball needs a higher rate</h3>
+      <p>At practically the same block rate, the uncalibrated 128-weight ball cuts mean KL by 58–63% versus Q4_0 across these two models and texts. Calibrated Q4_K_M is a stronger control: at about 4.5 bpw, the calibrated ball is lower only for 270M on WikiText. At about 5 bpw it is lower in all four comparisons, against stock rates of about 5.43–5.48 bpw.</p>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="Gemma 3 mean KL and block bitrate">
+        <table class="gemma-results">
+          <caption>Gemma 3 IT · mean KL to 16-bit, with block bpw below each score</caption>
+          <thead><tr><th scope="col">Model / text</th><th scope="col">Stock<br>Q4_0</th><th scope="col">Plain<br>ball</th><th scope="col">Cal. ball<br>≈4.5 bpw</th><th scope="col">Cal. ball<br>≈5 bpw</th><th scope="col">Calibrated<br>Q4_K_M</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">270M / WikiText</th><td>0.501528<small>4.5000</small></td><td>0.194755<small>4.4998</small></td><td>0.076017<small>4.5178</small></td><td class="highlight">0.036582<small>5.0180</small></td><td>0.091622<small>5.4338</small></td></tr>
+            <tr><th scope="row">270M / Python</th><td>0.565080<small>4.5000</small></td><td>0.209988<small>4.4998</small></td><td>0.100806<small>4.5178</small></td><td class="highlight">0.055786<small>5.0180</small></td><td>0.088345<small>5.4338</small></td></tr>
+            <tr><th scope="row">1B / WikiText</th><td>0.253345<small>4.5000</small></td><td>0.104723<small>4.4998</small></td><td>0.057824<small>4.5080</small></td><td class="highlight">0.030960<small>5.0081</small></td><td>0.049941<small>5.4818</small></td></tr>
+            <tr><th scope="row">1B / Python</th><td>0.238356<small>4.5000</small></td><td>0.099914<small>4.4998</small></td><td>0.060526<small>4.5080</small></td><td class="highlight">0.030943<small>5.0081</small></td><td>0.051476<small>5.4818</small></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="small">The 270M and 1B records use the same evaluation text hashes. These are block-rate and fidelity measurements, not packed file sizes or downstream accuracy. The <a href="https://github.com/Moissanite-Labs/siliquant/pull/47">preregistered sweep (#47)</a> is still partial: the primary Gemma 4 E4B BF16 sweep is outstanding. Draft <a href="https://github.com/Moissanite-Labs/siliquant/pull/57">PR #57</a> analyses the 270M, 1B and 4B results; its estimates of quantized-block storage and deployment savings are not measured whole-model memory or serving savings.</p>
+      <p class="sources">Sources at <code>86bb1b2</code>: 270M <a href="https://github.com/Moissanite-Labs/siliquant/blob/86bb1b2a2178bd8b68912c1e7496426f53e9ffa8/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-270m-it/results.out">scores</a> and <a href="https://github.com/Moissanite-Labs/siliquant/blob/86bb1b2a2178bd8b68912c1e7496426f53e9ffa8/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-270m-it/results.jsonl">JSONL</a> · 1B <a href="https://github.com/Moissanite-Labs/siliquant/blob/86bb1b2a2178bd8b68912c1e7496426f53e9ffa8/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-1b-it/results.out">scores</a> and <a href="https://github.com/Moissanite-Labs/siliquant/blob/86bb1b2a2178bd8b68912c1e7496426f53e9ffa8/experiments/model-output-gemma-ball-2026-11-23/out/gemma-3-1b-it/results.jsonl">JSONL</a>.</p>
+      <h3 id="e4b-bridge">Gemma 4 E4B: the Q8_0 bridge</h3>
+      <p>The <a href="https://github.com/Moissanite-Labs/siliquant/blob/86bb1b2a2178bd8b68912c1e7496426f53e9ffa8/experiments/model-output-gemma-ball-2026-11-23/PREREG.md#L83-L85">preregistered P7 check</a> connects this sweep to the earlier E4B result on main. The two E8 Voronoi variants were scored against Q8_0, not BF16, and there is no stock comparison arm in these receipts. Both run at 4.5000 block bits per weight; the receipts record 258 of 294 block matrices as active and a reference perplexity of 7.595148.</p>
+      <p>Mean KL (± standard error) was <strong>0.074682 ± 0.002264</strong> for centred <code>VE832:16</code> and <strong>0.077252 ± 0.002314</strong> for uncentred <code>VE8Z32:16</code>. The centred result meets the preregistered tolerance of ±0.002 around the <a href="https://github.com/Moissanite-Labs/siliquant/blob/f32d750eb01cb4f9cae9b4f742d1c9f35a05fce5/experiments/model-output-gemma-e4b-2026-11-15/results.out#L88-L101">earlier 0.0747</a>; that earlier run also recorded 0.1173 for scalar rounding at the same block rate.</p>
+      <p class="sources">Bridge sources at <code>86bb1b2</code>: <a href="https://github.com/Moissanite-Labs/siliquant/blob/86bb1b2a2178bd8b68912c1e7496426f53e9ffa8/experiments/model-output-gemma-ball-2026-11-23/out/gemma-4-E4B-it-bridge/results.out">scores</a> and <a href="https://github.com/Moissanite-Labs/siliquant/blob/86bb1b2a2178bd8b68912c1e7496426f53e9ffa8/experiments/model-output-gemma-ball-2026-11-23/out/gemma-4-E4B-it-bridge/results.jsonl">JSONL</a>.</p>
+      <div class="note">
+        <span class="tag">On main · kernel benchmarks</span>
+        <h2>Smaller tables have not closed the decode gap</h2>
+        <p>At the 88-bit point budget, the compact E8⁴ decoder in #35 needs 19,122 hot bytes rather than the earlier BallIndex table’s 1,376,760. That is a working-set comparison, not model storage. In #36, the 4.5-bpw fused turned-E8 matrix-vector kernel was still about 178–220× slower than a byte-matched custom Q4 proxy on one Zen 1 CPU. The comparator was not llama.cpp Q4_K_M; neither benchmark measures serving throughput.</p>
+        <p class="sources">Sources: <a href="https://github.com/Moissanite-Labs/siliquant/pull/35">PR #35</a> · <a href="https://github.com/Moissanite-Labs/siliquant/blob/419477abbd3da76c58a570fa982f3bbb2d782eae/studies/expedition-ballpack-tree-unrank-audit112r/c-bench/bench_results.json#L2312-L2351">working-set measurements</a> · <a href="https://github.com/Moissanite-Labs/siliquant/pull/36">PR #36</a> · <a href="https://github.com/Moissanite-Labs/siliquant/blob/e1b7f734f944a4251e1c62936c5a43eb97b3decc/studies/audit115r-e8had-simd-ballpack/c-bench/simd_bench_results.json">GEMV measurements</a>.</p>
+      </div>
+    </section>
+  </main>
+  <footer>
+    <div class="wrap">
+      <a href="https://github.com/Moissanite-Labs/siliquant/tree/main/experiments">Experiment index</a> ·
+      <a href="../codebooks-pr6.html">Earlier codebook study</a> ·
+      <a href="../siliquant-one-pager.pdf">Earlier PDF</a>
+    </div>
+  </footer>
+</body>
+</html>
