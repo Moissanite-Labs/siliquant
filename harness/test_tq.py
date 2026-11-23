@@ -58,6 +58,17 @@ def main():
             check(f"{name} q={q}: reconstructions are codewords of the reference code",
                   bool(np.max(np.abs(back - c)) < 1e-3), f"(share shrunk {over:.3f})")
 
+    # 2b. Issue #16: centred=False keeps 0 as an exact codeword without mutating the centred=True cache entry.
+    c_on = tq.Code("E8", 16, centred=True)
+    c_off = tq.Code("E8", 16, centred=False)
+    r_zero_off, ov_off = c_off.quantize(t(np.zeros((8, 8), dtype=np.float32)))
+    r_zero_on, _ = c_on.quantize(t(np.zeros((8, 8), dtype=np.float32)))
+    check("Issue #16: centred=False preserves exact zero codeword and isolates cache",
+          c_on is not c_off and c_on is tq.Code("E8", 16)
+          and bool(np.all(c_off.centre.cpu().numpy() == 0.0))
+          and bool(np.all(r_zero_off.cpu().numpy() == 0.0)) and ov_off == 0.0
+          and float(np.linalg.norm(r_zero_on.cpu().numpy()[0])) > 0.75)
+
     # 3. Same error as the reference quantiser on the same blocks at the same scale.
     for name in ("Z8", "E8"):
         ref = {"Z8": L.Zn(8), "E8": L.E8()}[name]
