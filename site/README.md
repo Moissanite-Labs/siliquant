@@ -10,4 +10,4 @@ python3 site/build_results.py
 python3 site/build_results.py --chrome chromium
 ```
 
-Commit `docs/index.html` and `docs/siliquant-results.pdf` together. Open the HTML or serve `docs/` locally with `python3 -m http.server --directory docs`. The PDF uses the same report body with a three-page print layout; browser versions and fonts can change the rendering. The existing GitHub Pages source is `main:/docs`.
+Commit `docs/index.html` and `docs/siliquant-results.pdf` together. Open the HTML or serve `docs/` locally with `python3 -m http.server --directory docs`. The PDF uses the same report body with a print layout; browser versions and fonts can change the rendering. The existing GitHub Pages source is `main:/docs`.
