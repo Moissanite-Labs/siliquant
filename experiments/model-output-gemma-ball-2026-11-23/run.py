@@ -475,6 +475,7 @@ def _matrix_of(t):
 
 
 def _column_weights(name, cols, power, which="real"):
+    """Return per-column imatrix scales for `name`, or None if `name` has no valid imatrix entry."""
     path = _worker_imatrix_rand_path if which == "rand" else _worker_imatrix_real_path
     if not path:
         raise ValueError(f"imatrix ({which}) is required for weighted arm on {name}")
@@ -488,10 +489,20 @@ def _column_weights(name, cols, power, which="real"):
             if t.name.endswith((".in_sum2", ".counts"))
         }
     im = _worker_imatrix_cache[path]
-    imp = im[name + ".in_sum2"] / float(im[name + ".counts"][0])
+    in_sum2_key = name + ".in_sum2"
+    counts_key = name + ".counts"
+    if in_sum2_key not in im or counts_key not in im:
+        return None
+    counts = im[counts_key]
+    if len(counts) == 0 or float(counts[0]) <= 0.0:
+        return None
+    imp = im[in_sum2_key] / float(counts[0])
     if len(imp) != cols:
         raise ValueError(f"imatrix has {len(imp)} inputs for {name}, expected {cols}")
-    s = (imp / imp.mean()) ** power
+    mean_imp = float(imp.mean())
+    if not math.isfinite(mean_imp) or mean_imp <= 0.0:
+        return None
+    s = (imp / mean_imp) ** power
     return np.maximum(s, 0.01)
 
 
@@ -512,6 +523,7 @@ def round_matrix_variant(variant, name, W, colscale_fn=None):
     energy = float(np.sum(W64 ** 2))
     m_block = BLOCK.match(name)
     kind = m_block.group(2) if m_block else ""
+    imatrix_fallback = False
 
     if variant == "identity":
         Wh, info = finish(W, W, 16.0, 0.0)
@@ -520,6 +532,7 @@ def round_matrix_variant(variant, name, W, colscale_fn=None):
         arm_prefix, n, bbits, sbits, k = m.group(1), int(m.group(2)), int(m.group(3)), int(m.group(4)), int(m.group(5))
         use_imat = arm_prefix.startswith("h")
         cs = colscale_fn(name, W.shape[1], 0.25, "real") if use_imat else None
+        imatrix_fallback = use_imat and cs is None
         if kind == "ffn_down":
             cols = loud_columns(W, k=k)
             rest = np.asarray(W, dtype=np.float32).copy()
@@ -541,6 +554,7 @@ def round_matrix_variant(variant, name, W, colscale_fn=None):
         lattice = "Z8" if kind_code == "ZBG" else "E8"
         hadamard = kind_code == "HBG"
         cs = colscale_fn(name, W.shape[1], power, src)
+        imatrix_fallback = cs is None
         Wh, info = group_ball_round(W, lattice, n, bbits, sbits, colscale=cs, hadamard=hadamard)
     elif GROUP_BALL_RE.match(variant):
         m = GROUP_BALL_RE.match(variant)
@@ -569,6 +583,7 @@ def round_matrix_variant(variant, name, W, colscale_fn=None):
         "energy": energy,
         "size": int(W.size),
         "kept_columns": int(info.get("kept_columns", 0)),
+        "imatrix_fallback": bool(imatrix_fallback),
     }
 
 
@@ -608,6 +623,7 @@ def stats_of(infos, model_id, n_layers):
 
     all_items = list(infos.items())
     active_items = [(n, i) for n, i in all_items if not is_unread_gemma_e4b_tensor(model_id, n, n_layers)]
+    fallback_tensors = sorted(n for n, i in all_items if i.get("imatrix_fallback"))
     out = _agg(all_items)
     act = _agg(active_items)
     out["matrices_active"] = act["matrices"]
@@ -615,6 +631,8 @@ def stats_of(infos, model_id, n_layers):
     out["bits_per_weight_active"] = act["bits_per_weight"]
     out["weight_err_db_mean_active"] = act["weight_err_db_mean"]
     out["weight_err_db_pooled_active"] = act["weight_err_db_pooled"]
+    out["imatrix_fallback_count"] = len(fallback_tensors)
+    out["imatrix_fallback_tensors"] = fallback_tensors
     return out
 
 

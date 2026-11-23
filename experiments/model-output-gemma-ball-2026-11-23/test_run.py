@@ -289,6 +289,132 @@ class TestGemmaBallRunner(unittest.TestCase):
                 with self.assertRaises(SystemExit):
                     R.run_sweep(args_missing)
 
+    def test_missing_imatrix_tensor_falls_back_to_unweighted(self):
+        # Unit tests for _column_weights with missing keys, zero counts, zero sum2, and length mismatch
+        cols = self.W.shape[1]
+        in_sum2_present = np.linspace(1.0, 4.0, cols, dtype=np.float64)
+        fake_im_tensors = [
+            types.SimpleNamespace(name="blk.0.attn_q.weight.in_sum2", data=in_sum2_present),
+            types.SimpleNamespace(name="blk.0.attn_q.weight.counts", data=np.array([10.0], dtype=np.float64)),
+            types.SimpleNamespace(name="blk.0.ffn_down.weight.in_sum2", data=in_sum2_present),
+            types.SimpleNamespace(name="blk.0.ffn_down.weight.counts", data=np.array([10.0], dtype=np.float64)),
+            types.SimpleNamespace(name="blk.1.attn_q.weight.in_sum2", data=in_sum2_present),
+            types.SimpleNamespace(name="blk.2.attn_q.weight.in_sum2", data=in_sum2_present),
+            types.SimpleNamespace(name="blk.2.attn_q.weight.counts", data=np.array([0.0], dtype=np.float64)),
+            types.SimpleNamespace(name="blk.3.attn_q.weight.in_sum2", data=np.zeros(cols, dtype=np.float64)),
+            types.SimpleNamespace(name="blk.3.attn_q.weight.counts", data=np.array([5.0], dtype=np.float64)),
+            types.SimpleNamespace(name="blk.4.attn_q.weight.in_sum2", data=np.ones(cols // 2, dtype=np.float64)),
+            types.SimpleNamespace(name="blk.4.attn_q.weight.counts", data=np.array([5.0], dtype=np.float64)),
+        ]
+        fake_gguf_mod = types.SimpleNamespace(
+            GGUFReader=lambda _p: types.SimpleNamespace(tensors=fake_im_tensors),
+        )
+        fake_ggufedit = types.SimpleNamespace()
+
+        with mock.patch.object(R, "_load_ggufedit", return_value=fake_ggufedit), \
+             mock.patch.dict(sys.modules, {"gguf": fake_gguf_mod}):
+            R._worker_init("fake.gguf", "real.imatrix.gguf", None)
+            present = R._column_weights("blk.0.attn_q.weight", cols, 0.25, "real")
+            self.assertIsNotNone(present)
+            self.assertEqual(present.shape, (cols,))
+            # Missing .in_sum2 and .counts (e.g. KV-shared blk.24.attn_k.weight)
+            self.assertIsNone(R._column_weights("blk.24.attn_k.weight", cols, 0.25, "real"))
+            # Missing .counts only
+            self.assertIsNone(R._column_weights("blk.1.attn_q.weight", cols, 0.25, "real"))
+            # Zero count
+            self.assertIsNone(R._column_weights("blk.2.attn_q.weight", cols, 0.25, "real"))
+            # Zero mean importance
+            self.assertIsNone(R._column_weights("blk.3.attn_q.weight", cols, 0.25, "real"))
+            # Length mismatch still fails closed
+            with self.assertRaises(ValueError):
+                R._column_weights("blk.4.attn_q.weight", cols, 0.25, "real")
+            # Missing imatrix path for rand still fails closed
+            with self.assertRaises(ValueError):
+                R._column_weights("blk.0.attn_q.weight", cols, 0.25, "rand")
+
+        # round_matrix_variant matches unweighted output bit-for-bit on fallback
+        none_colscale = lambda _n, _c, _p, _w="real": None
+        ones_colscale = lambda _n, c, _p, _w="real": np.ones(c, dtype=np.float64)
+
+        Wh_unw, info_unw = R.round_matrix_variant("ZBG128:b560s16", "blk.24.attn_k.weight", self.W)
+        Wh_fb, info_fb = R.round_matrix_variant("hZBG128:b560s16", "blk.24.attn_k.weight", self.W, colscale_fn=none_colscale)
+        np.testing.assert_array_equal(Wh_fb, Wh_unw)
+        self.assertAlmostEqual(info_fb["bits"], info_unw["bits"], places=12)
+        self.assertTrue(info_fb["imatrix_fallback"])
+        self.assertFalse(info_unw["imatrix_fallback"])
+
+        _, info_weighted = R.round_matrix_variant("hZBG128:b560s16", "blk.0.attn_q.weight", self.W, colscale_fn=ones_colscale)
+        self.assertFalse(info_weighted["imatrix_fallback"])
+
+        # Loud-column weighted arm falls back cleanly for both non-ffn_down and ffn_down tensors
+        for tname in ("blk.24.attn_k.weight", "blk.24.ffn_down.weight"):
+            Wh_lk_unw, info_lk_unw = R.round_matrix_variant("ZBG128:b560s16+K10", tname, self.W)
+            Wh_lk_fb, info_lk_fb = R.round_matrix_variant("hZBG128:b560s16+K10", tname, self.W, colscale_fn=none_colscale)
+            np.testing.assert_array_equal(Wh_lk_fb, Wh_lk_unw)
+            self.assertAlmostEqual(info_lk_fb["bits"], info_lk_unw["bits"], places=12)
+            self.assertTrue(info_lk_fb["imatrix_fallback"])
+            self.assertFalse(info_lk_unw["imatrix_fallback"])
+
+        # End-to-end sweep provenance: missing tensors recorded in row metadata
+        with tempfile.TemporaryDirectory() as td:
+            model_path = os.path.join(td, "fake-e4b.gguf")
+            Path(model_path).write_bytes(b"fake-gguf")
+            cache_dir = os.path.join(td, "cache")
+            os.makedirs(cache_dir, exist_ok=True)
+            real_imat = os.path.join(cache_dir, "gemma-4-E4B-it.wikitext.imatrix.gguf")
+            rand_txt = os.path.join(cache_dir, "gemma-4-E4B-it.rand.txt")
+            rand_imat = os.path.join(cache_dir, "gemma-4-E4B-it.rand.imatrix.gguf")
+            Path(real_imat).write_bytes(b"real-imatrix-bytes")
+            Path(rand_txt).write_text("rand", encoding="utf-8")
+            Path(rand_imat).write_bytes(b"rand-imatrix-bytes")
+
+            def mk_tensor(name):
+                return types.SimpleNamespace(
+                    name=name,
+                    shape=(cols, self.W.shape[0]),
+                    data=self.W,
+                    tensor_type=types.SimpleNamespace(name="BF16"),
+                )
+
+            fake_reader = types.SimpleNamespace(
+                tensors=[
+                    mk_tensor("token_embd.weight"),
+                    mk_tensor("blk.0.attn_q.weight"),
+                    mk_tensor("blk.0.ffn_down.weight"),
+                    mk_tensor("blk.24.attn_k.weight"),
+                    mk_tensor("blk.24.attn_v.weight"),
+                ]
+            )
+            fake_ggufedit_sweep = types.SimpleNamespace(
+                open_model=lambda _p: fake_reader,
+                tensor_float=lambda t: t.data,
+            )
+            args = R.parse_args([
+                "--model-id", "gemma-4-E4B-it",
+                "--model-path", model_path,
+                "--out-dir", td,
+                "--texts", "wikitext",
+                "--arms", "ZBG128:b560s16,hZBG128:b560s16,hZBG128:b560s16~rand,hZBG128:b560s16+K10",
+                "--workers", "1",
+                "--metrics-only",
+            ])
+            with mock.patch.object(R, "_load_ggufedit", return_value=fake_ggufedit_sweep), \
+                 mock.patch.dict(sys.modules, {"gguf": fake_gguf_mod, "evalkl": types.SimpleNamespace()}):
+                R.run_sweep(args)
+
+            rows = [
+                json.loads(line)
+                for line in Path(os.path.join(td, "results.jsonl")).read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
+            by_var = {r["variant"]: r for r in rows}
+            expected_missing = ["blk.24.attn_k.weight", "blk.24.attn_v.weight"]
+            for arm in ("hZBG128:b560s16", "hZBG128:b560s16~rand", "hZBG128:b560s16+K10"):
+                self.assertEqual(by_var[arm]["imatrix_fallback_count"], 2, arm)
+                self.assertEqual(by_var[arm]["imatrix_fallback_tensors"], expected_missing, arm)
+            self.assertEqual(by_var["ZBG128:b560s16"]["imatrix_fallback_count"], 0)
+            self.assertEqual(by_var["ZBG128:b560s16"]["imatrix_fallback_tensors"], [])
+
     def test_fail_closed_validation(self):
         with self.assertRaises(ValueError):
             R.round_matrix_variant("UNKNOWN_ARM", "blk.0.attn_q.weight", self.W)
