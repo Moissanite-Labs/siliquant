@@ -206,6 +206,20 @@ class ImpactTests(unittest.TestCase):
             self.assertIn("no headline KL measurements for model", err.getvalue())
             self.assertEqual(out.getvalue(), "")
 
+    def test_cli_labels_bf16_reference_and_compares_ppl(self):
+        baseline = synthetic_row(variant=a.Q4, file_sha256="d" * 64, other_tensors_that_differ=[], ppl=10)
+        with TemporaryDirectory() as tmp:
+            raw = Path(tmp) / "synthetic.jsonl"
+            raw.write_bytes(baseline + synthetic_row(ppl=8))
+            out = StringIO()
+            with redirect_stdout(out):
+                a.main([str(raw), "--model", "gemma-3-270m-it", "--reference", "BF16",
+                        "--reference-wikitext", "10"])
+            report = out.getvalue()
+            self.assertIn("PPL vs BF16 (%)", report)
+            self.assertNotIn("PPL vs F16", report)
+            self.assertIn("-20.00 / +0.00", report)
+
 
 if __name__ == "__main__":
     unittest.main()

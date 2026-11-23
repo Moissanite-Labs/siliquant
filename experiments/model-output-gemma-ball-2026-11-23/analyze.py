@@ -218,12 +218,12 @@ def matched_rate(points, target):
     return ("not reached", None)
 
 
-def comparison(candidate, baseline, f16):
+def comparison(candidate, baseline, reference_ppl):
     gain = Q(baseline["kl_mean"]) - candidate["kl_mean"]
     base_kl = baseline["kl_mean"]
     variance = Q(candidate["kl_mean_se"]) ** 2 + Q(baseline["kl_mean_se"]) ** 2
     def ppl(row):
-        return 100 * (Q(row["ppl"], f16) - 1) if "ppl" in row and f16 else None
+        return 100 * (Q(row["ppl"], reference_ppl) - 1) if "ppl" in row and reference_ppl else None
     return {
         "gain": gain, "ratio": Q(candidate["kl_mean"], base_kl) if base_kl else None,
         "se_squared": variance, "screen": gain != 0 and gain ** 2 >= 4 * variance,
@@ -254,7 +254,7 @@ def fmt(value, digits=3, signed=False):
     return "—" if value is None else format(float(value), f"{'+' if signed else ''}.{digits}f")
 
 
-def impact(rows, model, f16):
+def impact(rows, model, reference_ppl, reference="F16"):
     lines = [f"# Descriptive impact calculations: {model}", "",
              "Positive KL gain and top-1 Δ favor the candidate. Comparisons are conditional on the inputs; "
              "KL SE uses marginal quadrature and does not establish paired significance. "
@@ -264,12 +264,12 @@ def impact(rows, model, f16):
         cells = select(rows, model, text)
         lines.extend([f"## {text}", "",
                       "Stock comparisons ranked by absolute relative KL effect. PPL columns are percent change "
-                      "from F16 (negative is lower PPL), candidate / baseline.", "",
-                      "| Candidate → baseline | Actual block bpw (candidate / baseline) | KL ratio | KL gain | Gain / SE | ≥2 SE? | Top-1 Δ pp | PPL vs F16 (%) |",
+                      f"from {reference} (negative is lower PPL), candidate / baseline.", "",
+                      f"| Candidate → baseline | Actual block bpw (candidate / baseline) | KL ratio | KL gain | Gain / SE | ≥2 SE? | Top-1 Δ pp | PPL vs {reference} (%) |",
                       "|---|---:|---:|---:|---:|---|---:|---:|"])
         pairs = [(a, Q4) for a in COHORT if not a.startswith("file:")] + [
             (a, b) for a in (PLAIN5, MATRIX5, "ZB128@R:32") for b in (Q4KM, Q4IMAT)]
-        stock = [(a, b, comparison(cells[a], cells[b], f16.get(text)))
+        stock = [(a, b, comparison(cells[a], cells[b], reference_ppl.get(text)))
                  for a, b in pairs if a in cells and b in cells]
         def effect(item):
             ratio = item[2]["ratio"]
@@ -313,7 +313,7 @@ def impact(rows, model, f16):
             if a not in cells or b not in cells:
                 continue
             x, y = cells[a], cells[b]
-            c = comparison(x, y, f16.get(text))
+            c = comparison(x, y, reference_ppl.get(text))
             ppl = Q(x["ppl"]) - y["ppl"] if "ppl" in x and "ppl" in y else None
             lines.append(f"| {a} → {b} | {fmt(Q(x['bits_per_weight']) - y['bits_per_weight'], 4, True)} | "
                          f"{fmt(c['gain'], 6, True)} | {fmt(c['keep'], 3, True)} | {fmt(ppl, 3, True)} |")
@@ -341,18 +341,20 @@ def main(argv=None):
     parser.add_argument("results", nargs="+", type=Path, help="runner JSONL files")
     parser.add_argument("--model", required=True, choices=MODELS)
     parser.add_argument("--transcribed-table", action="store_true", help="one rounded message table, not raw JSONL")
-    parser.add_argument("--f16-wikitext", type=decimal)
-    parser.add_argument("--f16-python", type=decimal)
+    parser.add_argument("--reference", choices=("F16", "BF16"), default="F16")
+    parser.add_argument("--reference-wikitext", "--f16-wikitext", type=decimal)
+    parser.add_argument("--reference-python", "--f16-python", type=decimal)
     args = parser.parse_args(argv)
     try:
         raw = [path.read_bytes() for path in args.results]
         require(not args.transcribed_table or len(raw) == 1, "provide a single transcription")
-        f16 = {"wikitext": args.f16_wikitext, "python": args.f16_python}
-        require(all(value is None or value > 0 for value in f16.values()), "F16 PPL must be positive")
+        reference_ppl = {"wikitext": args.reference_wikitext, "python": args.reference_python}
+        require(all(value is None or value > 0 for value in reference_ppl.values()),
+                f"{args.reference} PPL must be positive")
         rows = load_transcribed_table(raw[0], args.model) if args.transcribed_table else load_rows(raw)
         require(any(m == args.model and t in TEXTS for m, t, _ in rows), "no headline cells for model")
         require(any(select(rows, args.model, text) for text in TEXTS), "no headline KL measurements for model")
-        report = impact(rows, args.model, f16)
+        report = impact(rows, args.model, reference_ppl, args.reference)
     except (ValueError, OSError, RecursionError) as exc:
         parser.exit(2, f"gemma impact: {exc}\n")
     print(report)

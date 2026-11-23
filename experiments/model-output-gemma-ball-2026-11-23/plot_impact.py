@@ -13,6 +13,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("results", type=Path)
     parser.add_argument("--model", required=True, choices=MODELS)
+    parser.add_argument("--reference", choices=("F16", "BF16"), default="F16")
     parser.add_argument("--transcribed-table", action="store_true")
     parser.add_argument("--out", required=True, type=Path)
     args = parser.parse_args()
@@ -40,7 +41,7 @@ def main():
     if not any(ax.lines or ax.collections for ax in axes):
         plt.close(fig)
         parser.exit(2, "gemma plot: no plottable KL measurements for model\n")
-    axes[0].set_ylabel("Mean KL against F16 (lower is better)")
+    axes[0].set_ylabel(f"Mean KL against {args.reference} (lower is better)")
     legend = {}
     for ax in reversed(axes):
         handles, labels = ax.get_legend_handles_labels()

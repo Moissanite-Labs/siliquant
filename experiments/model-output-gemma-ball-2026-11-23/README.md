@@ -38,8 +38,12 @@ promote a transcription to verified runner data.
 
 From this experiment directory, use `python3 -I -B analyze.py results.jsonl
 --model MODEL`. Pass one or more nonoverlapping runner files; use
-`--f16-wikitext` and `--f16-python` to supply known baseline PPL. See the
-[270M report](reports/impact/gemma-3-270m-it/README.md) for its exact replay.
+`--reference-wikitext` and `--reference-python` to supply known baseline PPL.
+Pass `--reference BF16` to both analysis and plotting for a BF16 run; the
+default is F16. For exact commands, see the
+[270M](reports/impact/gemma-3-270m-it/README.md),
+[1B](reports/impact/gemma-3-1b-it/README.md), or
+[4B report](reports/impact/gemma-3-4b-it/README.md).
 Add later models as separate `reports/impact/<model>` records. Run
 `test_analyze.py` under `-I -B`, `-I -O -B`, and `-I -B -W error`.
 Rendering the PNG separately uses Matplotlib.

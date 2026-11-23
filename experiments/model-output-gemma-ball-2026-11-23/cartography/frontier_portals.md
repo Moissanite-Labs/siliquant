@@ -27,10 +27,10 @@ measurements rather than the peak bandwidth assumption.
 ## Portal 3 — Test transfer without changing the reference
 
 The [cross-model comparison](../reports/impact/CROSS_MODEL_TRANSFER.md)
-finds no matched F16 evidence at 7B scale. A Q8-reference E4B comparison
-cannot close that gap. The verified 1B outputs repeat the 270M Python
-b560-to-b624 reversal in point estimates. Re-enter the in-flight 4B
-sweep and then the 7B-class run: keep the same text and F16 reference
-across arms, bracket calibrated stock KL, and retain the raw receipts
-and packed bytes. Bench an actual 1B packed arm near the interpolated
-match before treating the block-rate gap as a deployment benefit.
+finds no full matched 16-bit-reference sweep at 7B scale. A Q8-reference
+E4B comparison cannot close that gap. The verified 4B run, with reported
+BF16 reference, does not repeat the smaller models' Python reversal.
+Re-enter the in-flight bridge and then run a full 7B-class comparison:
+keep the texts and reference fixed across arms, bracket calibrated stock
+KL, and retain receipts and packed bytes. Bench an actual 4B packed arm
+near 4.38 bpw before treating the block-rate gap as a deployment benefit.

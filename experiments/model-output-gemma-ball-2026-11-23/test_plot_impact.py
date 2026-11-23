@@ -18,10 +18,10 @@ class PlotImpactTests(unittest.TestCase):
         self.addCleanup(plot.plt.close, "all")
         self.raw, self.chart = Path(tmp.name) / "synthetic.jsonl", Path(tmp.name) / "chart.png"
 
-    def plot(self, data):
+    def plot(self, data, *args):
         self.raw.write_bytes(data)
         with patch("sys.argv", ["plot_impact.py", str(self.raw), "--model", "gemma-3-270m-it",
-                                "--out", str(self.chart)]):
+                                "--out", str(self.chart), *args]):
             plot.main()
 
     def test_refuses_sweep_without_plottable_points(self):
@@ -39,6 +39,10 @@ class PlotImpactTests(unittest.TestCase):
         self.assertEqual([label.get_text() for label in legend.get_texts()],
                          ["Ours: calibrated ball (real-text imatrix)"])
         self.assertTrue(self.chart.is_file())
+
+    def test_plot_labels_bf16_reference(self):
+        self.plot(synthetic_row(), "--reference", "BF16")
+        self.assertEqual(plot.plt.gcf().axes[0].get_ylabel(), "Mean KL against BF16 (lower is better)")
 
 
 if __name__ == "__main__":
