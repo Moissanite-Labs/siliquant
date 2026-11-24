@@ -34,7 +34,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import ballpack  # noqa: E402
 
-MAGIC = b"SQHP1\0\0\0"
+MAGIC = b"SQHP1\0"          # then L as 16 bits: a header of 28 bytes, as ballpack's
 LIMBS = ballpack.LIMBS
 BISECT_STEPS, SHRINK_STEPS = ballpack.BISECT_STEPS, ballpack.SHRINK_STEPS
 
@@ -267,25 +267,24 @@ class HamFormat(ballpack.Format):
     # -- a file ----------------------------------------------------------------------------------
 
     def header(self, tensors):
-        return MAGIC + struct.pack("<6I", self.L, self.n, self.bits, self.bound, self.steps, tensors)
+        return MAGIC + struct.pack("<H5I", self.L, self.n, self.bits, self.bound, self.steps, tensors)
 
     @staticmethod
     def read(path):
-        """A file as (HamFormat, list of (name, stored)), with ballpack's checks on the body."""
+        """A file as (HamFormat, list of (name, stored)). The body is read with the checks of ballpack.Format.read."""
         with open(path, "rb") as f:
             blob = f.read()
-        if blob[:8] != MAGIC:
+        if blob[:6] != MAGIC:
             raise ValueError("not a packed file of this format")
-        if len(blob) < 32:
+        if len(blob) < 28:
             raise ValueError("the file ends inside its header")
-        L, n, bits, bound, steps, count = struct.unpack_from("<6I", blob, 8)
+        L, n, bits, bound, steps, count = struct.unpack_from("<H5I", blob, 6)
+        if L not in (8, 16, 32) or n < L or n % L or n > 4096 or steps < 1:
+            raise ValueError("the file's header names a lattice or a block this reader does not know")
         fmt = HamFormat(L, n, bits, steps)
         if fmt.bound != bound:
             raise ValueError("the file's bound is not the one its L, n and bits give")
-        # the body is ballpack's: hand it to ballpack's reader behind a header of its own
-        body = ballpack.MAGIC + struct.pack("<5I", n, bits, _z_bound(n, bits), steps, count) + blob[32:]
-        _, tensors = _read_body(body)
-        return fmt, tensors
+        return fmt, _body(blob, 28, count, n, fmt.bytes)
 
     def timing(self, records, top=1.0, repeats=3):
         records = np.ascontiguousarray(records, dtype=np.uint8)
@@ -302,19 +301,63 @@ class HamFormat(ballpack.Format):
         return best, out
 
 
-def _z_bound(n, bits):
-    return ballpack.Format(n, bits).bound
+def _body(blob, at, count, n, nbytes):
+    """The matrices of a file, from byte `at`: ballpack.Format.read's loop, with its checks."""
+    tensors = []
 
+    def need(size, what):
+        if size < 0 or at + size > len(blob):
+            raise ValueError(f"the file ends inside {what} of matrix {len(tensors) + 1} of {count}")
 
-def _read_body(blob):
-    import tempfile
-    with tempfile.NamedTemporaryFile(suffix=".sqbp", delete=False) as f:
-        f.write(blob)
-        name = f.name
-    try:
-        return ballpack.Format.read(name)
-    finally:
-        os.remove(name)
+    for _ in range(count):
+        need(2, "the name")
+        (ln,) = struct.unpack_from("<H", blob, at)
+        need(2 + ln, "the name")
+        try:
+            name = blob[at + 2: at + 2 + ln].decode("utf-8")
+        except UnicodeDecodeError:
+            raise ValueError(f"the name of matrix {len(tensors) + 1} is not text") from None
+        at += 2 + ln
+        need(9 + 2, "the header")
+        rows, cols, flag = struct.unpack_from("<IIB", blob, at)
+        at += 9
+        if cols % n:
+            raise ValueError(f"matrix {name}: a block of {n} does not tile a row of {cols}")
+        top = np.frombuffer(blob, dtype="<f2", count=1, offset=at)[0]
+        at += 2
+        if not np.isfinite(top) or top <= 0:
+            raise ValueError(f"matrix {name}: the largest scale is not a positive finite 16-bit float")
+        if flag & ~3:
+            raise ValueError("a matrix of the file has a flag this reader does not know")
+        c, keep, kept = None, None, None
+        if flag & 1:
+            need(2 * cols, "the column weights")
+            c = np.frombuffer(blob, dtype="<f2", count=cols, offset=at).copy()
+            at += 2 * cols
+            if not np.all(np.isfinite(c)) or np.any(c <= 0):
+                raise ValueError(f"matrix {name}: a column weight is not a positive finite 16-bit float")
+        if flag & 2:
+            need(4, "the kept columns")
+            (count_kept,) = struct.unpack_from("<I", blob, at)
+            at += 4
+            need(4 * count_kept, "the kept columns")
+            keep = np.frombuffer(blob, dtype="<u4", count=count_kept, offset=at).copy()
+            at += 4 * count_kept
+            if count_kept == 0 or keep.max() >= cols or np.any(np.diff(keep.astype(np.int64)) <= 0):
+                raise ValueError("the kept columns of a matrix are not columns of it in rising order")
+            need(2 * rows * count_kept, "the kept columns")
+            kept = np.frombuffer(blob, dtype="<f2", count=rows * count_kept, offset=at).reshape(rows, count_kept).copy()
+            at += 2 * rows * count_kept
+            if not np.all(np.isfinite(kept)):
+                raise ValueError(f"matrix {name}: an entry of a kept column is not finite")
+        blocks, width = rows * cols // n, nbytes + 1
+        need(blocks * width, "the blocks")
+        records = np.frombuffer(blob, dtype=np.uint8, count=blocks * width, offset=at).reshape(blocks, width).copy()
+        at += blocks * width
+        tensors.append((name, {"rows": rows, "cols": cols, "top": top, "colscale": c, "records": records, "keep": keep, "kept": kept}))
+    if at != len(blob):
+        raise ValueError("the file has bytes after its last matrix")
+    return tensors
 
 
 def _library():

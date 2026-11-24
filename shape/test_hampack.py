@@ -121,6 +121,13 @@ class TestHamPack(unittest.TestCase):
                 self.assertEqual(size, os.path.getsize(p))
                 self.assertEqual((g.L, g.n, g.bits, g.bound), (f.L, f.n, f.bits, f.bound))
                 self.assertTrue(np.array_equal(g.decode(back[0][1]), Wh))
+                self.assertEqual(size, 28 + len(f.tensor_bytes("w", stored)))
+                blob = open(p, "rb").read()
+                for cut in (20, size - 1):
+                    with open(p, "wb") as h:
+                        h.write(blob[:cut])
+                    with self.assertRaises(ValueError):
+                        HamFormat.read(p)
             self.assertTrue(np.array_equal(Wh[:, [3, 70]], W[:, [3, 70]].astype(np.float16)))
             _, Wn, _ = f.encode(W)
             e = 10 * math.log10(float(np.sum((W - Wn.astype(np.float64)) ** 2) / np.sum(W.astype(np.float64) ** 2)))
