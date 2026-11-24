@@ -1,0 +1,11 @@
+name = "S73bFormalTheory"
+version = "0.1.0"
+defaultTargets = ["S73bFormalTheory"]
+
+[[lean_lib]]
+name = "S73bFormalTheory"
+roots = [
+  "S73bFormalTheory.HeavyTailLPTStarvation",
+  "S73bFormalTheory.LoadPowerCompressionPhase",
+  "S73bFormalTheory.LowBitrateAmplificationAndPareto",
+]
