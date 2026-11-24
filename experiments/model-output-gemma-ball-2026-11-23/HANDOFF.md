@@ -200,8 +200,9 @@ shasum -a 256 <OUT_DIR>/cache/<model_id>.wikitext.imatrix.gguf
 ### Checkout & Runner Pin
 
 ```bash
-git checkout exp/gemma-ball-runner   # verify HEAD == ccf045d04ada2170eeafaa37254a764b96552723
-git rev-parse HEAD
+git fetch origin exp/gemma-ball-runner
+git checkout --detach ccf045d04ada2170eeafaa37254a764b96552723
+test "$(git rev-parse HEAD)" = "ccf045d04ada2170eeafaa37254a764b96552723"
 ```
 
 ### Standard `run.py` CLI Invocations
