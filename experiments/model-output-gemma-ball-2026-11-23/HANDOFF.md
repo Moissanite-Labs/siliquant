@@ -195,8 +195,8 @@ llama-imatrix --version && llama-perplexity --version && llama-quantize --versio
 shasum -a 256 <MODELS_DIR>/<model_file>.gguf <DATA_DIR>/wiki.test.raw <DATA_DIR>/wiki.train.raw <DATA_DIR>/base.py
 # For P7 bridge mode, also verify eval.txt:
 shasum -a 256 <DATA_DIR>/eval.txt
-# After imatrix generation (or on cached imatrix inside the --out-dir passed to run.py), compare against Section 2 imatrix_sha256:
-shasum -a 256 <OUT_DIR>/<model_id>/cache/<model_id>.wikitext.imatrix.gguf
+# After imatrix generation (or on cached imatrix inside the exact --out-dir passed to run.py, e.g. <OUT_DIR>/<model_id> for sweeps or <OUT_DIR>/gemma-3-4b-it-hebg for targeted runs), compare against Section 2 imatrix_sha256:
+shasum -a 256 <RUN_OUT_DIR>/cache/<model_id>.wikitext.imatrix.gguf
 ```
 
 ### Checkout & Runner Pin
