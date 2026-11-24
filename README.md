@@ -61,7 +61,7 @@ The conventions are those of [weft-loom's CONTRIBUTING.md](https://github.com/Mo
 
 ## Status
 
-Twenty-four studies so far. The newest results are at the end of this section. The last of them changes how the earlier ones should be read: the lead of the ball arm with no data and no kept columns holds on two models of three.
+Twenty-five studies so far. The newest results are at the end of this section.
 
 The first measured weight error only: at 2 bits per weight the lattice E8 beats scalar rounding on every matrix tried, and the lattice the starting briefs proposed, A8\*, gains less than half as much in the mean of each family of data.
 
@@ -188,6 +188,13 @@ The twenty-fourth, of 2026-11-23, runs the proposal of draft pull request 24 on 
 
 - **At 4.5 bits with no data the turned lattice is the lowest arm, or within 2 errors of it, on all three models, and ahead of `Q4_K_M` on all three**: mean KL 0.018875, 0.051522 and 0.036038 against 0.033348, 0.083761 and 0.043179. On SmolLM2 it is 5.4 errors under plain E8 and 3.0 under integer levels, with the weight error unchanged: it stores 85.9 percent of the smallest weights as zero where E8 stores 60.7.
 - **At 3.0 bits there is no single winner**, and in a Voronoi code turning helps on one model, hurts on the other and does not reach `Q4_K_M`. No E8 arm has a file or a decoder yet.
+
+The twenty-fifth, of 2026-11-24, tests two results of a survey of the other organisations' work: the lattices of the longer extended Hamming codes, and a baseline scored the way the ball arms are.
+
+- **At 4.5 bits with no data the lattice A_16, in one ball per 128 weights, is the arm to recommend.** Mean KL 0.018974, 0.047957 and 0.034455: the lowest arm on all three models or tied with it. It rounds 93 to 96 percent of the smallest weights to zero, and has 0.12 dB less weight error than E8. With ten columns of each `ffn_down` kept it scores 0.024053 on Llama-3.2. A_32 rounds even more weights to zero and wins SmolLM2, but loses Llama-3.2.
+- **At 3.0 bits a lattice closes the gap on SmolLM2.** A_32 scores 0.358845 and A_16 0.380994, against 0.419643 for integer levels, which had been far ahead of every E8 arm. On Qwen2.5 A_16 is the lowest arm.
+- **The committed `Q4_K_M` rows paid for 8-bit activations that the ball arms never paid.** Multiplied at 16 bits, `Q4_K_M` scores 0.031690, 0.072237 and 0.041195. Every lead of a ball arm holds, by 0.8 to 5.4 errors less. bitsandbytes' NF4, which the organisation trains in, is 26.5 to 46.4 errors behind E8 turned.
+- A numbering of these balls (`shape/hammingindex.py`) and a file with A_16 in the packed format's block (`shape/hampack.py`) were written during the run. The file has its own plan.
 
 ## Licence
 

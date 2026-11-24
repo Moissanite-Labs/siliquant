@@ -20,6 +20,7 @@
 | Llama-3.2-1B | E8 | 4.4999 | -25.585 | 4.64 | 59.7 | -1.37 | 0.040161 ± 0.000635 |
 | Llama-3.2-1B | E8 turned | 4.4999 | -25.585 | 3.48 | 84.5 | -0.96 | 0.036038 ± 0.000526 |
 | Llama-3.2-1B | A16 | 4.4997 | -25.707 | 1.45 | 94.3 | -0.94 | 0.034455 ± 0.000499 |
+| Llama-3.2-1B | A32 | 4.5000 | -25.627 | 0.15 | 98.0 | -0.97 | 0.039540 ± 0.000610 |
 | Llama-3.2-1B | NF4 | 4.5000 | -20.615 | -0.06 | 99.4 | -0.55 | 0.110765 ± 0.001523 |
 | Llama-3.2-1B | Q4_K_M@16 | 4.8023 | -23.260 | 7.52 | 9.2 | 1.49 | 0.041195 ± 0.000573 |
 
@@ -27,7 +28,7 @@
 
 - Qwen2.5-1.5B: a = 7.012, b = -0.00004; residuals in errors: integer levels +0.3, E8 +0.6, E8 turned -1.1, A16 +0.5, A32 -0.3
 - SmolLM2-1.7B: a = 15.193, b = 0.00508; residuals in errors: integer levels +1.9, E8 +2.3, E8 turned -2.4, A16 -0.2, A32 -1.2
-- Llama-3.2-1B: a = 13.753, b = -0.00016; residuals in errors: integer levels +5.2, E8 +4.1, E8 turned -3.1, A16 -4.6
+- Llama-3.2-1B: a = 14.162, b = -0.00061; residuals in errors: integer levels +4.0, E8 +4.4, E8 turned -3.3, A16 -5.5, A32 +2.3
 
 ## 3. Gaps to Q4_K_M in errors (positive: the arm is lower), against the committed row and against Q4_K_M@16
 
@@ -49,8 +50,10 @@
 | Llama-3.2-1B | E8 | 0.040161 | +3.4 | +1.2 |
 | Llama-3.2-1B | E8 turned | 0.036038 | +8.9 | +6.6 |
 | Llama-3.2-1B | A16 | 0.034455 | +11.1 | +8.9 |
+| Llama-3.2-1B | A32 | 0.039540 | +4.2 | +2.0 |
 | Llama-3.2-1B | integer levels, K10 | 0.030223 | +17.3 | +15.1 |
 | Llama-3.2-1B | E8, K10 | 0.025378 | +25.4 | +23.4 |
 | Llama-3.2-1B | E8 turned, K10 | 0.025204 | +25.6 | +23.7 |
+| Llama-3.2-1B | A16, K10 | 0.024053 | +28.2 | +26.4 |
 | Llama-3.2-1B | packed file, integer levels | 0.051877 | -9.0 | -11.3 |
 | Llama-3.2-1B | packed file, integer levels, K10 | 0.033987 | +11.9 | +9.7 |

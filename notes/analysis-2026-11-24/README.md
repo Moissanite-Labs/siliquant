@@ -10,7 +10,7 @@ Written while the run of hamming-lattices-real-weights-2026-11-24 was going. The
 | `pball.py` → `pball.out` | Integer levels in a p-norm ball over 128 weights | The SmolLM2 file |
 | `hampack_speed.py` → `hampack_speed.out` | Both file formats on a made-up matrix: weight error and decode speed | Nothing |
 
-`arms_table.out` was printed with the rows committed when this note was written. It is printed again when the record is written.
+`arms_table.out` was printed again with every row of the hamming-lattices record, when that record was written.
 
 ## 1. A numbering for balls of A_16, A_32 and E8 turned
 
@@ -99,13 +99,13 @@ At 4.5 bits every lattice arm has a pooled weight error within 0.12 dB of the ot
 | A_16 | 1.59 dB | 0.047957 |
 | A_32 | 0.19 dB | 0.045800 |
 
-**So does Llama-3.2, among the lattice arms.** Its small-weight error falls from 4.64 to 3.48 to 1.45 dB across E8, E8 turned and A_16, and its KL from 0.040161 to 0.036038 to 0.034455.
+**So does Llama-3.2, up to A_16.** Its small-weight error falls from 4.64 to 3.48 to 1.45 dB across E8, E8 turned and A_16, and its KL from 0.040161 to 0.036038 to 0.034455. A_32 goes further on the small weights, to 0.15 dB, and scores 0.039540, above E8 turned.
 
 **Qwen2.5 does not.** E8 turned, A_16 and A_32 score 0.018875, 0.018974 and 0.019032, all within 0.3 errors, while their small-weight error falls from 3.15 to −0.13 dB.
 
 **A fit of KL to the two errors** (table 2), over all the ball arms with integer levels among them:
 - It fits SmolLM2 to within 2.4 errors.
-- On Llama-3.2 it misses by up to 5.2 errors. Integer levels have the least error on the small weights and the worst KL of the four there, so no one line holds them and the lattices.
+- On Llama-3.2 it misses by up to 5.5 errors. Integer levels and A_32 have the least error on the small weights, and integer levels the worst KL, so no one line holds them and the lattices.
 - It gives the small weights no part on Qwen2.5.
 
 So no one weight figure predicts the output across models. That is the same lesson as `notes/warp-drive-2026-11-24.md` draws for the certificate that picks by predicted weight error.
@@ -122,7 +122,7 @@ So no one weight figure predicts the output across models. That is the same less
 |---|---|---|
 | Qwen2.5 | 0.8 to 1.4 errors | |
 | SmolLM2 | 4.9 to 5.4 errors | |
-| Llama-3.2 | 1.9 to 2.3 errors | |
+| Llama-3.2 | 1.8 to 2.3 errors | |
 
 **On Llama-3.2 three arms change standing:**
 - plain E8 becomes a tie, at 1.2 errors;
