@@ -13,7 +13,7 @@ def main():
     args = parser.parse_args()
     source = Path(__file__).resolve().with_name("results.html")
     docs = source.parents[1] / "docs"
-    archive = docs / "archive" / "results-2026-11-23.html"
+    archive = docs / "archive" / "results-2026-11-24.html"
     build = source.parent / ".build"
     build.mkdir(exist_ok=True)
     with TemporaryDirectory(prefix="siliquant-results-", dir=build) as work:
@@ -33,7 +33,7 @@ def main():
         archive.parent.mkdir(exist_ok=True)
         shutil.copyfile(pdf, docs / pdf.name)
         shutil.copyfile(source, archive)
-    print("Built docs/archive/results-2026-11-23.html and docs/siliquant-results.pdf")
+    print("Built docs/archive/results-2026-11-24.html and docs/siliquant-results.pdf")
 
 
 if __name__ == "__main__":
