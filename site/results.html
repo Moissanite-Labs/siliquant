@@ -92,13 +92,14 @@
         <a href="#rotation">Turned E8</a>
         <a href="#packed">Packed results</a>
         <a href="#gemma">Gemma &amp; kernels</a>
+        <a href="#hamming">A16 &amp; sm_86</a>
         <a class="button" href="../siliquant-results.pdf">Read as PDF</a>
       </nav>
     </div>
   </header>
   <main class="wrap">
     <header class="hero">
-      <p class="eyebrow">Siliquant research · 23 November 2026</p>
+      <p class="eyebrow">Siliquant research · 24 November 2026</p>
       <h1>Quantisation results</h1>
       <p class="lede">At about 4.5 bits per weight, turned E8 gave the lowest mean KL among three ball codebooks on Qwen2.5, SmolLM2 and Llama-3.2. On Gemma 3 270M and 1B, the calibrated integer ball beat calibrated Q4_K_M on both texts at about 5 bpw, with mixed results near 4.5 bpw; on 4B it won on both texts at 4.5040 bpw versus 4.8151 bpw, an unequal-rate comparison. The separate Gemma 4 E4B bridge matches the earlier Q8_0-based result within the preregistered tolerance.</p>
       <p>Siliquant rounds a group of weights jointly to a point in a finite codebook, cut from the integer grid or the eight-dimensional E8 lattice. The cut and the lattice orientation change which vectors can be represented at a given bit budget. The studies below ask what survives when the rounded weights are put back into the model: mean KL divergence measures the departure from the reference model’s next-token distribution (lower is closer). Bits per weight (bpw) describe the quantised matrices, not whole-model size.</p>
@@ -227,6 +228,41 @@
         <h2>Smaller tables have not closed the decode gap</h2>
         <p>At the 88-bit point budget, the compact E8⁴ decoder in #35 needs 19,122 hot bytes rather than the earlier BallIndex table’s 1,376,760. That is a working-set comparison, not model storage. In #36, the 4.5-bpw fused turned-E8 matrix-vector kernel was still about 178–220× slower than a byte-matched custom Q4 proxy on one Zen 1 CPU. The comparator was not llama.cpp Q4_K_M; neither benchmark measures serving throughput.</p>
         <p class="sources">Sources: <a href="https://github.com/Moissanite-Labs/siliquant/pull/35">PR #35</a> · <a href="https://github.com/Moissanite-Labs/siliquant/blob/419477abbd3da76c58a570fa982f3bbb2d782eae/studies/expedition-ballpack-tree-unrank-audit112r/c-bench/bench_results.json#L2312-L2351">working-set measurements</a> · <a href="https://github.com/Moissanite-Labs/siliquant/pull/36">PR #36</a> · <a href="https://github.com/Moissanite-Labs/siliquant/blob/e1b7f734f944a4251e1c62936c5a43eb97b3decc/studies/audit115r-e8had-simd-ballpack/c-bench/simd_bench_results.json">GEMV measurements</a>.</p>
+      </div>
+    </section>
+
+    <section class="chapter page-break" id="hamming">
+      <span class="tag">On main · measured · 24 Nov</span>
+      <h2>The longer Hamming lattices A16 and A32, and A16 inside the packed file</h2>
+      <p>The extended Hamming code [8, 4, 4] whose lattice is E8 turned by H8 was yesterday's best arm. Its longer siblings [16, 11, 4] and [32, 26, 4] have better cells and round more small weights to zero. One ball per 128 weights, no calibration data, no kept columns: at 4.5 bpw A16 is the lowest arm or tied with it on all three models, and the A16 × A16 packed file — the same 18 bytes per 32 weights as the integer file, read back bit for bit — beats that file on all three models at the same size to the byte.</p>
+      <div class="split">
+        <div class="table-scroll" tabindex="0" role="region" aria-label="Hamming lattice arms and packed A16 file at 4.5 bits per weight">
+          <table>
+            <caption>Mean KL to 16-bit · WikiText-2 test, 10,200 positions · 4.5 bpw arms, no calibration</caption>
+            <thead><tr><th scope="col">Model</th><th scope="col">Integer<br>ball</th><th scope="col">Turned<br>E8</th><th scope="col">A16<br>ball</th><th scope="col">A32<br>ball</th><th scope="col">A16 file<br>+10 cols</th><th scope="col">Q4_K_M<br>@16</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Qwen2.5-1.5B</th><td>0.022750</td><td>0.018875</td><td class="highlight">0.018974</td><td>0.019032</td><td>0.020816</td><td>0.031690</td></tr>
+              <tr><th scope="row">SmolLM2-1.7B</th><td>0.055962</td><td>0.051522</td><td>0.047957</td><td class="highlight">0.045800</td><td>0.047987</td><td>0.072237</td></tr>
+              <tr><th scope="row">Llama-3.2-1B</th><td>0.047808</td><td>0.036038</td><td class="highlight">0.034455</td><td>0.039540</td><td class="highlight">0.026708</td><td>0.041195</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <figure class="chart">
+          <figcaption>A16 ball: mean KL reduction vs. Q4_K_M@16</figcaption>
+          <dl>
+            <div class="row"><dt>Qwen2.5</dt><dd><span class="track" aria-hidden="true"><span class="bar" style="display:block;width:40%"></span></span><span class="num">40.1%</span></dd></div>
+            <div class="row"><dt>SmolLM2</dt><dd><span class="track" aria-hidden="true"><span class="bar" style="display:block;width:34%"></span></span><span class="num">33.6%</span></dd></div>
+            <div class="row"><dt>Llama-3.2</dt><dd><span class="track" aria-hidden="true"><span class="bar" style="display:block;width:16%"></span></span><span class="num">16.4%</span></dd></div>
+          </dl>
+          <div class="scale" aria-hidden="true"><span>0%</span><span>50%</span></div>
+        </figure>
+      </div>
+      <p class="small">Q4_K_M@16 multiplies its activations at 16 bits, as the ball arms do; the committed Q4_K_M rows paid for 8-bit activations, so the gap is wider still against them (0.033348 / 0.083761 / 0.043179). At 3.0 bpw the Hamming lattices close the gap on SmolLM2 (A32 0.358845, A16 0.380994, integer levels 0.419643) and A16 is the lowest arm on Qwen2.5 (0.160368). The packed A16 file decodes 2.5–3.0x slower than the integer file on one core (9.4–10.1M weights/s) and carries 0.83 dB less weight error in every file; the 128-weight ball with a 16-bit scale remains 3.1–6.7 errors lower. 14 of 15 and 6 of 6 preregistered predictions hold.</p>
+      <div class="note">
+        <span class="tag">On main · live GPU + Lean</span>
+        <h2>RTX 3080 sm_86 and exact theory, same day (PRs #86–#95)</h2>
+        <p>Preregistered live runs on a leased RTX 3080 laptop GPU: the Qwen2.5-3B scale law with the opposite-sign A16 Hadamard effect returning (#86), A16_BlockH4 first overall on 3B Python (#90), a zero-spill sm_86 PTX fused gather at <strong>592.31 Gw/s</strong> on the 4096×11008 down_proj, 213.48 tok/s projected (#91), global-sort cannibalization falsified on 4/4 models with a zero-calibration coupled cure (#93), and the stratified quad-snake arm setting the 3B record <strong>0.023154 Wiki / 0.020494 Python KL</strong> across 87 arms and 4,757,127,168 weights (#95). A full-model Qwen2.5-0.5B engine reaches 400.58 tok/s at 4.91x lower energy than AVX-512 (#88). Alongside, three pure-<code>Init</code> Lean 4.36.0 studies kernel-check 45 theorems: the exact 8× opposite-sign E8-vs-A16 law (#87), cross-layer non-additivity and the R_cross reversal threshold (#92), and the two-level saddle point behind quad-interleaving (#94).</p>
+        <p class="sources">Sources at <code>0a40250</code>: <a href="https://github.com/Moissanite-Labs/siliquant/blob/0a402504fc66a303f32153c30e97ec6bec95454b/experiments/hamming-lattices-real-weights-2026-11-24/results.out">hamming-lattice scores</a> · <a href="https://github.com/Moissanite-Labs/siliquant/blob/0a402504fc66a303f32153c30e97ec6bec95454b/experiments/packed-hamming-2026-11-24/results.out">packed A16 file scores</a> · <a href="https://github.com/Moissanite-Labs/siliquant/tree/0a402504fc66a303f32153c30e97ec6bec95454b/studies">studies s63–s72b</a>.</p>
       </div>
     </section>
   </main>

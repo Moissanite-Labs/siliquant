@@ -39,7 +39,7 @@
 <body>
 <header>
   <h1>siliquant: where the work stands</h1>
-  <p class="sub">Repository status as of Monday, November 23, 2026 (UTC). Source: <a href="https://github.com/Moissanite-Labs/siliquant">Moissanite-Labs/siliquant</a>. Main is at <code>fa5f397</code>.</p>
+  <p class="sub">Repository status as of Tuesday, November 24, 2026 (UTC). Source: <a href="https://github.com/Moissanite-Labs/siliquant">Moissanite-Labs/siliquant</a>. Main is at <code>0a40250</code>.</p>
 </header>
 <main>
 
@@ -50,6 +50,10 @@
     <div class="card"><div class="k">SmolLM2 at 4.5 bits (PR #41)</div><div class="v">0.0515 vs 0.0838</div><div class="n">Turned E8 vs Q4_K_M at 4.8 bits.</div></div>
     <div class="card"><div class="k">Llama-3.2 at 4.5 bits (PR #41)</div><div class="v">0.0360 vs 0.0432</div><div class="n">Turned E8 vs Q4_K_M at 4.8 bits.</div></div>
     <div class="card"><div class="k">Z^32 packed footprint (PR #35)</div><div class="v">620.9 KB to 70.8 KB</div><div class="n">8.8x smaller compact table with zero shaping loss on the codebook count.</div></div>
+    <div class="card"><div class="k">A16 Hamming ball, Qwen2.5 at 4.5 bits (PR #85, merged today)</div><div class="v">0.018974</div><div class="n">Lowest arm or tied on all three models. Q4_K_M@16: 0.031690. 93–96% of small weights stored as zero.</div></div>
+    <div class="card"><div class="k">Packed A16 file + 10 kept columns (PR #85)</div><div class="v">0.020816 / 0.047987 / 0.026708</div><div class="n">Qwen2.5 / SmolLM2 / Llama-3.2; 14.9–21.8 errors under Q4_K_M@16 at identical bytes to the Z^32 file.</div></div>
+    <div class="card"><div class="k">Qwen2.5-3B record (PR #95, merged today)</div><div class="v">0.023154 / 0.020494</div><div class="n">Wiki / Python mean KL, stratified quad-snake A16_BlockH4 over 4,757,127,168 real weights, 87 arms.</div></div>
+    <div class="card"><div class="k">RTX 3080 sm_86 fused kernel (PR #91, merged today)</div><div class="v">592.31 Gw/s</div><div class="n">A16_BlockH4 PTX gather, 0 B spill, bit-exact; 213.48 tok/s projected on the 3B down_proj.</div></div>
   </div>
 </section>
 
@@ -65,6 +69,21 @@
     </tbody>
   </table>
   <p class="note">At 3.0 bits there is no single winner: integer levels beat the turned lattice on SmolLM2 by 20.2 errors, which was not predicted. No E8 arm has a packed file or decoder yet; bit counts are counted, not stored.</p>
+</section>
+
+<section>
+  <h2>24 November: Hamming lattices A16/A32 and the packed A16 file (PR #85, merged as 8d7fb0f)</h2>
+  <p class="note">Mean KL divergence against the 16-bit model, wikitext-2 test text, no calibration data. Sources: <code>experiments/hamming-lattices-real-weights-2026-11-24/results.out</code> and <code>experiments/packed-hamming-2026-11-24/results.out</code> at <code>0a40250</code>. 14 of 15 and 6 of 6 preregistered predictions hold.</p>
+  <table>
+    <thead><tr><th>Model</th><th class="num">A16 ball, 4.5 bits</th><th class="num">A32 ball, 4.5 bits</th><th class="num">A16 packed file +10 cols</th><th class="num">Q4_K_M@16, 4.8 bits</th><th class="num">Q4_K_M committed, 4.8 bits</th></tr></thead>
+    <tbody>
+      <tr><td>Qwen2.5-1.5B</td><td class="num">0.018974</td><td class="num">0.019032</td><td class="num">0.020816</td><td class="num">0.031690</td><td class="num">0.033348</td></tr>
+      <tr><td>SmolLM2-1.7B</td><td class="num">0.047957</td><td class="num">0.045800</td><td class="num">0.047987</td><td class="num">0.072237</td><td class="num">0.083761</td></tr>
+      <tr><td>Llama-3.2-1B</td><td class="num">0.034455</td><td class="num">0.039540</td><td class="num">0.026708</td><td class="num">0.041195</td><td class="num">0.043179</td></tr>
+    </tbody>
+  </table>
+  <p class="note">At 3.0 bits on SmolLM2, A32 scores 0.358845 and A16 0.380994 against 0.419643 for integer levels; A16 is the lowest arm on Qwen2.5 (0.160368). The packed A16 file is the same 18 bytes per 32 weights as the Z^32 file, read back bit for bit, 0.83 dB lower weight error, and 4.6–12.7 errors lower with no columns kept; it decodes 2.5–3.0x slower on one core (9.4–10.1M weights/s). The 128-weight ball with a 16-bit scale stays 3.1–6.7 errors lower still.</p>
+  <p class="note">Live RTX 3080 (sm_86) studies merged the same day: 3B scale law with the opposite-sign A16 law returning (#86), A16_BlockH4 #1 on 3B Python (#90), 592.31 Gw/s zero-spill PTX kernel (#91), global-sort cannibalization falsified with a coupled-coherent cure (#93), and the stratified quad-snake 3B record 0.023154 / 0.020494 (#95), plus a 0.5B full-model engine at 400.58 tok/s and 4.91x lower energy (#88) and three pure-Init Lean 4.36.0 theory studies (#87, #92, #94).</p>
 </section>
 
 <section>
@@ -109,18 +128,13 @@
   <table>
     <thead><tr><th>PR</th><th>Title</th><th>Author</th><th>Status</th><th>Head</th></tr></thead>
     <tbody>
-      <tr><td><a href="https://github.com/Moissanite-Labs/siliquant/pull/12">#12</a></td><td>Real-weight KL scoring, hZBG128 ball baseline, packed file, and checks</td><td>orda-aska</td><td><span class="tag merged">Merged</span></td><td>Merge commit <code>bee2545</code></td></tr>
-      <tr><td><a href="https://github.com/Moissanite-Labs/siliquant/pull/41">#41</a></td><td>E8 turned by a Hadamard matrix on real weights (#25 step 1), read guard, plan-before-data header</td><td>—</td><td><span class="tag open">Open</span></td><td><code>ab1022b</code></td></tr>
-      <tr><td><a href="https://github.com/Moissanite-Labs/siliquant/pull/35">#35</a></td><td>Binary-tree shell-convolution unranking and C11 packed E8^4 codec (AUDIT-112R)</td><td>abu-aska</td><td><span class="tag open">Open</span> <span class="tag warn">Blocked</span></td><td><code>419477a</code></td></tr>
-      <tr><td><a href="https://github.com/Moissanite-Labs/siliquant/pull/36">#36</a></td><td>Zero-table E8_Had adjoint GEMV and real-hardware cycle breakdown (AUDIT-115R)</td><td>abu-aska</td><td><span class="tag open">Open</span> <span class="tag warn">Blocked</span></td><td><code>e1b7f73</code></td></tr>
-      <tr><td><a href="https://github.com/Moissanite-Labs/siliquant/pull/39">#39</a></td><td>Branchless int32 guide and leader-phase audit, Stage 1 (AUDIT-116R)</td><td>abu-aska</td><td><span class="tag merged">Merged</span></td><td>Into main, <code>fa5f397</code></td></tr>
-      <tr><td><a href="https://github.com/Moissanite-Labs/siliquant/pull/40">#40</a></td><td>Bind and strictly validate codebook receipts (shape/)</td><td>orda-aska</td><td><span class="tag open">Open</span></td><td><code>6a58d81</code></td></tr>
-      <tr><td><a href="https://github.com/Moissanite-Labs/siliquant/pull/42">#42</a></td><td>Pure-Q E8_Had outlier anisotropy, Block-H2 equals WHT_8, Gate-8 study (AUDIT-119BR)</td><td>abu-aska</td><td><span class="tag open">Open</span></td><td><code>4f7e4ad</code></td></tr>
-      <tr><td><a href="https://github.com/Moissanite-Labs/siliquant/pull/43">#43</a></td><td>Split all Unicode \p{N} numbers in SmolLM2 pre-tokenizer (closes #37)</td><td>abu-aska</td><td><span class="tag open">Open</span></td><td><code>e5adc05</code></td></tr>
-      <tr><td><a href="https://github.com/Moissanite-Labs/siliquant/pull/44">#44</a></td><td>Zero-extra-bit graded conformal-wing E8^Had shell packing and bulk Steiner parity wall (AUDIT-121AR)</td><td>abu-aska</td><td><span class="tag open">Open</span></td><td><code>168fbe3</code></td></tr>
+      <tr><td><a href="https://github.com/Moissanite-Labs/siliquant/pull/85">#85</a>–<a href="https://github.com/Moissanite-Labs/siliquant/pull/95">#95</a></td><td>2026-11-24 batch: Hamming-lattice experiments + packed A16 file, RTX 3080 live studies s63–s72b, Lean 4.36.0 theory</td><td>43therean, ahrazzle, bayan</td><td><span class="tag merged">Merged 2026-11-24</span></td><td>Merge commits <code>8d7fb0f</code>…<code>0a40250</code></td></tr>
+      <tr><td><a href="https://github.com/Moissanite-Labs/siliquant/pull/54">#54</a></td><td>Add auto-updating Siliquant research hub</td><td>ahrazzle</td><td><span class="tag open">Open</span> <span class="tag warn">Needs decision</span></td><td><code>f0e69fd</code></td></tr>
+      <tr><td><a href="https://github.com/Moissanite-Labs/siliquant/pull/57">#57</a></td><td>Gemma ball sweep: impact analysis (270M, 1B, 4B), parser and audit trail</td><td>ahrazzle</td><td><span class="tag warn">Draft</span></td><td><code>3be6bfd</code></td></tr>
+      <tr><td><a href="https://github.com/Moissanite-Labs/siliquant/pull/67">#67</a></td><td>Add Siliquant weight quantization brief</td><td>—</td><td><span class="tag open">Open</span></td><td><code>summary</code> branch</td></tr>
     </tbody>
   </table>
-  <p class="note">PR #39 is already merged into main; it was listed as in flight in the request. PR #35 and #36 are reported as blocked by GitHub's mergeable state. Research PRs in this list (#42, #44) are standalone exact studies and are not wired into the runtime.</p>
+  <p class="note">All eleven PRs opened on 2026-11-24 (#85–#95) were reviewed and merged into main the same day; their CodeQL/Analyze checks were green and the repository's own checks (plan-before-data, claim ledger, number trace) exit 0 on the merged head <code>0a40250</code>. The three remaining open PRs are unchanged: #54 carries a needs-decision label, #57 is a draft, #67 awaits a decision.</p>
 </section>
 
 <section>
@@ -137,8 +151,8 @@
   <h2>Limits</h2>
   <ul>
     <li>Real-weight KL is measured on wikitext-2 test text only, with no calibration data. Other kinds of text are not yet tested for PR #41 arms.</li>
-    <li>No packed format or decoder yet exists for the turned E8 lattice. Its bit counts are counted, not stored.</li>
-    <li>Roofline figures are bandwidth ceilings. Measured kernel tokens per second are not in the record.</li>
+    <li>A packed A16 file (hampack) now exists and is read back bit for bit, but it decodes 2.5–3.0x slower than the Z^32 file on one core. No packed format exists yet for the turned E8 lattice; its bit counts are counted, not stored.</li>
+    <li>Roofline figures are bandwidth ceilings. RTX 3080 sm_86 kernels are now measured (up to 592.31 Gw/s fused gather, 213.48 tok/s projected on the 3B down_proj); TPU v5e / Pallas remain unmeasured.</li>
     <li>On CPU, every E8 arm is far slower than the Q4_K_M baseline. The records state this and do not claim otherwise.</li>
   </ul>
 </section>
