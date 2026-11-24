@@ -1250,7 +1250,7 @@
     }
 
     /* =========================================================================
-       PRINT STYLESHEET (Clean PDF export for researchers)
+       PRINT STYLESHEET
        ========================================================================= */
     @media print {
       :root, [data-theme="dark"] {
@@ -1310,7 +1310,7 @@
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.57.11.78-.25.78-.55 0-.27-.01-1.18-.02-2.14-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.29 1.19-3.09-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.17 1.18a11.02 11.02 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.77.11 3.06.74.8 1.19 1.83 1.19 3.09 0 4.41-2.69 5.39-5.25 5.67.41.36.78 1.06.78 2.14 0 1.54-.01 2.79-.01 3.17 0 .31.21.67.79.55A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/>
           </svg>
-          <span>Moissanite-Labs/siliquant</span>
+          <span class="btn-label-hide">Moissanite-Labs/siliquant</span>
         </a>
         <button type="button" class="btn" id="citeBtn" aria-label="Show BibTeX citation">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -1738,7 +1738,11 @@
         </div>
 
         <p class="prose">
-          KL divergence measured against the 8-bit reference (lower is better). Top-1 token agreement is reported only at <code>4.5 bpw</code> (<code>91.6%</code> E<sub>8</sub> vs <code>89.4%</code> Q4_0). Evaluated separately from the Gemma 3 16-bit ball sweep in Section 4. A separate <a href="https://github.com/Moissanite-Labs/siliquant/blob/main/site/results.html#e4b-bridge">Q8_0 bridge run</a> re-measures the <code>4.5 bpw</code> E<sub>8</sub> arm at <code>0.074682 ± 0.002264</code> (centred <code>VE832:16</code>) and <code>0.077252 ± 0.002314</code> (uncentred <code>VE8Z32:16</code>), against the Q8_0 reference with no stock arm. The BF16 sweep remains outstanding.
+          KL divergence measured against the 8-bit reference (lower is better). Top-1 token agreement is reported only at <code>4.5 bpw</code> (<code>91.6%</code> E<sub>8</sub> vs <code>89.4%</code> Q4_0). Evaluated separately from the Gemma 3 16-bit ball sweep in Section 4. A separate <a href="https://github.com/Moissanite-Labs/siliquant/blob/main/site/results.html#e4b-bridge">Q8_0 bridge run</a> re-measures the <code>4.5 bpw</code> E<sub>8</sub> arm at <code>0.074682 ± 0.002264</code> (centred <code>VE832:16</code>) and <code>0.077252 ± 0.002314</code> (uncentred <code>VE8Z32:16</code>), against the Q8_0 reference with no stock arm.
+        </p>
+
+        <p class="prose">
+          The centred result meets the preregistered tolerance of ±0.002 around the earlier 0.0747. That earlier run also recorded 0.1173 for scalar rounding at the same block rate. The bridge receipts record 258 of 294 block matrices as active and a reference perplexity of 7.595148. The BF16 sweep remains outstanding.
         </p>
 
         <div class="grid-asymmetric">
@@ -2032,6 +2036,7 @@
               <div><strong>*</strong> Ball baseline uses Q4_K_M + importance matrix.</div>
               <div><strong>Ten-column repair:</strong> Leaving 10 loud <code>ffn_down</code> columns unquantized (+<code>0.005</code> extra bpw) beats Q4_K_M on all three models: KL <code>0.0222</code>, <code>0.0528</code>, <code>0.0302</code>.</div>
               <div><strong>Additional findings:</strong> Plain ball beats Q4_K_M on 2/3 models (Llama exception). Turned lattice is lowest or within 2 errors on all three at 4.5 bits. At <code>3.0 bpw</code>, no single arm wins. Zero-retention on smallest-magnitude weights: <code>85.9%</code> (Hadamard arm).</div>
+              <div><strong>At 3.0 bpw:</strong> plain E8 wins on Qwen2.5 (<code>0.169338</code> vs turned <code>0.178526</code>) and integer levels win on SmolLM2 (<code>0.419643</code> vs turned <code>0.629902</code>). In the separate 4.5-bpw Voronoi code, turning helps SmolLM2 but hurts Qwen2.5, and both turned arms trail stock Q4_K_M.</div>
               <div><strong>Counted bits:</strong> The ball arms count about <code>4.5 bpw</code> against stock’s roughly <code>4.8 bpw</code>. That count is not a packed file size.</div>
             </div>
           </div>
@@ -2048,6 +2053,9 @@
         </p>
         <p class="prose">
           On <a href="https://github.com/Moissanite-Labs/siliquant/blob/main/site/results.html#gemma">4B</a>, the calibrated ball at <code>4.5040 bpw</code> scores lower on both texts than calibrated <code>Q4_K_M</code> at its normal <code>4.8151 bpw</code>. The rates are unequal, and the <a href="https://github.com/Moissanite-Labs/siliquant/blob/main/site/results.html#gemma">stock receipts</a> flag a change to <code>token_embd.weight</code> outside the counted blocks; the ball runner copies it unchanged from the reference.
+        </p>
+        <p class="prose">
+          Without calibration on 4B, the E8 ball (<code>EBG128</code>) scores <code>0.0943</code> on WikiText and <code>0.0400</code> on Python, lower than the Hadamard-turned ball (<code>HBG128</code>, <code>0.1007</code> and <code>0.0413</code>) at the same reported rate. Keeping ten <code>ffn_down</code> columns per layer (340 in total) costs a little more and lowers neither measured KL (<code>0.0717</code> WikiText, <code>0.0314</code> Python).
         </p>
 
         <div class="table-wrap">
@@ -2094,6 +2102,61 @@
                 <td class="num">0.0417</td>
                 <td class="num"><span class="pill pill-win">−25%</span></td>
                 <td><span class="pill pill-win">Win both texts · lower bpw</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="prose">
+          Without calibration, the plain 128-weight ball cuts mean KL by 50–63% versus Q4_0 across the three Gemma models and both texts, at practically the same block rate.
+        </p>
+
+        <div class="table-wrap">
+          <table class="sci-table">
+            <thead>
+              <tr>
+                <th>Model / text</th>
+                <th class="num">Plain ball</th>
+                <th class="num">Q4_0</th>
+                <th class="num">Reduction</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>270M</strong> / WikiText</td>
+                <td class="num">0.1948</td>
+                <td class="num">0.5015</td>
+                <td class="num"><span class="pill pill-win">−61%</span></td>
+              </tr>
+              <tr>
+                <td><strong>270M</strong> / Python</td>
+                <td class="num">0.2100</td>
+                <td class="num">0.5651</td>
+                <td class="num"><span class="pill pill-win">−63%</span></td>
+              </tr>
+              <tr>
+                <td><strong>1B</strong> / WikiText</td>
+                <td class="num">0.1047</td>
+                <td class="num">0.2533</td>
+                <td class="num"><span class="pill pill-win">−59%</span></td>
+              </tr>
+              <tr>
+                <td><strong>1B</strong> / Python</td>
+                <td class="num">0.0999</td>
+                <td class="num">0.2384</td>
+                <td class="num"><span class="pill pill-win">−58%</span></td>
+              </tr>
+              <tr>
+                <td><strong>4B</strong> / WikiText</td>
+                <td class="num">0.1126</td>
+                <td class="num">0.2244</td>
+                <td class="num"><span class="pill pill-win">−50%</span></td>
+              </tr>
+              <tr>
+                <td><strong>4B</strong> / Python</td>
+                <td class="num">0.0420</td>
+                <td class="num">0.1056</td>
+                <td class="num"><span class="pill pill-win">−60%</span></td>
               </tr>
             </tbody>
           </table>
@@ -2286,7 +2349,15 @@
             </div>
 
             <div style="border-top: 1px solid var(--border-hairline); padding-top: 12px; font-size: 0.79rem; color: var(--text-secondary); line-height: 1.55;">
-              <strong>Packed file (merged):</strong> <code>4.505 bpw</code>, verified bit-for-bit on readback, scoring under <code>Q4_K_M</code> by <code>10.2</code>, <code>13.5</code>, and <code>11.9</code> errors respectively. On Llama-3.2, keeping the ten loud <code>ffn_down</code> columns lowers mean KL from <code>0.051877</code> to <code>0.033987</code> at <code>4.50542 bpw</code>. End-to-end <strong>MMLU</strong> sits within <code>−0.70</code> to <code>+0.15</code> points of the 16-bit model.
+              <strong>Packed file (merged):</strong> <code>4.505 bpw</code>, verified bit-for-bit on readback, scoring under <code>Q4_K_M</code> by <code>10.2</code>, <code>13.5</code>, and <code>11.9</code> errors respectively. On Llama-3.2, keeping the ten loud <code>ffn_down</code> columns lowers mean KL from <code>0.051877</code> to <code>0.033987</code> at <code>4.50542 bpw</code>, a 34.5% reduction.
+            </div>
+
+            <div style="padding-top: 8px; font-size: 0.79rem; color: var(--text-secondary); line-height: 1.55;">
+              On a Python source sample, SmolLM2's 128-weight integer ball with a WikiText-derived importance matrix scores <code>0.016664</code> against <code>0.023435</code> for Q4_K_M with that matrix. On Qwen2.5, the plain ball scores <code>0.013971</code>. The ball with the importance matrix scores <code>0.015366</code>. Q4_K_M with that same matrix scores <code>0.019446</code>. This test uses counted balls, not the 32-weight packed files above.
+            </div>
+
+            <div style="padding-top: 8px; font-size: 0.79rem; color: var(--text-secondary); line-height: 1.55;">
+              On 2,000 MMLU questions, the calibrated ball versus calibrated Q4_K_M differed by <code>−0.10 ± 0.55</code> percentage points on Qwen2.5 and <code>+0.75 ± 0.51</code> on SmolLM2. The subset does not establish an accuracy advantage. End-to-end <strong>MMLU</strong> sits within <code>−0.70</code> to <code>+0.15</code> points of the 16-bit model.
             </div>
           </div>
 
@@ -2311,6 +2382,10 @@
                 <div class="bar-track"><div class="bar-fill q4km" style="width: 34%;"></div></div>
                 <div class="bar-val">18–23M <span class="ratio">w/s/c</span></div>
               </div>
+            </div>
+
+            <div style="font-size: 0.79rem; color: var(--text-secondary); line-height: 1.55; margin-bottom: 10px;">
+              At the 88-bit point budget, the compact E8&#8308; decoder needs <code>19,122</code> hot bytes, against <code>1,376,760</code> for the earlier BallIndex table. That is a working-set comparison, not model storage.
             </div>
 
             <!-- Stage-1 Leaf Unranking Breakdown -->
@@ -2383,6 +2458,11 @@
                 <td>Stage 2 certificate verification is still running.</td>
               </tr>
               <tr>
+                <td><strong>Impact Estimates</strong></td>
+                <td><span class="pill pill-warn">UNMEASURED</span></td>
+                <td>Draft impact-analysis estimates of quantized-block storage and deployment savings are not measured whole-model memory or serving savings.</td>
+              </tr>
+              <tr>
                 <td><strong>Accelerator Kernels</strong></td>
                 <td><span class="pill pill-warn">UNMEASURED</span></td>
                 <td>Every roofline figure is a theoretical HBM ceiling (<code>1.79×</code> Hadamard @ 4.47 bpw, <code>1.78×</code> Ball @ 4.50 bpw vs INT8). Pallas/TPU speed unmeasured; Zen 1 CPU fused GEMV is <code>178–220×</code> slower than Q4 proxy.</td>
@@ -2410,7 +2490,6 @@
           <div>Siliquant · Working Paper · 23 November 2026</div>
           <div style="display:flex; gap:14px; align-items:center;">
             <a href="https://github.com/Moissanite-Labs/siliquant" target="_blank" rel="noopener noreferrer">github.com/Moissanite-Labs/siliquant ↗</a>
-            <a href="siliquant-results.pdf">Full results report (PDF)</a>
             <button type="button" class="btn" id="footerCiteBtn" style="height:26px; font-size:0.72rem;">Copy BibTeX</button>
           </div>
         </footer>
@@ -2934,7 +3013,7 @@
           stroke: 'var(--fail)', 'stroke-width': 1.2, 'stroke-dasharray': '3,3'
         }));
         svg.appendChild(svgEl('text', {
-          x: floorX + 4, y: pad.t + 11,
+          x: floorX + 4, y: pad.t + innerH - 6,
           fill: 'var(--fail)', 'font-family': 'var(--font-mono)', 'font-size': 9
         }, '4.00 INT4 floor'));
 
