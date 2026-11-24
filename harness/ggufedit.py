@@ -73,3 +73,46 @@ def write_copy(reader, out_path, replace):
     for arr in data:
         writer.write_tensor_data(arr, tensor_endianess=reader.endianess)
     writer.close()
+
+
+def write_copy_streaming(reader, out_path, replace_files):
+    """Like write_copy, but each replacement is a path to a .npy file loaded one tensor at
+    a time. Byte-identical output to write_copy for the same arrays, while keeping only a
+    single replacement matrix in memory, so 27B-class arm files can be written on a 64 GB host.
+    """
+    arch = reader.get_field(gguf.Keys.General.ARCHITECTURE).contents()
+    writer = gguf.GGUFWriter(out_path, arch=arch, endianess=reader.endianess)
+    align = reader.get_field(gguf.Keys.General.ALIGNMENT)
+    if align is not None:
+        writer.data_alignment = align.contents()
+    for field in reader.fields.values():
+        if field.name == gguf.Keys.General.ARCHITECTURE or field.name.startswith("GGUF."):
+            continue
+        vt = field.types[0]
+        sub = field.types[-1] if vt == gguf.GGUFValueType.ARRAY else None
+        writer.add_key_value(field.name, field.contents(), vt, sub_type=sub)
+    for t in reader.tensors:
+        if t.name in replace_files:
+            arr = np.load(replace_files[t.name], mmap_mode="r")
+            if arr.dtype == np.float16:
+                kind = gguf.GGMLQuantizationType.F16
+            elif arr.dtype == np.float32:
+                kind = gguf.GGMLQuantizationType.F32
+            else:
+                raise ValueError(f"{t.name}: replacement must be float16 or float32")
+            if tuple(arr.shape) != tuple(int(d) for d in reversed(t.shape)):
+                raise ValueError(f"{t.name}: shape {arr.shape} does not match {tuple(reversed(t.shape))}")
+            writer.add_tensor_info(t.name, arr.shape, arr.dtype, arr.nbytes, kind)
+        else:
+            writer.add_tensor_info(t.name, t.data.shape, t.data.dtype, t.data.nbytes, t.tensor_type)
+    writer.write_header_to_file()
+    writer.write_kv_data_to_file()
+    writer.write_ti_data_to_file()
+    for t in reader.tensors:
+        if t.name in replace_files:
+            arr = np.ascontiguousarray(np.load(replace_files[t.name]))
+            writer.write_tensor_data(arr, tensor_endianess=reader.endianess)
+            del arr
+        else:
+            writer.write_tensor_data(t.data, tensor_endianess=reader.endianess)
+    writer.close()

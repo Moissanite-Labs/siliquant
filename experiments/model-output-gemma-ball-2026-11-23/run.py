@@ -27,6 +27,7 @@ import os
 import platform
 import re
 import resource
+import shutil
 import subprocess
 import sys
 import time
@@ -563,13 +564,17 @@ def _load_ggufedit():
     return ggufedit
 
 
-def _worker_init(model_path, imatrix_real_path, imatrix_rand_path):
-    global _worker_model_path, _worker_reader, _worker_imatrix_real_path, _worker_imatrix_rand_path, _worker_imatrix_cache
+_worker_tensor_dir = None
+
+
+def _worker_init(model_path, imatrix_real_path, imatrix_rand_path, tensor_dir=None):
+    global _worker_model_path, _worker_reader, _worker_imatrix_real_path, _worker_imatrix_rand_path, _worker_imatrix_cache, _worker_tensor_dir
     _worker_model_path = model_path
     _worker_reader = None
     _worker_imatrix_real_path = imatrix_real_path
     _worker_imatrix_rand_path = imatrix_rand_path
     _worker_imatrix_cache = {}
+    _worker_tensor_dir = tensor_dir
 
 
 def _get_reader():
@@ -717,7 +722,14 @@ def _round_one_worker(task):
     t = next(t for t in _get_reader().tensors if t.name == name)
     W = _matrix_of(t)
     Wh, info = round_matrix_variant(variant, name, W, colscale_fn=_column_weights)
-    return name, Wh, info
+    if _worker_tensor_dir:
+        # Stream mode: hand the rounded matrix to disk instead of through IPC, so the
+        # parent never holds the whole model's replacements in RAM (27B-class models).
+        os.makedirs(_worker_tensor_dir, exist_ok=True)
+        sidecar = os.path.join(_worker_tensor_dir, re.sub(r"[^A-Za-z0-9_.+-]", "_", name) + ".f16.npy")
+        np.save(sidecar, Wh)
+        return name, None, info, sidecar
+    return name, Wh, info, None
 
 
 def stats_of(infos, model_id, n_layers):
@@ -1117,6 +1129,8 @@ def parse_args(argv=None):
     ap.add_argument("--batch", type=int, default=512, help="Batch size (default 512)")
     ap.add_argument("--threads", type=int, default=4, help="CPU threads for llama.cpp (default 4)")
     ap.add_argument("--workers", type=int, default=4, help="Worker processes for matrix rounding (default 4)")
+    ap.add_argument("--stream-arms", action="store_true",
+                    help="Write ball-arm GGUFs from per-tensor .npy sidecars (bounded parent RAM for 27B-class models); byte-identical to the default path")
     ap.add_argument("--pilot-only", action="store_true", help="Run Step 2/3 one-layer pilot and zero-codeword verification only")
     ap.add_argument("--pilot-layer", type=int, default=0, help="Layer index for --pilot-only (default 0)")
     ap.add_argument("--metrics-only", action="store_true", help="Compute weight metrics only without calling llama-perplexity")
@@ -1277,6 +1291,7 @@ def run_sweep(args):
             "backend": "metal" if (platform.system() == "Darwin" and args.ngl > 0) else "cpu",
             "threads": args.threads,
             "bridge": bridge_mode,
+            "stream_arms": bool(args.stream_arms),
         }
         if arm_needs_real_imat(arm):
             base_row["imatrix_sha256"] = imat_real_sha
@@ -1323,24 +1338,35 @@ def run_sweep(args):
         else:
             eval_path = os.path.join(work_dir, re.sub(r"[^A-Za-z0-9_.+-]", "_", f"{args.model_id}_{arm}") + ".gguf")
             made_temp = True
-            replace, infos = {}, {}
+            replace, infos, replace_files = {}, {}, {}
+            tensor_dir = os.path.join(work_dir, "tensors") if args.stream_arms else None
+            if tensor_dir:
+                os.makedirs(tensor_dir, exist_ok=True)
+            initargs = (args.model_path,
+                        imatrix_real if needs_real_imat else None,
+                        imatrix_rand if needs_rand_imat else None,
+                        tensor_dir)
             if args.workers <= 1:
-                _worker_init(args.model_path, imatrix_real if needs_real_imat else None, imatrix_rand if needs_rand_imat else None)
-                for n in names:
-                    name, Wh, info = _round_one_worker((arm, n))
-                    replace[name], infos[name] = Wh, info
+                _worker_init(*initargs)
+                results = [_round_one_worker((arm, n)) for n in names]
             else:
-                with Pool(
-                    args.workers,
-                    initializer=_worker_init,
-                    initargs=(args.model_path, imatrix_real if needs_real_imat else None, imatrix_rand if needs_rand_imat else None),
-                ) as pool:
-                    for name, Wh, info in pool.imap_unordered(_round_one_worker, [(arm, n) for n in names], chunksize=1):
-                        replace[name], infos[name] = Wh, info
+                with Pool(args.workers, initializer=_worker_init, initargs=initargs) as pool:
+                    results = list(pool.imap_unordered(_round_one_worker, [(arm, n) for n in names], chunksize=1))
+            for name, Wh, info, sidecar in results:
+                infos[name] = info
+                if sidecar:
+                    replace_files[name] = sidecar
+                else:
+                    replace[name] = Wh
             base_row.update(stats_of(infos, args.model_id, n_layers))
             base_row["build_seconds"] = round(time.time() - t0, 1)
             if not args.metrics_only:
-                ggufedit.write_copy(rd, eval_path, replace)
+                if args.stream_arms:
+                    ggufedit.write_copy_streaming(rd, eval_path, replace_files)
+                else:
+                    ggufedit.write_copy(rd, eval_path, replace)
+            if tensor_dir and os.path.isdir(tensor_dir):
+                shutil.rmtree(tensor_dir, ignore_errors=True)
             del replace
 
         try:
