@@ -92,7 +92,7 @@
         <a href="#rotation">Turned E8</a>
         <a href="#packed">Packed results</a>
         <a href="#gemma">Gemma &amp; kernels</a>
-        <a class="button" href="siliquant-results.pdf">Read as PDF</a>
+        <a class="button" href="../siliquant-results.pdf">Read as PDF</a>
       </nav>
     </div>
   </header>
@@ -105,7 +105,7 @@
     </header>
 
     <section class="chapter" id="rotation">
-      <span class="tag open">Open PR #41 · measured</span>
+      <span class="tag">On main · measured</span>
       <h2>Turning E8 pays at 4.5 bpw, not uniformly at 3</h2>
       <p>One ball per 128 weights, no calibration or kept columns. Turned E8 and plain E8 have nearly identical aggregate weight error, yet their output KL differs. At 4.5 bpw the Qwen2.5 gap between them is only 1.1 combined standard errors; it is 5.4 for SmolLM2 and 5.0 for Llama.</p>
       <div class="split">
@@ -121,7 +121,7 @@
           </table>
         </div>
         <figure class="chart">
-          <figcaption>Mean KL reduction vs. stock Q4_K_M</figcaption>
+          <figcaption>Turned E8: mean KL reduction vs. stock Q4_K_M</figcaption>
           <dl>
             <div class="row"><dt>Qwen2.5</dt><dd><span class="track" aria-hidden="true"><span class="bar" style="display:block;width:86.8%"></span></span><span class="num">43.4%</span></dd></div>
             <div class="row"><dt>SmolLM2</dt><dd><span class="track" aria-hidden="true"><span class="bar" style="display:block;width:77%"></span></span><span class="num">38.5%</span></dd></div>
@@ -207,7 +207,7 @@
       <p>Mean KL (± standard error) was <strong>0.074682 ± 0.002264</strong> for centred <code>VE832:16</code> and <strong>0.077252 ± 0.002314</strong> for uncentred <code>VE8Z32:16</code>. The centred result meets the preregistered tolerance of ±0.002 around the <a href="https://github.com/Moissanite-Labs/siliquant/blob/f32d750eb01cb4f9cae9b4f742d1c9f35a05fce5/experiments/model-output-gemma-e4b-2026-11-15/results.out#L88-L101">earlier 0.0747</a>; that earlier run also recorded 0.1173 for scalar rounding at the same block rate.</p>
       <p class="sources">Bridge sources at <code>86bb1b2</code>: <a href="https://github.com/Moissanite-Labs/siliquant/blob/86bb1b2a2178bd8b68912c1e7496426f53e9ffa8/experiments/model-output-gemma-ball-2026-11-23/out/gemma-4-E4B-it-bridge/results.out">scores</a> and <a href="https://github.com/Moissanite-Labs/siliquant/blob/86bb1b2a2178bd8b68912c1e7496426f53e9ffa8/experiments/model-output-gemma-ball-2026-11-23/out/gemma-4-E4B-it-bridge/results.jsonl">JSONL</a>.</p>
       <div class="note">
-        <span class="tag open">Open PRs #35 and #36 · kernel benchmarks</span>
+        <span class="tag">On main · kernel benchmarks</span>
         <h2>Smaller tables have not closed the decode gap</h2>
         <p>At the 88-bit point budget, the compact E8⁴ decoder in #35 needs 19,122 hot bytes rather than the earlier BallIndex table’s 1,376,760. That is a working-set comparison, not model storage. In #36, the 4.5-bpw fused turned-E8 matrix-vector kernel was still about 178–220× slower than a byte-matched custom Q4 proxy on one Zen 1 CPU. The comparator was not llama.cpp Q4_K_M; neither benchmark measures serving throughput.</p>
         <p class="sources">Sources: <a href="https://github.com/Moissanite-Labs/siliquant/pull/35">PR #35</a> · <a href="https://github.com/Moissanite-Labs/siliquant/blob/419477abbd3da76c58a570fa982f3bbb2d782eae/studies/expedition-ballpack-tree-unrank-audit112r/c-bench/bench_results.json#L2312-L2351">working-set measurements</a> · <a href="https://github.com/Moissanite-Labs/siliquant/pull/36">PR #36</a> · <a href="https://github.com/Moissanite-Labs/siliquant/blob/e1b7f734f944a4251e1c62936c5a43eb97b3decc/studies/audit115r-e8had-simd-ballpack/c-bench/simd_bench_results.json">GEMV measurements</a>.</p>
@@ -217,8 +217,8 @@
   <footer>
     <div class="wrap">
       <a href="https://github.com/Moissanite-Labs/siliquant/tree/main/experiments">Experiment index</a> ·
-      <a href="codebooks-pr6.html">Earlier codebook study</a> ·
-      <a href="siliquant-one-pager.pdf">Earlier PDF</a>
+      <a href="../codebooks-pr6.html">Earlier codebook study</a> ·
+      <a href="../siliquant-one-pager.pdf">Earlier PDF</a>
     </div>
   </footer>
 </body>
