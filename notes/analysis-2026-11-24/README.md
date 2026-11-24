@@ -8,6 +8,7 @@ Written while the run of hamming-lattices-real-weights-2026-11-24 was going. The
 | `index_full.py` → `index_full.out` | `shape/hammingindex.py` at the record's sizes | Nothing |
 | `group32.py` → `group32.out` | The new lattices in the block of the packed file, 32 weights in 136 bits: weight error and the cost of numbering | The SmolLM2 file |
 | `pball.py` → `pball.out` | Integer levels in a p-norm ball over 128 weights | The SmolLM2 file |
+| `hampack_speed.py` → `hampack_speed.out` | Both file formats on a made-up matrix: weight error and decode speed | Nothing |
 
 `arms_table.out` was printed with the rows committed when this note was written. It is printed again when the record is written.
 
@@ -27,7 +28,7 @@ Written while the run of hamming-lattices-real-weights-2026-11-24 was going. The
   - about 1 ms to number or read back a group of 128 in Python.
 - **A_8 numbers E8 turned directly, in coordinates where its points are integers.** So the arm that was lowest before this record also has a numbering now.
 
-No file format uses it yet.
+`shape/hampack.py` with `shape/hampack.c` now uses a one-level form of the same numbering in a file format (section 2).
 
 ## 2. The new lattices fit in the packed file's block, and gain 0.77 dB there
 
@@ -58,6 +59,19 @@ The gains are the same on made-up Laplace and Gaussian matrices and on three mat
 A C reader would need numbers of 136 bits, three 64-bit words.
 
 **Expected effect.** For the ball arms a decibel of weight error has gone with about a decibel of KL. Going from a block of 128 to a block of 32 cost about 0.5 dB of weight error and 5 to 10 % of KL. On that basis A_16 in the file's block should cut the file's KL by 10 to 20 % at the same size. That is a guess from two earlier records. It is the first of the proposals below.
+
+**Built since** (`shape/hampack.py`, `shape/hampack.c`, `shape/test_hampack.py`). It is ballpack's file with A_16, A_32 or A_8 in the same 18-byte block, read back exactly.
+
+On a made-up Laplace matrix of 1024 × 4096 (`hampack_speed.out`), measured with the other cores busy:
+
+| File | Weight error | Decode on one core |
+|---|---|---|
+| Z^32 (ballpack) | −24.439 dB | 20.8 million weights a second |
+| A_16 × A_16 | −25.240 dB | 10.2 million weights a second |
+
+The new file decodes at half the speed because its table of counts is 49 times larger. A layout that keeps a coordinate's two state rows together, and drops the half of the squared lengths whose parity the state rules out, should win some of that back.
+
+The plan to score it on three models is `experiments/packed-hamming-2026-11-24/PREREG.md`, committed before any model was packed.
 
 ## 3. A p-norm ball does not help over 128 weights
 
