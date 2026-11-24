@@ -1,0 +1,9 @@
+# Gemma integer ball results summary
+
+Rows: 3
+
+| Model | Text | Variant | Bits (all) | Bits (active) | W-err dB (mean) | Mean KL | SE | Top-1 kept | Build s | Score s |
+| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| gemma-4-E4B-it | bridge | VE832:16 | 4.5000 | 4.5000 | -22.58 | 0.074682 | 0.002264 | 91.5590 | 721.8 | 29.7 |
+| gemma-4-E4B-it | bridge | VE8Z32:16 | 4.5000 | 4.5000 | -22.55 | 0.077252 | 0.002314 | 91.6080 | 723.4 | 29.6 |
+| gemma-4-E4B-it | bridge | EBG128:b560s16 | 4.4999 | 4.4999 | -25.58 | 0.038324 | 0.001272 | 94.0290 | 313.2 | 29.7 |
