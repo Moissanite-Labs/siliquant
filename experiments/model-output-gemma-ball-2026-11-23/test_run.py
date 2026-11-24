@@ -683,5 +683,118 @@ class TestAddendumArms(unittest.TestCase):
         self.assertEqual((math.log2(points) + 16) / 128, (math.log2(points) + 16) / 128)
 
 
+
+class TestStreamArms(unittest.TestCase):
+    """--stream-arms: sidecar-based arm writing must be byte-identical to write_copy."""
+
+    def _tiny_gguf(self, path):
+        import gguf
+        rng = np.random.default_rng(7)
+        writer = gguf.GGUFWriter(path, arch="gemma3")
+        writer.add_tensor_info("token_embd.weight", (8, 4), np.dtype(np.float32), 8 * 4 * 4,
+                               gguf.GGMLQuantizationType.F32)
+        writer.add_tensor_info("blk.0.attn_q.weight", (4, 128), np.dtype(np.float32), 4 * 128 * 4,
+                               gguf.GGMLQuantizationType.F32)
+        writer.add_tensor_info("blk.0.ffn_down.weight", (4, 128), np.dtype(np.float32), 4 * 128 * 4,
+                               gguf.GGMLQuantizationType.F32)
+        writer.write_header_to_file()
+        writer.write_kv_data_to_file()
+        writer.write_ti_data_to_file()
+        writer.write_tensor_data(rng.standard_normal((8, 4)).astype(np.float32))
+        writer.write_tensor_data(rng.standard_normal((4, 128)).astype(np.float32))
+        writer.write_tensor_data(rng.standard_normal((4, 128)).astype(np.float32))
+        writer.close()
+
+    def test_streaming_writer_byte_parity(self):
+        ggufedit = R._load_ggufedit()
+        with tempfile.TemporaryDirectory() as td:
+            model = os.path.join(td, "tiny.gguf")
+            self._tiny_gguf(model)
+            rd = ggufedit.open_model(model)
+            names = [t.name for t in R._targets(rd)]
+            self.assertEqual(len(names), 2)
+            replace = {}
+            for n in names:
+                W = R._matrix_of(next(t for t in rd.tensors if t.name == n))
+                Wh, _ = R.round_matrix_variant("ZBG128:b560s16", n, W)
+                replace[n] = Wh
+            out_a = os.path.join(td, "a.gguf")
+            ggufedit.write_copy(rd, out_a, replace)
+            files = {}
+            for n in names:
+                os.makedirs(os.path.join(td, "sc"), exist_ok=True)
+                p = os.path.join(td, "sc", re.sub(r"[^A-Za-z0-9_.+-]", "_", n) + ".f16.npy")
+                np.save(p, replace[n])
+                files[n] = p
+            out_b = os.path.join(td, "b.gguf")
+            ggufedit.write_copy_streaming(rd, out_b, files)
+            self.assertEqual(R.sha256_of(out_a), R.sha256_of(out_b))
+
+    def test_round_one_worker_sidecar(self):
+        with tempfile.TemporaryDirectory() as td:
+            model = os.path.join(td, "tiny.gguf")
+            self._tiny_gguf(model)
+            tdir = os.path.join(td, "tensors")
+            try:
+                R._worker_init(model, None, None, tdir)
+                name = R._targets(R._get_reader())[0].name
+                got_name, Wh, info, sidecar = R._round_one_worker(("ZBG128:b560s16", name))
+                self.assertEqual(got_name, name)
+                self.assertIsNone(Wh)
+                self.assertTrue(sidecar.endswith(".f16.npy") and os.path.exists(sidecar))
+                W = R._matrix_of(next(t for t in R._get_reader().tensors if t.name == name))
+                Wh_ref, info_ref = R.round_matrix_variant("ZBG128:b560s16", name, W)
+                self.assertTrue(np.array_equal(np.load(sidecar), Wh_ref))
+                self.assertEqual(info, info_ref)
+            finally:
+                R._worker_init(model, None, None, None)
+
+    def test_stream_arms_flag_in_dry_run(self):
+        with tempfile.TemporaryDirectory() as td:
+            p = subprocess.run(
+                [sys.executable, "-B", str(RUN_PATH), "--model-id", "m", "--model-path", os.path.join(td, "m.gguf"),
+                 "--out-dir", td, "--stream-arms", "--dry-run"],
+                capture_output=True, text=True, check=True)
+            self.assertIn('"arms"', p.stdout)
+
+
+class TestQ8RefStratum(unittest.TestCase):
+    """Q8_0-reference stratum: --allow-requantize and GGUF-magic cache validation."""
+
+    def _fake_tensor(self, name, code):
+        return types.SimpleNamespace(name=name, tensor_type=code, shape=(128, 4))
+
+    def test_source_is_quantized(self):
+        self.assertTrue(R._source_is_quantized([self._fake_tensor("blk.0.attn_q.weight", 8)]))
+        self.assertFalse(R._source_is_quantized([self._fake_tensor("blk.0.attn_q.weight", 30)]))
+        self.assertFalse(R._source_is_quantized([self._fake_tensor("token_embd.weight", 0)]))
+
+    def test_valid_gguf_magic(self):
+        with tempfile.TemporaryDirectory() as td:
+            good = os.path.join(td, "good.gguf")
+            bad = os.path.join(td, "bad.gguf")
+            with open(good, "wb") as f:
+                f.write(b"GGUF" + b"\x00" * 100)
+            with open(bad, "wb") as f:
+                f.write(b"\x00" * 100)
+            self.assertTrue(R._valid_gguf(good))
+            self.assertFalse(R._valid_gguf(bad))
+            self.assertFalse(R._valid_gguf(os.path.join(td, "missing.gguf")))
+
+    def test_baseline_requant_flag_and_corrupt_cache_removal(self):
+        with tempfile.TemporaryDirectory() as td:
+            out = os.path.join(td, "out.gguf")
+            with open(out, "wb") as f:
+                f.write(b"\x00" * 64)  # zero-header partial from a killed run
+            q_tensors = [self._fake_tensor("blk.0.attn_q.weight", 8), self._fake_tensor("token_embd.weight", 8)]
+            cmd = R.ensure_baseline_gguf("model.gguf", out, "Q4_0", "/bin/echo", q_tensors, threads=4)
+            self.assertIn("--allow-requantize", cmd)
+            self.assertFalse(os.path.exists(out))  # corrupt cache was removed
+            f_tensors = [self._fake_tensor("blk.0.attn_q.weight", 30), self._fake_tensor("token_embd.weight", 30)]
+            out2 = os.path.join(td, "out2.gguf")
+            cmd2 = R.ensure_baseline_gguf("model.gguf", out2, "Q4_0", "/bin/echo", f_tensors, threads=4, dry_run=True)
+            self.assertNotIn("--allow-requantize", cmd2)
+
+
 if __name__ == "__main__":
     unittest.main()
