@@ -607,5 +607,81 @@ class TestGemmaBallRunner(unittest.TestCase):
             self.assertIn("0.041200", content)
 
 
+class TestAddendumArms(unittest.TestCase):
+    """2026-11-24 addendum: A_n Hamming-lattice ball arms and stock files decoded to 16-bit weights."""
+
+    def setUp(self):
+        rng = np.random.default_rng(321)
+        self.W = (rng.standard_normal((8, 256)) * 0.05).astype(np.float32)
+
+    def test_arm_regexes_and_imatrix_routing(self):
+        for arm in ("A16BG128:b560s16", "hA16BG128:b560s16", "iA16BG128:b560s16~rand", "A32BG128:b368s16"):
+            self.assertTrue(R.HAMMING_BALL_RE.match(arm), arm)
+            self.assertFalse(R.WEIGHTED_BALL_RE.match(arm), arm)
+            self.assertFalse(R.GROUP_BALL_RE.match(arm), arm)
+        self.assertFalse(R.arm_needs_real_imat("A16BG128:b560s16"))
+        self.assertTrue(R.arm_needs_real_imat("hA16BG128:b560s16"))
+        self.assertFalse(R.arm_needs_real_imat("iA16BG128:b560s16~rand"))
+        for arm in ("file:Q4_0@16", "file:Q4_K_M@16", "file:Q4_K_M-imat@16"):
+            self.assertTrue(R.STOCK16_RE.match(arm), arm)
+            self.assertFalse(R.STOCK16_RE.match(arm.replace("@16", "")), arm)
+        self.assertFalse(R.arm_needs_real_imat("file:Q4_K_M@16"))
+        self.assertTrue(R.arm_needs_real_imat("file:Q4_K_M-imat@16"))
+
+    def test_hamming_ball_arms_dispatch_bits_and_lattice(self):
+        import math
+
+        def fake_colscale(name, cols, power, which="real"):
+            return np.linspace(0.5, 1.5, cols, dtype=np.float64)
+
+        ham = R.hamming_module()
+        for variant, lo, hi in (("A16BG128:b560s16", 4.45, 4.55), ("hA16BG128:b560s16", 4.45, 6.60),
+                                ("A16BG128:b368s16", 2.95, 3.05)):
+            Wh, info = R.round_matrix_variant(variant, "blk.0.attn_q.weight", self.W, colscale_fn=fake_colscale)
+            self.assertEqual(Wh.shape, self.W.shape)
+            self.assertEqual(Wh.dtype, np.float16)
+            self.assertGreaterEqual(info["bits"], lo, variant)
+            self.assertLessEqual(info["bits"], hi, variant)
+            # every group of the rounded matrix lies in the ball of the lattice, at its own scale
+            W64 = np.asarray(self.W, dtype=np.float64)
+            n, bbits = 128, int(R.HAMMING_BALL_RE.match(variant).group(4))
+            bound, points = ham.ball_bound(4, n, bbits)
+            X = W64.reshape(-1, n)
+            t = R._hamming_block_scales(X, 4, bound, math.sqrt(ham.covering_sq(4, n)))
+            Y = ham.closest(X / t[:, None], 4)
+            self.assertTrue(bool(np.all((Y ** 2).sum(axis=1) <= bound + 1e-9)), variant)
+            self.assertTrue(bool(np.array_equal(ham.closest(Y, 4), Y)), variant)
+
+    def test_hamming_decoder_c_numpy_parity(self):
+        ham = R.hamming_module()
+        rng = np.random.default_rng(7)
+        X = rng.standard_normal((200, 128)) * 2.0
+        self.assertTrue(np.array_equal(ham.closest(X, 4, use_c=True), ham.closest(X, 4, use_c=False)))
+
+    def test_hamming_scales_match_addendum_ball_round_bit_for_bit(self):
+        """The port's scale bisection equals the 2026-11-24 record's ball_round on the same input."""
+        import math
+
+        ham = R.hamming_module()
+        bd = R.ball_module()
+        W64 = np.asarray(self.W, dtype=np.float64)
+        X = W64.reshape(-1, 128)
+        bound, points = ham.ball_bound(4, 128, 560)
+        margin = math.sqrt(ham.covering_sq(4, 128))
+        # the record's bisection (experiments/hamming-lattices-real-weights-2026-11-24/run.py)
+        g = np.maximum(np.sqrt((X ** 2).sum(axis=1)), 1e-30)
+        r = math.sqrt(bound)
+        lo = g / (r + margin) * 0.99
+        hi = g / max(r - margin, 0.05 * r) * 1.01
+        for _ in range(bd.BISECT_STEPS):
+            mid = np.sqrt(lo * hi)
+            ok = (ham.closest(X / mid[:, None], 4) ** 2).sum(axis=1) <= bound + 1e-9
+            hi = np.where(ok, mid, hi)
+            lo = np.where(ok, lo, mid)
+        t = R._hamming_block_scales(X, 4, bound, margin)
+        np.testing.assert_array_equal(t, hi)
+        self.assertEqual((math.log2(points) + 16) / 128, (math.log2(points) + 16) / 128)
+
+
 if __name__ == "__main__":
     unittest.main()

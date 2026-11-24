@@ -77,6 +77,13 @@ BRIDGE_ARMS = (
 GROUP_BALL_RE = re.compile(r"^(ZBG|EBG|HBG)(\d+):b(\d+)s(\d+)$")
 WEIGHTED_BALL_RE = re.compile(r"^([ih])(ZBG|EBG|HBG)(\d+):b(\d+)s(\d+)(?:~(rand))?$")
 LOUD_BALL_RE = re.compile(r"^(h?ZBG)(\d+):b(\d+)s(\d+)\+K(\d+)$")
+# 2026-11-24 addendum arms: Construction-A lattices A_n from extended Hamming codes (vendored hamming.py)
+# in one ball per group of n weights, optionally with the (half-strength) imatrix column weights.
+HAMMING_BALL_RE = re.compile(r"^([ih]?)(A(?:8|16|32))BG(\d+):b(\d+)s(\d+)(?:~(rand))?$")
+HAMMING_M = {"A8": 3, "A16": 4, "A32": 5}
+# Stock file decoded to 16-bit block weights: the same quantized weights the `file:` arm scores,
+# but multiplied by llama.cpp as 16-bit weights instead of 4-bit blocks (activation-rounding control).
+STOCK16_RE = re.compile(r"^file:(Q4_0|Q4_K_M|Q4_K_M-imat)@16$")
 ROW_BALL_RE = re.compile(r"^(ZB|EB)(\d+)@R:(\d+)$")
 VORONOI_RE = re.compile(r"^(H?)VE8(Z?)(\d+|R):(\d+)$")
 
@@ -130,6 +137,12 @@ def arm_needs_real_imat(arm):
         return True
     if LOUD_BALL_RE.match(arm) and arm.startswith("h"):
         return True
+    m = HAMMING_BALL_RE.match(arm)
+    if m and m.group(1) in ("i", "h"):
+        return True
+    mm = STOCK16_RE.match(arm)
+    if mm and mm.group(1) == "Q4_K_M-imat":
+        return True
     return False
 
 # Worker process globals (populated via Pool initializer or direct call)
@@ -139,6 +152,7 @@ _worker_imatrix_real_path = None
 _worker_imatrix_rand_path = None
 _worker_imatrix_cache = {}
 _bd_mod = None
+_ham_mod = None
 _bounds_cache = {}
 _e8_lattice = None
 _e8_offset = None
@@ -218,6 +232,19 @@ def ball_bound(lattice, n, bits):
     return _bounds_cache[key]
 
 
+def hamming_module():
+    """The vendored hamming.py (Construction-A lattices A_n) next to this runner."""
+    global _ham_mod
+    if _ham_mod is None:
+        spec = importlib.util.spec_from_file_location("gemma_hamming", HERE / "hamming.py")
+        if spec is None or spec.loader is None:
+            raise RuntimeError("failed to load hamming.py next to run.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        _ham_mod = mod
+    return _ham_mod
+
+
 def finish(W, Y, bits, shrunk):
     """Cast rounded float64 matrix Y to float16 once, and compute float64 relative error vs W."""
     Wh = np.asarray(Y, dtype=np.float64).astype(np.float16)
@@ -265,6 +292,71 @@ def _group_ball_core(W64, lattice, n, block_bits, scale_bits, colscale=None):
         Wh64 = Wh64 / colscale[None, :]
     bits = (math.log2(points) + scale_bits) / n + extra
     return Wh64, bits, float(np.mean(out))
+
+
+def _hamming_block_scales(X, m, bound, margin):
+    """bd.block_scales for an A_n lattice: the same bisection, with the lattice's covering margin
+    sqrt(covering_sq(m, n)) in place of sqrt(n)/2 and hamming.closest as the nearest point."""
+    bd = ball_module()
+    ham = hamming_module()
+    g = np.maximum(np.sqrt((X ** 2).sum(axis=1)), 1e-30)
+    r = math.sqrt(bound)
+    lo = g / (r + margin) * 0.99
+    hi = g / max(r - margin, 0.05 * r) * 1.01
+    for _ in range(bd.BISECT_STEPS):
+        mid = np.sqrt(lo * hi)
+        ok = (ham.closest(X / mid[:, None], m) ** 2).sum(axis=1) <= bound + 1e-9
+        hi = np.where(ok, mid, hi)
+        lo = np.where(ok, lo, mid)
+    return hi
+
+
+def group_hamming_ball_round(W, lattice, n, block_bits, scale_bits, colscale=None):
+    """One ball per group of n weights of the Construction-A lattice A_{2^m} (hamming.py), one scale per group.
+
+    The same steps as _group_ball_core, with hamming.closest(X, m) as the nearest point,
+    hamming.ball_bound(m, n, block_bits) for the bound and the count of points, and
+    sqrt(hamming.covering_sq(m, n)) as the bisection's margin in place of sqrt(n)/2.
+    """
+    bd = ball_module()
+    ham = hamming_module()
+    m = HAMMING_M[lattice]
+    W64 = np.asarray(W, dtype=np.float64)
+    rows, cols = W64.shape
+    if cols % n != 0:
+        raise ValueError(f"group size {n} does not divide row length {cols}")
+    bound, points = ham.ball_bound(m, n, block_bits)
+    extra = 0.0
+    work = W64
+    if colscale is not None:
+        work = work * colscale[None, :]
+        extra += 16.0 / rows
+    X = work.reshape(-1, n)
+    t = _hamming_block_scales(X, m, bound, math.sqrt(ham.covering_sq(m, n)))
+    steps = SCALE_STEPS[scale_bits]
+    if steps is not None:
+        top = float(t.max())
+        k = np.floor(np.log2(top / np.maximum(t, 1e-300)) * steps + 1e-9)
+        k = np.clip(k, 0, (1 << scale_bits) - 1)
+        t = top * 2.0 ** (-k / steps)
+        extra += 16.0 / W64.size
+    safe_t = np.where(t > 0, t, 1.0)
+    Y = ham.closest(X / safe_t[:, None], m)
+    out = (Y ** 2).sum(axis=1) > bound + 1e-9
+    if np.any(out):
+        xo = X[out] / safe_t[out, None]
+        lo, hi = np.zeros(len(xo)), np.ones(len(xo))
+        for _ in range(bd.SHRINK_STEPS):
+            mid = 0.5 * (lo + hi)
+            good = (ham.closest(xo * mid[:, None], m) ** 2).sum(axis=1) <= bound + 1e-9
+            lo = np.where(good, mid, lo)
+            hi = np.where(good, hi, mid)
+        Y[out] = ham.closest(xo * lo[:, None], m)
+    Wh64 = (Y * t[:, None]).reshape(rows, cols)
+    if colscale is not None:
+        Wh64 = Wh64 / colscale[None, :]
+    bits = (math.log2(points) + scale_bits) / n + extra
+    return finish(W, Wh64, bits, float(np.mean(out)))
 
 
 def group_ball_round(W, lattice, n, block_bits, scale_bits, colscale=None, hadamard=False):
@@ -573,6 +665,13 @@ def round_matrix_variant(variant, name, W, colscale_fn=None):
         else:
             Wh, info = group_ball_round(W, "Z8", n, bbits, sbits, colscale=cs, hadamard=False)
             info["kept_columns"] = 0
+    elif HAMMING_BALL_RE.match(variant):
+        m = HAMMING_BALL_RE.match(variant)
+        prefix, lattice, n, bbits, sbits, src = m.group(1), m.group(2), int(m.group(3)), int(m.group(4)), int(m.group(5)), m.group(6) or "real"
+        power = 0.5 if prefix == "i" else 0.25
+        cs = colscale_fn(name, W.shape[1], power, src) if prefix in ("i", "h") else None
+        imatrix_fallback = prefix in ("i", "h") and cs is None
+        Wh, info = group_hamming_ball_round(W, lattice, n, bbits, sbits, colscale=cs)
     elif WEIGHTED_BALL_RE.match(variant):
         m = WEIGHTED_BALL_RE.match(variant)
         prefix, kind_code, n, bbits, sbits, src = m.group(1), m.group(2), int(m.group(3)), int(m.group(4)), int(m.group(5)), m.group(6) or "real"
@@ -1129,6 +1228,16 @@ def run_sweep(args):
         ensure_baseline_gguf(args.model_path, baseline_paths["file:Q4_K_M"], "Q4_K_M", args.llama_quantize, all_tensors, threads=args.threads)
     if "file:Q4_K_M-imat" in arms:
         ensure_baseline_gguf(args.model_path, baseline_paths["file:Q4_K_M-imat"], "Q4_K_M", args.llama_quantize, all_tensors, imatrix_path=imatrix_real, threads=args.threads)
+    # @16 arms decode the stock quantized file to 16-bit block weights; they need that file built first
+    for arm in arms:
+        mm = STOCK16_RE.match(arm)
+        if not mm:
+            continue
+        base_arm = "file:" + mm.group(1)
+        if base_arm == "file:Q4_K_M-imat":
+            ensure_baseline_gguf(args.model_path, baseline_paths[base_arm], "Q4_K_M", args.llama_quantize, all_tensors, imatrix_path=imatrix_real, threads=args.threads)
+        else:
+            ensure_baseline_gguf(args.model_path, baseline_paths[base_arm], base_arm.split(":", 1)[1], args.llama_quantize, all_tensors, threads=args.threads)
 
     # Load already-completed (model_id, text, variant) keys for clean resume
     done = set()
@@ -1165,6 +1274,8 @@ def run_sweep(args):
             "model_sha256": model_sha,
             "variant": arm,
             "ngl": args.ngl,
+            "backend": "metal" if (platform.system() == "Darwin" and args.ngl > 0) else "cpu",
+            "threads": args.threads,
             "bridge": bridge_mode,
         }
         if arm_needs_real_imat(arm):
@@ -1178,6 +1289,37 @@ def run_sweep(args):
             base_row.update(compare_file(rd, eval_path, args.model_id, n_layers))
             base_row["file_sha256"] = sha256_of(eval_path)
             base_row["build_seconds"] = round(time.time() - t0, 1)
+        elif STOCK16_RE.match(arm):
+            # Decode the stock quantized file's block matrices to 16-bit floats in a copy of the
+            # 16-bit model: the same weights the `file:` arm scores, multiplied as 16-bit weights.
+            mm = STOCK16_RE.match(arm)
+            base_arm = "file:" + mm.group(1)
+            q_path = baseline_paths[base_arm]
+            eval_path = os.path.join(work_dir, re.sub(r"[^A-Za-z0-9_.+-]", "_", f"{args.model_id}_{arm}") + ".gguf")
+            made_temp = True
+            qmap = {t.name: t for t in ggufedit.open_model(q_path).tensors}
+            ref = {t.name: t for t in rd.tensors}
+            replace, infos = {}, {}
+            for n in names:
+                W = _matrix_of(ref[n])
+                qt = qmap[n]
+                Wh = ggufedit.tensor_float(qt).reshape(W.shape)
+                bits = 8.0 * qt.data.nbytes / W.size
+                Wh16, _ = finish(W, Wh, bits, 0.0)
+                replace[n] = Wh16
+                W64 = np.asarray(W, dtype=np.float64)
+                energy = float(np.sum(W64 ** 2))
+                rel = float(np.sum((W64 - Wh16.astype(np.float64)) ** 2) / energy) if energy > 0 else 0.0
+                infos[n] = {"rel_err": rel, "bits": bits, "overload": 0.0, "energy": energy,
+                            "size": int(W.size), "kept_columns": 0, "imatrix_fallback": False}
+            base_row.update(stats_of(infos, args.model_id, n_layers))
+            base_row["source_file_sha256"] = sha256_of(q_path)
+            base_row["build_seconds"] = round(time.time() - t0, 1)
+            if not args.metrics_only:
+                ggufedit.write_copy(rd, eval_path, replace)
+                base_row["other_tensors_that_differ"] = compare_file(rd, eval_path, args.model_id, n_layers)["other_tensors_that_differ"]
+                base_row["file_sha256"] = sha256_of(eval_path)
+            del replace
         else:
             eval_path = os.path.join(work_dir, re.sub(r"[^A-Za-z0-9_.+-]", "_", f"{args.model_id}_{arm}") + ".gguf")
             made_temp = True
