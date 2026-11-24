@@ -1,0 +1,11 @@
+name = "S72bFormalTheory"
+version = "0.1.0"
+defaultTargets = ["S72bFormalTheory"]
+
+[[lean_lib]]
+name = "S72bFormalTheory"
+roots = [
+  "S72bFormalTheory.BallBudgetCannibalization",
+  "S72bFormalTheory.TwoLevelSaddlePoint",
+  "S72bFormalTheory.CrossLayerInterferenceAndFloatObstruction",
+]
