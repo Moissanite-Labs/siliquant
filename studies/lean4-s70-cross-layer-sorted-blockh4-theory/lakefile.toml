@@ -1,0 +1,11 @@
+name = "S70FormalTheory"
+version = "0.1.0"
+defaultTargets = ["S70FormalTheory"]
+
+[[lean_lib]]
+name = "S70FormalTheory"
+roots = [
+  "S70FormalTheory.CrossLayerNonAdditivity",
+  "S70FormalTheory.SortedBlockH4Optimality",
+  "S70FormalTheory.RegimeTriangleMinimax",
+]
