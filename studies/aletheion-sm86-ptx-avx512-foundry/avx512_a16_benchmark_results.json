@@ -1,0 +1,32 @@
+{
+  "cpu_target": "Intel Core i9-11900H (8C/16T AVX-512 VBMI/VPOPCNTDQ/VNNI)",
+  "matrix_shape": {"M": 4096, "K": 14336, "weights": 58720256, "bpw": 4.5},
+  "bitpacked_a16_decode": {
+    "syndrome_errors_scalar": 0, "syndrome_errors_avx512": 0, "bit_exact_mismatches": 0,
+    "scalar_1t_mweights_s": 1784.754, "scalar_1t_ms": 32.9010,
+    "avx512_1t_mweights_s": 3829.127, "avx512_1t_gweights_s": 3.8291, "avx512_1t_ms": 15.3352, "speedup_vs_scalar_1t": 2.15,
+    "avx512_8t_gweights_s": 5.9695, "avx512_8t_ms": 9.8368,
+    "avx512_16t_gweights_s": 5.8105, "avx512_16t_ms": 10.1059,
+    "speedup_16t_vs_siliquant77_10M": 581.0
+  },
+  "fused_vnni_gemv": {
+    "a16_max_abs_err": 0.000000e+00, "a16_syndrome_errors": 0, "block_h2_max_abs_err": 0.000000e+00,
+    "a16_scalar_1t_mweights_s": 1646.196,
+    "a16_vnni_1t_gweights_s": 16.0161, "a16_vnni_8t_gweights_s": 60.9525, "a16_vnni_16t_gweights_s": 40.2812,
+    "a16_vnni_live_verify_8t_gweights_s": 80.2127, "a16_vnni_live_verify_16t_gweights_s": 39.2163,
+    "block_h2_vnni_1t_gweights_s": 16.8352, "block_h2_vnni_8t_gweights_s": 57.8826, "block_h2_vnni_16t_gweights_s": 48.4823,
+    "a16_vnni_8t_phys_gb_s": 34.286, "a16_vnni_8t_fp16_equiv_gb_s": 121.905,
+    "a16_vnni_8t_speedup_vs_siliquant77_10M": 6095.3,
+    "a16_vnni_16t_phys_gb_s": 22.658, "a16_vnni_16t_fp16_equiv_gb_s": 80.562
+  },
+  "siliquant77_exact_enumerative_hampack": {
+    "L": 16, "n": 32, "bits": 136, "record_bytes": 18, "bound": 1207,
+    "first_u128_index": 3, "table_build_ms": 91.19, "groups": 262144, "weights": 8388608,
+    "rank_errors": 0, "decode_errors_ref": 0, "decode_errors_opt": 0, "bit_exact_mismatches": 0,
+    "siliquant_scalar_1t_mweights_s": 19.204,
+    "fast_u128_avx512_1t_mweights_s": 37.954, "speedup_1t": 1.98,
+    "fast_u128_avx512_8t_mweights_s": 218.513, "speedup_8t": 11.38,
+    "fast_u128_avx512_16t_mweights_s": 223.193, "speedup_16t": 11.62
+  },
+  "total_verify_failures": 0
+}

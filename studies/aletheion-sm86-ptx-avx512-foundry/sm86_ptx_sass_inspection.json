@@ -1,0 +1,300 @@
+{
+  "arch": "sm_86",
+  "kernels": [
+    {
+      "registers": 20,
+      "sass_op_counts": {
+        "FFMA": 4,
+        "IMAD": 7,
+        "LDG_128": 2,
+        "LDG_ANY": 2
+      },
+      "sass_total_instructions": 48,
+      "smem_bytes": 0,
+      "spill_loads_bytes": 0,
+      "spill_stores_bytes": 0,
+      "stack_frame_bytes": 0,
+      "symbol": "_Z19stream_triad_kernelP6float4PKS_S2_fm"
+    },
+    {
+      "registers": 48,
+      "sass_op_counts": {
+        "FFMA": 2,
+        "HADD2": 2,
+        "HFMA2": 64,
+        "IMAD": 34,
+        "LDG_128": 2,
+        "LDG_ANY": 20,
+        "LOP3": 18,
+        "PRMT": 112,
+        "SHFL": 10
+      },
+      "sass_total_instructions": 408,
+      "smem_bytes": 0,
+      "spill_loads_bytes": 0,
+      "spill_stores_bytes": 0,
+      "stack_frame_bytes": 0,
+      "symbol": "_Z24ptx_ldg128_a16_bf16_gemvILi2EEvPK5uint4PK6__halfPK14__nv_bfloat162Pfii"
+    },
+    {
+      "registers": 46,
+      "sass_op_counts": {
+        "FFMA": 2,
+        "HADD2": 42,
+        "HFMA2": 32,
+        "IMAD": 35,
+        "LDG_128": 2,
+        "LDG_ANY": 20,
+        "LOP3": 18,
+        "PRMT": 48,
+        "SHFL": 10
+      },
+      "sass_total_instructions": 288,
+      "smem_bytes": 0,
+      "spill_loads_bytes": 0,
+      "spill_stores_bytes": 0,
+      "stack_frame_bytes": 0,
+      "symbol": "_Z24ptx_ldg128_a16_fp16_gemvILi2EEvPK5uint4PK6__halfPK7__half2Pfii"
+    },
+    {
+      "registers": 84,
+      "sass_op_counts": {
+        "FFMA": 20,
+        "HADD2": 16,
+        "IDP_4A": 128,
+        "IMAD": 58,
+        "LDG_128": 34,
+        "LDG_ANY": 42,
+        "LOP3": 130,
+        "PRMT": 136,
+        "SHFL": 10
+      },
+      "sass_total_instructions": 696,
+      "smem_bytes": 0,
+      "spill_loads_bytes": 0,
+      "spill_stores_bytes": 0,
+      "stack_frame_bytes": 0,
+      "symbol": "_Z25ptx_aos144b_a16_dp4a_gemvILi2EEvPK20Packed256Weights144BPK4int4PKsfPfii"
+    },
+    {
+      "registers": 64,
+      "sass_op_counts": {
+        "FFMA": 124,
+        "HADD2": 2,
+        "IMAD": 404,
+        "LDG_128": 17,
+        "LDG_ANY": 19,
+        "LOP3": 230,
+        "PRMT": 31,
+        "SHFL": 117
+      },
+      "sass_total_instructions": 2128,
+      "smem_bytes": 0,
+      "spill_loads_bytes": 0,
+      "spill_stores_bytes": 0,
+      "stack_frame_bytes": 0,
+      "symbol": "_Z26ptx_warp_shfl_a16_h16_gemvILi2EEvPK5uint4PK6__halfPKfPfii"
+    },
+    {
+      "registers": 48,
+      "sass_op_counts": {
+        "FFMA": 16,
+        "HADD2": 2,
+        "IMAD": 39,
+        "IMMA": 4,
+        "LDGSTS": 4,
+        "LDG_ANY": 2,
+        "LOP3": 24,
+        "PRMT": 8
+      },
+      "sass_total_instructions": 260,
+      "smem_bytes": 4352,
+      "spill_loads_bytes": 0,
+      "spill_stores_bytes": 0,
+      "stack_frame_bytes": 0,
+      "symbol": "_Z29ptx_cp_async_mma_a16_gemm_b32PK5uint4PK6__halfS1_fPfii"
+    },
+    {
+      "registers": 40,
+      "sass_op_counts": {
+        "FFMA": 2,
+        "HADD2": 2,
+        "IDP_4A": 16,
+        "IMAD": 41,
+        "LDG_128": 4,
+        "LDG_ANY": 6,
+        "LOP3": 81,
+        "PRMT": 16,
+        "SHFL": 10
+      },
+      "sass_total_instructions": 264,
+      "smem_bytes": 0,
+      "spill_loads_bytes": 0,
+      "spill_stores_bytes": 0,
+      "stack_frame_bytes": 0,
+      "symbol": "_Z29ptx_ldg128_block_h2_dp4a_gemvILi2EEvPK5uint4PK6__halfPK4int4fPfii"
+    },
+    {
+      "registers": 21,
+      "sass_op_counts": {
+        "IMAD": 35,
+        "LDG_ANY": 1,
+        "LOP3": 2,
+        "PRMT": 6,
+        "SHFL": 5
+      },
+      "sass_total_instructions": 112,
+      "smem_bytes": 0,
+      "spill_loads_bytes": 0,
+      "spill_stores_bytes": 0,
+      "stack_frame_bytes": 0,
+      "symbol": "_Z31warp_shfl_wht_standalone_kernelILi3EEvPKaPai"
+    },
+    {
+      "registers": 22,
+      "sass_op_counts": {
+        "IMAD": 55,
+        "LDG_ANY": 1,
+        "LOP3": 5,
+        "PRMT": 6,
+        "SHFL": 9
+      },
+      "sass_total_instructions": 160,
+      "smem_bytes": 0,
+      "spill_loads_bytes": 0,
+      "spill_stores_bytes": 0,
+      "stack_frame_bytes": 0,
+      "symbol": "_Z31warp_shfl_wht_standalone_kernelILi4EEvPKaPai"
+    },
+    {
+      "registers": 44,
+      "sass_op_counts": {
+        "FFMA": 5,
+        "HADD2": 5,
+        "IDP_4A": 40,
+        "IMAD": 54,
+        "LDG_128": 15,
+        "LDG_ANY": 25,
+        "LOP3": 43,
+        "PRMT": 45,
+        "SHFL": 5
+      },
+      "sass_total_instructions": 320,
+      "smem_bytes": 0,
+      "spill_loads_bytes": 0,
+      "spill_stores_bytes": 0,
+      "stack_frame_bytes": 0,
+      "symbol": "_Z35ptx_ldg128_a16_preencoded_dp4a_gemvILb0ELi1EEvPK5uint4PK6__halfPK4int4PKsfPfPjii"
+    },
+    {
+      "registers": 38,
+      "sass_op_counts": {
+        "FFMA": 2,
+        "HADD2": 2,
+        "IDP_4A": 16,
+        "IMAD": 29,
+        "LDG_128": 4,
+        "LDG_ANY": 7,
+        "LOP3": 18,
+        "PRMT": 17,
+        "SHFL": 10
+      },
+      "sass_total_instructions": 184,
+      "smem_bytes": 0,
+      "spill_loads_bytes": 0,
+      "spill_stores_bytes": 0,
+      "stack_frame_bytes": 0,
+      "symbol": "_Z35ptx_ldg128_a16_preencoded_dp4a_gemvILb0ELi2EEvPK5uint4PK6__halfPK4int4PKsfPfPjii"
+    },
+    {
+      "registers": 40,
+      "sass_op_counts": {
+        "FFMA": 1,
+        "HADD2": 1,
+        "IDP_4A": 8,
+        "IMAD": 43,
+        "LDG_128": 3,
+        "LDG_ANY": 5,
+        "LOP3": 29,
+        "POPC": 10,
+        "PRMT": 9,
+        "SHFL": 5
+      },
+      "sass_total_instructions": 176,
+      "smem_bytes": 0,
+      "spill_loads_bytes": 0,
+      "spill_stores_bytes": 0,
+      "stack_frame_bytes": 0,
+      "symbol": "_Z35ptx_ldg128_a16_preencoded_dp4a_gemvILb1ELi1EEvPK5uint4PK6__halfPK4int4PKsfPfPjii"
+    },
+    {
+      "registers": 39,
+      "sass_op_counts": {
+        "FFMA": 2,
+        "HADD2": 2,
+        "IDP_4A": 16,
+        "IMAD": 49,
+        "LDG_128": 4,
+        "LDG_ANY": 7,
+        "LOP3": 58,
+        "POPC": 20,
+        "PRMT": 17,
+        "SHFL": 10
+      },
+      "sass_total_instructions": 280,
+      "smem_bytes": 0,
+      "spill_loads_bytes": 0,
+      "spill_stores_bytes": 0,
+      "stack_frame_bytes": 0,
+      "symbol": "_Z35ptx_ldg128_a16_preencoded_dp4a_gemvILb1ELi2EEvPK5uint4PK6__halfPK4int4PKsfPfPjii"
+    },
+    {
+      "registers": 52,
+      "sass_op_counts": {
+        "FFMA": 2,
+        "HADD2": 2,
+        "IDP_4A": 16,
+        "IMAD": 102,
+        "LDG_128": 4,
+        "LDG_ANY": 7,
+        "LOP3": 142,
+        "POPC": 20,
+        "PRMT": 29,
+        "SHFL": 10
+      },
+      "sass_total_instructions": 784,
+      "smem_bytes": 0,
+      "spill_loads_bytes": 0,
+      "spill_stores_bytes": 0,
+      "stack_frame_bytes": 0,
+      "symbol": "_Z36ptx_ldg128_a16_live_repair_dp4a_gemvILb0ELi2EEvPK5uint4PK6__halfPK4int4PKsfPfPjii"
+    },
+    {
+      "registers": 52,
+      "sass_op_counts": {
+        "FFMA": 2,
+        "HADD2": 2,
+        "IDP_4A": 16,
+        "IMAD": 102,
+        "LDG_128": 4,
+        "LDG_ANY": 7,
+        "LOP3": 158,
+        "POPC": 20,
+        "PRMT": 25,
+        "SHFL": 10
+      },
+      "sass_total_instructions": 800,
+      "smem_bytes": 0,
+      "spill_loads_bytes": 0,
+      "spill_stores_bytes": 0,
+      "stack_frame_bytes": 0,
+      "symbol": "_Z36ptx_ldg128_a16_live_repair_dp4a_gemvILb1ELi2EEvPK5uint4PK6__halfPK4int4PKsfPfPjii"
+    }
+  ],
+  "kernels_compiled": 15,
+  "max_spill_loads_bytes": 0,
+  "max_spill_stores_bytes": 0,
+  "max_stack_frame_bytes": 0,
+  "total_sass_local_mem_ops": 0,
+  "zero_spill_verified": true
+}

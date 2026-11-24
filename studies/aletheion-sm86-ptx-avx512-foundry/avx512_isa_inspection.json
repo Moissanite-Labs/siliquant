@@ -1,0 +1,15 @@
+{
+  "binary_inspected": "aletheion_avx512_a16_decoder",
+  "isa_op_counts": {
+    "vcvtdq2ps": 6,
+    "vmovdqu64": 15,
+    "vpdpbusd": 12,
+    "vpermb": 18,
+    "vpermi2b": 6,
+    "vpermt2b": 14,
+    "vpopcntq": 20
+  },
+  "vnni_vpdpbusd_verified": true,
+  "vpermb_verified": true,
+  "vpopcntdq_verified": true
+}
