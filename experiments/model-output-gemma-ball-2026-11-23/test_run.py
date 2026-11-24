@@ -758,5 +758,43 @@ class TestStreamArms(unittest.TestCase):
             self.assertIn('"arms"', p.stdout)
 
 
+class TestQ8RefStratum(unittest.TestCase):
+    """Q8_0-reference stratum: --allow-requantize and GGUF-magic cache validation."""
+
+    def _fake_tensor(self, name, code):
+        return types.SimpleNamespace(name=name, tensor_type=code, shape=(128, 4))
+
+    def test_source_is_quantized(self):
+        self.assertTrue(R._source_is_quantized([self._fake_tensor("blk.0.attn_q.weight", 8)]))
+        self.assertFalse(R._source_is_quantized([self._fake_tensor("blk.0.attn_q.weight", 30)]))
+        self.assertFalse(R._source_is_quantized([self._fake_tensor("token_embd.weight", 0)]))
+
+    def test_valid_gguf_magic(self):
+        with tempfile.TemporaryDirectory() as td:
+            good = os.path.join(td, "good.gguf")
+            bad = os.path.join(td, "bad.gguf")
+            with open(good, "wb") as f:
+                f.write(b"GGUF" + b"\x00" * 100)
+            with open(bad, "wb") as f:
+                f.write(b"\x00" * 100)
+            self.assertTrue(R._valid_gguf(good))
+            self.assertFalse(R._valid_gguf(bad))
+            self.assertFalse(R._valid_gguf(os.path.join(td, "missing.gguf")))
+
+    def test_baseline_requant_flag_and_corrupt_cache_removal(self):
+        with tempfile.TemporaryDirectory() as td:
+            out = os.path.join(td, "out.gguf")
+            with open(out, "wb") as f:
+                f.write(b"\x00" * 64)  # zero-header partial from a killed run
+            q_tensors = [self._fake_tensor("blk.0.attn_q.weight", 8), self._fake_tensor("token_embd.weight", 8)]
+            cmd = R.ensure_baseline_gguf("model.gguf", out, "Q4_0", "/bin/echo", q_tensors, threads=4)
+            self.assertIn("--allow-requantize", cmd)
+            self.assertFalse(os.path.exists(out))  # corrupt cache was removed
+            f_tensors = [self._fake_tensor("blk.0.attn_q.weight", 30), self._fake_tensor("token_embd.weight", 30)]
+            out2 = os.path.join(td, "out2.gguf")
+            cmd2 = R.ensure_baseline_gguf("model.gguf", out2, "Q4_0", "/bin/echo", f_tensors, threads=4, dry_run=True)
+            self.assertNotIn("--allow-requantize", cmd2)
+
+
 if __name__ == "__main__":
     unittest.main()

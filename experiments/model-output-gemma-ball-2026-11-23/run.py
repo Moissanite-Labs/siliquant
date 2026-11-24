@@ -868,6 +868,25 @@ def _run_cmd(cmd, label):
         raise RuntimeError(f"{label} failed with exit code {proc.returncode}: {' '.join(cmd)}")
 
 
+_FLOAT_GGML_TYPES = (0, 1, 30)  # F32, F16, BF16
+
+
+def _valid_gguf(path):
+    """A cached GGUF is trusted only if it starts with the GGUF magic (a killed run can
+    leave a zero-header partial file behind)."""
+    try:
+        with open(path, "rb") as f:
+            return f.read(4) == b"GGUF"
+    except OSError:
+        return False
+
+
+def _source_is_quantized(tensors):
+    """True if any source tensor is already quantized: llama-quantize then needs
+    --allow-requantize (Q8_0-reference stratum, e.g. gemma-3-27b-it)."""
+    return any(int(getattr(t, "tensor_type", 0)) not in _FLOAT_GGML_TYPES for t in tensors)
+
+
 def ensure_kld(model_path, text_path, kld_path, binary, chunks, ctx, batch, ngl, threads, dry_run=False):
     cmd = [
         binary,
@@ -880,8 +899,10 @@ def ensure_kld(model_path, text_path, kld_path, binary, chunks, ctx, batch, ngl,
         "-t", str(threads),
         "--kl-divergence-base", str(kld_path),
     ]
-    if dry_run or os.path.exists(kld_path):
+    if dry_run or (os.path.exists(kld_path) and _valid_gguf(kld_path)):
         return cmd
+    if os.path.exists(kld_path):
+        os.remove(kld_path)
     os.makedirs(os.path.dirname(os.path.abspath(kld_path)), exist_ok=True)
     _run_cmd(cmd, f"kld:{os.path.basename(kld_path)}")
     return cmd
@@ -899,8 +920,10 @@ def ensure_imatrix(model_path, text_path, imatrix_path, binary, chunks, ctx, bat
         "-t", str(threads),
         "-o", str(imatrix_path),
     ]
-    if dry_run or os.path.exists(imatrix_path):
+    if dry_run or (os.path.exists(imatrix_path) and _valid_gguf(imatrix_path)):
         return cmd
+    if os.path.exists(imatrix_path):
+        os.remove(imatrix_path)
     os.makedirs(os.path.dirname(os.path.abspath(imatrix_path)), exist_ok=True)
     _run_cmd(cmd, f"imatrix:{os.path.basename(imatrix_path)}")
     return cmd
@@ -992,12 +1015,16 @@ def quantize_tensor_type_flags(tensors, token_embd_type=None):
 
 def ensure_baseline_gguf(model_path, out_path, qtype, binary, tensors, imatrix_path=None, threads=4, dry_run=False, token_embd_type=None):
     cmd = [binary]
+    if _source_is_quantized(tensors):
+        cmd.append("--allow-requantize")
     if imatrix_path:
         cmd.extend(["--imatrix", str(imatrix_path)])
     cmd.extend(quantize_tensor_type_flags(tensors, token_embd_type=token_embd_type))
     cmd.extend([str(model_path), str(out_path), qtype, str(threads)])
-    if dry_run or os.path.exists(out_path):
+    if dry_run or (os.path.exists(out_path) and _valid_gguf(out_path)):
         return cmd
+    if os.path.exists(out_path):
+        os.remove(out_path)  # partial/corrupt cache from a killed run
     os.makedirs(os.path.dirname(os.path.abspath(out_path)), exist_ok=True)
     _run_cmd(cmd, f"quantize:{qtype}")
     return cmd
