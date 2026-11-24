@@ -188,13 +188,15 @@ All runs below live on `exp/gemma-ball-results` and executed under runner commit
 
 ### Pre-Calibration Binary & Digest Check
 
-Before launching a sweep or single-arm comparison, record the exact `llama.cpp` versions and verify input digests (and, when reusing an existing model's imatrix, confirm the generated `<OUT_DIR>/cache/<model_id>.wikitext.imatrix.gguf` matches the Section 2 `imatrix_sha256`):
+Before launching a sweep or single-arm comparison, record the exact `llama.cpp` versions and verify all input digests (reference GGUF, evaluation/calibration texts, and `eval.txt` when running `P7` bridge mode). When reusing or validating a model's imatrix, confirm the cached file inside the run's `--out-dir` (`<RUN_OUT_DIR>/cache/<model_id>.wikitext.imatrix.gguf`, e.g. `<OUT_DIR>/<model_id>/cache/<model_id>.wikitext.imatrix.gguf` for full sweeps) matches the Section 2 `imatrix_sha256`:
 
 ```bash
 llama-imatrix --version && llama-perplexity --version && llama-quantize --version
-shasum -a 256 <DATA_DIR>/wiki.test.raw <DATA_DIR>/wiki.train.raw <DATA_DIR>/base.py
-# After imatrix generation (or on cached imatrix), compare against Section 2 imatrix_sha256:
-shasum -a 256 <OUT_DIR>/cache/<model_id>.wikitext.imatrix.gguf
+shasum -a 256 <MODELS_DIR>/<model_file>.gguf <DATA_DIR>/wiki.test.raw <DATA_DIR>/wiki.train.raw <DATA_DIR>/base.py
+# For P7 bridge mode, also verify eval.txt:
+shasum -a 256 <DATA_DIR>/eval.txt
+# After imatrix generation (or on cached imatrix inside the --out-dir passed to run.py), compare against Section 2 imatrix_sha256:
+shasum -a 256 <OUT_DIR>/<model_id>/cache/<model_id>.wikitext.imatrix.gguf
 ```
 
 ### Checkout & Runner Pin
