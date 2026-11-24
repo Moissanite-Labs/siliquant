@@ -24,13 +24,14 @@ model-output-qwen25-2026-11-17 | 377 | 374 | 0 | 0 | 3 | 0 | 0 | 316 | 87
 model-output-smollm2-2026-11-17 | 218 | 206 | 0 | 3 | 9 | 0 | 0 | 181 | 25
 output-budget-gemma-e4b-2026-11-17 | 424 | 423 | 0 | 1 | 0 | 0 | 0 | 349 | 129
 packed-ball-format-2026-11-18 | 138 | 124 | 1 | 5 | 8 | 0 | 0 | 84 | 6
+packed-hamming-2026-11-24 | 207 | 205 | 0 | 0 | 2 | 0 | 0 | 136 | 11
 packed-kept-columns-2026-11-19 | 104 | 101 | 0 | 3 | 0 | 0 | 0 | 46 | 1
 region-shapes-no-clip-rule-2026-11-17 | 200 | 199 | 0 | 0 | 1 | 0 | 0 | 180 | 139
 second-text-python-2026-11-18 | 126 | 117 | 1 | 0 | 8 | 0 | 0 | 57 | 6
 shape-formula-held-out-2026-11-17 | 310 | 305 | 4 | 0 | 1 | 0 | 0 | 226 | 223
 third-model-llama32-2026-11-18 | 186 | 185 | 0 | 0 | 1 | 0 | 0 | 62 | 3
 
-in all: 5330 numbers, 1 not found
+in all: 5537 numbers, 1 not found
 
 Not found, with two decimals or more: the line of the README, the number, and where it stands
   incentre-vortex-codebooks-2026-11-17
@@ -58,6 +59,7 @@ model-output-qwen25-2026-11-17 | 71 | 53 | 18 | 41 of 53
 model-output-smollm2-2026-11-17 | 43 | 32 | 11 | 25 of 32
 output-budget-gemma-e4b-2026-11-17 | 75 | 61 | 14 | 45 of 61
 packed-ball-format-2026-11-18 | 22 | 7 | 15 | 7 of 7
+packed-hamming-2026-11-24 | 40 | 35 | 5 | 30 of 35
 packed-kept-columns-2026-11-19 | 15 | 8 | 7 | 8 of 8
 region-shapes-no-clip-rule-2026-11-17 | 38 | 9 | 29 | 5 of 9
 second-text-python-2026-11-18 | 24 | 18 | 6 | 18 of 18
@@ -306,6 +308,12 @@ Lines not covered by two output lines: the line of the README, how many of its n
     line 99: 2 of 6   4.501 4.52 4.50004 4.50003 4.50626 4.50491
     line 102: 2 of 5   1.25 1.078 1.085 1.052 1.097
     line 103: 2 of 4   24.1 24.3 25.0 19.7
+  packed-hamming-2026-11-24
+    line 34: 3 of 4   9.4 10.1 2.5 3.0
+    line 39: 2 of 3   3.1 6.7 4.5
+    line 112: 2 of 4   3.1 6.7 0.87 0.92
+    line 118: 2 of 3   0.005 4.5049 4.5054
+    line 142: 2 of 3   4.5 3.1 6.7
   packed-kept-columns-2026-11-19
     line 19: 6 of 12   4.5 4.8 0.0247 0.0333 0.0581 0.0838 0.0340 0.0432 3.2 10.2 13.5 11.9
     line 20: 4 of 5   3.2 0.0519 9.0 0.0340 34.5

@@ -61,7 +61,7 @@ The conventions are those of [weft-loom's CONTRIBUTING.md](https://github.com/Mo
 
 ## Status
 
-Twenty-five studies so far. The newest results are at the end of this section.
+Twenty-six studies so far. The newest results are at the end of this section.
 
 The first measured weight error only: at 2 bits per weight the lattice E8 beats scalar rounding on every matrix tried, and the lattice the starting briefs proposed, A8\*, gains less than half as much in the mean of each family of data.
 
@@ -195,6 +195,12 @@ The twenty-fifth, of 2026-11-24, tests two results of a survey of the other orga
 - **At 3.0 bits a lattice closes the gap on SmolLM2.** A_32 scores 0.358845 and A_16 0.380994, against 0.419643 for integer levels, which had been far ahead of every E8 arm. On Qwen2.5 A_16 is the lowest arm.
 - **The committed `Q4_K_M` rows paid for 8-bit activations that the ball arms never paid.** Multiplied at 16 bits, `Q4_K_M` scores 0.031690, 0.072237 and 0.041195. Every lead of a ball arm holds, by 0.8 to 5.4 errors less. bitsandbytes' NF4, which the organisation trains in, is 26.5 to 46.4 errors behind E8 turned.
 - A numbering of these balls (`shape/hammingindex.py`) and a file with A_16 in the packed format's block (`shape/hampack.py`) were written during the run. The file has its own plan.
+
+The twenty-sixth, of 2026-11-24, puts A_16 in the repository's file format: the 18 bytes for 32 weights of `shape/ballpack.py`, with A_16 × A_16 in place of Z^32 (`shape/hampack.py`).
+
+- **At the same size to the byte, the A_16 file is lower than the integer file on all three models**: by 4.6 to 12.7 errors with no columns kept, and by 6.2 to 12.4 with ten columns of each `ffn_down` kept. With the columns kept it scores 0.020816, 0.047987 and 0.026708, 14.9 to 21.8 errors under `Q4_K_M@16`. It is the file to recommend with no data. All six predictions hold.
+- **It decodes 2.5 to 3.0 times slower**, about 100 seconds per billion weights on one core, and a model packs in 8 to 15 minutes on 4 cores against about one.
+- **The ball of 128 weights with a 16-bit scale is still 3.1 to 6.7 errors lower** at the same 4.5 bits. A file with blocks of 128 weights is the next step.
 
 ## Licence
 

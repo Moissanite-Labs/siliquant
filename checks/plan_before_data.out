@@ -22,7 +22,7 @@ model-output-qwen25-2026-11-17 | 81b83d2 | 0 | 8de998d | yes | 0 | 1 | 1 | 1 of 
 model-output-smollm2-2026-11-17 | 14726fd | 0 | acc5c55 | yes | 0 | 0 | 0 | 0 of 0 | 0
 output-budget-gemma-e4b-2026-11-17 | ec636b1 | 0 | c253666 | yes | 0 | 2 | 2 | 2 of 2 | 10
 packed-ball-format-2026-11-18 | 4d3995c | 0 | 170806c | yes | 0 | 0 | 0 | 0 of 0 | 0
-packed-hamming-2026-11-24 | 6209621 | 0 | none yet | yes | 0 | 0 | 0 | 0 of 0 | 0
+packed-hamming-2026-11-24 | 6209621 | 0 | 8101518 | yes | 0 | 0 | 0 | 0 of 0 | 0
 packed-kept-columns-2026-11-19 | d93fccd | 0 | 200e3e6 | yes | 0 | 0 | 0 | 0 of 0 | 0
 region-shapes-no-clip-rule-2026-11-17 | 6964d05 | 0 | dfe9da0 | yes | 0 | 0 | 0 | 0 of 0 | 0
 second-text-python-2026-11-18 | 66acffb | 0 | bb02a8d | yes | 0 | 0 | 0 | 0 of 0 | 1

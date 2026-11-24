@@ -29,9 +29,11 @@ This note adds what was learned after it was written. That work is on branch `ba
    - Those runs used the CPU backend with no `-ngl`. **The Gemma runner scores on Metal (`-ngl`), whose kernels for `Q4_K` may not round the activations the same way. Measure it, don't assume it.**
 3. **A file format with A_16, the same size as the integer file.**
    - `shape/hampack.py` with `shape/hampack.c` uses the 18 bytes per 32 weights of `shape/ballpack.py`, with A_16 × A_16 in place of Z^32. Every matrix reads back exactly.
-   - On Qwen2.5 and SmolLM2 its mean KL is 0.83 to 0.89 of the integer file's, 4.6 to 7.3 errors lower, at the same byte count.
-   - Its decode is about 2.5 times slower on one core: the table of counts is 30 MB against 0.6 MB.
-   - Record: `experiments/packed-hamming-2026-11-24`. The Llama-3.2 rows were still running when this was written.
+   - On all three models its mean KL is 0.76 to 0.89 of the integer file's, 4.6 to 12.7 errors lower, at the same byte count.
+   - With ten columns of each `ffn_down` kept it scores 0.020816, 0.047987 and 0.026708, 14.9 to 21.8 errors under `Q4_K_M@16`. It is now the file to recommend with no data.
+   - Its decode is 2.5 to 3.0 times slower on one core: the table of counts is 30 MB against 0.6 MB.
+   - The ball of item 1, 128 weights with a 16-bit scale, is still 3.1 to 6.7 errors lower than this file. A file with blocks of 128 weights would be the next format.
+   - Record: `experiments/packed-hamming-2026-11-24`, complete. All six predictions hold.
 4. **No single weight figure predicts the output across models** (`notes/analysis-2026-11-24`). Pick arms by measured KL, not by predicted weight error.
 
 ## Changes to the queue
