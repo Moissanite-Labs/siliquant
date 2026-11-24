@@ -1,0 +1,744 @@
+{
+  "ac_online": true,
+  "corpora": {
+    "n_cal_chunks": 12,
+    "n_eval_chunks": 8,
+    "python_stdlib_modules": [
+      "fractions.py",
+      "difflib.py",
+      "decimal.py",
+      "statistics.py",
+      "argparse.py",
+      "json/decoder.py"
+    ],
+    "python_stdlib_sha256": "fe8ff0f94937ebd41e55f9880dd19bbaa4bbeadec791a6544bbafcb9cd2ee609",
+    "seq_len": 512,
+    "wikitext2_repo": "Salesforce/wikitext",
+    "wikitext2_revision": "b08601e04326c79dfdd32d625aee71d232d685c3",
+    "wikitext2_test_sha256": "430983e5a711fbc4c6576edffecacf47ff23d58f62f3923d2386d798e0a794c9",
+    "wikitext2_val_sha256": "93abc2e0cd803097893a176fd0de13e75c77a1414c5e64af7bbcf705068938c5"
+  },
+  "cuda_real_weight_transcode_and_serving": {
+    "ptxas_verification": {
+      "kernels_compiled": 10,
+      "max_registers": 72,
+      "max_spill_loads_bytes": 0,
+      "max_spill_stores_bytes": 0,
+      "max_stack_bytes": 0,
+      "min_registers": 20
+    },
+    "shapes": {
+      "down_proj_single_1536x8960": {
+        "K": 8960,
+        "M": 1536,
+        "full_qwen25_1_5b_projected_serving": {
+          "bench_elapsed_s": 5.617,
+          "bench_total_cpu_rapl_j": 318.1975,
+          "direct_4_5bpw_ms_per_token": 2.3369,
+          "direct_4_5bpw_tokens_per_s": 427.92,
+          "estimated_gpu_j_per_token": 0.105673,
+          "gpu_power_draw_w_sampled": "45.22",
+          "measured_cpu_rapl_j_per_token": 0.133177,
+          "total_block_weights": 1310195712
+        },
+        "gemv_direct_4_5bpw_a16_preencoded_dp4a": {
+          "effective_gb_s": 315.9897,
+          "gweights_per_s": 560.6656,
+          "max_abs_err_fp64": 7.025191806e-08,
+          "ms": 0.024547,
+          "pct_triad": 88.676,
+          "rapl_cpu_pkg_mj_per_call": 1.398922,
+          "rel_l2_err_fp64": 1.033818671e-07,
+          "syndrome_errors": 0
+        },
+        "gemv_direct_4_5bpw_block_h2_dp4a": {
+          "effective_gb_s": 306.1491,
+          "gweights_per_s": 543.2052,
+          "max_abs_err_fp64": 7.06007246e-08,
+          "ms": 0.025336,
+          "pct_triad": 85.914,
+          "rel_l2_err_fp64": 1.069735822e-07,
+          "syndrome_errors": 0
+        },
+        "gemv_transcoded_18B_lossless_int8_dp4a": {
+          "effective_gb_s": 342.4571,
+          "gweights_per_s": 321.98,
+          "max_abs_err_fp64": 6.533474473e-08,
+          "ms": 0.042744,
+          "pct_triad": 96.103,
+          "rel_l2_err_fp64": 9.744929592e-08,
+          "syndrome_errors": 0
+        },
+        "gemv_transcoded_72B_lossless_int8_dp4a": {
+          "effective_gb_s": 343.3759,
+          "gweights_per_s": 337.7282,
+          "max_abs_err_fp64": 6.61265922e-08,
+          "ms": 0.04075,
+          "pct_triad": 96.361,
+          "rel_l2_err_fp64": 1.03300791e-07,
+          "syndrome_errors": 0
+        },
+        "nvidia_smi_after": {
+          "driver_version": "615.78.08",
+          "mem_clock_mhz": "6001",
+          "memory_used_mib": "2925",
+          "name": "NVIDIA GeForce RTX 3080 Laptop GPU",
+          "power_draw_w": "45.22",
+          "pstate": "P0",
+          "sm_clock_mhz": "1710",
+          "temp_c": "71",
+          "throttle_hex": "0x0000000000000004"
+        },
+        "nvidia_smi_before": {
+          "driver_version": "615.78.08",
+          "mem_clock_mhz": "6001",
+          "memory_used_mib": "2925",
+          "name": "NVIDIA GeForce RTX 3080 Laptop GPU",
+          "power_draw_w": "22.04",
+          "pstate": "P0",
+          "sm_clock_mhz": "1245",
+          "temp_c": "68",
+          "throttle_hex": "0x0000000000000000"
+        },
+        "stream_triad_gb_s": 356.3434,
+        "transcode_18B_to_int8_soa": {
+          "bit_mismatches": 0,
+          "gweights_per_s": 2.4172,
+          "ms": 5.693542,
+          "syndrome_errors": 0
+        },
+        "transcode_72B_to_int8_soa": {
+          "bit_mismatches": 0,
+          "gweights_per_s": 0.2446,
+          "ms": 56.270605,
+          "syndrome_errors": 0
+        },
+        "weights": 13762560
+      },
+      "down_proj_stacked4_6144x8960": {
+        "K": 8960,
+        "M": 6144,
+        "full_qwen25_1_5b_projected_serving": {
+          "bench_elapsed_s": 18.768,
+          "bench_total_cpu_rapl_j": 1009.1559,
+          "direct_4_5bpw_ms_per_token": 2.1216,
+          "direct_4_5bpw_tokens_per_s": 471.34,
+          "estimated_gpu_j_per_token": 0.18808,
+          "gpu_power_draw_w_sampled": "88.65",
+          "measured_cpu_rapl_j_per_token": 0.101279,
+          "total_block_weights": 1310195712
+        },
+        "gemv_direct_4_5bpw_a16_preencoded_dp4a": {
+          "effective_gb_s": 347.747,
+          "gweights_per_s": 617.5481,
+          "max_abs_err_fp64": 7.195658114e-08,
+          "ms": 0.089143,
+          "pct_triad": 97.437,
+          "rapl_cpu_pkg_mj_per_call": 4.255406,
+          "rel_l2_err_fp64": 1.030539747e-07,
+          "syndrome_errors": 0
+        },
+        "gemv_direct_4_5bpw_block_h2_dp4a": {
+          "effective_gb_s": 336.1001,
+          "gweights_per_s": 596.8649,
+          "max_abs_err_fp64": 8.162129975e-08,
+          "ms": 0.092232,
+          "pct_triad": 94.174,
+          "rel_l2_err_fp64": 1.071181768e-07,
+          "syndrome_errors": 0
+        },
+        "gemv_transcoded_18B_lossless_int8_dp4a": {
+          "effective_gb_s": 363.445,
+          "gweights_per_s": 341.8699,
+          "max_abs_err_fp64": 8.126277518e-08,
+          "ms": 0.161027,
+          "pct_triad": 101.836,
+          "rel_l2_err_fp64": 1.010538556e-07,
+          "syndrome_errors": 0
+        },
+        "gemv_transcoded_72B_lossless_int8_dp4a": {
+          "effective_gb_s": 363.6668,
+          "gweights_per_s": 357.8572,
+          "max_abs_err_fp64": 8.438095378e-08,
+          "ms": 0.153833,
+          "pct_triad": 101.898,
+          "rel_l2_err_fp64": 1.035156492e-07,
+          "syndrome_errors": 0
+        },
+        "nvidia_smi_after": {
+          "driver_version": "615.78.08",
+          "mem_clock_mhz": "6001",
+          "memory_used_mib": "2925",
+          "name": "NVIDIA GeForce RTX 3080 Laptop GPU",
+          "power_draw_w": "88.65",
+          "pstate": "P0",
+          "sm_clock_mhz": "1710",
+          "temp_c": "67",
+          "throttle_hex": "0x0000000000000004"
+        },
+        "nvidia_smi_before": {
+          "driver_version": "615.78.08",
+          "mem_clock_mhz": "6001",
+          "memory_used_mib": "2925",
+          "name": "NVIDIA GeForce RTX 3080 Laptop GPU",
+          "power_draw_w": "45.22",
+          "pstate": "P0",
+          "sm_clock_mhz": "1710",
+          "temp_c": "71",
+          "throttle_hex": "0x0000000000000004"
+        },
+        "stream_triad_gb_s": 356.8932,
+        "transcode_18B_to_int8_soa": {
+          "bit_mismatches": 0,
+          "gweights_per_s": 2.1839,
+          "ms": 25.207834,
+          "syndrome_errors": 0
+        },
+        "transcode_72B_to_int8_soa": {
+          "bit_mismatches": 0,
+          "gweights_per_s": 0.2682,
+          "ms": 205.294385,
+          "syndrome_errors": 0
+        },
+        "weights": 55050240
+      }
+    }
+  },
+  "cuda_source_file": "rtx3080_qwen15b_kernels.cu",
+  "cuda_source_sha256": "1381a0ac1831ba40f8f06f719b11758fe7a9d12fad3ed6e5bfd4a9883493de88",
+  "elapsed_seconds": 569.448,
+  "eval_seed": 2026112460,
+  "measured_live_model_weights": true,
+  "model": {
+    "arms": {
+      "A16_BlockH2": {
+        "arm": "A16_BlockH2",
+        "group_size": 128,
+        "lattice": "A16",
+        "max_matched_mse_db_diff": 0.0,
+        "non_block_tensors_differ": 0,
+        "python": {
+          "mean_kl": 0.03031045,
+          "ppl": 3.869281,
+          "se_kl": 0.002611399,
+          "tokens_scored": 4088,
+          "top1_pct": 92.4902
+        },
+        "syndrome_errors": 0,
+        "weight_err_db": -25.553193,
+        "wikitext2": {
+          "mean_kl": 0.045647596,
+          "ppl": 12.914458,
+          "se_kl": 0.003010333,
+          "tokens_scored": 4088,
+          "top1_pct": 89.2368
+        }
+      },
+      "A16_BlockH2_matched": {
+        "arm": "A16_BlockH2_matched",
+        "group_size": 128,
+        "lattice": "A16",
+        "max_matched_mse_db_diff": 1.034e-06,
+        "non_block_tensors_differ": 0,
+        "python": {
+          "mean_kl": 0.030436818,
+          "ppl": 3.868894,
+          "se_kl": 0.002640911,
+          "tokens_scored": 4088,
+          "top1_pct": 92.6859
+        },
+        "syndrome_errors": 0,
+        "weight_err_db": -25.553205,
+        "wikitext2": {
+          "mean_kl": 0.045694664,
+          "ppl": 12.921478,
+          "se_kl": 0.003012971,
+          "tokens_scored": 4088,
+          "top1_pct": 89.1389
+        }
+      },
+      "A16_H16": {
+        "arm": "A16_H16",
+        "group_size": 128,
+        "lattice": "A16",
+        "max_matched_mse_db_diff": 0.0,
+        "non_block_tensors_differ": 0,
+        "python": {
+          "mean_kl": 0.030465967,
+          "ppl": 3.823907,
+          "se_kl": 0.003147841,
+          "tokens_scored": 4088,
+          "top1_pct": 93.6644
+        },
+        "syndrome_errors": 0,
+        "weight_err_db": -25.553129,
+        "wikitext2": {
+          "mean_kl": 0.048376358,
+          "ppl": 13.006855,
+          "se_kl": 0.0036592,
+          "tokens_scored": 4088,
+          "top1_pct": 89.5548
+        }
+      },
+      "A16_H16_matched": {
+        "arm": "A16_H16_matched",
+        "group_size": 128,
+        "lattice": "A16",
+        "max_matched_mse_db_diff": 1.236e-06,
+        "non_block_tensors_differ": 0,
+        "python": {
+          "mean_kl": 0.030456312,
+          "ppl": 3.824589,
+          "se_kl": 0.003137336,
+          "tokens_scored": 4088,
+          "top1_pct": 93.6644
+        },
+        "syndrome_errors": 0,
+        "weight_err_db": -25.553204,
+        "wikitext2": {
+          "mean_kl": 0.048281244,
+          "ppl": 12.989761,
+          "se_kl": 0.003670587,
+          "tokens_scored": 4088,
+          "top1_pct": 89.2613
+        }
+      },
+      "A16_axis": {
+        "arm": "A16_axis",
+        "group_size": 128,
+        "lattice": "A16",
+        "max_matched_mse_db_diff": 0.0,
+        "non_block_tensors_differ": 0,
+        "python": {
+          "mean_kl": 0.031973308,
+          "ppl": 3.845648,
+          "se_kl": 0.00321428,
+          "tokens_scored": 4088,
+          "top1_pct": 93.7622
+        },
+        "syndrome_errors": 0,
+        "weight_err_db": -25.553205,
+        "wikitext2": {
+          "mean_kl": 0.050062401,
+          "ppl": 13.010945,
+          "se_kl": 0.004083208,
+          "tokens_scored": 4088,
+          "top1_pct": 89.2857
+        }
+      },
+      "A16_axis_K10": {
+        "arm": "A16_axis_K10",
+        "group_size": 128,
+        "lattice": "A16",
+        "max_matched_mse_db_diff": 0.0,
+        "non_block_tensors_differ": 0,
+        "python": {
+          "mean_kl": 0.031756839,
+          "ppl": 3.844413,
+          "se_kl": 0.003218818,
+          "tokens_scored": 4088,
+          "top1_pct": 93.7133
+        },
+        "syndrome_errors": 0,
+        "weight_err_db": -25.557179,
+        "wikitext2": {
+          "mean_kl": 0.04986491,
+          "ppl": 12.982416,
+          "se_kl": 0.00406335,
+          "tokens_scored": 4088,
+          "top1_pct": 89.4569
+        }
+      },
+      "A16_hybrid_cal_BlockH2": {
+        "arm": "A16_hybrid_cal_BlockH2",
+        "group_size": 128,
+        "lattice": "A16",
+        "max_matched_mse_db_diff": 0.0,
+        "non_block_tensors_differ": 0,
+        "python": {
+          "mean_kl": 0.030387308,
+          "ppl": 3.854268,
+          "se_kl": 0.002469198,
+          "tokens_scored": 4088,
+          "top1_pct": 92.955
+        },
+        "syndrome_errors": 0,
+        "weight_err_db": -25.553224,
+        "wikitext2": {
+          "mean_kl": 0.047239313,
+          "ppl": 12.891637,
+          "se_kl": 0.003364468,
+          "tokens_scored": 4088,
+          "top1_pct": 89.408
+        }
+      },
+      "A16_hybrid_cal_H16": {
+        "arm": "A16_hybrid_cal_H16",
+        "group_size": 128,
+        "lattice": "A16",
+        "max_matched_mse_db_diff": 0.0,
+        "non_block_tensors_differ": 0,
+        "python": {
+          "mean_kl": 0.0285729,
+          "ppl": 3.818663,
+          "se_kl": 0.002553309,
+          "tokens_scored": 4088,
+          "top1_pct": 93.3219
+        },
+        "syndrome_errors": 0,
+        "weight_err_db": -25.553225,
+        "wikitext2": {
+          "mean_kl": 0.048825294,
+          "ppl": 12.957902,
+          "se_kl": 0.003633207,
+          "tokens_scored": 4088,
+          "top1_pct": 89.1389
+        }
+      },
+      "A16_hybrid_cal_best3": {
+        "arm": "A16_hybrid_cal_best3",
+        "group_size": 128,
+        "lattice": "A16",
+        "max_matched_mse_db_diff": 0.0,
+        "non_block_tensors_differ": 0,
+        "python": {
+          "mean_kl": 0.031378247,
+          "ppl": 3.846626,
+          "se_kl": 0.002608958,
+          "tokens_scored": 4088,
+          "top1_pct": 92.955
+        },
+        "syndrome_errors": 0,
+        "weight_err_db": -25.553245,
+        "wikitext2": {
+          "mean_kl": 0.049115793,
+          "ppl": 12.898633,
+          "se_kl": 0.003655169,
+          "tokens_scored": 4088,
+          "top1_pct": 88.9188
+        }
+      },
+      "E8_H8": {
+        "arm": "E8_H8",
+        "group_size": 128,
+        "lattice": "E8",
+        "max_matched_mse_db_diff": 0.0,
+        "non_block_tensors_differ": 0,
+        "python": {
+          "mean_kl": 0.030131408,
+          "ppl": 3.863475,
+          "se_kl": 0.00314443,
+          "tokens_scored": 4088,
+          "top1_pct": 93.4198
+        },
+        "syndrome_errors": 0,
+        "weight_err_db": -25.584759,
+        "wikitext2": {
+          "mean_kl": 0.05335448,
+          "ppl": 13.216368,
+          "se_kl": 0.003931038,
+          "tokens_scored": 4088,
+          "top1_pct": 89.7994
+        }
+      },
+      "E8_H8_matched": {
+        "arm": "E8_H8_matched",
+        "group_size": 128,
+        "lattice": "E8",
+        "max_matched_mse_db_diff": 9.24e-07,
+        "non_block_tensors_differ": 0,
+        "python": {
+          "mean_kl": 0.030327021,
+          "ppl": 3.864105,
+          "se_kl": 0.003162132,
+          "tokens_scored": 4088,
+          "top1_pct": 93.3953
+        },
+        "syndrome_errors": 0,
+        "weight_err_db": -25.584614,
+        "wikitext2": {
+          "mean_kl": 0.053390806,
+          "ppl": 13.222803,
+          "se_kl": 0.003883668,
+          "tokens_scored": 4088,
+          "top1_pct": 89.6771
+        }
+      },
+      "E8_axis": {
+        "arm": "E8_axis",
+        "group_size": 128,
+        "lattice": "E8",
+        "max_matched_mse_db_diff": 0.0,
+        "non_block_tensors_differ": 0,
+        "python": {
+          "mean_kl": 0.03611013,
+          "ppl": 3.864343,
+          "se_kl": 0.005262267,
+          "tokens_scored": 4088,
+          "top1_pct": 93.1996
+        },
+        "syndrome_errors": 0,
+        "weight_err_db": -25.584614,
+        "wikitext2": {
+          "mean_kl": 0.05279451,
+          "ppl": 13.163514,
+          "se_kl": 0.005946623,
+          "tokens_scored": 4088,
+          "top1_pct": 89.1879
+        }
+      },
+      "Z_plain": {
+        "arm": "Z_plain",
+        "group_size": 128,
+        "lattice": "Z",
+        "max_matched_mse_db_diff": 0.0,
+        "non_block_tensors_differ": 0,
+        "python": {
+          "mean_kl": 0.034835002,
+          "ppl": 3.883551,
+          "se_kl": 0.003195868,
+          "tokens_scored": 4088,
+          "top1_pct": 93.1507
+        },
+        "syndrome_errors": 0,
+        "weight_err_db": -24.927506,
+        "wikitext2": {
+          "mean_kl": 0.054284536,
+          "ppl": 13.225943,
+          "se_kl": 0.004097217,
+          "tokens_scored": 4088,
+          "top1_pct": 88.1115
+        }
+      },
+      "hA16_colproxy": {
+        "arm": "hA16_colproxy",
+        "group_size": 128,
+        "lattice": "A16",
+        "max_matched_mse_db_diff": 0.0,
+        "non_block_tensors_differ": 0,
+        "python": {
+          "mean_kl": 0.026654275,
+          "ppl": 3.83574,
+          "se_kl": 0.002791813,
+          "tokens_scored": 4088,
+          "top1_pct": 94.0313
+        },
+        "syndrome_errors": 0,
+        "weight_err_db": -25.585849,
+        "wikitext2": {
+          "mean_kl": 0.041556633,
+          "ppl": 13.068548,
+          "se_kl": 0.003703424,
+          "tokens_scored": 4088,
+          "top1_pct": 89.7994
+        }
+      },
+      "hA16_rand": {
+        "arm": "hA16_rand",
+        "group_size": 128,
+        "lattice": "A16",
+        "max_matched_mse_db_diff": 0.0,
+        "non_block_tensors_differ": 0,
+        "python": {
+          "mean_kl": 0.015620893,
+          "ppl": 3.775844,
+          "se_kl": 0.000845503,
+          "tokens_scored": 4088,
+          "top1_pct": 95.0342
+        },
+        "syndrome_errors": 0,
+        "weight_err_db": -22.675335,
+        "wikitext2": {
+          "mean_kl": 0.025799321,
+          "ppl": 12.788026,
+          "se_kl": 0.000801387,
+          "tokens_scored": 4088,
+          "top1_pct": 91.5362
+        }
+      },
+      "hA16_real": {
+        "arm": "hA16_real",
+        "group_size": 128,
+        "lattice": "A16",
+        "max_matched_mse_db_diff": 0.0,
+        "non_block_tensors_differ": 0,
+        "python": {
+          "mean_kl": 0.015112618,
+          "ppl": 3.788175,
+          "se_kl": 0.000617328,
+          "tokens_scored": 4088,
+          "top1_pct": 94.8141
+        },
+        "syndrome_errors": 0,
+        "weight_err_db": -22.906355,
+        "wikitext2": {
+          "mean_kl": 0.023636566,
+          "ppl": 12.857511,
+          "se_kl": 0.000715431,
+          "tokens_scored": 4088,
+          "top1_pct": 92.1967
+        }
+      }
+    },
+    "block_linear_matrices": 196,
+    "bpw_exact": "9/2",
+    "calibration_summary": {
+      "mean_layerwise_spearman_colproxy_vs_eval": 0.131753,
+      "mean_layerwise_spearman_rand_vs_eval": 0.516537,
+      "mean_layerwise_spearman_real_vs_eval": 0.755022,
+      "python_colproxy_retention": 0.315469,
+      "python_p5_rand_retention": 0.969854,
+      "wikitext2_colproxy_retention": 0.321873,
+      "wikitext2_p5_rand_retention": 0.918158
+    },
+    "cuda_export_meta": {
+      "down_proj_single_1536x8960": {
+        "K": 8960,
+        "M": 1536,
+        "export_syndrome_errors": 0,
+        "source_layers": [
+          "model.layers.0.mlp.down_proj"
+        ],
+        "weights": 13762560
+      },
+      "down_proj_stacked4_6144x8960": {
+        "K": 8960,
+        "M": 6144,
+        "export_syndrome_errors": 0,
+        "source_layers": [
+          "model.layers.0.mlp.down_proj",
+          "model.layers.1.mlp.down_proj",
+          "model.layers.2.mlp.down_proj",
+          "model.layers.3.mlp.down_proj"
+        ],
+        "weights": 55050240
+      }
+    },
+    "group_size": 128,
+    "hidden_size": 1536,
+    "hybrid_selector_routing": {
+      "cal_best3_counts": {
+        "A16_BlockH2": 61,
+        "A16_H16": 65,
+        "A16_axis": 70
+      },
+      "cal_predicted_regime1_axis": 94,
+      "cal_predicted_regime2_rotated": 102,
+      "cal_to_eval_regime_accuracy": 0.704082,
+      "cal_to_eval_regime_agree_count": 138
+    },
+    "intermediate_size": 8960,
+    "model_safetensors_bytes": 3087467144,
+    "model_safetensors_name": "model.safetensors",
+    "model_safetensors_sha256": "a961db72e75d52b18e6b0c9d379e51a26973b233385e0e127fdda7d648aec796",
+    "num_attention_heads": 12,
+    "num_hidden_layers": 28,
+    "num_key_value_heads": 2,
+    "per_layer_anisotropy_diagnostic": {
+      "block_h2_beats_h16_count": 105,
+      "by_projection_kind": {
+        "down_proj": {
+          "block_h2_beats_h16": 16,
+          "cal_to_eval_regime_agree": 19,
+          "layers": 28,
+          "mean_bh2_over_axis_quad_err": 1.002081,
+          "mean_h16_over_axis_quad_err": 1.000814,
+          "regime1_axis_beats_h16": 12,
+          "regime2_h16_beats_axis": 16
+        },
+        "gate_proj": {
+          "block_h2_beats_h16": 16,
+          "cal_to_eval_regime_agree": 16,
+          "layers": 28,
+          "mean_bh2_over_axis_quad_err": 0.997156,
+          "mean_h16_over_axis_quad_err": 0.99991,
+          "regime1_axis_beats_h16": 13,
+          "regime2_h16_beats_axis": 15
+        },
+        "k_proj": {
+          "block_h2_beats_h16": 15,
+          "cal_to_eval_regime_agree": 21,
+          "layers": 28,
+          "mean_bh2_over_axis_quad_err": 0.98863,
+          "mean_h16_over_axis_quad_err": 0.994153,
+          "regime1_axis_beats_h16": 13,
+          "regime2_h16_beats_axis": 15
+        },
+        "o_proj": {
+          "block_h2_beats_h16": 17,
+          "cal_to_eval_regime_agree": 18,
+          "layers": 28,
+          "mean_bh2_over_axis_quad_err": 0.982251,
+          "mean_h16_over_axis_quad_err": 0.988372,
+          "regime1_axis_beats_h16": 11,
+          "regime2_h16_beats_axis": 17
+        },
+        "q_proj": {
+          "block_h2_beats_h16": 12,
+          "cal_to_eval_regime_agree": 21,
+          "layers": 28,
+          "mean_bh2_over_axis_quad_err": 1.00166,
+          "mean_h16_over_axis_quad_err": 1.002851,
+          "regime1_axis_beats_h16": 16,
+          "regime2_h16_beats_axis": 12
+        },
+        "up_proj": {
+          "block_h2_beats_h16": 17,
+          "cal_to_eval_regime_agree": 19,
+          "layers": 28,
+          "mean_bh2_over_axis_quad_err": 1.002148,
+          "mean_h16_over_axis_quad_err": 1.003773,
+          "regime1_axis_beats_h16": 20,
+          "regime2_h16_beats_axis": 8
+        },
+        "v_proj": {
+          "block_h2_beats_h16": 12,
+          "cal_to_eval_regime_agree": 24,
+          "layers": 28,
+          "mean_bh2_over_axis_quad_err": 1.008567,
+          "mean_h16_over_axis_quad_err": 1.005725,
+          "regime1_axis_beats_h16": 16,
+          "regime2_h16_beats_axis": 12
+        }
+      },
+      "regime1_axis_beats_h16_count": 101,
+      "regime2_h16_beats_axis_count": 95,
+      "total_layers_scored": 196
+    },
+    "reference_bf16": {
+      "non_block_tensors_protected": 142,
+      "python_ppl": 3.739529,
+      "wikitext2_ppl": 12.617995
+    },
+    "repo_id": "Qwen/Qwen2.5-1.5B",
+    "revision": "8faed761d45a263340a0528343f099c05c9a4323",
+    "tie_word_embeddings": true,
+    "tokenizer_json_sha256": "c0382117ea329cdf097041132f6d735924b697924d6f6fc3945713e96ce87539",
+    "total_block_weights": 1310195712
+  },
+  "nvidia_smi_post": {
+    "driver_version": "615.78.08",
+    "mem_clock_mhz": "6001",
+    "memory_used_mib": "2925",
+    "name": "NVIDIA GeForce RTX 3080 Laptop GPU",
+    "power_draw_w": "83.26",
+    "pstate": "P0",
+    "sm_clock_mhz": "1710",
+    "temp_c": "66",
+    "throttle_hex": "0x0000000000000400"
+  },
+  "nvidia_smi_pre": {
+    "driver_version": "615.78.08",
+    "mem_clock_mhz": "405",
+    "memory_used_mib": "2",
+    "name": "NVIDIA GeForce RTX 3080 Laptop GPU",
+    "power_draw_w": "13.39",
+    "pstate": "P8",
+    "sm_clock_mhz": "210",
+    "temp_c": "57",
+    "throttle_hex": "0x0000000000000001"
+  },
+  "oracle_class": "sampled",
+  "schema": "aletheia.track_s60.qwen15b_scale_law.v1",
+  "total_cpu_rapl_joules": 34749.372
+}
