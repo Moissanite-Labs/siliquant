@@ -1,0 +1,2 @@
+[8,4,4]: G = 0.07174 +- 0.00008  (E8 0.07168, Z 0.08333);  Laplace b=0.5 at unit density: mse 0.0710 vs Z 0.0743, zero share of |y|<1/4: 0.886
+[16,11,4]: G = 0.06970 +- 0.00009  (E8 0.07168, Z 0.08333);  Laplace b=0.5 at unit density: mse 0.0671 vs Z 0.0745, zero share of |y|<1/4: 0.969

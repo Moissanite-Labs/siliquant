@@ -11,6 +11,7 @@ clip-by-layer-smollm2-2026-11-18 | 95 | 78 | 1 | 5 | 11 | 0 | 0 | 52 | 7
 e8-gain-largest-entry-rule-2026-11-17 | 304 | 303 | 1 | 0 | 0 | 0 | 0 | 274 | 215
 e8-hadamard-real-weights-2026-11-22 | 102 | 98 | 3 | 1 | 0 | 0 | 0 | 43 | 5
 fold-path-codebooks-2026-11-17 | 294 | 291 | 2 | 1 | 0 | 0 | 0 | 268 | 186
+hamming-lattices-real-weights-2026-11-24 | 189 | 187 | 1 | 0 | 1 | 0 | 0 | 92 | 12
 imatrix-baseline-2026-11-17 | 147 | 147 | 0 | 0 | 0 | 0 | 0 | 106 | 25
 imatrix-gain-parts-2026-11-18 | 231 | 227 | 0 | 4 | 0 | 0 | 0 | 153 | 51
 incentre-vortex-codebooks-2026-11-17 | 429 | 419 | 4 | 3 | 2 | 1 | 1 | 373 | 305
@@ -23,13 +24,14 @@ model-output-qwen25-2026-11-17 | 377 | 374 | 0 | 0 | 3 | 0 | 0 | 316 | 87
 model-output-smollm2-2026-11-17 | 218 | 206 | 0 | 3 | 9 | 0 | 0 | 181 | 25
 output-budget-gemma-e4b-2026-11-17 | 424 | 423 | 0 | 1 | 0 | 0 | 0 | 349 | 129
 packed-ball-format-2026-11-18 | 138 | 124 | 1 | 5 | 8 | 0 | 0 | 84 | 6
+packed-hamming-2026-11-24 | 207 | 205 | 0 | 0 | 2 | 0 | 0 | 136 | 11
 packed-kept-columns-2026-11-19 | 104 | 101 | 0 | 3 | 0 | 0 | 0 | 46 | 1
 region-shapes-no-clip-rule-2026-11-17 | 200 | 199 | 0 | 0 | 1 | 0 | 0 | 180 | 139
 second-text-python-2026-11-18 | 126 | 117 | 1 | 0 | 8 | 0 | 0 | 57 | 6
 shape-formula-held-out-2026-11-17 | 310 | 305 | 4 | 0 | 1 | 0 | 0 | 226 | 223
 third-model-llama32-2026-11-18 | 186 | 185 | 0 | 0 | 1 | 0 | 0 | 62 | 3
 
-in all: 5141 numbers, 1 not found
+in all: 5537 numbers, 1 not found
 
 Not found, with two decimals or more: the line of the README, the number, and where it stands
   incentre-vortex-codebooks-2026-11-17
@@ -44,6 +46,7 @@ clip-by-layer-smollm2-2026-11-18 | 20 | 10 | 10 | 10 of 10
 e8-gain-largest-entry-rule-2026-11-17 | 57 | 46 | 11 | 31 of 46
 e8-hadamard-real-weights-2026-11-22 | 16 | 4 | 12 | 1 of 4
 fold-path-codebooks-2026-11-17 | 50 | 40 | 10 | 20 of 40
+hamming-lattices-real-weights-2026-11-24 | 27 | 21 | 6 | 17 of 21
 imatrix-baseline-2026-11-17 | 20 | 14 | 6 | 14 of 14
 imatrix-gain-parts-2026-11-18 | 49 | 40 | 9 | 27 of 40
 incentre-vortex-codebooks-2026-11-17 | 54 | 21 | 33 | 11 of 21
@@ -56,6 +59,7 @@ model-output-qwen25-2026-11-17 | 71 | 53 | 18 | 41 of 53
 model-output-smollm2-2026-11-17 | 43 | 32 | 11 | 25 of 32
 output-budget-gemma-e4b-2026-11-17 | 75 | 61 | 14 | 45 of 61
 packed-ball-format-2026-11-18 | 22 | 7 | 15 | 7 of 7
+packed-hamming-2026-11-24 | 40 | 35 | 5 | 30 of 35
 packed-kept-columns-2026-11-19 | 15 | 8 | 7 | 8 of 8
 region-shapes-no-clip-rule-2026-11-17 | 38 | 9 | 29 | 5 of 9
 second-text-python-2026-11-18 | 24 | 18 | 6 | 18 of 18
@@ -131,6 +135,13 @@ Lines not covered by two output lines: the line of the README, how many of its n
     line 137: 1 of 3   0.15 0.195 0.15
     line 138: 5 of 7   0.76 0.89 1.12 0.3 0.33 0.77 1.06
     line 139: 2 of 5   0.05 0.03 0.06 0.07 0.11
+  hamming-lattices-real-weights-2026-11-24
+    line 42: 4 of 6   0.358845 0.380994 7.5 4.7 27.3 24.6
+    line 43: 4 of 5   0.160368 2.2 0.169338 0.174194 1.2
+    line 45: 3 of 4   3.2 0.024053 2.4 0.025204
+    line 54: 2 of 3   17.7 14.3 8.9
+    line 56: 2 of 4   4.5 0.064678 0.113625 0.110765
+    line 105: 3 of 6   3.2 4.5 0.030223 0.025378 0.025204 0.024053
   imatrix-baseline-2026-11-17
     line 24: 4 of 5   4.5 0.0227 0.0282 0.0560 0.0378
     line 25: 6 of 9   4.51 0.0209 0.0282 4.81 4.82 0.0282 0.0378 9.2 10.0
@@ -297,6 +308,12 @@ Lines not covered by two output lines: the line of the README, how many of its n
     line 99: 2 of 6   4.501 4.52 4.50004 4.50003 4.50626 4.50491
     line 102: 2 of 5   1.25 1.078 1.085 1.052 1.097
     line 103: 2 of 4   24.1 24.3 25.0 19.7
+  packed-hamming-2026-11-24
+    line 34: 3 of 4   9.4 10.1 2.5 3.0
+    line 39: 2 of 3   3.1 6.7 4.5
+    line 112: 2 of 4   3.1 6.7 0.87 0.92
+    line 118: 2 of 3   0.005 4.5049 4.5054
+    line 142: 2 of 3   4.5 3.1 6.7
   packed-kept-columns-2026-11-19
     line 19: 6 of 12   4.5 4.8 0.0247 0.0333 0.0581 0.0838 0.0340 0.0432 3.2 10.2 13.5 11.9
     line 20: 4 of 5   3.2 0.0519 9.0 0.0340 34.5

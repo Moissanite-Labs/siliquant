@@ -1,0 +1,17 @@
+## 1. Weight error (dB) in a ball over 32 weights, 136 bits for the point
+
+| Matrix | Z8 | E8 | A8 | A16 | A32 | A16 over Z8 (dB) |
+|---|---|---|---|---|---|---|
+| Laplace | -24.411 | -25.059 | -25.055 | -25.180 | -25.103 | 0.769 |
+| Gaussian | -24.411 | -25.052 | -25.055 | -25.178 | -25.094 | 0.767 |
+| SmolLM2 blk.1.ffn_down.weight | -24.401 | -25.055 | -25.052 | -25.179 | -25.097 | 0.778 |
+| SmolLM2 blk.5.ffn_down.weight | -24.403 | -25.054 | -25.057 | -25.175 | -25.095 | 0.771 |
+| SmolLM2 blk.10.attn_q.weight | -24.397 | -25.051 | -25.051 | -25.174 | -25.090 | 0.776 |
+
+## 2. Numbering a ball over 32 weights in 136 bits
+
+| Lattice | Bound | log2 N | Table entries | Look-ups to read back a point | Look-ups to number a point |
+|---|---|---|---|---|---|
+| Z^32 (the packed format) | 783 | 135.994 | 25872 | 264 | 232 |
+| A16 over 32 | 1207 | 135.969 | 660776 | 323 | 291 |
+| A32 over 32 | 1015 | 135.970 | 2147824 | 298 | 266 |

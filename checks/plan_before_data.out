@@ -8,6 +8,7 @@ clip-by-layer-smollm2-2026-11-18 | a6598fa | 2 | edbf5bb | yes | 0 | 0 | 0 | 0 o
 e8-gain-largest-entry-rule-2026-11-17 | 61c552b | 0 | affbdfd | yes | 0 | 0 | 0 | 0 of 0 | 1
 e8-hadamard-real-weights-2026-11-22 | 3f21683 | 0 | 54a9434 | yes | 1 | 0 | 0 | 0 of 0 | 0
 fold-path-codebooks-2026-11-17 | cae753e | 0 | cda52eb | yes | 0 | 1 | 1 | 1 of 1 | 0
+hamming-lattices-real-weights-2026-11-24 | aec439b | 2 | 7d3d1ca | yes | 0 | 0 | 0 | 0 of 0 | 0
 imatrix-baseline-2026-11-17 | 86a18b5 | 0 | ee48f57 | yes | 0 | 2 | 2 | 2 of 2 | 2
 imatrix-gain-parts-2026-11-18 | 453d907 | 1 | 0cdc5f4 | yes | 0 | 2 | 2 | 2 of 2 | 6
 incentre-vortex-codebooks-2026-11-17 | 61c552b | 0 | 8d709ad | yes | 2 | 0 | 0 | 0 of 0 | 0
@@ -15,11 +16,13 @@ lattice-split-smollm2-2026-11-17 | eac2ef2 | 0 | 0355136 | yes | 0 | 3 | 3 | 3 o
 lattice-vs-scalar-rounding-2026-11-15 | 195f06e | 0 | 1c3d4c9 | yes | 0 | 0 | 0 | 0 of 0 | 1
 loud-columns-2026-11-18 | 566c318 | 3 | d6e7752 | yes | 0 | 1 | 1 | 1 of 1 | 2
 mmlu-subset-2026-11-18 | e81eafa | 0 | 968ddbb | yes | 0 | 0 | 0 | 0 of 0 | 0
+model-output-gemma-ball-2026-11-23 | ea3c81e | 0 | none yet | yes | 1 | 0 | 0 | 0 of 0 | 0
 model-output-gemma-e4b-2026-11-15 | 60ec5aa | 0 | eac9d89 | yes | 6 | 2 | 2 | 2 of 2 | 5
 model-output-qwen25-2026-11-17 | 81b83d2 | 0 | 8de998d | yes | 0 | 1 | 1 | 1 of 1 | 8
 model-output-smollm2-2026-11-17 | 14726fd | 0 | acc5c55 | yes | 0 | 0 | 0 | 0 of 0 | 0
 output-budget-gemma-e4b-2026-11-17 | ec636b1 | 0 | c253666 | yes | 0 | 2 | 2 | 2 of 2 | 10
 packed-ball-format-2026-11-18 | 4d3995c | 0 | 170806c | yes | 0 | 0 | 0 | 0 of 0 | 0
+packed-hamming-2026-11-24 | 6209621 | 0 | 8101518 | yes | 0 | 0 | 0 | 0 of 0 | 0
 packed-kept-columns-2026-11-19 | d93fccd | 0 | 200e3e6 | yes | 0 | 0 | 0 | 0 of 0 | 0
 region-shapes-no-clip-rule-2026-11-17 | 6964d05 | 0 | dfe9da0 | yes | 0 | 0 | 0 | 0 of 0 | 0
 second-text-python-2026-11-18 | 66acffb | 0 | bb02a8d | yes | 0 | 0 | 0 | 0 of 0 | 1
@@ -32,6 +35,7 @@ Data committed with a plan, each change to a plan, and each program changed afte
   e8-gain-largest-entry-rule-2026-11-17: program detail.py changed at 3bc2de2 after the first data
   e8-hadamard-real-weights-2026-11-22: plan changed at 1aeca0b (2026-11-22T20:20), before the first data was committed. Plan, before it is pushed: a second part, the turned lattice in a Voronoi code
   fold-path-codebooks-2026-11-17: plan changed at cda52eb (2026-11-17T10:27), new data followed, named in the README. Fold study: amendment 1 of the plan, before any matrix is rounded
+  hamming-lattices-real-weights-2026-11-24: 2 data files were committed with the first plan: cell_check.out, pilot.out
   imatrix-baseline-2026-11-17: plan changed at 79fb0cc (2026-11-17T22:16), new data followed, named in the README. Importance-matrix baseline: extension 1, the ball arm given the same matrix
   imatrix-baseline-2026-11-17: plan changed at b148352 (2026-11-17T22:48), new data followed, named in the README. Importance-matrix baseline: extension 2, the strength chosen on validation text
   imatrix-baseline-2026-11-17: program summary.py changed at 76904f3 after the first data
@@ -61,6 +65,7 @@ Data committed with a plan, each change to a plan, and each program changed afte
   loud-columns-2026-11-18: plan changed at 8f24288 (2026-11-18T17:30), new data followed, named in the README. Extension 1 of the loud-columns plan: one column, before any of its variants is scored
   loud-columns-2026-11-18: program run.py changed at 8f24288 after the first data
   loud-columns-2026-11-18: program summary.py changed at 8f24288 after the first data
+  model-output-gemma-ball-2026-11-23: plan changed at 9be83f9 (2026-11-23T11:48), before the first data was committed. prereg: resolve review comments on Gemma ball preregistration
   model-output-gemma-e4b-2026-11-15: plan changed at d864dee (2026-11-15T18:46), before the first data was committed. Model output run: round 2 plan, before round 2 is scored
   model-output-gemma-e4b-2026-11-15: plan changed at 7d53f77 (2026-11-15T18:47), before the first data was committed. Plan: correct the time stated for round 2 to the commit's own
   model-output-gemma-e4b-2026-11-15: plan changed at d7764c9 (2026-11-15T19:00), before the first data was committed. Model output run: round 3 plan, before round 3 is scored

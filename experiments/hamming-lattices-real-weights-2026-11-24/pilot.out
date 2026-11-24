@@ -1,0 +1,7 @@
+HBG128:b560s16          2.8s  1343.3 ns/w  bits 4.4999  err -25.587 dB  small->0 0.874  shrunk 0.0000
+A16BG128:b560s16        9.8s  4652.8 ns/w  bits 4.4997  err -25.709 dB  small->0 0.967  shrunk 0.0000
+A32BG128:b560s16       12.7s  6058.7 ns/w  bits 4.5000  err -25.631 dB  small->0 0.997  shrunk 0.0000
+A16BG128:b368s16        4.1s  1961.8 ns/w  bits 2.9990  err -16.615 dB  small->0 0.995  shrunk 0.0000
+ZBG128:b368s16          0.4s   168.3 ns/w  bits 2.9997  err -15.889 dB  small->0 1.000  shrunk 0.0000
+HBG128:b368s16          2.0s   971.2 ns/w  bits 2.9971  err -16.456 dB  small->0 0.945  shrunk 0.0000
+A32BG128:b368s16        6.1s  2931.9 ns/w  bits 2.9985  err -16.558 dB  small->0 1.000  shrunk 0.0000

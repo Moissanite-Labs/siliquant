@@ -1,0 +1,6 @@
+| Format | Bound | Table entries | Weight error (dB) | Decode, million weights a second |
+|---|---|---|---|---|
+| Z^32 (ballpack) | 783 | 25872 | -24.439 | 20.8 |
+| A_16 x A_16 | 1207 | 1275648 | -25.240 | 10.2 |
+| A_32 | 1015 | 2145792 | -25.155 | 9.3 |
+| A_8^4 (E8 turned) | 1567 | 827904 | -25.110 | 10.7 |
