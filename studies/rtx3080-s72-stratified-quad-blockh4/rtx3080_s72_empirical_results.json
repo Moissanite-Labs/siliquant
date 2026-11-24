@@ -1,0 +1,2528 @@
+{
+  "ac_online": true,
+  "corpora": {
+    "n_eval_chunks": 8,
+    "n_rand_cal_chunks": 8,
+    "n_real_cal_chunks": 12,
+    "python_stdlib_modules": [
+      "fractions.py",
+      "difflib.py",
+      "decimal.py",
+      "statistics.py",
+      "argparse.py",
+      "json/decoder.py"
+    ],
+    "python_stdlib_sha256": "1b4e20705e234e09b673cc1f3e013156e7ab449bc0daccee3767faaad2732e8a",
+    "seq_len": 512,
+    "wikitext2_repo": "Salesforce/wikitext",
+    "wikitext2_revision": "b08601e04326c79dfdd32d625aee71d232d685c3",
+    "wikitext2_test_sha256": "430983e5a711fbc4c6576edffecacf47ff23d58f62f3923d2386d798e0a794c9",
+    "wikitext2_val_sha256": "93abc2e0cd803097893a176fd0de13e75c77a1414c5e64af7bbcf705068938c5"
+  },
+  "elapsed_seconds": 3338.962,
+  "eval_seed": 2026112472,
+  "measured_live_model_weights": true,
+  "model_pins": {
+    "HuggingFaceTB/SmolLM2-360M": {
+      "revision": "f8027fd0eaeea54caa13c31d31b9fdc459c38b49",
+      "safetensors_sha256": "7aaff6661428bed033abba9522bec81938678642cca3181fe752b6ca9e1e540f",
+      "tokenizer_sha256": "9ca9acddb6525a194ec8ac7a87f24fbba7232a9a15ffa1af0c1224fcd888e47c"
+    },
+    "Qwen/Qwen2.5-0.5B": {
+      "revision": "060db6499f32faf8b98477b0a26969ef7d8b9987",
+      "safetensors_sha256": "88c142557820ccad55bb59756bfcfcf891de9cc6202816bd346445188a0ed342",
+      "tokenizer_sha256": "c0382117ea329cdf097041132f6d735924b697924d6f6fc3945713e96ce87539"
+    },
+    "Qwen/Qwen2.5-1.5B": {
+      "revision": "8faed761d45a263340a0528343f099c05c9a4323",
+      "safetensors_sha256": "a961db72e75d52b18e6b0c9d379e51a26973b233385e0e127fdda7d648aec796",
+      "tokenizer_sha256": "c0382117ea329cdf097041132f6d735924b697924d6f6fc3945713e96ce87539"
+    },
+    "Qwen/Qwen2.5-3B": {
+      "model_index_sha256": "bc8aaa0c87d4335177e01c765f1de0db81661c67c1a72fbfb0d521b09f5ddc56",
+      "revision": "3aab1f1954e9cc14eb9509a215f9e5ca08227a9b",
+      "safetensors_shards": [
+        {
+          "bytes": 3968658944,
+          "name": "model-00001-of-00002.safetensors",
+          "sha256": "f9558df91d3b89b4826e4db37439edb52f1d62a4fd602685013e7ca6b9f60f8f"
+        },
+        {
+          "bytes": 2203268048,
+          "name": "model-00002-of-00002.safetensors",
+          "sha256": "51410930d5cf19a998fdb17ef0c46e4d9ace72c97a975a3331395a8a500f5edb"
+        }
+      ],
+      "tokenizer_sha256": "c0382117ea329cdf097041132f6d735924b697924d6f6fc3945713e96ce87539"
+    }
+  },
+  "models": {
+    "HuggingFaceTB/SmolLM2-360M": {
+      "arms": {
+        "A16_BlockH4": {
+          "arm": "A16_BlockH4",
+          "group_size": 32,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.066761687,
+            "p95_kl": 0.172977316,
+            "ppl": 5.376346,
+            "tokens_scored": 4088,
+            "top1_match_pct": 89.4569
+          },
+          "small_weight_e05_db": 5.226569,
+          "small_weight_zero_pct": 48.7226,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.027863,
+          "wikitext2": {
+            "mean_kl": 0.082001576,
+            "p95_kl": 0.183172673,
+            "ppl": 17.708173,
+            "tokens_scored": 4088,
+            "top1_match_pct": 85.9344
+          }
+        },
+        "A16_BlockH4_quad_lpt_down_wcol": {
+          "arm": "A16_BlockH4_quad_lpt_down_wcol",
+          "group_size": 32,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.061357073,
+            "p95_kl": 0.168759978,
+            "ppl": 5.343903,
+            "tokens_scored": 4088,
+            "top1_match_pct": 89.0411
+          },
+          "small_weight_e05_db": 5.226855,
+          "small_weight_zero_pct": 48.742,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.028014,
+          "wikitext2": {
+            "mean_kl": 0.070825497,
+            "p95_kl": 0.173550952,
+            "ppl": 17.346446,
+            "tokens_scored": 4088,
+            "top1_match_pct": 86.1791
+          }
+        },
+        "A16_BlockH4_quad_lpt_hrand": {
+          "arm": "A16_BlockH4_quad_lpt_hrand",
+          "group_size": 32,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.068158411,
+            "p95_kl": 0.175752081,
+            "ppl": 5.415277,
+            "tokens_scored": 4088,
+            "top1_match_pct": 89.8239
+          },
+          "small_weight_e05_db": 5.237185,
+          "small_weight_zero_pct": 48.817,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.028278,
+          "wikitext2": {
+            "mean_kl": 0.077420921,
+            "p95_kl": 0.165341201,
+            "ppl": 17.5925,
+            "tokens_scored": 4088,
+            "top1_match_pct": 85.6164
+          }
+        },
+        "A16_BlockH4_quad_lpt_wcol": {
+          "arm": "A16_BlockH4_quad_lpt_wcol",
+          "group_size": 32,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.070016509,
+            "p95_kl": 0.190002619,
+            "ppl": 5.445071,
+            "tokens_scored": 4088,
+            "top1_match_pct": 88.0871
+          },
+          "small_weight_e05_db": 5.245013,
+          "small_weight_zero_pct": 48.8751,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.02811,
+          "wikitext2": {
+            "mean_kl": 0.076360925,
+            "p95_kl": 0.174977043,
+            "ppl": 17.672156,
+            "tokens_scored": 4088,
+            "top1_match_pct": 84.7847
+          }
+        },
+        "A16_BlockH4_quad_snake_wcol": {
+          "arm": "A16_BlockH4_quad_snake_wcol",
+          "group_size": 32,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.067961224,
+            "p95_kl": 0.203983616,
+            "ppl": 5.454886,
+            "tokens_scored": 4088,
+            "top1_match_pct": 88.2583
+          },
+          "small_weight_e05_db": 5.248371,
+          "small_weight_zero_pct": 48.886,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.027942,
+          "wikitext2": {
+            "mean_kl": 0.06999726,
+            "p95_kl": 0.193225373,
+            "ppl": 17.662017,
+            "tokens_scored": 4088,
+            "top1_match_pct": 85.2984
+          }
+        },
+        "A16_BlockH4_sort_wcol": {
+          "arm": "A16_BlockH4_sort_wcol",
+          "group_size": 32,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.054714696,
+            "p95_kl": 0.163455018,
+            "ppl": 5.325007,
+            "tokens_scored": 4088,
+            "top1_match_pct": 89.6282
+          },
+          "small_weight_e05_db": 5.086933,
+          "small_weight_zero_pct": 48.0165,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.027764,
+          "wikitext2": {
+            "mean_kl": 0.064414333,
+            "p95_kl": 0.166602661,
+            "ppl": 17.332924,
+            "tokens_scored": 4088,
+            "top1_match_pct": 86.3992
+          }
+        },
+        "A16_axis": {
+          "arm": "A16_axis",
+          "group_size": 32,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.056725239,
+            "p95_kl": 0.153083264,
+            "ppl": 5.330269,
+            "tokens_scored": 4088,
+            "top1_match_pct": 89.5303
+          },
+          "small_weight_e05_db": 2.682446,
+          "small_weight_zero_pct": 93.1058,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.028104,
+          "wikitext2": {
+            "mean_kl": 0.065173014,
+            "p95_kl": 0.153370604,
+            "ppl": 17.252215,
+            "tokens_scored": 4088,
+            "top1_match_pct": 86.9374
+          }
+        },
+        "ProjType_Uniform": {
+          "arm": "ProjType_Uniform",
+          "group_size": 32,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.052088739,
+            "p95_kl": 0.150947169,
+            "ppl": 5.302646,
+            "tokens_scored": 4088,
+            "top1_match_pct": 90.1663
+          },
+          "small_weight_e05_db": 4.711452,
+          "small_weight_zero_pct": 59.5758,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.027946,
+          "wikitext2": {
+            "mean_kl": 0.061837779,
+            "p95_kl": 0.160758285,
+            "ppl": 16.970058,
+            "tokens_scored": 4088,
+            "top1_match_pct": 86.228
+          }
+        },
+        "ProjType_Uniform_QuadLPT_hrand": {
+          "arm": "ProjType_Uniform_QuadLPT_hrand",
+          "group_size": 32,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.060977284,
+            "p95_kl": 0.161625331,
+            "ppl": 5.361933,
+            "tokens_scored": 4088,
+            "top1_match_pct": 90.0196
+          },
+          "small_weight_e05_db": 4.724571,
+          "small_weight_zero_pct": 59.6634,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.02821,
+          "wikitext2": {
+            "mean_kl": 0.067355114,
+            "p95_kl": 0.153171077,
+            "ppl": 17.169482,
+            "tokens_scored": 4088,
+            "top1_match_pct": 86.3014
+          }
+        },
+        "ProjType_Uniform_QuadLPT_wcol": {
+          "arm": "ProjType_Uniform_QuadLPT_wcol",
+          "group_size": 32,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.059556821,
+            "p95_kl": 0.165667154,
+            "ppl": 5.386623,
+            "tokens_scored": 4088,
+            "top1_match_pct": 89.09
+          },
+          "small_weight_e05_db": 4.731893,
+          "small_weight_zero_pct": 59.709,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.028042,
+          "wikitext2": {
+            "mean_kl": 0.065120907,
+            "p95_kl": 0.162954529,
+            "ppl": 17.366951,
+            "tokens_scored": 4088,
+            "top1_match_pct": 85.9834
+          }
+        },
+        "hA16_BlockH2_quad_lpt_real": {
+          "arm": "hA16_BlockH2_quad_lpt_real",
+          "group_size": 32,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.02966695,
+            "p95_kl": 0.078555648,
+            "ppl": 5.150962,
+            "tokens_scored": 4088,
+            "top1_match_pct": 93.1996
+          },
+          "small_weight_e05_db": 6.722636,
+          "small_weight_zero_pct": 7.1309,
+          "syndrome_errors": 0,
+          "weight_err_db": -24.301012,
+          "wikitext2": {
+            "mean_kl": 0.031742924,
+            "p95_kl": 0.079165787,
+            "ppl": 17.025344,
+            "tokens_scored": 4088,
+            "top1_match_pct": 90.9247
+          }
+        },
+        "hA16_BlockH2_real": {
+          "arm": "hA16_BlockH2_real",
+          "group_size": 32,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.032958807,
+            "p95_kl": 0.070492644,
+            "ppl": 5.190835,
+            "tokens_scored": 4088,
+            "top1_match_pct": 92.7593
+          },
+          "small_weight_e05_db": 7.815791,
+          "small_weight_zero_pct": 6.7828,
+          "syndrome_errors": 0,
+          "weight_err_db": -24.063316,
+          "wikitext2": {
+            "mean_kl": 0.03565109,
+            "p95_kl": 0.073933991,
+            "ppl": 17.028606,
+            "tokens_scored": 4088,
+            "top1_match_pct": 91.5117
+          }
+        },
+        "hA16_BlockH4_quad_lpt_down_zerocost": {
+          "arm": "hA16_BlockH4_quad_lpt_down_zerocost",
+          "group_size": 32,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.025139624,
+            "p95_kl": 0.075699293,
+            "ppl": 5.154657,
+            "tokens_scored": 4088,
+            "top1_match_pct": 92.2456
+          },
+          "small_weight_e05_db": 8.410821,
+          "small_weight_zero_pct": 48.6734,
+          "syndrome_errors": 0,
+          "weight_err_db": -23.979356,
+          "wikitext2": {
+            "mean_kl": 0.028933503,
+            "p95_kl": 0.076365983,
+            "ppl": 16.799468,
+            "tokens_scored": 4088,
+            "top1_match_pct": 90.7534
+          }
+        },
+        "hA16_BlockH4_quad_lpt_rand": {
+          "arm": "hA16_BlockH4_quad_lpt_rand",
+          "group_size": 32,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.039263036,
+            "p95_kl": 0.088945666,
+            "ppl": 5.241744,
+            "tokens_scored": 4088,
+            "top1_match_pct": 92.5147
+          },
+          "small_weight_e05_db": 7.844493,
+          "small_weight_zero_pct": 48.8232,
+          "syndrome_errors": 0,
+          "weight_err_db": -23.771325,
+          "wikitext2": {
+            "mean_kl": 0.043848459,
+            "p95_kl": 0.098037699,
+            "ppl": 17.304618,
+            "tokens_scored": 4088,
+            "top1_match_pct": 89.726
+          }
+        },
+        "hA16_BlockH4_quad_lpt_real": {
+          "arm": "hA16_BlockH4_quad_lpt_real",
+          "group_size": 32,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.028337952,
+            "p95_kl": 0.080036842,
+            "ppl": 5.161522,
+            "tokens_scored": 4088,
+            "top1_match_pct": 92.4168
+          },
+          "small_weight_e05_db": 7.571612,
+          "small_weight_zero_pct": 48.775,
+          "syndrome_errors": 0,
+          "weight_err_db": -24.13195,
+          "wikitext2": {
+            "mean_kl": 0.03350319,
+            "p95_kl": 0.079580235,
+            "ppl": 17.035115,
+            "tokens_scored": 4088,
+            "top1_match_pct": 90.6311
+          }
+        },
+        "hA16_BlockH4_quad_lpt_sharednorm": {
+          "arm": "hA16_BlockH4_quad_lpt_sharednorm",
+          "group_size": 32,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.028631722,
+            "p95_kl": 0.079707643,
+            "ppl": 5.161314,
+            "tokens_scored": 4088,
+            "top1_match_pct": 92.3924
+          },
+          "small_weight_e05_db": 7.535237,
+          "small_weight_zero_pct": 48.6722,
+          "syndrome_errors": 0,
+          "weight_err_db": -24.167226,
+          "wikitext2": {
+            "mean_kl": 0.033220223,
+            "p95_kl": 0.076400741,
+            "ppl": 16.990494,
+            "tokens_scored": 4088,
+            "top1_match_pct": 90.4843
+          }
+        },
+        "hA16_BlockH4_quad_snake_real": {
+          "arm": "hA16_BlockH4_quad_snake_real",
+          "group_size": 32,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.028254726,
+            "p95_kl": 0.074315068,
+            "ppl": 5.147656,
+            "tokens_scored": 4088,
+            "top1_match_pct": 93.1262
+          },
+          "small_weight_e05_db": 9.414873,
+          "small_weight_zero_pct": 48.8154,
+          "syndrome_errors": 0,
+          "weight_err_db": -23.713052,
+          "wikitext2": {
+            "mean_kl": 0.030820768,
+            "p95_kl": 0.078835624,
+            "ppl": 16.998944,
+            "tokens_scored": 4088,
+            "top1_match_pct": 90.6556
+          }
+        },
+        "hA16_BlockH4_real": {
+          "arm": "hA16_BlockH4_real",
+          "group_size": 32,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.026601776,
+            "p95_kl": 0.080678713,
+            "ppl": 5.155454,
+            "tokens_scored": 4088,
+            "top1_match_pct": 92.7104
+          },
+          "small_weight_e05_db": 8.411219,
+          "small_weight_zero_pct": 48.6607,
+          "syndrome_errors": 0,
+          "weight_err_db": -23.979804,
+          "wikitext2": {
+            "mean_kl": 0.028206886,
+            "p95_kl": 0.075510117,
+            "ppl": 16.952402,
+            "tokens_scored": 4088,
+            "top1_match_pct": 91.047
+          }
+        },
+        "hA16_BlockH4_sort_grp128_real": {
+          "arm": "hA16_BlockH4_sort_grp128_real",
+          "group_size": 32,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.024308232,
+            "p95_kl": 0.073688924,
+            "ppl": 5.173056,
+            "tokens_scored": 4088,
+            "top1_match_pct": 93.4932
+          },
+          "small_weight_e05_db": 7.894365,
+          "small_weight_zero_pct": 48.779,
+          "syndrome_errors": 0,
+          "weight_err_db": -24.097862,
+          "wikitext2": {
+            "mean_kl": 0.030635795,
+            "p95_kl": 0.08824727,
+            "ppl": 16.969856,
+            "tokens_scored": 4088,
+            "top1_match_pct": 90.1419
+          }
+        },
+        "hA16_BlockH4_sort_real": {
+          "arm": "hA16_BlockH4_sort_real",
+          "group_size": 32,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.046178825,
+            "p95_kl": 0.110283034,
+            "ppl": 5.284621,
+            "tokens_scored": 4088,
+            "top1_match_pct": 91.5117
+          },
+          "small_weight_e05_db": 6.314958,
+          "small_weight_zero_pct": 48.3598,
+          "syndrome_errors": 0,
+          "weight_err_db": -24.745718,
+          "wikitext2": {
+            "mean_kl": 0.04576595,
+            "p95_kl": 0.10088127,
+            "ppl": 17.338278,
+            "tokens_scored": 4088,
+            "top1_match_pct": 88.9677
+          }
+        },
+        "hA16_real": {
+          "arm": "hA16_real",
+          "group_size": 32,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.027538215,
+            "p95_kl": 0.081915013,
+            "ppl": 5.167753,
+            "tokens_scored": 4088,
+            "top1_match_pct": 92.8571
+          },
+          "small_weight_e05_db": 4.497152,
+          "small_weight_zero_pct": 92.4604,
+          "syndrome_errors": 0,
+          "weight_err_db": -24.371758,
+          "wikitext2": {
+            "mean_kl": 0.030954721,
+            "p95_kl": 0.07660877,
+            "ppl": 16.973434,
+            "tokens_scored": 4088,
+            "top1_match_pct": 91.365
+          }
+        }
+      },
+      "ball_variance_telemetry_hreal": {
+        "global_sort": {
+          "down_proj_mean_ball_cv_lin": 2.143159,
+          "down_proj_mean_quad_spread": 0.293337,
+          "mean_ball_cv_lin": 2.692134,
+          "mean_ball_cv_sqrt": 0.65794,
+          "mean_quad_spread": 0.658205
+        },
+        "grp128_sort": {
+          "down_proj_mean_ball_cv_lin": 0.84065,
+          "down_proj_mean_quad_spread": 1.027907,
+          "mean_ball_cv_lin": 1.203872,
+          "mean_ball_cv_sqrt": 0.207487,
+          "mean_quad_spread": 1.799041
+        },
+        "quad_lpt": {
+          "down_proj_mean_ball_cv_lin": 1.0613,
+          "down_proj_mean_quad_spread": 0.293337,
+          "mean_ball_cv_lin": 1.803939,
+          "mean_ball_cv_sqrt": 0.228527,
+          "mean_quad_spread": 0.658205
+        },
+        "quad_snake": {
+          "down_proj_mean_ball_cv_lin": 1.126492,
+          "down_proj_mean_quad_spread": 0.293337,
+          "mean_ball_cv_lin": 1.850673,
+          "mean_ball_cv_sqrt": 0.268674,
+          "mean_quad_spread": 0.658205
+        },
+        "unpermuted": {
+          "down_proj_mean_ball_cv_lin": 0.84065,
+          "down_proj_mean_quad_spread": 1.932088,
+          "mean_ball_cv_lin": 1.203872,
+          "mean_ball_cv_sqrt": 0.207487,
+          "mean_quad_spread": 2.275181
+        }
+      },
+      "ball_variance_telemetry_wcol": {
+        "global_sort": {
+          "down_proj_mean_ball_cv_lin": 0.163731,
+          "down_proj_mean_quad_spread": 0.002155,
+          "mean_ball_cv_lin": 0.200857,
+          "mean_ball_cv_sqrt": 0.104407,
+          "mean_quad_spread": 0.008887
+        },
+        "grp128_sort": {
+          "down_proj_mean_ball_cv_lin": 0.028845,
+          "down_proj_mean_quad_spread": 0.081565,
+          "mean_ball_cv_lin": 0.063967,
+          "mean_ball_cv_sqrt": 0.032076,
+          "mean_quad_spread": 0.091821
+        },
+        "quad_lpt": {
+          "down_proj_mean_ball_cv_lin": 0.007445,
+          "down_proj_mean_quad_spread": 0.002155,
+          "mean_ball_cv_lin": 0.015646,
+          "mean_ball_cv_sqrt": 0.011233,
+          "mean_quad_spread": 0.008887
+        },
+        "quad_snake": {
+          "down_proj_mean_ball_cv_lin": 0.008881,
+          "down_proj_mean_quad_spread": 0.002155,
+          "mean_ball_cv_lin": 0.021201,
+          "mean_ball_cv_sqrt": 0.009714,
+          "mean_quad_spread": 0.008887
+        },
+        "unpermuted": {
+          "down_proj_mean_ball_cv_lin": 0.028845,
+          "down_proj_mean_quad_spread": 0.318038,
+          "mean_ball_cv_lin": 0.063967,
+          "mean_ball_cv_sqrt": 0.032076,
+          "mean_quad_spread": 0.329612
+        }
+      },
+      "block_linear_matrices": 224,
+      "group_size": 32,
+      "non_block_tensors_protected": 66,
+      "num_hidden_layers": 32,
+      "reference_bf16": {
+        "python_ppl": 5.044993,
+        "wikitext2_ppl": 16.394834
+      },
+      "repo_id": "HuggingFaceTB/SmolLM2-360M",
+      "total_block_weights": 314572800
+    },
+    "Qwen/Qwen2.5-0.5B": {
+      "arms": {
+        "A16_BlockH4": {
+          "arm": "A16_BlockH4",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.045183018,
+            "p95_kl": 0.122951498,
+            "ppl": 5.07119,
+            "tokens_scored": 4088,
+            "top1_match_pct": 90.6067
+          },
+          "small_weight_e05_db": 4.635679,
+          "small_weight_zero_pct": 48.216,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.553194,
+          "wikitext2": {
+            "mean_kl": 0.056062964,
+            "p95_kl": 0.133247394,
+            "ppl": 18.592614,
+            "tokens_scored": 4088,
+            "top1_match_pct": 87.8914
+          }
+        },
+        "A16_BlockH4_quad_lpt_down_wcol": {
+          "arm": "A16_BlockH4_quad_lpt_down_wcol",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.044372433,
+            "p95_kl": 0.124771379,
+            "ppl": 5.021996,
+            "tokens_scored": 4088,
+            "top1_match_pct": 90.7779
+          },
+          "small_weight_e05_db": 4.635843,
+          "small_weight_zero_pct": 48.2117,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.553206,
+          "wikitext2": {
+            "mean_kl": 0.056888132,
+            "p95_kl": 0.140410511,
+            "ppl": 18.77997,
+            "tokens_scored": 4088,
+            "top1_match_pct": 86.7906
+          }
+        },
+        "A16_BlockH4_quad_lpt_hrand": {
+          "arm": "A16_BlockH4_quad_lpt_hrand",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.048121906,
+            "p95_kl": 0.131925119,
+            "ppl": 5.076955,
+            "tokens_scored": 4088,
+            "top1_match_pct": 90.362
+          },
+          "small_weight_e05_db": 4.637618,
+          "small_weight_zero_pct": 48.2012,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.552923,
+          "wikitext2": {
+            "mean_kl": 0.057882767,
+            "p95_kl": 0.135604697,
+            "ppl": 18.732081,
+            "tokens_scored": 4088,
+            "top1_match_pct": 87.8669
+          }
+        },
+        "A16_BlockH4_quad_lpt_wcol": {
+          "arm": "A16_BlockH4_quad_lpt_wcol",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.053043947,
+            "p95_kl": 0.136122751,
+            "ppl": 5.061652,
+            "tokens_scored": 4088,
+            "top1_match_pct": 90.7045
+          },
+          "small_weight_e05_db": 4.650145,
+          "small_weight_zero_pct": 48.3147,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.552968,
+          "wikitext2": {
+            "mean_kl": 0.061150697,
+            "p95_kl": 0.134518807,
+            "ppl": 18.895146,
+            "tokens_scored": 4088,
+            "top1_match_pct": 87.3532
+          }
+        },
+        "A16_BlockH4_quad_snake_wcol": {
+          "arm": "A16_BlockH4_quad_snake_wcol",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.051098584,
+            "p95_kl": 0.124785476,
+            "ppl": 5.08845,
+            "tokens_scored": 4088,
+            "top1_match_pct": 90.8513
+          },
+          "small_weight_e05_db": 4.649451,
+          "small_weight_zero_pct": 48.3346,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.552639,
+          "wikitext2": {
+            "mean_kl": 0.058605622,
+            "p95_kl": 0.134591971,
+            "ppl": 18.881275,
+            "tokens_scored": 4088,
+            "top1_match_pct": 87.7935
+          }
+        },
+        "A16_BlockH4_sort_wcol": {
+          "arm": "A16_BlockH4_sort_wcol",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.038201381,
+            "p95_kl": 0.107872153,
+            "ppl": 5.038922,
+            "tokens_scored": 4088,
+            "top1_match_pct": 91.3894
+          },
+          "small_weight_e05_db": 4.481471,
+          "small_weight_zero_pct": 47.5038,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.553414,
+          "wikitext2": {
+            "mean_kl": 0.049760643,
+            "p95_kl": 0.124072729,
+            "ppl": 18.596236,
+            "tokens_scored": 4088,
+            "top1_match_pct": 88.2583
+          }
+        },
+        "A16_axis": {
+          "arm": "A16_axis",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.045602058,
+            "p95_kl": 0.131667981,
+            "ppl": 5.09995,
+            "tokens_scored": 4088,
+            "top1_match_pct": 90.9491
+          },
+          "small_weight_e05_db": 2.335551,
+          "small_weight_zero_pct": 91.9411,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.552922,
+          "wikitext2": {
+            "mean_kl": 0.052525283,
+            "p95_kl": 0.121864981,
+            "ppl": 18.485835,
+            "tokens_scored": 4088,
+            "top1_match_pct": 88.7231
+          }
+        },
+        "ProjType_Uniform": {
+          "arm": "ProjType_Uniform",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.043464967,
+            "p95_kl": 0.124041509,
+            "ppl": 5.043239,
+            "tokens_scored": 4088,
+            "top1_match_pct": 91.3405
+          },
+          "small_weight_e05_db": 4.168183,
+          "small_weight_zero_pct": 60.8489,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.553149,
+          "wikitext2": {
+            "mean_kl": 0.054329276,
+            "p95_kl": 0.129371536,
+            "ppl": 18.507878,
+            "tokens_scored": 4088,
+            "top1_match_pct": 88.2094
+          }
+        },
+        "ProjType_Uniform_QuadLPT_hrand": {
+          "arm": "ProjType_Uniform_QuadLPT_hrand",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.046514326,
+            "p95_kl": 0.116994292,
+            "ppl": 5.063235,
+            "tokens_scored": 4088,
+            "top1_match_pct": 91.683
+          },
+          "small_weight_e05_db": 4.169155,
+          "small_weight_zero_pct": 60.8651,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.552963,
+          "wikitext2": {
+            "mean_kl": 0.058439922,
+            "p95_kl": 0.134296712,
+            "ppl": 18.774637,
+            "tokens_scored": 4088,
+            "top1_match_pct": 87.818
+          }
+        },
+        "ProjType_Uniform_QuadLPT_wcol": {
+          "arm": "ProjType_Uniform_QuadLPT_wcol",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.050455299,
+            "p95_kl": 0.122115596,
+            "ppl": 5.068927,
+            "tokens_scored": 4088,
+            "top1_match_pct": 91.1204
+          },
+          "small_weight_e05_db": 4.184108,
+          "small_weight_zero_pct": 60.9518,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.552911,
+          "wikitext2": {
+            "mean_kl": 0.058219313,
+            "p95_kl": 0.132864867,
+            "ppl": 18.643716,
+            "tokens_scored": 4088,
+            "top1_match_pct": 88.6497
+          }
+        },
+        "hA16_BlockH2_quad_lpt_real": {
+          "arm": "hA16_BlockH2_quad_lpt_real",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.022337903,
+            "p95_kl": 0.07314838,
+            "ppl": 4.958885,
+            "tokens_scored": 4088,
+            "top1_match_pct": 92.4168
+          },
+          "small_weight_e05_db": 11.839664,
+          "small_weight_zero_pct": 7.124,
+          "syndrome_errors": 0,
+          "weight_err_db": -22.43693,
+          "wikitext2": {
+            "mean_kl": 0.026720888,
+            "p95_kl": 0.075460609,
+            "ppl": 18.448728,
+            "tokens_scored": 4088,
+            "top1_match_pct": 90.7045
+          }
+        },
+        "hA16_BlockH2_real": {
+          "arm": "hA16_BlockH2_real",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.024050317,
+            "p95_kl": 0.079867645,
+            "ppl": 4.95943,
+            "tokens_scored": 4088,
+            "top1_match_pct": 92.7838
+          },
+          "small_weight_e05_db": 12.176683,
+          "small_weight_zero_pct": 7.0224,
+          "syndrome_errors": 0,
+          "weight_err_db": -22.232536,
+          "wikitext2": {
+            "mean_kl": 0.02696975,
+            "p95_kl": 0.08471429,
+            "ppl": 18.23492,
+            "tokens_scored": 4088,
+            "top1_match_pct": 91.4139
+          }
+        },
+        "hA16_BlockH4_quad_lpt_down_zerocost": {
+          "arm": "hA16_BlockH4_quad_lpt_down_zerocost",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.023989933,
+            "p95_kl": 0.074013813,
+            "ppl": 4.974135,
+            "tokens_scored": 4088,
+            "top1_match_pct": 93.1751
+          },
+          "small_weight_e05_db": 13.344392,
+          "small_weight_zero_pct": 48.1286,
+          "syndrome_errors": 0,
+          "weight_err_db": -21.638412,
+          "wikitext2": {
+            "mean_kl": 0.02696409,
+            "p95_kl": 0.078934093,
+            "ppl": 18.323948,
+            "tokens_scored": 4088,
+            "top1_match_pct": 90.4843
+          }
+        },
+        "hA16_BlockH4_quad_lpt_rand": {
+          "arm": "hA16_BlockH4_quad_lpt_rand",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.024930897,
+            "p95_kl": 0.083488416,
+            "ppl": 4.956248,
+            "tokens_scored": 4088,
+            "top1_match_pct": 92.0744
+          },
+          "small_weight_e05_db": 13.217495,
+          "small_weight_zero_pct": 48.2438,
+          "syndrome_errors": 0,
+          "weight_err_db": -21.612641,
+          "wikitext2": {
+            "mean_kl": 0.02972317,
+            "p95_kl": 0.088845243,
+            "ppl": 18.342015,
+            "tokens_scored": 4088,
+            "top1_match_pct": 90.4599
+          }
+        },
+        "hA16_BlockH4_quad_lpt_real": {
+          "arm": "hA16_BlockH4_quad_lpt_real",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.023575341,
+            "p95_kl": 0.078208913,
+            "ppl": 4.972443,
+            "tokens_scored": 4088,
+            "top1_match_pct": 92.7838
+          },
+          "small_weight_e05_db": 13.169344,
+          "small_weight_zero_pct": 48.1753,
+          "syndrome_errors": 0,
+          "weight_err_db": -21.696982,
+          "wikitext2": {
+            "mean_kl": 0.025954645,
+            "p95_kl": 0.076647343,
+            "ppl": 18.312281,
+            "tokens_scored": 4088,
+            "top1_match_pct": 91.047
+          }
+        },
+        "hA16_BlockH4_quad_lpt_sharednorm": {
+          "arm": "hA16_BlockH4_quad_lpt_sharednorm",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.022898961,
+            "p95_kl": 0.077020938,
+            "ppl": 4.969576,
+            "tokens_scored": 4088,
+            "top1_match_pct": 92.3434
+          },
+          "small_weight_e05_db": 13.167788,
+          "small_weight_zero_pct": 48.097,
+          "syndrome_errors": 0,
+          "weight_err_db": -21.69542,
+          "wikitext2": {
+            "mean_kl": 0.02628463,
+            "p95_kl": 0.076997066,
+            "ppl": 18.322743,
+            "tokens_scored": 4088,
+            "top1_match_pct": 91.0959
+          }
+        },
+        "hA16_BlockH4_quad_snake_real": {
+          "arm": "hA16_BlockH4_quad_snake_real",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.026650122,
+            "p95_kl": 0.073238373,
+            "ppl": 4.970739,
+            "tokens_scored": 4088,
+            "top1_match_pct": 92.637
+          },
+          "small_weight_e05_db": 13.937723,
+          "small_weight_zero_pct": 48.1928,
+          "syndrome_errors": 0,
+          "weight_err_db": -21.236427,
+          "wikitext2": {
+            "mean_kl": 0.030079819,
+            "p95_kl": 0.078618169,
+            "ppl": 18.373554,
+            "tokens_scored": 4088,
+            "top1_match_pct": 91.0225
+          }
+        },
+        "hA16_BlockH4_real": {
+          "arm": "hA16_BlockH4_real",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.023451835,
+            "p95_kl": 0.075468264,
+            "ppl": 4.9594,
+            "tokens_scored": 4088,
+            "top1_match_pct": 93.1996
+          },
+          "small_weight_e05_db": 13.346326,
+          "small_weight_zero_pct": 48.1257,
+          "syndrome_errors": 0,
+          "weight_err_db": -21.632785,
+          "wikitext2": {
+            "mean_kl": 0.029412649,
+            "p95_kl": 0.078707078,
+            "ppl": 18.35105,
+            "tokens_scored": 4088,
+            "top1_match_pct": 90.7779
+          }
+        },
+        "hA16_BlockH4_sort_grp128_real": {
+          "arm": "hA16_BlockH4_sort_grp128_real",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.023314575,
+            "p95_kl": 0.079312602,
+            "ppl": 4.942486,
+            "tokens_scored": 4088,
+            "top1_match_pct": 92.1233
+          },
+          "small_weight_e05_db": 13.347234,
+          "small_weight_zero_pct": 48.1293,
+          "syndrome_errors": 0,
+          "weight_err_db": -21.6497,
+          "wikitext2": {
+            "mean_kl": 0.02718994,
+            "p95_kl": 0.088006435,
+            "ppl": 18.52592,
+            "tokens_scored": 4088,
+            "top1_match_pct": 90.8023
+          }
+        },
+        "hA16_BlockH4_sort_real": {
+          "arm": "hA16_BlockH4_sort_real",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.027835478,
+            "p95_kl": 0.092433004,
+            "ppl": 4.983877,
+            "tokens_scored": 4088,
+            "top1_match_pct": 91.8787
+          },
+          "small_weight_e05_db": 12.044911,
+          "small_weight_zero_pct": 47.8055,
+          "syndrome_errors": 0,
+          "weight_err_db": -22.568218,
+          "wikitext2": {
+            "mean_kl": 0.032504237,
+            "p95_kl": 0.093477308,
+            "ppl": 18.429673,
+            "tokens_scored": 4088,
+            "top1_match_pct": 89.8239
+          }
+        },
+        "hA16_real": {
+          "arm": "hA16_real",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.024798374,
+            "p95_kl": 0.074015393,
+            "ppl": 4.961034,
+            "tokens_scored": 4088,
+            "top1_match_pct": 92.2211
+          },
+          "small_weight_e05_db": 8.37982,
+          "small_weight_zero_pct": 91.3106,
+          "syndrome_errors": 0,
+          "weight_err_db": -23.660948,
+          "wikitext2": {
+            "mean_kl": 0.028102138,
+            "p95_kl": 0.075229647,
+            "ppl": 18.331206,
+            "tokens_scored": 4088,
+            "top1_match_pct": 91.1693
+          }
+        }
+      },
+      "ball_variance_telemetry_hreal": {
+        "global_sort": {
+          "down_proj_mean_ball_cv_lin": 2.20699,
+          "down_proj_mean_quad_spread": 0.450516,
+          "mean_ball_cv_lin": 1.547658,
+          "mean_ball_cv_sqrt": 0.548157,
+          "mean_quad_spread": 0.412329
+        },
+        "grp128_sort": {
+          "down_proj_mean_ball_cv_lin": 0.836686,
+          "down_proj_mean_quad_spread": 0.947829,
+          "mean_ball_cv_lin": 0.428781,
+          "mean_ball_cv_sqrt": 0.089907,
+          "mean_quad_spread": 1.001946
+        },
+        "quad_lpt": {
+          "down_proj_mean_ball_cv_lin": 0.93302,
+          "down_proj_mean_quad_spread": 0.450516,
+          "mean_ball_cv_lin": 0.440352,
+          "mean_ball_cv_sqrt": 0.092533,
+          "mean_quad_spread": 0.412329
+        },
+        "quad_snake": {
+          "down_proj_mean_ball_cv_lin": 1.028687,
+          "down_proj_mean_quad_spread": 0.450516,
+          "mean_ball_cv_lin": 0.569556,
+          "mean_ball_cv_sqrt": 0.067945,
+          "mean_quad_spread": 0.412329
+        },
+        "unpermuted": {
+          "down_proj_mean_ball_cv_lin": 0.836686,
+          "down_proj_mean_quad_spread": 2.157564,
+          "mean_ball_cv_lin": 0.428781,
+          "mean_ball_cv_sqrt": 0.089907,
+          "mean_quad_spread": 2.330344
+        }
+      },
+      "ball_variance_telemetry_wcol": {
+        "global_sort": {
+          "down_proj_mean_ball_cv_lin": 0.197247,
+          "down_proj_mean_quad_spread": 0.00153,
+          "mean_ball_cv_lin": 0.263862,
+          "mean_ball_cv_sqrt": 0.135612,
+          "mean_quad_spread": 0.007758
+        },
+        "grp128_sort": {
+          "down_proj_mean_ball_cv_lin": 0.017411,
+          "down_proj_mean_quad_spread": 0.034494,
+          "mean_ball_cv_lin": 0.049996,
+          "mean_ball_cv_sqrt": 0.024977,
+          "mean_quad_spread": 0.042951
+        },
+        "quad_lpt": {
+          "down_proj_mean_ball_cv_lin": 0.002121,
+          "down_proj_mean_quad_spread": 0.00153,
+          "mean_ball_cv_lin": 0.002519,
+          "mean_ball_cv_sqrt": 0.002866,
+          "mean_quad_spread": 0.007758
+        },
+        "quad_snake": {
+          "down_proj_mean_ball_cv_lin": 0.00503,
+          "down_proj_mean_quad_spread": 0.00153,
+          "mean_ball_cv_lin": 0.006043,
+          "mean_ball_cv_sqrt": 0.002233,
+          "mean_quad_spread": 0.007758
+        },
+        "unpermuted": {
+          "down_proj_mean_ball_cv_lin": 0.017411,
+          "down_proj_mean_quad_spread": 0.376153,
+          "mean_ball_cv_lin": 0.049996,
+          "mean_ball_cv_sqrt": 0.024977,
+          "mean_quad_spread": 0.471525
+        }
+      },
+      "block_linear_matrices": 168,
+      "group_size": 128,
+      "non_block_tensors_protected": 122,
+      "num_hidden_layers": 24,
+      "reference_bf16": {
+        "python_ppl": 4.860631,
+        "wikitext2_ppl": 17.950473
+      },
+      "repo_id": "Qwen/Qwen2.5-0.5B",
+      "total_block_weights": 357826560
+    },
+    "Qwen/Qwen2.5-1.5B": {
+      "arms": {
+        "A16_BlockH4": {
+          "arm": "A16_BlockH4",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.030045438,
+            "p95_kl": 0.080068756,
+            "ppl": 3.84528,
+            "tokens_scored": 4088,
+            "top1_match_pct": 93.0528
+          },
+          "small_weight_e05_db": 4.888564,
+          "small_weight_zero_pct": 49.1237,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.553158,
+          "wikitext2": {
+            "mean_kl": 0.046550051,
+            "p95_kl": 0.130453545,
+            "ppl": 13.136161,
+            "tokens_scored": 4088,
+            "top1_match_pct": 90.1419
+          }
+        },
+        "A16_BlockH4_quad_lpt_down_wcol": {
+          "arm": "A16_BlockH4_quad_lpt_down_wcol",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.031710925,
+            "p95_kl": 0.07828588,
+            "ppl": 3.83861,
+            "tokens_scored": 4088,
+            "top1_match_pct": 93.1751
+          },
+          "small_weight_e05_db": 4.887797,
+          "small_weight_zero_pct": 49.1207,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.55319,
+          "wikitext2": {
+            "mean_kl": 0.049362558,
+            "p95_kl": 0.127817279,
+            "ppl": 13.132435,
+            "tokens_scored": 4088,
+            "top1_match_pct": 89.3836
+          }
+        },
+        "A16_BlockH4_quad_lpt_hrand": {
+          "arm": "A16_BlockH4_quad_lpt_hrand",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.030255919,
+            "p95_kl": 0.082876923,
+            "ppl": 3.837117,
+            "tokens_scored": 4088,
+            "top1_match_pct": 93.1507
+          },
+          "small_weight_e05_db": 4.897411,
+          "small_weight_zero_pct": 49.2065,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.553115,
+          "wikitext2": {
+            "mean_kl": 0.049155658,
+            "p95_kl": 0.127328864,
+            "ppl": 13.043473,
+            "tokens_scored": 4088,
+            "top1_match_pct": 89.2613
+          }
+        },
+        "A16_BlockH4_quad_lpt_wcol": {
+          "arm": "A16_BlockH4_quad_lpt_wcol",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.032593011,
+            "p95_kl": 0.089026827,
+            "ppl": 3.828267,
+            "tokens_scored": 4088,
+            "top1_match_pct": 92.637
+          },
+          "small_weight_e05_db": 4.905879,
+          "small_weight_zero_pct": 49.2636,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.553107,
+          "wikitext2": {
+            "mean_kl": 0.046992542,
+            "p95_kl": 0.128897987,
+            "ppl": 13.090728,
+            "tokens_scored": 4088,
+            "top1_match_pct": 89.3591
+          }
+        },
+        "A16_BlockH4_quad_snake_wcol": {
+          "arm": "A16_BlockH4_quad_snake_wcol",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.030748498,
+            "p95_kl": 0.075744058,
+            "ppl": 3.832657,
+            "tokens_scored": 4088,
+            "top1_match_pct": 93.0039
+          },
+          "small_weight_e05_db": 4.906798,
+          "small_weight_zero_pct": 49.2643,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.553128,
+          "wikitext2": {
+            "mean_kl": 0.049807267,
+            "p95_kl": 0.130990583,
+            "ppl": 13.025492,
+            "tokens_scored": 4088,
+            "top1_match_pct": 89.408
+          }
+        },
+        "A16_BlockH4_sort_wcol": {
+          "arm": "A16_BlockH4_sort_wcol",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.024527654,
+            "p95_kl": 0.071604846,
+            "ppl": 3.823371,
+            "tokens_scored": 4088,
+            "top1_match_pct": 93.909
+          },
+          "small_weight_e05_db": 4.773482,
+          "small_weight_zero_pct": 48.5844,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.552946,
+          "wikitext2": {
+            "mean_kl": 0.039193287,
+            "p95_kl": 0.106845088,
+            "ppl": 13.101079,
+            "tokens_scored": 4088,
+            "top1_match_pct": 90.998
+          }
+        },
+        "A16_axis": {
+          "arm": "A16_axis",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.031973308,
+            "p95_kl": 0.084837437,
+            "ppl": 3.845648,
+            "tokens_scored": 4088,
+            "top1_match_pct": 93.7622
+          },
+          "small_weight_e05_db": 2.549272,
+          "small_weight_zero_pct": 93.4366,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.553205,
+          "wikitext2": {
+            "mean_kl": 0.050062399,
+            "p95_kl": 0.128293552,
+            "ppl": 13.010946,
+            "tokens_scored": 4088,
+            "top1_match_pct": 89.2857
+          }
+        },
+        "ProjType_Uniform": {
+          "arm": "ProjType_Uniform",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.032952588,
+            "p95_kl": 0.078630679,
+            "ppl": 3.861228,
+            "tokens_scored": 4088,
+            "top1_match_pct": 93.7622
+          },
+          "small_weight_e05_db": 4.356951,
+          "small_weight_zero_pct": 62.0122,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.553245,
+          "wikitext2": {
+            "mean_kl": 0.050109638,
+            "p95_kl": 0.135359992,
+            "ppl": 13.130512,
+            "tokens_scored": 4088,
+            "top1_match_pct": 88.6742
+          }
+        },
+        "ProjType_Uniform_QuadLPT_hrand": {
+          "arm": "ProjType_Uniform_QuadLPT_hrand",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.031478949,
+            "p95_kl": 0.082114441,
+            "ppl": 3.844421,
+            "tokens_scored": 4088,
+            "top1_match_pct": 93.273
+          },
+          "small_weight_e05_db": 4.369328,
+          "small_weight_zero_pct": 62.0993,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.553107,
+          "wikitext2": {
+            "mean_kl": 0.048002464,
+            "p95_kl": 0.130920429,
+            "ppl": 13.007672,
+            "tokens_scored": 4088,
+            "top1_match_pct": 88.7965
+          }
+        },
+        "ProjType_Uniform_QuadLPT_wcol": {
+          "arm": "ProjType_Uniform_QuadLPT_wcol",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.032041736,
+            "p95_kl": 0.08779126,
+            "ppl": 3.850921,
+            "tokens_scored": 4088,
+            "top1_match_pct": 92.7838
+          },
+          "small_weight_e05_db": 4.377378,
+          "small_weight_zero_pct": 62.1551,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.553162,
+          "wikitext2": {
+            "mean_kl": 0.047033121,
+            "p95_kl": 0.119167537,
+            "ppl": 13.092182,
+            "tokens_scored": 4088,
+            "top1_match_pct": 88.8943
+          }
+        },
+        "hA16_BlockH2_quad_lpt_real": {
+          "arm": "hA16_BlockH2_quad_lpt_real",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.015030371,
+            "p95_kl": 0.054337118,
+            "ppl": 3.76989,
+            "tokens_scored": 4088,
+            "top1_match_pct": 94.863
+          },
+          "small_weight_e05_db": 12.038227,
+          "small_weight_zero_pct": 7.2575,
+          "syndrome_errors": 0,
+          "weight_err_db": -22.972876,
+          "wikitext2": {
+            "mean_kl": 0.02402037,
+            "p95_kl": 0.082171473,
+            "ppl": 12.92116,
+            "tokens_scored": 4088,
+            "top1_match_pct": 92.2701
+          }
+        },
+        "hA16_BlockH2_real": {
+          "arm": "hA16_BlockH2_real",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.014356267,
+            "p95_kl": 0.056803269,
+            "ppl": 3.832643,
+            "tokens_scored": 4088,
+            "top1_match_pct": 94.4716
+          },
+          "small_weight_e05_db": 16.445883,
+          "small_weight_zero_pct": 6.8959,
+          "syndrome_errors": 0,
+          "weight_err_db": -20.72334,
+          "wikitext2": {
+            "mean_kl": 0.023281449,
+            "p95_kl": 0.07923385,
+            "ppl": 12.927343,
+            "tokens_scored": 4088,
+            "top1_match_pct": 91.5362
+          }
+        },
+        "hA16_BlockH4_quad_lpt_down_zerocost": {
+          "arm": "hA16_BlockH4_quad_lpt_down_zerocost",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.01595641,
+            "p95_kl": 0.055561464,
+            "ppl": 3.799102,
+            "tokens_scored": 4088,
+            "top1_match_pct": 94.9364
+          },
+          "small_weight_e05_db": 17.720983,
+          "small_weight_zero_pct": 49.0739,
+          "syndrome_errors": 0,
+          "weight_err_db": -19.880867,
+          "wikitext2": {
+            "mean_kl": 0.02345904,
+            "p95_kl": 0.082401716,
+            "ppl": 12.798234,
+            "tokens_scored": 4088,
+            "top1_match_pct": 91.7074
+          }
+        },
+        "hA16_BlockH4_quad_lpt_rand": {
+          "arm": "hA16_BlockH4_quad_lpt_rand",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.015279326,
+            "p95_kl": 0.053149636,
+            "ppl": 3.786337,
+            "tokens_scored": 4088,
+            "top1_match_pct": 95.0342
+          },
+          "small_weight_e05_db": 14.706438,
+          "small_weight_zero_pct": 49.2963,
+          "syndrome_errors": 0,
+          "weight_err_db": -21.457153,
+          "wikitext2": {
+            "mean_kl": 0.025820157,
+            "p95_kl": 0.083693264,
+            "ppl": 12.90255,
+            "tokens_scored": 4088,
+            "top1_match_pct": 91.7808
+          }
+        },
+        "hA16_BlockH4_quad_lpt_real": {
+          "arm": "hA16_BlockH4_quad_lpt_real",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.014712274,
+            "p95_kl": 0.052826126,
+            "ppl": 3.771461,
+            "tokens_scored": 4088,
+            "top1_match_pct": 94.7162
+          },
+          "small_weight_e05_db": 14.79979,
+          "small_weight_zero_pct": 49.2089,
+          "syndrome_errors": 0,
+          "weight_err_db": -21.482308,
+          "wikitext2": {
+            "mean_kl": 0.022963627,
+            "p95_kl": 0.075908474,
+            "ppl": 12.774305,
+            "tokens_scored": 4088,
+            "top1_match_pct": 91.7564
+          }
+        },
+        "hA16_BlockH4_quad_lpt_sharednorm": {
+          "arm": "hA16_BlockH4_quad_lpt_sharednorm",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.014897536,
+            "p95_kl": 0.055677396,
+            "ppl": 3.785311,
+            "tokens_scored": 4088,
+            "top1_match_pct": 94.5939
+          },
+          "small_weight_e05_db": 14.796704,
+          "small_weight_zero_pct": 49.1296,
+          "syndrome_errors": 0,
+          "weight_err_db": -21.487283,
+          "wikitext2": {
+            "mean_kl": 0.022953003,
+            "p95_kl": 0.076435682,
+            "ppl": 12.782489,
+            "tokens_scored": 4088,
+            "top1_match_pct": 91.8787
+          }
+        },
+        "hA16_BlockH4_quad_snake_real": {
+          "arm": "hA16_BlockH4_quad_snake_real",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.015626673,
+            "p95_kl": 0.051579746,
+            "ppl": 3.795168,
+            "tokens_scored": 4088,
+            "top1_match_pct": 94.7162
+          },
+          "small_weight_e05_db": 16.292092,
+          "small_weight_zero_pct": 49.2403,
+          "syndrome_errors": 0,
+          "weight_err_db": -20.624978,
+          "wikitext2": {
+            "mean_kl": 0.023176567,
+            "p95_kl": 0.080132993,
+            "ppl": 12.882162,
+            "tokens_scored": 4088,
+            "top1_match_pct": 92.2945
+          }
+        },
+        "hA16_BlockH4_real": {
+          "arm": "hA16_BlockH4_real",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.015128765,
+            "p95_kl": 0.053219851,
+            "ppl": 3.796064,
+            "tokens_scored": 4088,
+            "top1_match_pct": 95.0098
+          },
+          "small_weight_e05_db": 17.722067,
+          "small_weight_zero_pct": 49.0666,
+          "syndrome_errors": 0,
+          "weight_err_db": -19.875406,
+          "wikitext2": {
+            "mean_kl": 0.023411598,
+            "p95_kl": 0.08216543,
+            "ppl": 12.79468,
+            "tokens_scored": 4088,
+            "top1_match_pct": 92.1722
+          }
+        },
+        "hA16_BlockH4_sort_grp128_real": {
+          "arm": "hA16_BlockH4_sort_grp128_real",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.014083191,
+            "p95_kl": 0.048685916,
+            "ppl": 3.787306,
+            "tokens_scored": 4088,
+            "top1_match_pct": 94.7407
+          },
+          "small_weight_e05_db": 17.055182,
+          "small_weight_zero_pct": 49.1039,
+          "syndrome_errors": 0,
+          "weight_err_db": -20.281354,
+          "wikitext2": {
+            "mean_kl": 0.023176037,
+            "p95_kl": 0.078630022,
+            "ppl": 12.776768,
+            "tokens_scored": 4088,
+            "top1_match_pct": 91.9521
+          }
+        },
+        "hA16_BlockH4_sort_real": {
+          "arm": "hA16_BlockH4_sort_real",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.017099112,
+            "p95_kl": 0.05675122,
+            "ppl": 3.798616,
+            "tokens_scored": 4088,
+            "top1_match_pct": 94.7652
+          },
+          "small_weight_e05_db": 13.299054,
+          "small_weight_zero_pct": 48.9765,
+          "syndrome_errors": 0,
+          "weight_err_db": -22.543207,
+          "wikitext2": {
+            "mean_kl": 0.026786727,
+            "p95_kl": 0.087192312,
+            "ppl": 12.782472,
+            "tokens_scored": 4088,
+            "top1_match_pct": 91.2671
+          }
+        },
+        "hA16_real": {
+          "arm": "hA16_real",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.015112617,
+            "p95_kl": 0.052702201,
+            "ppl": 3.788175,
+            "tokens_scored": 4088,
+            "top1_match_pct": 94.8141
+          },
+          "small_weight_e05_db": 12.434319,
+          "small_weight_zero_pct": 92.7605,
+          "syndrome_errors": 0,
+          "weight_err_db": -22.906355,
+          "wikitext2": {
+            "mean_kl": 0.023636564,
+            "p95_kl": 0.081524954,
+            "ppl": 12.857511,
+            "tokens_scored": 4088,
+            "top1_match_pct": 92.1967
+          }
+        }
+      },
+      "ball_variance_telemetry_hreal": {
+        "global_sort": {
+          "down_proj_mean_ball_cv_lin": 2.794206,
+          "down_proj_mean_quad_spread": 0.387734,
+          "mean_ball_cv_lin": 1.922348,
+          "mean_ball_cv_sqrt": 0.570447,
+          "mean_quad_spread": 0.316515
+        },
+        "grp128_sort": {
+          "down_proj_mean_ball_cv_lin": 1.02156,
+          "down_proj_mean_quad_spread": 1.037094,
+          "mean_ball_cv_lin": 0.635714,
+          "mean_ball_cv_sqrt": 0.133062,
+          "mean_quad_spread": 1.10341
+        },
+        "quad_lpt": {
+          "down_proj_mean_ball_cv_lin": 1.381569,
+          "down_proj_mean_quad_spread": 0.387734,
+          "mean_ball_cv_lin": 0.710218,
+          "mean_ball_cv_sqrt": 0.089195,
+          "mean_quad_spread": 0.316515
+        },
+        "quad_snake": {
+          "down_proj_mean_ball_cv_lin": 1.462704,
+          "down_proj_mean_quad_spread": 0.387734,
+          "mean_ball_cv_lin": 0.815674,
+          "mean_ball_cv_sqrt": 0.103278,
+          "mean_quad_spread": 0.316515
+        },
+        "unpermuted": {
+          "down_proj_mean_ball_cv_lin": 1.02156,
+          "down_proj_mean_quad_spread": 2.241152,
+          "mean_ball_cv_lin": 0.635714,
+          "mean_ball_cv_sqrt": 0.133062,
+          "mean_quad_spread": 2.308937
+        }
+      },
+      "ball_variance_telemetry_wcol": {
+        "global_sort": {
+          "down_proj_mean_ball_cv_lin": 0.202768,
+          "down_proj_mean_quad_spread": 0.00083,
+          "mean_ball_cv_lin": 0.228164,
+          "mean_ball_cv_sqrt": 0.118265,
+          "mean_quad_spread": 0.004104
+        },
+        "grp128_sort": {
+          "down_proj_mean_ball_cv_lin": 0.01785,
+          "down_proj_mean_quad_spread": 0.033741,
+          "mean_ball_cv_lin": 0.05561,
+          "mean_ball_cv_sqrt": 0.028289,
+          "mean_quad_spread": 0.034491
+        },
+        "quad_lpt": {
+          "down_proj_mean_ball_cv_lin": 0.0021,
+          "down_proj_mean_quad_spread": 0.00083,
+          "mean_ball_cv_lin": 0.00332,
+          "mean_ball_cv_sqrt": 0.003458,
+          "mean_quad_spread": 0.004104
+        },
+        "quad_snake": {
+          "down_proj_mean_ball_cv_lin": 0.00475,
+          "down_proj_mean_quad_spread": 0.00083,
+          "mean_ball_cv_lin": 0.004715,
+          "mean_ball_cv_sqrt": 0.002813,
+          "mean_quad_spread": 0.004104
+        },
+        "unpermuted": {
+          "down_proj_mean_ball_cv_lin": 0.01785,
+          "down_proj_mean_quad_spread": 0.393834,
+          "mean_ball_cv_lin": 0.05561,
+          "mean_ball_cv_sqrt": 0.028289,
+          "mean_quad_spread": 0.387067
+        }
+      },
+      "block_linear_matrices": 196,
+      "group_size": 128,
+      "non_block_tensors_protected": 142,
+      "num_hidden_layers": 28,
+      "reference_bf16": {
+        "python_ppl": 3.739529,
+        "wikitext2_ppl": 12.617995
+      },
+      "repo_id": "Qwen/Qwen2.5-1.5B",
+      "total_block_weights": 1310195712
+    },
+    "Qwen/Qwen2.5-3B": {
+      "arms": {
+        "A16_BlockH4": {
+          "arm": "A16_BlockH4",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.035619597,
+            "p95_kl": 0.120125239,
+            "ppl": 3.222966,
+            "tokens_scored": 4088,
+            "top1_match_pct": 93.6888
+          },
+          "small_weight_e05_db": 4.294499,
+          "small_weight_zero_pct": 36.1462,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.553413,
+          "wikitext2": {
+            "mean_kl": 0.047941673,
+            "p95_kl": 0.154018969,
+            "ppl": 11.359451,
+            "tokens_scored": 4088,
+            "top1_match_pct": 89.6526
+          }
+        },
+        "A16_BlockH4_quad_lpt_down_wcol": {
+          "arm": "A16_BlockH4_quad_lpt_down_wcol",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.0354897,
+            "p95_kl": 0.113846142,
+            "ppl": 3.205822,
+            "tokens_scored": 4088,
+            "top1_match_pct": 94.1047
+          },
+          "small_weight_e05_db": 4.252127,
+          "small_weight_zero_pct": 37.2076,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.558695,
+          "wikitext2": {
+            "mean_kl": 0.049665445,
+            "p95_kl": 0.152169368,
+            "ppl": 11.21491,
+            "tokens_scored": 4088,
+            "top1_match_pct": 89.408
+          }
+        },
+        "A16_BlockH4_quad_lpt_hrand": {
+          "arm": "A16_BlockH4_quad_lpt_hrand",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.037818922,
+            "p95_kl": 0.123552107,
+            "ppl": 3.218998,
+            "tokens_scored": 4088,
+            "top1_match_pct": 93.0039
+          },
+          "small_weight_e05_db": 4.199784,
+          "small_weight_zero_pct": 35.8747,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.55805,
+          "wikitext2": {
+            "mean_kl": 0.048977638,
+            "p95_kl": 0.150391388,
+            "ppl": 11.211026,
+            "tokens_scored": 4088,
+            "top1_match_pct": 90.1908
+          }
+        },
+        "A16_BlockH4_quad_lpt_hrand_matched": {
+          "arm": "A16_BlockH4_quad_lpt_hrand_matched",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 1.528e-06,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.037604726,
+            "p95_kl": 0.125112113,
+            "ppl": 3.216356,
+            "tokens_scored": 4088,
+            "top1_match_pct": 93.1262
+          },
+          "small_weight_e05_db": 4.210151,
+          "small_weight_zero_pct": 0.0053,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.553169,
+          "wikitext2": {
+            "mean_kl": 0.049012596,
+            "p95_kl": 0.151109737,
+            "ppl": 11.22367,
+            "tokens_scored": 4088,
+            "top1_match_pct": 90.1663
+          }
+        },
+        "A16_BlockH4_quad_lpt_wcol": {
+          "arm": "A16_BlockH4_quad_lpt_wcol",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.042816777,
+            "p95_kl": 0.140534005,
+            "ppl": 3.258182,
+            "tokens_scored": 4088,
+            "top1_match_pct": 93.4687
+          },
+          "small_weight_e05_db": 4.261883,
+          "small_weight_zero_pct": 37.1405,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.55892,
+          "wikitext2": {
+            "mean_kl": 0.051479628,
+            "p95_kl": 0.157013912,
+            "ppl": 11.240568,
+            "tokens_scored": 4088,
+            "top1_match_pct": 90.1174
+          }
+        },
+        "A16_BlockH4_quad_lpt_wcol_matched": {
+          "arm": "A16_BlockH4_quad_lpt_wcol_matched",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 1.582e-06,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.042447704,
+            "p95_kl": 0.137919548,
+            "ppl": 3.256488,
+            "tokens_scored": 4088,
+            "top1_match_pct": 93.0528
+          },
+          "small_weight_e05_db": 4.276238,
+          "small_weight_zero_pct": 0.0057,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.553169,
+          "wikitext2": {
+            "mean_kl": 0.05144985,
+            "p95_kl": 0.155521606,
+            "ppl": 11.243482,
+            "tokens_scored": 4088,
+            "top1_match_pct": 90.1419
+          }
+        },
+        "A16_BlockH4_quad_snake_wcol": {
+          "arm": "A16_BlockH4_quad_snake_wcol",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.041408465,
+            "p95_kl": 0.142127188,
+            "ppl": 3.234141,
+            "tokens_scored": 4088,
+            "top1_match_pct": 93.2485
+          },
+          "small_weight_e05_db": 4.262408,
+          "small_weight_zero_pct": 37.1483,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.559151,
+          "wikitext2": {
+            "mean_kl": 0.04907679,
+            "p95_kl": 0.161618358,
+            "ppl": 11.417149,
+            "tokens_scored": 4088,
+            "top1_match_pct": 90.4354
+          }
+        },
+        "A16_BlockH4_sort_wcol": {
+          "arm": "A16_BlockH4_sort_wcol",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.043396182,
+            "p95_kl": 0.138939846,
+            "ppl": 3.243689,
+            "tokens_scored": 4088,
+            "top1_match_pct": 92.9305
+          },
+          "small_weight_e05_db": 3.959342,
+          "small_weight_zero_pct": 30.9822,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.553165,
+          "wikitext2": {
+            "mean_kl": 0.05556036,
+            "p95_kl": 0.179530918,
+            "ppl": 11.345877,
+            "tokens_scored": 4088,
+            "top1_match_pct": 89.0656
+          }
+        },
+        "A16_axis": {
+          "arm": "A16_axis",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.038578245,
+            "p95_kl": 0.134097297,
+            "ppl": 3.21825,
+            "tokens_scored": 4088,
+            "top1_match_pct": 92.7838
+          },
+          "small_weight_e05_db": 1.923944,
+          "small_weight_zero_pct": 68.0512,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.55317,
+          "wikitext2": {
+            "mean_kl": 0.046686444,
+            "p95_kl": 0.141375047,
+            "ppl": 11.258337,
+            "tokens_scored": 4088,
+            "top1_match_pct": 89.6037
+          }
+        },
+        "ProjType_Uniform": {
+          "arm": "ProjType_Uniform",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.034327497,
+            "p95_kl": 0.116007966,
+            "ppl": 3.217156,
+            "tokens_scored": 4088,
+            "top1_match_pct": 93.6888
+          },
+          "small_weight_e05_db": 3.694563,
+          "small_weight_zero_pct": 46.7427,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.552819,
+          "wikitext2": {
+            "mean_kl": 0.046336085,
+            "p95_kl": 0.14955923,
+            "ppl": 11.268631,
+            "tokens_scored": 4088,
+            "top1_match_pct": 89.3836
+          }
+        },
+        "ProjType_Uniform_QuadLPT_hrand": {
+          "arm": "ProjType_Uniform_QuadLPT_hrand",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.042482464,
+            "p95_kl": 0.134910887,
+            "ppl": 3.24962,
+            "tokens_scored": 4088,
+            "top1_match_pct": 93.0039
+          },
+          "small_weight_e05_db": 3.695838,
+          "small_weight_zero_pct": 46.7336,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.553036,
+          "wikitext2": {
+            "mean_kl": 0.050905089,
+            "p95_kl": 0.152877314,
+            "ppl": 11.280155,
+            "tokens_scored": 4088,
+            "top1_match_pct": 89.7016
+          }
+        },
+        "ProjType_Uniform_QuadLPT_wcol": {
+          "arm": "ProjType_Uniform_QuadLPT_wcol",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.039031505,
+            "p95_kl": 0.130269189,
+            "ppl": 3.262058,
+            "tokens_scored": 4088,
+            "top1_match_pct": 93.5421
+          },
+          "small_weight_e05_db": 3.705654,
+          "small_weight_zero_pct": 46.6755,
+          "syndrome_errors": 0,
+          "weight_err_db": -25.553044,
+          "wikitext2": {
+            "mean_kl": 0.047632712,
+            "p95_kl": 0.148825695,
+            "ppl": 11.320987,
+            "tokens_scored": 4088,
+            "top1_match_pct": 90.1908
+          }
+        },
+        "hA16_BlockH2_quad_lpt_real": {
+          "arm": "hA16_BlockH2_quad_lpt_real",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.020572193,
+            "p95_kl": 0.087496739,
+            "ppl": 3.14597,
+            "tokens_scored": 4088,
+            "top1_match_pct": 95.2055
+          },
+          "small_weight_e05_db": 14.948695,
+          "small_weight_zero_pct": 19.8892,
+          "syndrome_errors": 0,
+          "weight_err_db": -21.893018,
+          "wikitext2": {
+            "mean_kl": 0.026352707,
+            "p95_kl": 0.107298038,
+            "ppl": 11.275917,
+            "tokens_scored": 4088,
+            "top1_match_pct": 91.8787
+          }
+        },
+        "hA16_BlockH2_real": {
+          "arm": "hA16_BlockH2_real",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.022975467,
+            "p95_kl": 0.08755243,
+            "ppl": 3.174934,
+            "tokens_scored": 4088,
+            "top1_match_pct": 95.181
+          },
+          "small_weight_e05_db": 18.803894,
+          "small_weight_zero_pct": 16.9607,
+          "syndrome_errors": 0,
+          "weight_err_db": -19.444235,
+          "wikitext2": {
+            "mean_kl": 0.02417879,
+            "p95_kl": 0.08712666,
+            "ppl": 11.057649,
+            "tokens_scored": 4088,
+            "top1_match_pct": 92.319
+          }
+        },
+        "hA16_BlockH4_quad_lpt_down_zerocost": {
+          "arm": "hA16_BlockH4_quad_lpt_down_zerocost",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.021456287,
+            "p95_kl": 0.086364564,
+            "ppl": 3.151286,
+            "tokens_scored": 4088,
+            "top1_match_pct": 95.0587
+          },
+          "small_weight_e05_db": 19.622866,
+          "small_weight_zero_pct": 45.585,
+          "syndrome_errors": 0,
+          "weight_err_db": -19.141525,
+          "wikitext2": {
+            "mean_kl": 0.026174985,
+            "p95_kl": 0.093990628,
+            "ppl": 11.301383,
+            "tokens_scored": 4088,
+            "top1_match_pct": 92.1233
+          }
+        },
+        "hA16_BlockH4_quad_lpt_rand": {
+          "arm": "hA16_BlockH4_quad_lpt_rand",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.021866574,
+            "p95_kl": 0.086128869,
+            "ppl": 3.187792,
+            "tokens_scored": 4088,
+            "top1_match_pct": 94.6429
+          },
+          "small_weight_e05_db": 16.660373,
+          "small_weight_zero_pct": 43.3935,
+          "syndrome_errors": 0,
+          "weight_err_db": -20.606448,
+          "wikitext2": {
+            "mean_kl": 0.027153423,
+            "p95_kl": 0.100668275,
+            "ppl": 11.241857,
+            "tokens_scored": 4088,
+            "top1_match_pct": 92.5636
+          }
+        },
+        "hA16_BlockH4_quad_lpt_real": {
+          "arm": "hA16_BlockH4_quad_lpt_real",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.021950805,
+            "p95_kl": 0.085890377,
+            "ppl": 3.17546,
+            "tokens_scored": 4088,
+            "top1_match_pct": 94.6184
+          },
+          "small_weight_e05_db": 14.636964,
+          "small_weight_zero_pct": 43.6171,
+          "syndrome_errors": 0,
+          "weight_err_db": -21.874394,
+          "wikitext2": {
+            "mean_kl": 0.02677639,
+            "p95_kl": 0.097723797,
+            "ppl": 11.246112,
+            "tokens_scored": 4088,
+            "top1_match_pct": 91.8053
+          }
+        },
+        "hA16_BlockH4_quad_lpt_sharednorm": {
+          "arm": "hA16_BlockH4_quad_lpt_sharednorm",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.021768399,
+            "p95_kl": 0.083178299,
+            "ppl": 3.171221,
+            "tokens_scored": 4088,
+            "top1_match_pct": 94.7407
+          },
+          "small_weight_e05_db": 14.634083,
+          "small_weight_zero_pct": 43.5804,
+          "syndrome_errors": 0,
+          "weight_err_db": -21.881652,
+          "wikitext2": {
+            "mean_kl": 0.02755345,
+            "p95_kl": 0.099154935,
+            "ppl": 11.2121,
+            "tokens_scored": 4088,
+            "top1_match_pct": 91.7564
+          }
+        },
+        "hA16_BlockH4_quad_lpt_sqrt_real": {
+          "arm": "hA16_BlockH4_quad_lpt_sqrt_real",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.019519743,
+            "p95_kl": 0.074550387,
+            "ppl": 3.171149,
+            "tokens_scored": 4088,
+            "top1_match_pct": 95.1076
+          },
+          "small_weight_e05_db": 16.2502,
+          "small_weight_zero_pct": 43.5306,
+          "syndrome_errors": 0,
+          "weight_err_db": -21.017362,
+          "wikitext2": {
+            "mean_kl": 0.025296147,
+            "p95_kl": 0.092591666,
+            "ppl": 11.187559,
+            "tokens_scored": 4088,
+            "top1_match_pct": 92.1722
+          }
+        },
+        "hA16_BlockH4_quad_snake_real": {
+          "arm": "hA16_BlockH4_quad_snake_real",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.02049362,
+            "p95_kl": 0.079764587,
+            "ppl": 3.166559,
+            "tokens_scored": 4088,
+            "top1_match_pct": 94.9364
+          },
+          "small_weight_e05_db": 17.014147,
+          "small_weight_zero_pct": 43.1472,
+          "syndrome_errors": 0,
+          "weight_err_db": -20.701293,
+          "wikitext2": {
+            "mean_kl": 0.023154136,
+            "p95_kl": 0.084824321,
+            "ppl": 11.063591,
+            "tokens_scored": 4088,
+            "top1_match_pct": 92.6859
+          }
+        },
+        "hA16_BlockH4_real": {
+          "arm": "hA16_BlockH4_real",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.022518843,
+            "p95_kl": 0.079843781,
+            "ppl": 3.166952,
+            "tokens_scored": 4088,
+            "top1_match_pct": 95.3278
+          },
+          "small_weight_e05_db": 20.109641,
+          "small_weight_zero_pct": 45.2209,
+          "syndrome_errors": 0,
+          "weight_err_db": -18.527316,
+          "wikitext2": {
+            "mean_kl": 0.024774488,
+            "p95_kl": 0.094644168,
+            "ppl": 11.206232,
+            "tokens_scored": 4088,
+            "top1_match_pct": 91.683
+          }
+        },
+        "hA16_BlockH4_sort_grp128_real": {
+          "arm": "hA16_BlockH4_sort_grp128_real",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.021902244,
+            "p95_kl": 0.084264955,
+            "ppl": 3.172294,
+            "tokens_scored": 4088,
+            "top1_match_pct": 94.9853
+          },
+          "small_weight_e05_db": 17.138775,
+          "small_weight_zero_pct": 45.788,
+          "syndrome_errors": 0,
+          "weight_err_db": -20.867402,
+          "wikitext2": {
+            "mean_kl": 0.024917616,
+            "p95_kl": 0.092754009,
+            "ppl": 11.184083,
+            "tokens_scored": 4088,
+            "top1_match_pct": 91.7808
+          }
+        },
+        "hA16_BlockH4_sort_real": {
+          "arm": "hA16_BlockH4_sort_real",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.021765415,
+            "p95_kl": 0.078706344,
+            "ppl": 3.17854,
+            "tokens_scored": 4088,
+            "top1_match_pct": 94.6184
+          },
+          "small_weight_e05_db": 11.976165,
+          "small_weight_zero_pct": 32.0318,
+          "syndrome_errors": 0,
+          "weight_err_db": -23.521957,
+          "wikitext2": {
+            "mean_kl": 0.02602544,
+            "p95_kl": 0.09335896,
+            "ppl": 11.19032,
+            "tokens_scored": 4088,
+            "top1_match_pct": 92.4168
+          }
+        },
+        "hA16_real": {
+          "arm": "hA16_real",
+          "group_size": 128,
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.021217129,
+            "p95_kl": 0.079192813,
+            "ppl": 3.176787,
+            "tokens_scored": 4088,
+            "top1_match_pct": 95.1076
+          },
+          "small_weight_e05_db": 15.759599,
+          "small_weight_zero_pct": 75.0307,
+          "syndrome_errors": 0,
+          "weight_err_db": -21.164957,
+          "wikitext2": {
+            "mean_kl": 0.024417064,
+            "p95_kl": 0.08657845,
+            "ppl": 11.089508,
+            "tokens_scored": 4088,
+            "top1_match_pct": 92.0254
+          }
+        }
+      },
+      "ball_variance_telemetry_hreal": {
+        "global_sort": {
+          "down_proj_mean_ball_cv_lin": 2.954386,
+          "down_proj_mean_quad_spread": 0.392782,
+          "mean_ball_cv_lin": 2.096239,
+          "mean_ball_cv_sqrt": 0.610641,
+          "mean_quad_spread": 0.33786
+        },
+        "grp128_sort": {
+          "down_proj_mean_ball_cv_lin": 1.084741,
+          "down_proj_mean_quad_spread": 0.980092,
+          "mean_ball_cv_lin": 0.657046,
+          "mean_ball_cv_sqrt": 0.144026,
+          "mean_quad_spread": 1.133839
+        },
+        "quad_lpt": {
+          "down_proj_mean_ball_cv_lin": 1.270923,
+          "down_proj_mean_quad_spread": 0.392782,
+          "mean_ball_cv_lin": 0.782983,
+          "mean_ball_cv_sqrt": 0.107662,
+          "mean_quad_spread": 0.33786
+        },
+        "quad_snake": {
+          "down_proj_mean_ball_cv_lin": 1.35642,
+          "down_proj_mean_quad_spread": 0.392782,
+          "mean_ball_cv_lin": 0.882299,
+          "mean_ball_cv_sqrt": 0.117307,
+          "mean_quad_spread": 0.33786
+        },
+        "unpermuted": {
+          "down_proj_mean_ball_cv_lin": 1.084741,
+          "down_proj_mean_quad_spread": 2.347044,
+          "mean_ball_cv_lin": 0.657046,
+          "mean_ball_cv_sqrt": 0.144026,
+          "mean_quad_spread": 2.274524
+        }
+      },
+      "ball_variance_telemetry_wcol": {
+        "global_sort": {
+          "down_proj_mean_ball_cv_lin": 0.391707,
+          "down_proj_mean_quad_spread": 0.0009,
+          "mean_ball_cv_lin": 0.236532,
+          "mean_ball_cv_sqrt": 0.127182,
+          "mean_quad_spread": 0.003229
+        },
+        "grp128_sort": {
+          "down_proj_mean_ball_cv_lin": 0.034441,
+          "down_proj_mean_quad_spread": 0.046188,
+          "mean_ball_cv_lin": 0.0552,
+          "mean_ball_cv_sqrt": 0.028085,
+          "mean_quad_spread": 0.034929
+        },
+        "quad_lpt": {
+          "down_proj_mean_ball_cv_lin": 0.00181,
+          "down_proj_mean_quad_spread": 0.0009,
+          "mean_ball_cv_lin": 0.003546,
+          "mean_ball_cv_sqrt": 0.003622,
+          "mean_quad_spread": 0.003229
+        },
+        "quad_snake": {
+          "down_proj_mean_ball_cv_lin": 0.004747,
+          "down_proj_mean_quad_spread": 0.0009,
+          "mean_ball_cv_lin": 0.00504,
+          "mean_ball_cv_sqrt": 0.00303,
+          "mean_quad_spread": 0.003229
+        },
+        "unpermuted": {
+          "down_proj_mean_ball_cv_lin": 0.034441,
+          "down_proj_mean_quad_spread": 0.696437,
+          "mean_ball_cv_lin": 0.0552,
+          "mean_ball_cv_sqrt": 0.028085,
+          "mean_quad_spread": 0.390338
+        }
+      },
+      "block_linear_matrices": 252,
+      "group_size": 128,
+      "non_block_tensors_protected": 182,
+      "num_hidden_layers": 36,
+      "reference_bf16": {
+        "python_ppl": 3.111936,
+        "wikitext2_ppl": 10.970193
+      },
+      "repo_id": "Qwen/Qwen2.5-3B",
+      "total_block_weights": 2774532096
+    }
+  },
+  "nvidia_smi_post": {
+    "clocks_mem_mhz": 6001,
+    "clocks_sm_mhz": 1710,
+    "driver_version": "615.78.08",
+    "memory_total_mib": 8192,
+    "memory_used_mib": 5551,
+    "name": "NVIDIA GeForce RTX 3080 Laptop GPU",
+    "power_draw_w": 64.14,
+    "pstate": "P0",
+    "temperature_c": 70
+  },
+  "nvidia_smi_pre": {
+    "clocks_mem_mhz": 6001,
+    "clocks_sm_mhz": 1245,
+    "driver_version": "615.78.08",
+    "memory_total_mib": 8192,
+    "memory_used_mib": 2,
+    "name": "NVIDIA GeForce RTX 3080 Laptop GPU",
+    "power_draw_w": 13.69,
+    "pstate": "P8",
+    "temperature_c": 55
+  },
+  "oracle_class": "sampled",
+  "preregistration_file_sha256": "3ba6c33796c1cba457d83f0a37fcc9b8a77898f60f75efc93d00b9a196e6df02",
+  "preregistration_sha256": "361bae665103de513002bf9268ff623829ab42aaf9fe7c096cd3e6ca38a4b387",
+  "schema": "aletheia.track_s72.stratified_quad_interleaved_blockh4.v1",
+  "total_cpu_rapl_joules": 108724.241
+}
