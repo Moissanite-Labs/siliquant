@@ -1,0 +1,19 @@
+{
+  "avx512_vbmi_vnni_vpopcntdq_verified": true,
+  "compiler_warning_count": 0,
+  "isa_mnemonic_counts": {
+    "vfmadd132ps": 13,
+    "vfmadd213ps": 7,
+    "vfmadd231ps": 24,
+    "vpdpbusd": 4,
+    "vpermb": 8,
+    "vpmovzxwd": 22,
+    "vpopcntq": 10,
+    "vpslld": 22,
+    "vpsrld": 3
+  },
+  "schema_version": "s58.avx512_isa_inspection.v1",
+  "source_file": "qwen25_avx512_a16_engine.c",
+  "source_sha256": "41ee59d9496089f65bfdd6b71e22d9c05ec27eebd20aa3856bbe7c8e7bec338d",
+  "zmm_register_operands": 385
+}
