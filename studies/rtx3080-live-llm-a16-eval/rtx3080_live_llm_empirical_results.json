@@ -1,0 +1,959 @@
+{
+  "ac_online": true,
+  "corpora": {
+    "n_cal_chunks": 12,
+    "n_eval_chunks": 8,
+    "python_stdlib_modules": [
+      "fractions.py",
+      "difflib.py",
+      "decimal.py",
+      "statistics.py",
+      "argparse.py",
+      "json/decoder.py"
+    ],
+    "python_stdlib_sha256": "fe8ff0f94937ebd41e55f9880dd19bbaa4bbeadec791a6544bbafcb9cd2ee609",
+    "seq_len": 512,
+    "wikitext2_repo": "Salesforce/wikitext",
+    "wikitext2_revision": "b08601e04326c79dfdd32d625aee71d232d685c3",
+    "wikitext2_test_sha256": "430983e5a711fbc4c6576edffecacf47ff23d58f62f3923d2386d798e0a794c9",
+    "wikitext2_val_sha256": "93abc2e0cd803097893a176fd0de13e75c77a1414c5e64af7bbcf705068938c5"
+  },
+  "cuda_real_weight_transcode_and_serving": {
+    "K": 4864,
+    "M": 10752,
+    "full_qwen25_0_5b_projected_serving": {
+      "bench_elapsed_s": 21.05,
+      "bench_total_cpu_rapl_j": 1419.4572,
+      "direct_4_5bpw_ms_per_token": 0.5843,
+      "direct_4_5bpw_tokens_per_s": 1711.5,
+      "estimated_gpu_j_per_token": 0.050786,
+      "gpu_power_draw_w_sampled": "86.92",
+      "measured_cpu_rapl_j_per_token": 0.032616,
+      "total_block_weights": 357826560
+    },
+    "gemv_direct_4_5bpw_a16_preencoded_dp4a": {
+      "effective_gb_s": 345.0466,
+      "gweights_per_s": 612.4195,
+      "max_abs_err_fp64": 4.494960848e-08,
+      "ms": 0.085395,
+      "pct_triad": 96.793,
+      "rapl_cpu_pkg_mj_per_call": 4.766986,
+      "rel_l2_err_fp64": 9.133674408e-08,
+      "syndrome_errors": 0
+    },
+    "gemv_direct_4_5bpw_block_h2_dp4a": {
+      "effective_gb_s": 342.8786,
+      "gweights_per_s": 608.5717,
+      "max_abs_err_fp64": 4.272341547e-08,
+      "ms": 0.085935,
+      "pct_triad": 96.184,
+      "rel_l2_err_fp64": 9.591396982e-08,
+      "syndrome_errors": 0
+    },
+    "gemv_transcoded_18B_lossless_int8_dp4a": {
+      "effective_gb_s": 364.1504,
+      "gweights_per_s": 342.4347,
+      "max_abs_err_fp64": 4.683045773e-08,
+      "ms": 0.152723,
+      "pct_triad": 102.152,
+      "rel_l2_err_fp64": 9.095660049e-08,
+      "syndrome_errors": 0
+    },
+    "gemv_transcoded_72B_lossless_int8_dp4a": {
+      "effective_gb_s": 364.4504,
+      "gweights_per_s": 358.5203,
+      "max_abs_err_fp64": 4.43098287e-08,
+      "ms": 0.145871,
+      "pct_triad": 102.236,
+      "rel_l2_err_fp64": 9.067340968e-08,
+      "syndrome_errors": 0
+    },
+    "nvidia_smi_after": {
+      "driver_version": "615.78.08",
+      "mem_clock_mhz": "6001",
+      "memory_used_mib": "881",
+      "name": "NVIDIA GeForce RTX 3080 Laptop GPU",
+      "power_draw_w": "86.92",
+      "pstate": "P0",
+      "sm_clock_mhz": "1710",
+      "temp_c": "68",
+      "throttle_hex": "0x0000000000000004"
+    },
+    "nvidia_smi_before": {
+      "driver_version": "615.78.08",
+      "mem_clock_mhz": "6001",
+      "memory_used_mib": "881",
+      "name": "NVIDIA GeForce RTX 3080 Laptop GPU",
+      "power_draw_w": "22.65",
+      "pstate": "P0",
+      "sm_clock_mhz": "1245",
+      "temp_c": "68",
+      "throttle_hex": "0x0000000000000000"
+    },
+    "ptxas_verification": {
+      "kernels_compiled": 10,
+      "max_registers": 72,
+      "max_spill_loads_bytes": 0,
+      "max_spill_stores_bytes": 0,
+      "max_stack_bytes": 0,
+      "min_registers": 20
+    },
+    "stream_triad_gb_s": 356.4807,
+    "transcode_18B_to_int8_soa": {
+      "bit_mismatches": 0,
+      "gweights_per_s": 2.2016,
+      "ms": 23.753894,
+      "syndrome_errors": 0
+    },
+    "transcode_72B_to_int8_soa": {
+      "bit_mismatches": 0,
+      "gweights_per_s": 0.2531,
+      "ms": 206.643213,
+      "syndrome_errors": 0
+    },
+    "weights": 52297728
+  },
+  "cuda_source_file": "rtx3080_live_llm_transcode_kernels.cu",
+  "cuda_source_sha256": "b83b0a2a517eafb17c747e851b76f68fe4bd7457a0db90a5879f4ce9bf7fb36e",
+  "elapsed_seconds": 303.201,
+  "eval_seed": 2026112401,
+  "measured_live_model_weights": true,
+  "models": {
+    "HuggingFaceTB/SmolLM2-360M": {
+      "arms": {
+        "A16_BlockH2": {
+          "arm": "A16_BlockH2",
+          "group_size": 32,
+          "lattice": "A16",
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.059324707,
+            "ppl": 5.38953,
+            "se_kl": 0.003057121,
+            "tokens_scored": 4088,
+            "top1_pct": 89.2857
+          },
+          "syndrome_errors": 0,
+          "weight_err_db": -25.027772,
+          "wikitext2": {
+            "mean_kl": 0.071701656,
+            "ppl": 17.522283,
+            "se_kl": 0.002771274,
+            "tokens_scored": 4088,
+            "top1_pct": 86.2769
+          }
+        },
+        "A16_BlockH2_matched": {
+          "arm": "A16_BlockH2_matched",
+          "group_size": 32,
+          "lattice": "A16",
+          "max_matched_mse_db_diff": 1.023e-06,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.059337018,
+            "ppl": 5.382357,
+            "se_kl": 0.003042814,
+            "tokens_scored": 4088,
+            "top1_pct": 89.2857
+          },
+          "syndrome_errors": 0,
+          "weight_err_db": -25.028104,
+          "wikitext2": {
+            "mean_kl": 0.071799487,
+            "ppl": 17.507676,
+            "se_kl": 0.002788109,
+            "tokens_scored": 4088,
+            "top1_pct": 86.4971
+          }
+        },
+        "A16_H16": {
+          "arm": "A16_H16",
+          "group_size": 32,
+          "lattice": "A16",
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.069955577,
+            "ppl": 5.386082,
+            "se_kl": 0.005418994,
+            "tokens_scored": 4088,
+            "top1_pct": 89.8483
+          },
+          "syndrome_errors": 0,
+          "weight_err_db": -25.028047,
+          "wikitext2": {
+            "mean_kl": 0.079846518,
+            "ppl": 17.941319,
+            "se_kl": 0.004826799,
+            "tokens_scored": 4088,
+            "top1_pct": 84.7603
+          }
+        },
+        "A16_H16_matched": {
+          "arm": "A16_H16_matched",
+          "group_size": 32,
+          "lattice": "A16",
+          "max_matched_mse_db_diff": 1.003e-06,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.069862161,
+            "ppl": 5.383201,
+            "se_kl": 0.005440972,
+            "tokens_scored": 4088,
+            "top1_pct": 90.044
+          },
+          "syndrome_errors": 0,
+          "weight_err_db": -25.028103,
+          "wikitext2": {
+            "mean_kl": 0.079665632,
+            "ppl": 17.920008,
+            "se_kl": 0.00483313,
+            "tokens_scored": 4088,
+            "top1_pct": 84.6135
+          }
+        },
+        "A16_axis": {
+          "arm": "A16_axis",
+          "group_size": 32,
+          "lattice": "A16",
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.056725239,
+            "ppl": 5.330269,
+            "se_kl": 0.003494198,
+            "tokens_scored": 4088,
+            "top1_pct": 89.5303
+          },
+          "syndrome_errors": 0,
+          "weight_err_db": -25.028104,
+          "wikitext2": {
+            "mean_kl": 0.065173014,
+            "ppl": 17.252215,
+            "se_kl": 0.00367132,
+            "tokens_scored": 4088,
+            "top1_pct": 86.9374
+          }
+        },
+        "A16_axis_K10": {
+          "arm": "A16_axis_K10",
+          "group_size": 32,
+          "lattice": "A16",
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.050341985,
+            "ppl": 5.293116,
+            "se_kl": 0.003689732,
+            "tokens_scored": 4088,
+            "top1_pct": 90.3376
+          },
+          "syndrome_errors": 0,
+          "weight_err_db": -25.038786,
+          "wikitext2": {
+            "mean_kl": 0.058934463,
+            "ppl": 17.230384,
+            "se_kl": 0.004137583,
+            "tokens_scored": 4088,
+            "top1_pct": 87.7691
+          }
+        },
+        "E8_H8": {
+          "arm": "E8_H8",
+          "group_size": 32,
+          "lattice": "E8",
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.056793001,
+            "ppl": 5.366275,
+            "se_kl": 0.00328931,
+            "tokens_scored": 4088,
+            "top1_pct": 89.9706
+          },
+          "syndrome_errors": 0,
+          "weight_err_db": -25.05491,
+          "wikitext2": {
+            "mean_kl": 0.071621153,
+            "ppl": 17.665694,
+            "se_kl": 0.004101322,
+            "tokens_scored": 4088,
+            "top1_pct": 85.1761
+          }
+        },
+        "E8_H8_matched": {
+          "arm": "E8_H8_matched",
+          "group_size": 32,
+          "lattice": "E8",
+          "max_matched_mse_db_diff": 1.01e-06,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.057078883,
+            "ppl": 5.367044,
+            "se_kl": 0.00338099,
+            "tokens_scored": 4088,
+            "top1_pct": 89.8239
+          },
+          "syndrome_errors": 0,
+          "weight_err_db": -25.055109,
+          "wikitext2": {
+            "mean_kl": 0.071548116,
+            "ppl": 17.674769,
+            "se_kl": 0.004081464,
+            "tokens_scored": 4088,
+            "top1_pct": 85.1272
+          }
+        },
+        "E8_axis": {
+          "arm": "E8_axis",
+          "group_size": 32,
+          "lattice": "E8",
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.070136516,
+            "ppl": 5.366959,
+            "se_kl": 0.006132837,
+            "tokens_scored": 4088,
+            "top1_pct": 89.4325
+          },
+          "syndrome_errors": 0,
+          "weight_err_db": -25.055109,
+          "wikitext2": {
+            "mean_kl": 0.076987379,
+            "ppl": 17.72755,
+            "se_kl": 0.00515134,
+            "tokens_scored": 4088,
+            "top1_pct": 85.6164
+          }
+        },
+        "Z_plain": {
+          "arm": "Z_plain",
+          "group_size": 32,
+          "lattice": "Z",
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.068175906,
+            "ppl": 5.399674,
+            "se_kl": 0.006746164,
+            "tokens_scored": 4088,
+            "top1_pct": 88.9188
+          },
+          "syndrome_errors": 0,
+          "weight_err_db": -24.395613,
+          "wikitext2": {
+            "mean_kl": 0.080395371,
+            "ppl": 17.523087,
+            "se_kl": 0.007063575,
+            "tokens_scored": 4088,
+            "top1_pct": 84.2466
+          }
+        },
+        "hA16_colproxy": {
+          "arm": "hA16_colproxy",
+          "group_size": 32,
+          "lattice": "A16",
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.045427856,
+            "ppl": 5.259205,
+            "se_kl": 0.003499041,
+            "tokens_scored": 4088,
+            "top1_pct": 90.9736
+          },
+          "syndrome_errors": 0,
+          "weight_err_db": -25.059559,
+          "wikitext2": {
+            "mean_kl": 0.053816925,
+            "ppl": 17.477919,
+            "se_kl": 0.003543747,
+            "tokens_scored": 4088,
+            "top1_pct": 87.4511
+          }
+        },
+        "hA16_rand": {
+          "arm": "hA16_rand",
+          "group_size": 32,
+          "lattice": "A16",
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.028954472,
+            "ppl": 5.187005,
+            "se_kl": 0.001813633,
+            "tokens_scored": 4088,
+            "top1_pct": 93.0528
+          },
+          "syndrome_errors": 0,
+          "weight_err_db": -24.053017,
+          "wikitext2": {
+            "mean_kl": 0.031029645,
+            "ppl": 17.03562,
+            "se_kl": 0.001385222,
+            "tokens_scored": 4088,
+            "top1_pct": 90.8023
+          }
+        },
+        "hA16_real": {
+          "arm": "hA16_real",
+          "group_size": 32,
+          "lattice": "A16",
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.027538215,
+            "ppl": 5.167753,
+            "se_kl": 0.001467684,
+            "tokens_scored": 4088,
+            "top1_pct": 92.8571
+          },
+          "syndrome_errors": 0,
+          "weight_err_db": -24.371758,
+          "wikitext2": {
+            "mean_kl": 0.030954721,
+            "ppl": 16.973435,
+            "se_kl": 0.001697616,
+            "tokens_scored": 4088,
+            "top1_pct": 91.365
+          }
+        }
+      },
+      "block_linear_matrices": 224,
+      "bpw_exact": "9/2",
+      "calibration_summary": {
+        "mean_layerwise_spearman_colproxy_vs_eval": 0.10101,
+        "mean_layerwise_spearman_rand_vs_eval": 0.513429,
+        "mean_layerwise_spearman_real_vs_eval": 0.719368,
+        "python_colproxy_retention": 0.387069,
+        "python_p5_rand_retention": 0.951476,
+        "wikitext2_colproxy_retention": 0.331872,
+        "wikitext2_p5_rand_retention": 0.99781
+      },
+      "cuda_export_meta": null,
+      "elapsed_seconds": 127.716,
+      "group_size": 32,
+      "hidden_size": 960,
+      "intermediate_size": 2560,
+      "model_safetensors_bytes": 723674912,
+      "model_safetensors_sha256": "7aaff6661428bed033abba9522bec81938678642cca3181fe752b6ca9e1e540f",
+      "num_hidden_layers": 32,
+      "per_layer_anisotropy_diagnostic": {
+        "block_h2_beats_h16_count": 119,
+        "by_projection_kind": {
+          "down_proj": {
+            "block_h2_beats_h16": 22,
+            "layers": 32,
+            "mean_bh2_over_axis_quad_err": 1.011432,
+            "mean_h16_over_axis_quad_err": 1.023039,
+            "regime1_axis_beats_h16": 21,
+            "regime2_h16_beats_axis": 11
+          },
+          "gate_proj": {
+            "block_h2_beats_h16": 13,
+            "layers": 32,
+            "mean_bh2_over_axis_quad_err": 0.995527,
+            "mean_h16_over_axis_quad_err": 0.992495,
+            "regime1_axis_beats_h16": 13,
+            "regime2_h16_beats_axis": 19
+          },
+          "k_proj": {
+            "block_h2_beats_h16": 17,
+            "layers": 32,
+            "mean_bh2_over_axis_quad_err": 0.990182,
+            "mean_h16_over_axis_quad_err": 0.978309,
+            "regime1_axis_beats_h16": 9,
+            "regime2_h16_beats_axis": 23
+          },
+          "o_proj": {
+            "block_h2_beats_h16": 16,
+            "layers": 32,
+            "mean_bh2_over_axis_quad_err": 0.985559,
+            "mean_h16_over_axis_quad_err": 0.989607,
+            "regime1_axis_beats_h16": 15,
+            "regime2_h16_beats_axis": 17
+          },
+          "q_proj": {
+            "block_h2_beats_h16": 12,
+            "layers": 32,
+            "mean_bh2_over_axis_quad_err": 0.995232,
+            "mean_h16_over_axis_quad_err": 0.992642,
+            "regime1_axis_beats_h16": 15,
+            "regime2_h16_beats_axis": 17
+          },
+          "up_proj": {
+            "block_h2_beats_h16": 19,
+            "layers": 32,
+            "mean_bh2_over_axis_quad_err": 1.00433,
+            "mean_h16_over_axis_quad_err": 1.005529,
+            "regime1_axis_beats_h16": 23,
+            "regime2_h16_beats_axis": 9
+          },
+          "v_proj": {
+            "block_h2_beats_h16": 20,
+            "layers": 32,
+            "mean_bh2_over_axis_quad_err": 1.050705,
+            "mean_h16_over_axis_quad_err": 1.063124,
+            "regime1_axis_beats_h16": 25,
+            "regime2_h16_beats_axis": 7
+          }
+        },
+        "regime1_axis_beats_h16_count": 121,
+        "regime2_h16_beats_axis_count": 103,
+        "total_layers_scored": 224
+      },
+      "reference_bf16": {
+        "non_block_tensors_protected": 66,
+        "python_ppl": 5.044993,
+        "wikitext2_ppl": 16.394834
+      },
+      "repo_id": "HuggingFaceTB/SmolLM2-360M",
+      "revision": "f8027fd0eaeea54caa13c31d31b9fdc459c38b49",
+      "tie_word_embeddings": true,
+      "tokenizer_json_sha256": "9ca9acddb6525a194ec8ac7a87f24fbba7232a9a15ffa1af0c1224fcd888e47c",
+      "total_block_weights": 314572800
+    },
+    "Qwen/Qwen2.5-0.5B": {
+      "arms": {
+        "A16_BlockH2": {
+          "arm": "A16_BlockH2",
+          "group_size": 128,
+          "lattice": "A16",
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.045392023,
+            "ppl": 5.060639,
+            "se_kl": 0.003302716,
+            "tokens_scored": 4088,
+            "top1_pct": 90.998
+          },
+          "syndrome_errors": 0,
+          "weight_err_db": -25.55268,
+          "wikitext2": {
+            "mean_kl": 0.055205609,
+            "ppl": 18.655757,
+            "se_kl": 0.003583353,
+            "tokens_scored": 4088,
+            "top1_pct": 88.2094
+          }
+        },
+        "A16_BlockH2_matched": {
+          "arm": "A16_BlockH2_matched",
+          "group_size": 128,
+          "lattice": "A16",
+          "max_matched_mse_db_diff": 9.58e-07,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.045662429,
+            "ppl": 5.062156,
+            "se_kl": 0.003312684,
+            "tokens_scored": 4088,
+            "top1_pct": 91.0714
+          },
+          "syndrome_errors": 0,
+          "weight_err_db": -25.552922,
+          "wikitext2": {
+            "mean_kl": 0.055361937,
+            "ppl": 18.660264,
+            "se_kl": 0.003583822,
+            "tokens_scored": 4088,
+            "top1_pct": 88.3806
+          }
+        },
+        "A16_H16": {
+          "arm": "A16_H16",
+          "group_size": 128,
+          "lattice": "A16",
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.047448949,
+            "ppl": 5.116568,
+            "se_kl": 0.003639453,
+            "tokens_scored": 4088,
+            "top1_pct": 90.7534
+          },
+          "syndrome_errors": 0,
+          "weight_err_db": -25.552651,
+          "wikitext2": {
+            "mean_kl": 0.057613895,
+            "ppl": 18.590882,
+            "se_kl": 0.004075427,
+            "tokens_scored": 4088,
+            "top1_pct": 87.6223
+          }
+        },
+        "A16_H16_matched": {
+          "arm": "A16_H16_matched",
+          "group_size": 128,
+          "lattice": "A16",
+          "max_matched_mse_db_diff": 1.513e-06,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.047448058,
+            "ppl": 5.110882,
+            "se_kl": 0.003625554,
+            "tokens_scored": 4088,
+            "top1_pct": 90.8268
+          },
+          "syndrome_errors": 0,
+          "weight_err_db": -25.552922,
+          "wikitext2": {
+            "mean_kl": 0.057551466,
+            "ppl": 18.589122,
+            "se_kl": 0.004067322,
+            "tokens_scored": 4088,
+            "top1_pct": 87.4755
+          }
+        },
+        "A16_axis": {
+          "arm": "A16_axis",
+          "group_size": 128,
+          "lattice": "A16",
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.045602059,
+            "ppl": 5.09995,
+            "se_kl": 0.002929651,
+            "tokens_scored": 4088,
+            "top1_pct": 90.9491
+          },
+          "syndrome_errors": 0,
+          "weight_err_db": -25.552922,
+          "wikitext2": {
+            "mean_kl": 0.052525288,
+            "ppl": 18.485835,
+            "se_kl": 0.003470028,
+            "tokens_scored": 4088,
+            "top1_pct": 88.7231
+          }
+        },
+        "A16_axis_K10": {
+          "arm": "A16_axis_K10",
+          "group_size": 128,
+          "lattice": "A16",
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.045577882,
+            "ppl": 5.097148,
+            "se_kl": 0.002901145,
+            "tokens_scored": 4088,
+            "top1_pct": 91.1693
+          },
+          "syndrome_errors": 0,
+          "weight_err_db": -25.559341,
+          "wikitext2": {
+            "mean_kl": 0.052971899,
+            "ppl": 18.46895,
+            "se_kl": 0.003438846,
+            "tokens_scored": 4088,
+            "top1_pct": 88.6252
+          }
+        },
+        "E8_H8": {
+          "arm": "E8_H8",
+          "group_size": 128,
+          "lattice": "E8",
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.044983091,
+            "ppl": 5.046569,
+            "se_kl": 0.003375224,
+            "tokens_scored": 4088,
+            "top1_pct": 90.4354
+          },
+          "syndrome_errors": 0,
+          "weight_err_db": -25.58488,
+          "wikitext2": {
+            "mean_kl": 0.054841458,
+            "ppl": 18.642673,
+            "se_kl": 0.003687498,
+            "tokens_scored": 4088,
+            "top1_pct": 87.818
+          }
+        },
+        "E8_H8_matched": {
+          "arm": "E8_H8_matched",
+          "group_size": 128,
+          "lattice": "E8",
+          "max_matched_mse_db_diff": 1.001e-06,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.045058861,
+            "ppl": 5.048423,
+            "se_kl": 0.003378408,
+            "tokens_scored": 4088,
+            "top1_pct": 90.4599
+          },
+          "syndrome_errors": 0,
+          "weight_err_db": -25.58471,
+          "wikitext2": {
+            "mean_kl": 0.054820156,
+            "ppl": 18.65774,
+            "se_kl": 0.003673614,
+            "tokens_scored": 4088,
+            "top1_pct": 88.1605
+          }
+        },
+        "E8_axis": {
+          "arm": "E8_axis",
+          "group_size": 128,
+          "lattice": "E8",
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.046319563,
+            "ppl": 5.01392,
+            "se_kl": 0.003624352,
+            "tokens_scored": 4088,
+            "top1_pct": 90.6311
+          },
+          "syndrome_errors": 0,
+          "weight_err_db": -25.58471,
+          "wikitext2": {
+            "mean_kl": 0.058116808,
+            "ppl": 18.755973,
+            "se_kl": 0.004150546,
+            "tokens_scored": 4088,
+            "top1_pct": 87.4022
+          }
+        },
+        "Z_plain": {
+          "arm": "Z_plain",
+          "group_size": 128,
+          "lattice": "Z",
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.045811922,
+            "ppl": 5.053679,
+            "se_kl": 0.002987127,
+            "tokens_scored": 4088,
+            "top1_pct": 90.4599
+          },
+          "syndrome_errors": 0,
+          "weight_err_db": -24.926965,
+          "wikitext2": {
+            "mean_kl": 0.062033343,
+            "ppl": 18.944364,
+            "se_kl": 0.00324251,
+            "tokens_scored": 4088,
+            "top1_pct": 86.7417
+          }
+        },
+        "hA16_colproxy": {
+          "arm": "hA16_colproxy",
+          "group_size": 128,
+          "lattice": "A16",
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.037981273,
+            "ppl": 5.029149,
+            "se_kl": 0.002694436,
+            "tokens_scored": 4088,
+            "top1_pct": 92.319
+          },
+          "syndrome_errors": 0,
+          "weight_err_db": -25.603304,
+          "wikitext2": {
+            "mean_kl": 0.046905804,
+            "ppl": 18.739,
+            "se_kl": 0.003488978,
+            "tokens_scored": 4088,
+            "top1_pct": 88.9188
+          }
+        },
+        "hA16_rand": {
+          "arm": "hA16_rand",
+          "group_size": 128,
+          "lattice": "A16",
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.023526989,
+            "ppl": 4.97461,
+            "se_kl": 0.000608532,
+            "tokens_scored": 4088,
+            "top1_pct": 92.9305
+          },
+          "syndrome_errors": 0,
+          "weight_err_db": -23.505391,
+          "wikitext2": {
+            "mean_kl": 0.028644208,
+            "ppl": 18.416684,
+            "se_kl": 0.000656632,
+            "tokens_scored": 4088,
+            "top1_pct": 90.3376
+          }
+        },
+        "hA16_real": {
+          "arm": "hA16_real",
+          "group_size": 128,
+          "lattice": "A16",
+          "max_matched_mse_db_diff": 0.0,
+          "non_block_tensors_differ": 0,
+          "python": {
+            "mean_kl": 0.024798375,
+            "ppl": 4.961034,
+            "se_kl": 0.001286018,
+            "tokens_scored": 4088,
+            "top1_pct": 92.2211
+          },
+          "syndrome_errors": 0,
+          "weight_err_db": -23.660948,
+          "wikitext2": {
+            "mean_kl": 0.028102142,
+            "ppl": 18.331206,
+            "se_kl": 0.001327012,
+            "tokens_scored": 4088,
+            "top1_pct": 91.1693
+          }
+        }
+      },
+      "block_linear_matrices": 168,
+      "bpw_exact": "9/2",
+      "calibration_summary": {
+        "mean_layerwise_spearman_colproxy_vs_eval": 0.109608,
+        "mean_layerwise_spearman_rand_vs_eval": 0.555791,
+        "mean_layerwise_spearman_real_vs_eval": 0.797211,
+        "python_colproxy_retention": 0.366319,
+        "python_p5_rand_retention": 1.061114,
+        "wikitext2_colproxy_retention": 0.230088,
+        "wikitext2_p5_rand_retention": 0.977805
+      },
+      "cuda_export_meta": {
+        "K": 4864,
+        "M": 10752,
+        "export_syndrome_errors": 0,
+        "source_layers": [
+          "model.layers.0.mlp.down_proj",
+          "model.layers.1.mlp.down_proj",
+          "model.layers.2.mlp.down_proj",
+          "model.layers.3.mlp.down_proj",
+          "model.layers.4.mlp.down_proj",
+          "model.layers.5.mlp.down_proj",
+          "model.layers.6.mlp.down_proj",
+          "model.layers.7.mlp.down_proj",
+          "model.layers.8.mlp.down_proj",
+          "model.layers.9.mlp.down_proj",
+          "model.layers.10.mlp.down_proj",
+          "model.layers.11.mlp.down_proj"
+        ],
+        "weights": 52297728
+      },
+      "elapsed_seconds": 150.222,
+      "group_size": 128,
+      "hidden_size": 896,
+      "intermediate_size": 4864,
+      "model_safetensors_bytes": 988097824,
+      "model_safetensors_sha256": "88c142557820ccad55bb59756bfcfcf891de9cc6202816bd346445188a0ed342",
+      "num_hidden_layers": 24,
+      "per_layer_anisotropy_diagnostic": {
+        "block_h2_beats_h16_count": 83,
+        "by_projection_kind": {
+          "down_proj": {
+            "block_h2_beats_h16": 15,
+            "layers": 24,
+            "mean_bh2_over_axis_quad_err": 0.997427,
+            "mean_h16_over_axis_quad_err": 0.999558,
+            "regime1_axis_beats_h16": 11,
+            "regime2_h16_beats_axis": 13
+          },
+          "gate_proj": {
+            "block_h2_beats_h16": 10,
+            "layers": 24,
+            "mean_bh2_over_axis_quad_err": 1.001417,
+            "mean_h16_over_axis_quad_err": 0.998873,
+            "regime1_axis_beats_h16": 9,
+            "regime2_h16_beats_axis": 15
+          },
+          "k_proj": {
+            "block_h2_beats_h16": 10,
+            "layers": 24,
+            "mean_bh2_over_axis_quad_err": 1.006343,
+            "mean_h16_over_axis_quad_err": 0.971995,
+            "regime1_axis_beats_h16": 9,
+            "regime2_h16_beats_axis": 15
+          },
+          "o_proj": {
+            "block_h2_beats_h16": 11,
+            "layers": 24,
+            "mean_bh2_over_axis_quad_err": 0.990348,
+            "mean_h16_over_axis_quad_err": 0.993162,
+            "regime1_axis_beats_h16": 7,
+            "regime2_h16_beats_axis": 17
+          },
+          "q_proj": {
+            "block_h2_beats_h16": 13,
+            "layers": 24,
+            "mean_bh2_over_axis_quad_err": 0.995938,
+            "mean_h16_over_axis_quad_err": 0.997903,
+            "regime1_axis_beats_h16": 12,
+            "regime2_h16_beats_axis": 12
+          },
+          "up_proj": {
+            "block_h2_beats_h16": 14,
+            "layers": 24,
+            "mean_bh2_over_axis_quad_err": 0.999269,
+            "mean_h16_over_axis_quad_err": 0.998745,
+            "regime1_axis_beats_h16": 14,
+            "regime2_h16_beats_axis": 10
+          },
+          "v_proj": {
+            "block_h2_beats_h16": 10,
+            "layers": 24,
+            "mean_bh2_over_axis_quad_err": 1.001616,
+            "mean_h16_over_axis_quad_err": 0.99032,
+            "regime1_axis_beats_h16": 11,
+            "regime2_h16_beats_axis": 13
+          }
+        },
+        "regime1_axis_beats_h16_count": 73,
+        "regime2_h16_beats_axis_count": 95,
+        "total_layers_scored": 168
+      },
+      "reference_bf16": {
+        "non_block_tensors_protected": 122,
+        "python_ppl": 4.860631,
+        "wikitext2_ppl": 17.950474
+      },
+      "repo_id": "Qwen/Qwen2.5-0.5B",
+      "revision": "060db6499f32faf8b98477b0a26969ef7d8b9987",
+      "tie_word_embeddings": true,
+      "tokenizer_json_sha256": "c0382117ea329cdf097041132f6d735924b697924d6f6fc3945713e96ce87539",
+      "total_block_weights": 357826560
+    }
+  },
+  "nvidia_smi_post": {
+    "driver_version": "615.78.08",
+    "mem_clock_mhz": "6001",
+    "memory_used_mib": "881",
+    "name": "NVIDIA GeForce RTX 3080 Laptop GPU",
+    "power_draw_w": "86.92",
+    "pstate": "P0",
+    "sm_clock_mhz": "1710",
+    "temp_c": "68",
+    "throttle_hex": "0x0000000000000004"
+  },
+  "nvidia_smi_pre": {
+    "driver_version": "615.78.08",
+    "mem_clock_mhz": "405",
+    "memory_used_mib": "2",
+    "name": "NVIDIA GeForce RTX 3080 Laptop GPU",
+    "power_draw_w": "13.12",
+    "pstate": "P8",
+    "sm_clock_mhz": "210",
+    "temp_c": "54",
+    "throttle_hex": "0x0000000000000001"
+  },
+  "oracle_class": "sampled",
+  "schema": "aletheia.track_s49b.live_llm_empirical.v1",
+  "total_cpu_rapl_joules": 19325.974
+}
