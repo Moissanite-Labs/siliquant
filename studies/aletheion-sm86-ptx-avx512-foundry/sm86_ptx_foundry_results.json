@@ -1,0 +1,54 @@
+{
+  "device": {
+    "name": "NVIDIA GeForce RTX 3080 Laptop GPU",
+    "cc_major": 8, "cc_minor": 6, "sm_count": 48,
+    "shared_mem_per_sm_bytes": 102400,
+    "l2_cache_bytes": 4194304,
+    "persisting_l2_max_bytes": 2883584,
+    "memory_bus_width_bits": 256, "memory_clock_khz": 6001000, "boost_clock_khz": 1245000,
+    "theoretical_peak_bw_gb_s": 384.0640,
+    "stream_triad_gb_s": 356.6835, "stream_triad_pct_peak": 92.871
+  },
+  "warp_shuffle_zero_shmem": {
+    "weights": 67108864,
+    "WHT8_shfl": {"ms": 0.391066, "gweights_per_s": 171.6051, "phys_gb_s": 343.2103, "pct_triad": 96.223, "bit_exact_mismatches": 0},
+    "H16_shfl": {"ms": 0.393318, "gweights_per_s": 170.6222, "phys_gb_s": 341.2445, "pct_triad": 95.671, "bit_exact_mismatches": 0}
+  },
+  "fused_gemv_4_5_bpw": {
+    "4096x14336": {
+      "M": 4096, "K": 14336, "weights": 58720256, "phys_weight_bytes": 33030144, "bpw": 4.5,
+      "ref_rows_verified": 256,
+      "batched_b32_cp_async_imma_gemm": {"batch": 32, "ms": 0.304418, "int8_tops": 12.3452, "weight_gweights_per_s": 192.8934, "phys_gb_s": 111.7318, "max_abs_err": 6.616116e-06, "rel_l2_err": 3.430055e-07},
+      "arms": {
+        "A16_preenc_dp4a_r1_l2off": {"ms": 0.094020, "gweights_per_s": 624.5489, "phys_gb_s": 351.6355, "fp16_equiv_tb_s": 1.2491, "pct_triad": 98.585, "max_abs_err": 9.536743e-07, "rel_l2_err": 6.189551e-08, "syndrome_errors": 0},
+        "A16_preenc_dp4a_r2_l2pin": {"ms": 0.093542, "gweights_per_s": 627.7394, "phys_gb_s": 353.4318, "fp16_equiv_tb_s": 1.2555, "pct_triad": 99.088, "max_abs_err": 9.536743e-07, "rel_l2_err": 6.189551e-08, "syndrome_errors": 0},
+        "A16_preenc_dp4a_live_verify_r2_l2pin": {"ms": 0.094191, "gweights_per_s": 623.4173, "phys_gb_s": 350.9984, "fp16_equiv_tb_s": 1.2468, "pct_triad": 98.406, "max_abs_err": 9.536743e-07, "rel_l2_err": 6.189551e-08, "syndrome_errors": 0},
+        "A16_live_repair_dp4a_r2_l2pin": {"ms": 0.167185, "gweights_per_s": 351.2291, "phys_gb_s": 197.7501, "fp16_equiv_tb_s": 0.7025, "pct_triad": 55.441, "max_abs_err": 9.536743e-07, "rel_l2_err": 6.189551e-08, "syndrome_errors": 0},
+        "Block_H2_swar_dp4a_r2_l2pin": {"ms": 0.094379, "gweights_per_s": 622.1772, "phys_gb_s": 350.3002, "fp16_equiv_tb_s": 1.2444, "pct_triad": 98.210, "max_abs_err": 8.698428e-07, "rel_l2_err": 1.035200e-07, "syndrome_errors": 0},
+        "A16_H16_warp_shfl_zero_shmem_r2_l2pin": {"ms": 0.157869, "gweights_per_s": 371.9560, "phys_gb_s": 209.6923, "fp16_equiv_tb_s": 0.7439, "pct_triad": 58.789, "max_abs_err": 1.877546e-06, "rel_l2_err": 1.605146e-07, "syndrome_errors": 0},
+        "A16_fp16_hfma2_r2_l2off": {"ms": 0.155119, "gweights_per_s": 378.5499, "phys_gb_s": 213.2248, "fp16_equiv_tb_s": 0.7571, "pct_triad": 59.780, "max_abs_err": 9.536743e-07, "rel_l2_err": 6.189551e-08, "syndrome_errors": 0},
+        "A16_fp16_hfma2_r2_l2pin": {"ms": 0.153805, "gweights_per_s": 381.7843, "phys_gb_s": 215.0466, "fp16_equiv_tb_s": 0.7636, "pct_triad": 60.291, "max_abs_err": 9.536743e-07, "rel_l2_err": 6.189551e-08, "syndrome_errors": 0},
+        "A16_bf16_hfma2_r2_l2pin": {"ms": 0.157303, "gweights_per_s": 373.2928, "phys_gb_s": 210.2636, "fp16_equiv_tb_s": 0.7466, "pct_triad": 58.950, "max_abs_err": 8.344650e-07, "rel_l2_err": 6.353563e-08, "syndrome_errors": 0},
+        "A16_aos144b_dp4a_r2_l2pin": {"ms": 0.123595, "gweights_per_s": 475.1014, "phys_gb_s": 267.4931, "fp16_equiv_tb_s": 0.9502, "pct_triad": 74.995, "max_abs_err": 5.960464e-07, "rel_l2_err": 6.099685e-08, "syndrome_errors": 0}
+      }
+    },
+    "8192x14336": {
+      "M": 8192, "K": 14336, "weights": 117440512, "phys_weight_bytes": 66060288, "bpw": 4.5,
+      "ref_rows_verified": 256,
+      "batched_b32_cp_async_imma_gemm": {"batch": 32, "ms": 0.504371, "int8_tops": 14.9021, "weight_gweights_per_s": 232.8454, "phys_gb_s": 133.9641, "max_abs_err": 6.794930e-06, "rel_l2_err": 3.439290e-07},
+      "arms": {
+        "A16_preenc_dp4a_r1_l2off": {"ms": 0.181653, "gweights_per_s": 646.5090, "phys_gb_s": 363.9206, "fp16_equiv_tb_s": 1.2930, "pct_triad": 102.029, "max_abs_err": 6.556511e-07, "rel_l2_err": 6.771072e-08, "syndrome_errors": 0},
+        "A16_preenc_dp4a_r2_l2pin": {"ms": 0.181865, "gweights_per_s": 645.7582, "phys_gb_s": 363.4980, "fp16_equiv_tb_s": 1.2915, "pct_triad": 101.911, "max_abs_err": 6.556511e-07, "rel_l2_err": 6.771072e-08, "syndrome_errors": 0},
+        "A16_preenc_dp4a_live_verify_r2_l2pin": {"ms": 0.182562, "gweights_per_s": 643.2907, "phys_gb_s": 362.1090, "fp16_equiv_tb_s": 1.2866, "pct_triad": 101.521, "max_abs_err": 6.556511e-07, "rel_l2_err": 6.771072e-08, "syndrome_errors": 0},
+        "A16_live_repair_dp4a_r2_l2pin": {"ms": 0.245453, "gweights_per_s": 478.4647, "phys_gb_s": 269.3283, "fp16_equiv_tb_s": 0.9569, "pct_triad": 75.509, "max_abs_err": 6.556511e-07, "rel_l2_err": 6.771072e-08, "syndrome_errors": 0},
+        "Block_H2_swar_dp4a_r2_l2pin": {"ms": 0.183467, "gweights_per_s": 640.1190, "phys_gb_s": 360.3237, "fp16_equiv_tb_s": 1.2802, "pct_triad": 101.021, "max_abs_err": 9.785800e-07, "rel_l2_err": 9.706303e-08, "syndrome_errors": 0},
+        "A16_H16_warp_shfl_zero_shmem_r2_l2pin": {"ms": 0.253167, "gweights_per_s": 463.8856, "phys_gb_s": 261.2916, "fp16_equiv_tb_s": 0.9278, "pct_triad": 73.256, "max_abs_err": 1.460314e-06, "rel_l2_err": 1.348570e-07, "syndrome_errors": 0},
+        "A16_fp16_hfma2_r2_l2off": {"ms": 0.286208, "gweights_per_s": 410.3327, "phys_gb_s": 231.0268, "fp16_equiv_tb_s": 0.8207, "pct_triad": 64.771, "max_abs_err": 2.037883e-04, "rel_l2_err": 4.352694e-06, "syndrome_errors": 0},
+        "A16_fp16_hfma2_r2_l2pin": {"ms": 0.270985, "gweights_per_s": 433.3846, "phys_gb_s": 244.0055, "fp16_equiv_tb_s": 0.8668, "pct_triad": 68.410, "max_abs_err": 2.037883e-04, "rel_l2_err": 4.352694e-06, "syndrome_errors": 0},
+        "A16_bf16_hfma2_r2_l2pin": {"ms": 0.256171, "gweights_per_s": 458.4464, "phys_gb_s": 258.1159, "fp16_equiv_tb_s": 0.9169, "pct_triad": 72.366, "max_abs_err": 6.556511e-07, "rel_l2_err": 6.514894e-08, "syndrome_errors": 0},
+        "A16_aos144b_dp4a_r2_l2pin": {"ms": 0.238302, "gweights_per_s": 492.8225, "phys_gb_s": 277.4103, "fp16_equiv_tb_s": 0.9856, "pct_triad": 77.775, "max_abs_err": 5.960464e-07, "rel_l2_err": 6.271046e-08, "syndrome_errors": 0}
+      }
+    }
+  },
+  "total_verify_failures": 0
+}
