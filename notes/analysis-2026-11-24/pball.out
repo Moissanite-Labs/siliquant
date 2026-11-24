@@ -1,0 +1,8 @@
+Weight error (dB) of integer levels in a p-norm ball over 128 weights, 560 bits for the point and 16 for the scale
+
+| p | Bound | Bits a weight | Laplace | Gaussian | SmolLM2 blk.1.ffn_down.weight | SmolLM2 blk.5.ffn_down.weight | SmolLM2 blk.10.attn_q.weight |
+|---|---|---|---|---|---|---|---|
+| 2 | 27047 | 4.4998 | -24.943 | -24.931 | -24.928 | -24.924 | -24.929 |
+| 1.5 | 10159 | 4.5000 | -25.342 | -24.861 | -24.896 | -24.871 | -24.974 |
+| 1.25 | 6323 | 4.4999 | -25.490 | -24.735 | -24.789 | -24.757 | -24.906 |
+| 1 | 3991 | 4.4992 | -25.541 | -24.491 | -24.556 | -24.524 | -24.711 |
