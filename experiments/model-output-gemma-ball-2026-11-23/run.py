@@ -887,6 +887,23 @@ def _source_is_quantized(tensors):
     return any(int(getattr(t, "tensor_type", 0)) not in _FLOAT_GGML_TYPES for t in tensors)
 
 
+def _drop_file_cache(path):
+    """Best-effort POSIX_FADV_DONTNEED on a file's clean pages.
+
+    After a 27B-class arm build, the source model's ~29 GB of page cache is still
+    resident; dropping it before scoring frees DRAM so the Metal backend can map the
+    ~53 GB float16-block arm without an out-of-memory command buffer failure.
+    """
+    try:
+        fd = os.open(path, os.O_RDONLY)
+        try:
+            os.posix_fadvise(fd, 0, 0, os.POSIX_FADV_DONTNEED)
+        finally:
+            os.close(fd)
+    except (OSError, AttributeError):
+        pass
+
+
 def ensure_kld(model_path, text_path, kld_path, binary, chunks, ctx, batch, ngl, threads, dry_run=False):
     cmd = [
         binary,
@@ -1395,6 +1412,8 @@ def run_sweep(args):
                     ggufedit.write_copy(rd, eval_path, replace)
             if tensor_dir and os.path.isdir(tensor_dir):
                 shutil.rmtree(tensor_dir, ignore_errors=True)
+            if args.stream_arms and not args.metrics_only:
+                _drop_file_cache(args.model_path)
             del replace
 
         try:
