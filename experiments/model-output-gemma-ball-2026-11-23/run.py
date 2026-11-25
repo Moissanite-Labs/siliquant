@@ -899,7 +899,8 @@ def ensure_kld(model_path, text_path, kld_path, binary, chunks, ctx, batch, ngl,
         "-t", str(threads),
         "--kl-divergence-base", str(kld_path),
     ]
-    if dry_run or (os.path.exists(kld_path) and _valid_gguf(kld_path)):
+    # .kld files are not GGUF (they start with "_log"); trust any non-empty cache.
+    if dry_run or (os.path.exists(kld_path) and os.path.getsize(kld_path) > 0):
         return cmd
     if os.path.exists(kld_path):
         os.remove(kld_path)
