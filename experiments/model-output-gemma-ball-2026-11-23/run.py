@@ -1444,6 +1444,14 @@ def run_sweep(args):
                     for tn2, info2 in kld_info.items():
                         if tn2 != tname:
                             _drop_file_cache(info2["kld_path"])
+                    # Drop every other cached artifact (stock baselines are ~50 GB at 27B):
+                    # left cached, they starve Metal's allocation at model load on a 64 GB host.
+                    cur_kld = kld_info[tname]["kld_path"]
+                    if os.path.isdir(cache_dir):
+                        for fn in os.listdir(cache_dir):
+                            p = os.path.join(cache_dir, fn)
+                            if p != cur_kld:
+                                _drop_file_cache(p)
                     t1 = time.time()
                     scores, _ = evalkl.score(
                         eval_path,
