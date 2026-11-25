@@ -532,7 +532,7 @@ def _build_model_card(
         "",
         "## Standalone CLI & Reference Kernels",
         "",
-        "- `python siliquant_dequant.py verify .` — verifies every file SHA-256 in `siliquant_verification_receipt.json` (rejecting tampered, missing, unlisted, or symlinked files) and checks `A_16` codec consistency across 100% of blocks.",
+        "- `python siliquant_dequant.py verify .` — verifies every file SHA-256 in `siliquant_verification_receipt.json` (rejecting tampered, missing, unlisted, or symlinked files; Hugging Face download metadata — .gitattributes, .cache/huggingface/ — and __pycache__ are ignored) and checks `A_16` codec consistency across 100% of blocks.",
         "- `python siliquant_dequant.py unpack . --out unpacked.safetensors --dtype bfloat16` — exports dense BF16 weights for downstream engines.",
         "- `kernels/sm86_a16_blockh4.cu` — standalone reference zero-spill Ampere `sm_86` PTX fused fixed-4-bit nibble-packed `A_16` + Block-H4 `dp4a.s32.s32` GEMV kernel (distinct from the lossless `qham11`+`qquot`+CSR archive container).",
         "- `kernels/avx512_a16_blockh4.c` — standalone reference Intel AVX-512 (`vpermb` + `vpopcntq` + `vpdpbusd`) CPU fixed-4-bit nibble-packed `A_16` + Block-H4 GEMV decoder.",

@@ -64,6 +64,25 @@ def _sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
+# Download/runtime artifacts created outside the export itself: `huggingface_hub.snapshot_download`
+# writes a top-level `.gitattributes` and `.cache/huggingface/**` metadata into `local_dir`, and
+# Python writes `__pycache__/**/*.pyc`. These (and only these) are dropped from the on-disk set
+# before the unlisted-file check; symlinks anywhere (including inside these paths) still fail
+# closed in the rglob enumeration below. siliquant_dequant.py is copied standalone into HF repos,
+# so this helper is duplicated there rather than imported from here.
+IGNORED_EXPORT_ARTIFACT_TOP_FILE = ".gitattributes"
+IGNORED_EXPORT_ARTIFACT_CACHE_PREFIX = ".cache/huggingface/"
+
+
+def _is_ignored_export_artifact(rel_posix: str) -> bool:
+    """True only for top-level `.gitattributes`, anything under `.cache/huggingface/`, and `__pycache__` `*.pyc` paths."""
+    if rel_posix == IGNORED_EXPORT_ARTIFACT_TOP_FILE:
+        return True
+    if rel_posix.startswith(IGNORED_EXPORT_ARTIFACT_CACHE_PREFIX):
+        return True
+    return "__pycache__" in rel_posix.split("/") and rel_posix.endswith(".pyc")
+
+
 def _parse_yaml_frontmatter(readme_text: str) -> dict[str, Any]:
     lines = readme_text.splitlines()
     _require(len(lines) >= 3 and lines[0].strip() == "---", "README.md missing YAML frontmatter start")
@@ -180,6 +199,11 @@ def verify_receipt_hashes(export_dir: Path) -> dict[str, Any]:
         except ValueError as exc:
             raise VerificationError(f"Receipt entry escapes export directory: {rel!r}") from exc
         manifest_files.add(rel)
+
+    # Drop ONLY the download/runtime artifacts (top-level .gitattributes, .cache/huggingface/**,
+    # __pycache__/**/*.pyc) from the on-disk set before the unlisted-file check; every symlink was
+    # already rejected during enumeration above, so symlinks inside ignored paths still fail.
+    actual_files = {rel for rel in actual_files if not _is_ignored_export_artifact(rel)}
 
     missing_from_disk = sorted(manifest_files - actual_files)
     unlisted_on_disk = sorted(actual_files - manifest_files)
