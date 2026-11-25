@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Siliquant: 4.5-bit A16 Quantization, CUDA Kernels &amp; Built-in Bit-Flip Checks | Moissanite Labs</title>
-  <meta name="description" content="Siliquant quantization research working paper (24 November 2026): A16 Hamming-lattice codes at 4.5 bits per weight beat Q4_K_M with no calibration data, run end to end on a consumer RTX 3080, and check packed weights for flipped bits with no ECC hardware." />
+  <title>Siliquant: A16 and E8 Lattice Quantization | Moissanite Labs</title>
+  <meta name="description" content="Siliquant working paper, 24 Nov 2026: A16 Hamming-lattice weight quantization at 4.5 bits, CUDA kernels on a laptop RTX 3080, parity checks in the weights." />
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="Siliquant: 4.5-bit A16 Quantization, CUDA Kernels &amp; Built-in Bit-Flip Checks" />
-  <meta property="og:description" content="Siliquant quantization research working paper (24 November 2026): A16 Hamming-lattice codes at 4.5 bits per weight beat Q4_K_M with no calibration data, run end to end on a consumer RTX 3080, and check packed weights for flipped bits with no ECC hardware." />
+  <meta property="og:title" content="Siliquant: A16 and E8 Lattice Weight Quantization" />
+  <meta property="og:description" content="Siliquant working paper, 24 Nov 2026: A16 Hamming-lattice weight quantization at 4.5 bits, CUDA kernels on a laptop RTX 3080, parity checks in the weights." />
   <meta property="og:url" content="https://moissanite-labs.github.io/siliquant/" />
   <meta property="og:site_name" content="Moissanite Labs" />
   <meta property="og:image" content="https://moissanite-labs.github.io/siliquant/assets/og-a16.png" />
@@ -16,8 +16,8 @@
   <meta property="og:image:height" content="630" />
   <meta property="og:image:alt" content="Siliquant. Smaller, faster, and self-checking. On a consumer GPU. 4.5 bits per weight, 400 tok/s, 0 extra bytes." />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Siliquant: 4.5-bit A16 Quantization, CUDA Kernels &amp; Built-in Bit-Flip Checks" />
-  <meta name="twitter:description" content="Siliquant quantization research working paper (24 November 2026): A16 Hamming-lattice codes at 4.5 bits per weight beat Q4_K_M with no calibration data, run end to end on a consumer RTX 3080, and check packed weights for flipped bits with no ECC hardware." />
+  <meta name="twitter:title" content="Siliquant: A16 and E8 Lattice Weight Quantization" />
+  <meta name="twitter:description" content="Siliquant working paper, 24 Nov 2026: A16 Hamming-lattice weight quantization at 4.5 bits, CUDA kernels on a laptop RTX 3080, parity checks in the weights." />
   <meta name="twitter:image" content="https://moissanite-labs.github.io/siliquant/assets/og-a16.png" />
   <meta name="twitter:image:alt" content="Siliquant. Smaller, faster, and self-checking. On a consumer GPU. 4.5 bits per weight, 400 tok/s, 0 extra bytes." />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2309090B' stroke-width='1.75'%3E%3Cpolygon points='12,2 20.5,6.8 20.5,17.2 12,22 3.5,17.2 3.5,6.8'/%3E%3Cpolygon points='12,6.2 17,9.1 17,14.9 12,17.8 7,14.9 7,9.1' stroke-opacity='0.55'/%3E%3Ccircle cx='12' cy='12' r='1.6' fill='%2309090B' stroke='none'/%3E%3C/svg%3E" />
@@ -1571,7 +1571,7 @@
           <h1 class="paper-title">Siliquant</h1>
           <p class="paper-lede">Smaller, faster, and self-checking. On a consumer GPU.</p>
           <p class="paper-subtitle">
-            Weight-only LLM quantization at <strong>4.5 bits per weight</strong>. A<sub>16</sub> Hamming-lattice codes beat <code>Q4_K_M</code> with no calibration data, run end to end on a consumer RTX 3080, and check every packed weight for flipped bits as they decode.
+            Weight-only LLM quantization at <strong>4.5 bits per weight</strong>. With no calibration data, A<sub>16</sub> Hamming-lattice rounding scores 16–40% lower KL than plain <code>Q4_K_M</code> (4.8 bits) on three 1–2B models. A separate A<sub>16</sub> engine runs Qwen2.5-0.5B end to end on a laptop RTX 3080 and parity-checks the low bit of every packed weight as it decodes.
           </p>
           <div class="hero-actions">
             <a class="btn btn-accent" href="https://huggingface.co/ahrazzle/models" target="_blank" rel="noopener noreferrer">Models on Hugging Face ↗</a>
@@ -1581,15 +1581,15 @@
           <!-- Highlights: the three strongest results (24 Nov 2026). Value, scope, limit; the full account folds open. -->
           <div class="hl-grid" id="highlights">
             <article class="hl">
-              <div class="hl-k">1 &middot; Smaller weights, same quality</div>
-              <div class="hl-v">16–40% below <code>Q4_K_M</code></div>
-              <div class="hl-sub">A<sub>16</sub> quantization at 4.5 bits per weight, no calibration data</div>
-              <p class="hl-limit"><strong>Limit:</strong> it does not transfer to Gemma. It falls below the 2.0 SE gate on Gemma 4B and 12B, and it is worse on Gemma E4B.</p>
+              <div class="hl-k">1 &middot; Fewer bits, lower error than Q4_K_M</div>
+              <div class="hl-v">16–40% lower KL than <code>Q4_K_M</code></div>
+              <div class="hl-sub">A<sub>16</sub> at 4.5 bits vs <code>Q4_K_M</code> at 4.8, no calibration data, three 1–2B models</div>
+              <p class="hl-limit"><strong>Limit:</strong> three 1–2B models, one text. Against <code>Q4_K_M</code> made with an importance matrix (scored with 8-bit activations, so not exactly like-for-like), A<sub>16</sub> is lower on Qwen2.5 (0.019 vs 0.028) but higher on SmolLM2 (0.048 vs 0.038); Llama was not tested. Not the released Hugging Face models, which use other A<sub>16</sub> recipes and have no <code>Q4_K_M</code> comparison.</p>
               <details class="hl-more">
                 <summary>Details</summary>
-                <p>Mean KL against the 16-bit model: <strong>0.019</strong> on Qwen2.5-1.5B, <strong>0.048</strong> on SmolLM2-1.7B, <strong>0.034</strong> on Llama-3.2-1B. That is <strong>16 to 40 percent below <code>Q4_K_M</code></strong>, which uses about 4.8 bits.
-                The same quality at fewer bits, so less memory and less bandwidth, with no retraining and no calibration data.
-                The packed file keeps the same 18 bytes per 32 weights and reads back bit for bit. The result holds at 3B scale: KL 0.023 on WikiText and 0.020 on Python.
+                <p>Mean KL against the 16-bit model on WikiText-2 (10,200 positions, llama.cpp <code>llama-perplexity</code>): <strong>0.019</strong> on Qwen2.5-1.5B-Instruct, <strong>0.048</strong> on SmolLM2-1.7B-Instruct, <strong>0.034</strong> on Llama-3.2-1B-Instruct. <code>Q4_K_M</code> at 4.80–4.82 bits, decoded to 16 bits and scored the same way, gets 0.032, 0.072 and 0.041, so A<sub>16</sub> is <strong>16 to 40 percent lower</strong>.
+                Lower error at fewer bits, with no retraining and no calibration data. These are rounded weights scored inside the 16-bit model; both sides use 16-bit activations.
+                Stored in the packed file (18 bytes per 32 weights, read back bit for bit, ten <code>ffn_down</code> columns kept), A<sub>16</sub> scores 0.021 / 0.048 / 0.027, 34 to 35 percent below <code>Q4_K_M</code>.
                 Details in <a href="#nov24">&sect;04b</a>.</p>
               </details>
             </article>
@@ -1597,26 +1597,26 @@
               <div class="hl-k">2 &middot; Fast on a laptop GPU</div>
               <div class="hl-v">400 tok/s</div>
               <div class="hl-sub">CUDA kernels on an RTX 3080, end to end</div>
-              <p class="hl-limit"><strong>Limit:</strong> measured on a 0.5B model against PyTorch BF16, not against llama.cpp or Q4. Free-running text can drift after a few tokens at this size.</p>
+              <p class="hl-limit"><strong>Limit:</strong> one 0.5B model, batch 1, against PyTorch BF16, not against llama.cpp or Q4. The engine uses uncalibrated A<sub>16</sub> rounding: 82% top-1 agreement with BF16 when teacher-forced, and free-running text diverges after 4 tokens.</p>
               <details class="hl-more">
                 <summary>Details</summary>
                 <p>Qwen2.5-0.5B runs at <strong>400 tokens a second</strong> on an RTX 3080 laptop GPU. That is <strong>5.6 times faster than PyTorch BF16</strong>, and it uses <strong>4.9 times less energy</strong>.
-                A 4.5-bit model runs in real time on hardware people already own.
-                Pre-encoded weights decode at 611 to 647 billion weights a second, near the memory ceiling. Decoding on the fly falls to 3.7 billion, so the weights are transcoded once and served pre-encoded.
-                Details in <a href="#nov24">&sect;04b</a>.</p>
+                Its linear layers are stored at 4.5 bits a weight; the embeddings and output head stay in BF16.
+                In isolated matrix-vector kernels, pre-encoded A<sub>16</sub> weights stream at 611 to 647 billion weights a second, at the measured memory-bandwidth ceiling. Unranking the compact <code>hampack</code> file on the fly reaches only 3.7 billion, so serving uses the pre-encoded layout.
+                Details: <a href="https://github.com/Moissanite-Labs/siliquant/tree/main/studies/aletheion-qwen25-live-llm-engine">engine study (PR #88)</a> and <a href="https://github.com/Moissanite-Labs/siliquant/tree/main/studies/aletheion-sm86-ptx-avx512-foundry">kernel study</a>.</p>
               </details>
             </article>
             <article class="hl">
               <div class="hl-k">3 &middot; The format checks itself</div>
               <div class="hl-v">0 extra bytes</div>
               <div class="hl-sub">Bit-flip detection with no ECC hardware</div>
-              <p class="hl-limit"><strong>Limit:</strong> the check covers packed weights only. It does not cover scales, activations, or the KV cache. No flipped bit has been caught live in the middle of a run yet.</p>
+              <p class="hl-limit"><strong>Limit:</strong> the check sees only the lowest of each weight's 4 stored bits, so flips in the other 3 bits, the scales, activations or the KV cache go unseen. The Hugging Face files rely on SHA-256 checks instead. No flipped bit has been caught live in the middle of a run yet.</p>
               <details class="hl-more">
                 <summary>Details</summary>
-                <p>A<sub>16</sub> is a Hamming [16,11,4] code. Each 16-bit word holds 11 data bits and 5 parity bits. A flipped bit gives a unique fingerprint, so the check can find it and the decoder can put it right.
-                Packed weights can be checked for silent corruption on a consumer GPU with no ECC memory, at about half a percent of speed.
+                <p>A<sub>16</sub> is built on the extended Hamming [16,11,4] code: in each block of 16 weights, the lowest bits of the 16 weight codes form a codeword. A single flipped low bit gives a unique fingerprint, so the check can find it; two flips in a block are detected but not located.
+                The live engine checks every block as it decodes, on a consumer GPU with no ECC memory, at a cost of 3.1% of tokens a second on Qwen2.5-0.5B (0.4–0.7% in an isolated kernel). A kernel that also corrects the flipped bit exists but runs 26–44% slower and is not in the engine.
                 Checked over all 65,536 possible 16-bit words. All 16 single-bit flips map to distinct fingerprints. Live full-model runs on an ASUS ZenBook with an RTX 3080 show 0 syndrome errors.
-                Details in <a href="#nov24">&sect;04b</a>.</p>
+                Details: <a href="https://github.com/Moissanite-Labs/siliquant/tree/main/studies/aletheion-qwen25-live-llm-engine">engine study (PR #88)</a> and <a href="https://github.com/Moissanite-Labs/siliquant/tree/main/studies/rtx3080-siliquant-a16">A<sub>16</sub> kernel study</a>.</p>
               </details>
             </article>
           </div>
@@ -1624,7 +1624,7 @@
           <!-- Released weights: one row per Hugging Face repo; add a row when a model ships -->
           <div class="models" id="models">
             <div class="models-head">
-              <h2 class="models-title">Released weights · 4.5 bpw</h2>
+              <h2 class="models-title">Released weights · 4.5 bpw target, 5.2–5.4 packed</h2>
               <a href="https://huggingface.co/ahrazzle/models" target="_blank" rel="noopener noreferrer">huggingface.co/ahrazzle ↗</a>
             </div>
             <ul class="models-list">
@@ -2589,7 +2589,7 @@
               <em>falsified</em> on 4/4 models (group-ball Hessian budget-transfer cannibalization); the coupled-coherent cure
               (<code>ProjType_Uniform</code>, zero calibration) scores WikiKL 0.046336 / PyKL 0.034327. <strong>#95:</strong> rank-invariant
               quad-snake interleaving sets the 3B record <strong>0.023154 / 0.020494</strong>, shattering hA16_BlockH2 on all 3 Qwen models.
-              <strong>#88:</strong> Qwen2.5-0.5B full-model engine, 400.58 tok/s at 4.91&times; lower energy than PyTorch BF16.
+              <strong>#88:</strong> Qwen2.5-0.5B full-model engine, 400.58 tok/s, 5.60&times; faster and 4.91&times; lower energy than PyTorch BF16.
               <strong>Theory (#87, #92, #94):</strong> 12 + 21 kernel-checked Lean 4.36.0 theorems — the exact 8× opposite-sign
               E<sub>8</sub>-vs-A<sub>16</sub> Hadamard contrast, the cross-layer R<sub>cross</sub> reversal threshold, and the two-level
               saddle-point dominance of stratified quad-interleaving.
@@ -2851,7 +2851,7 @@
         <button type="button" class="btn" id="closeModalBtn" aria-label="Close citation dialog" style="height:28px;">Esc</button>
       </div>
       <pre class="modal-code" id="bibtexText">@misc{moissanite2026siliquant,
-  title        = {Siliquant: 8-Dimensional E8 Lattice Weight Quantization},
+  title        = {Siliquant: A16 and E8 Lattice Weight Quantization},
   author       = {{Moissanite Labs}},
   year         = {2026},
   month        = nov,
