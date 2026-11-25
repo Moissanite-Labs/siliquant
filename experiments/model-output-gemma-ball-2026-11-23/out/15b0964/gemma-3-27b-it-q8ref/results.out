@@ -1,6 +1,6 @@
 # Gemma integer ball results summary
 
-Rows: 4
+Rows: 6
 
 | Model | Text | Variant | Bits (all) | Bits (active) | W-err dB (mean) | Mean KL | SE | Top-1 kept | Build s | Score s |
 | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -8,3 +8,5 @@ Rows: 4
 | gemma-3-27b-it-q8ref | python | file:Q4_0 | 4.5000 | 4.5000 | -21.08 | 0.042251 | 0.004366 | 95.2940 | 153.7 | 153.6 |
 | gemma-3-27b-it-q8ref | wikitext | file:Q4_K_M | 4.8060 | 4.8060 | -24.42 | 0.058552 | 0.001851 | 91.1180 | 203.4 | 1554.8 |
 | gemma-3-27b-it-q8ref | python | file:Q4_K_M | 4.8060 | 4.8060 | -24.42 | 0.027235 | 0.002590 | 95.9100 | 203.4 | 280.7 |
+| gemma-3-27b-it-q8ref | wikitext | file:Q4_K_M-imat | 4.8060 | 4.8060 | -24.03 | 0.034581 | 0.001272 | 93.3820 | 198.1 | 1532.3 |
+| gemma-3-27b-it-q8ref | python | file:Q4_K_M-imat | 4.8060 | 4.8060 | -24.03 | 0.015967 | 0.001205 | 96.5270 | 198.1 | 277.1 |
