@@ -1,0 +1,38 @@
+/* Siliquant preview components: reusable classes (headline, metrics strip, Hamming square, syndrome, background).
+   Needs tokens.css first and a .dark or .light class on an ancestor. */
+html, body { margin: 0; }
+body { background: var(--bg-page); color: var(--text-primary); font-family: var(--font-sans); position: relative; overflow: hidden; -webkit-font-smoothing: antialiased; }
+/* measurement pass: hide text, keep every box and fill */
+body.bgonly .t { visibility: hidden; }
+.hl { font-family: var(--font-display); font-weight: 500; letter-spacing: -0.022em; line-height: 1.0; margin: 0;
+  background-image: var(--hl); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
+.mono { font-family: var(--font-mono); }
+.eyebrow { font-family: var(--font-mono); color: var(--text-muted); }
+.lab { font-family: var(--font-mono); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+.big { font-family: var(--font-mono); font-weight: 700; letter-spacing: -0.03em; color: var(--win); line-height: 1; white-space: nowrap; }
+.rest { font-family: var(--font-mono); font-weight: 600; color: var(--text-primary); letter-spacing: -0.015em; }
+.scope { font-family: var(--font-sans); color: var(--text-muted); }
+.url { font-family: var(--font-mono); color: var(--text-muted); }
+/* lattice dot field: one dot per integer point, hairline colour, faded to the edges */
+.field { position: absolute; inset: 0; background-image: radial-gradient(circle, var(--border-strong) 1.1px, transparent 1.6px); background-size: 24px 24px; background-position: 12px 12px;
+  -webkit-mask-image: radial-gradient(ellipse at center, rgba(0,0,0,.0) 25%, rgba(0,0,0,.9) 75%); mask-image: radial-gradient(ellipse at center, rgba(0,0,0,0) 25%, rgba(0,0,0,.9) 75%); }
+.glow { position: absolute; inset: 0; background: radial-gradient(ellipse 60% 55% at 50% 38%, var(--accent-soft), transparent 70%); }
+/* Hamming square: 16 low bits of one real A16 block, index i = 4*row + col */
+.sq { display: grid; grid-template-columns: repeat(4, var(--cell)); gap: var(--gap); position: relative; }
+.cell { width: var(--cell); height: var(--cell); border-radius: 6px; border: 1px solid var(--border-strong); background: var(--bg-surface); position: relative; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-weight: 700; color: var(--text-secondary); box-sizing: border-box; }
+.cell.one { background: var(--accent); border-color: var(--accent); color: var(--bg-page); }
+.cell.par { border-color: var(--accent); }
+.cell.par.one { box-shadow: 0 0 0 2px var(--bg-page), 0 0 0 3px var(--accent-border); }
+.cell.x { background: var(--fail-soft); border: 2px solid var(--fail); color: var(--fail); }
+.cell .ix { position: absolute; top: 3px; left: 5px; font-weight: 500; font-size: calc(var(--cell) * 0.2); color: var(--text-muted); }
+.cell.one .ix { color: var(--bg-page); opacity: .8; }
+.cell.x .ix { color: var(--fail); }
+.cell .y { position: absolute; bottom: 3px; right: 6px; font-weight: 500; font-size: calc(var(--cell) * 0.2); color: var(--text-muted); }
+.cell.one .y { color: var(--bg-page); opacity: .85; }
+.cell.x .y { color: var(--fail); }
+.cross-r, .cross-c { position: absolute; background: var(--fail-soft); border: 1px dashed var(--fail-border); border-radius: 8px; z-index: -1; }
+.sb { display: inline-flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-weight: 700; border-radius: 4px; box-sizing: border-box; }
+.sb.bad { background: var(--fail-soft); color: var(--fail); border: 1px solid var(--fail-border); }
+.sb.ok { background: var(--win-soft); color: var(--win); border: 1px solid var(--win-border); }
+.fail { color: var(--fail); }
+.acc { color: var(--accent); }
