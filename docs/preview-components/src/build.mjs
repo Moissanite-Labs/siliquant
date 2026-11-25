@@ -35,7 +35,7 @@ const ogB = theme => page(theme, 1200, 630, `
 <div class="wr"><div class="cap t" data-m="w-syn">Syndrome</div><div class="syn">${synBits(28)}</div>
   <div class="eq t" data-m="w-eq">0101₂ = ${POS}<br><b>▲ caught at ${POS}</b></div></div>
 <div class="stack"><div class="eyebrow t" data-m="eyebrow">${EYEBROW}</div>${h1(60)}
-<div class="rows">${rows({ big: 34, rest: 17, scope: 14 })}</div><div class="url t" data-m="url">${URL_TXT}</div></div>`);
+<div class="rows">${rows({ big: 34, rest: 17, scope: 14, models: 0 /* og card: no models line, no room in the centre 630 */ })}</div><div class="url t" data-m="url">${URL_TXT}</div></div>`);
 out('og-a16-v2.html', ogB('dark'));
 
 /* ---------- Post image 1600x900 (direction B expanded) ---------- */
@@ -57,7 +57,7 @@ const post = (theme) => page(theme, 1600, 900, `
 .legend .acc{font-weight:700}
 `, `<div class="glow" style="background:radial-gradient(ellipse 50% 60% at 78% 50%, var(--accent-soft), transparent 70%)"></div><div class="field"></div>
 <div class="left"><div class="eyebrow t" data-m="eyebrow">${EYEBROW}</div>${h1(88)}
-<div class="rows">${rows({ big: 50, rest: 23, scope: 17.5, models: 14 })}</div><div class="url t" data-m="url">${URL_TXT}</div></div>
+<div class="rows">${rows({ big: 50, rest: 23, scope: 17.5, models: 14 /* the only layout with the models line */ })}</div><div class="url t" data-m="url">${URL_TXT}</div></div>
 <div class="right"><div class="cap t" data-m="w-cap">One A<sub>16</sub> block, one flipped bit</div>
 <div class="src t" data-m="w-src">Qwen2.5-1.5B release · layer 0 k_proj · row 0</div>
 <div class="sq"><div class="cross-r"></div><div class="cross-c"></div>${square({ showY: true })}</div>
@@ -85,7 +85,7 @@ out('x-post-1080x1350.html', page('dark', 1080, 1350, `
 <div class="side"><div class="cap t" data-m="w-cap">Syndrome</div><div class="syn">${synBits(32)}</div>
 <div class="t" data-m="w-eq">0101₂ = ${POS}<br><b>▲ caught at ${POS}</b></div>
 <div class="src t" data-m="w-src">one real A<sub>16</sub> block,<br>Qwen2.5-1.5B release,<br>layer 0 k_proj, row 0</div></div></div>
-<div class="rows">${rows({ big: 44, rest: 21, scope: 16 })}</div><div class="url t" data-m="url">${URL_TXT}</div></div>`));
+<div class="rows">${rows({ big: 44, rest: 21, scope: 16, models: 0 /* portrait: no models line, kept as approved */ })}</div><div class="url t" data-m="url">${URL_TXT}</div></div>`));
 /* ---------- Component demo (not an image; open in a browser) ---------- */
 out('components-demo.html', `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Siliquant preview components</title>
 <link rel="stylesheet" href="../src/tokens.css"><link rel="stylesheet" href="../src/components.css"><style>
@@ -96,7 +96,7 @@ body{overflow:auto;padding:48px;font-family:var(--font-mono);color:var(--text-mu
 .swatch{position:relative;height:180px;border:1px solid var(--border-hairline);border-radius:8px;overflow:hidden}
 </style></head><body class="dark">
 <section><h2>Headline (.hl)</h2>${h1(64)}</section>
-<section><h2>Metrics strip (.rows / .row / .big / .rest / .scope)</h2><div class="rows">${rows({ big: 40, rest: 19, scope: 15 })}</div></section>
+<section><h2>Metrics strip (.rows / .row / .big / .rest / .scope)</h2><div class="rows">${rows({ big: 40, rest: 19, scope: 15, models: 0 })}</div></section>
 <section><h2>Hamming square (.sq / .cell / .cross-r / .cross-c)</h2><div class="sq"><div class="cross-r"></div><div class="cross-c"></div>${square({ showY: true })}</div></section>
 <section><h2>Syndrome (.sb)</h2><div class="syn">${synBits(28)}<span style="margin-left:12px;color:var(--fail)">▲ caught at ${POS}</span></div></section>
 <section><h2>Background (.glow + .field)</h2><div class="swatch"><div class="glow"></div><div class="field"></div></div></section>

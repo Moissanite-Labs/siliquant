@@ -9,8 +9,9 @@
 //                 and results.out. A16 4.5 bpw vs Q4_K_M 4.8, no calibration, on Qwen2.5-1.5B-Instruct, SmolLM2-1.7B-Instruct
 //                 and Llama-3.2-1B-Instruct (16-bit GGUF, WikiText-2). Not the released models.
 //   Bit flips     0 extra bytes                     CITED: studies/aletheion-qwen25-live-llm-engine/qwen25_sm86_a16_engine.cu
-//                 (a16_syndrome_check_16w) and the engine report. Must carry the qualifier: lowest bit of each 4-bit
-//                 weight code; costs 3.1% tok/s.
+//                 (a16_syndrome_check_16w) and the engine report. A storage claim about the engine's packed layout
+//                 (18 B per 32 weights) only: the Hugging Face files store 11 of the 16 low bits and rely on SHA-256
+//                 checks instead. Must carry the qualifier: lowest bit of each 4-bit weight code; costs 3.1% tok/s.
 // Not on the images: the model count (the page's strip and #bench carry it), 4.9× lower energy than PyTorch BF16
 // (same engine report and setup as the 5.6×), kernel Gw/s, and any FP16 / cuBLAS / llama.cpp comparison.
 // Never write "free", "zero overhead" or "error-correcting".
@@ -27,7 +28,8 @@ export const URL_TXT = 'moissanite-labs.github.io/siliquant';
 export const ROWS = [
   { lab: k.pillar, big: k.big.replace(' ', '\u202F'), rest: k.rest, scope: 'Qwen2.5-0.5B · batch 1 · laptop RTX 3080' },
   { lab: q.pillar, big: q.big, rest: q.rest, scope: 'A16 at 4.5 bpw vs Q4_K_M at 4.8 · no calibration',
-    // Longer layouts only (the 1600x900 post image): the three models the range covers.
+    // The three models the range covers. Drawn only where a layout passes a non-zero o.models to rows():
+    // today that is the 1600x900 post image alone. The og card and the portrait pass 0 (no room).
     models: 'Qwen2.5-1.5B-Instruct · SmolLM2-1.7B-Instruct · Llama-3.2-1B-Instruct' },
   { lab: b.pillar, big: b.big, rest: b.lead.replace(/,$/, ''), scope: 'lowest bit of each 4-bit code · costs 3.1% tok/s' },
 ];
