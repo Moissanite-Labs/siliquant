@@ -1,0 +1,27 @@
+/* Siliquant preview components: design tokens.
+   Copied verbatim from docs/index.html :root and [data-theme="dark"]. No other colours.
+   Font comes from the site's own docs/assets/fonts (assets/ is the only asset source). */
+@font-face { font-family: 'Newsreader Display'; src: url('../../assets/fonts/newsreader-display-500.woff2') format('woff2'); font-weight: 500; font-style: normal; }
+:root {
+  --font-display: 'Newsreader Display', 'Newsreader', Georgia, serif;
+  --font-sans: 'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+}
+.dark {
+  --bg-page: #09090B; --bg-surface: #111113; --bg-subtle: #18181B; --border-hairline: #27272A; --border-strong: #3F3F46;
+  --text-primary: #FAFAFA; --text-secondary: #D4D4D8; --text-muted: #8E8E99;
+  --accent: #60A5FA; --accent-soft: rgba(59,130,246,0.12); --accent-border: rgba(96,165,250,0.30);
+  --win: #34D399; --win-soft: rgba(16,185,129,0.12); --win-border: rgba(52,211,153,0.28);
+  --fail: #FB7185; --fail-soft: rgba(244,63,94,0.12); --fail-border: rgba(251,113,133,0.28);
+  --chart-grid: #27272A;
+  --hl: linear-gradient(100deg, var(--text-primary) 0%, color-mix(in srgb, var(--text-primary) 82%, var(--accent)) 50%, color-mix(in srgb, var(--accent) 55%, var(--text-primary)) 100%);
+}
+.light {
+  --bg-page: #FAFAFA; --bg-surface: #FFFFFF; --bg-subtle: #F4F4F5; --border-hairline: #E4E4E7; --border-strong: #D4D4D8;
+  --text-primary: #09090B; --text-secondary: #3F3F46; --text-muted: #68686F;
+  --accent: #1D4ED8; --accent-soft: #EFF6FF; --accent-border: #BFDBFE;
+  --win: #047857; --win-soft: #ECFDF5; --win-border: #A7F3D0;
+  --fail: #BE123C; --fail-soft: #FFF1F2; --fail-border: #FECDD3;
+  --chart-grid: #E4E4E7;
+  --hl: linear-gradient(100deg, var(--text-primary) 0%, var(--text-secondary) 46%, color-mix(in srgb, var(--accent) 72%, var(--text-primary)) 100%);
+}

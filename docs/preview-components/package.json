@@ -1,0 +1,14 @@
+{
+  "name": "siliquant-preview-components",
+  "private": true,
+  "type": "module",
+  "description": "Builds the Siliquant link card and X post images from the site's tokens and the A16 block data.",
+  "scripts": {
+    "build": "./finalize.sh",
+    "install-og": "./finalize.sh --install-og"
+  },
+  "dependencies": {
+    "playwright-core": "1.65.1",
+    "pngjs": "7.0.0"
+  }
+}
