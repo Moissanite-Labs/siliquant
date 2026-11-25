@@ -11,7 +11,7 @@ These are source files for images. `docs/index.html` does not load them. GitHub 
 | File | Size | Use |
 |---|---|---|
 | `renders/og-a16-v2.png` | 1200×630, about 76 KB | Link card for `og:image` / `twitter:image` (summary_large_image). The site copy lives at `docs/assets/og-a16-v2.png`. |
-| `renders/x-post-1600x900.png` | 16:9, about 103 KB | Image attached to the X announcement post |
+| `renders/x-post-1600x900.png` | 16:9, about 110 KB | Image attached to the X announcement post |
 | `renders/x-post-1080x1350.png` | 4:5, about 116 KB | Optional portrait variant |
 | `renders/*.raw.png` | | Uncompressed renders, before pngquant |
 | `renders/*.measure.json` | | Contrast per text box, measured on rendered pixels, plus layout checks |
@@ -24,7 +24,7 @@ If `--install-og` is passed, the script also copies the card to `../assets/og-a1
 ## Dependencies
 
 You need four things:
-- **Node 18 or later.**
+- **Node 20 or later.**
 - **Chrome or Chromium.** The script uses `$CHROME_PATH` if it is set, then `/usr/bin/google-chrome`. Otherwise it uses Playwright's own Chromium, which you install with `npx playwright-core install chromium`.
 - **Fonts.** Inter and JetBrains Mono must be installed as system fonts. Both are OFL fonts from Google Fonts, and the site does not ship copies. Newsreader Display is loaded from the site's own `../assets/fonts/newsreader-display-500.woff2`; there is no second copy here. `render.mjs` stops with an error if any of the three would fall back to another font. Set `ALLOW_FALLBACK_FONTS=1` to render anyway, but the result will not match.
 - **pngquant (optional).** It compresses the images. Without it, `renders/*.png` is the uncompressed render, and the 300 KB card limit still holds.
@@ -57,7 +57,7 @@ Reference build: Chrome 156 with playwright-core 1.65.1, pngquant 2.18. It repro
 - `src/components.css`: the component classes, listed below.
 - `src/components.mjs`: HTML builders: `page()`, `h1()`, `rows()`, `square()`, `synBits()`, and `METRICS_CSS`.
 - `src/block.mjs`: the data for one real A16 block, taken from the page's `#chainFig`: Qwen2.5-1.5B release, layer 0 k_proj, row 0, block 0. It contains `Y`, `C`, `PARITY` (positions 0, 1, 2, 4, 8), `FLIP` (5), and `syndrome()`, which is the same code as the page's and as `check_a16_syndrome_errors`. It throws if the clean block doesn't check to 0 or if the flip doesn't locate to 5.
-- `src/claims.mjs`: the claim strings, with a claim label for each number. These are the only numbers allowed on the images. They come from CLAIMS-RULING and match the page's results strip.
+- `src/claims.mjs`: the claim strings, with a claim label for each number. These are the only numbers allowed on the images. They match the page's results strip, and each one cites its public evidence in the repo.
 - `src/build.mjs`: the three image layouts and the demo, written to `renders/*.html`.
 - `render.mjs`: render, measure and check. Run it as `node render.mjs <name> <w> <h>`.
 - `previews.mjs`: makes the downscales and crops.
@@ -70,7 +70,7 @@ Components need an ancestor with the class `dark` or `light`. In the site, map t
 - **Metrics strip (`.rows > .row > .big + .txt > .rest + .scope`, with `METRICS_CSS`).**
   - Layout: `.rows` is one grid and each `.row` is `display: contents`, so the big-number column lines up across all rows.
   - Numbers use `--win` in mono, and claims use `--text-primary`. Scope lines use `--text-muted` in Inter, at 5.8:1 or better on `--bg-page`.
-  - Keep the scope line next to its number. The ruling requires the bit-flip qualifier.
+  - Keep the scope line next to its number. The bit-flip number must always carry its qualifier (lowest bit of each 4-bit code; costs 3.1% tok/s).
 - **Hamming square (`.sq` + `.cell`, from `square({ showY })`).**
   - Layout: a 4×4 grid with index i = 4·row + col, sized by `--cell` and `--gap`.
   - Cell states: `.one` means the low bit is 1 (accent fill), `.par` is a parity position (accent outline), and `.x` is the flipped bit (fail colours). `.ix` is the corner index and `.y` is the lattice integer.
@@ -80,7 +80,7 @@ Components need an ancestor with the class `dark` or `light`. In the site, map t
 - **Syndrome (`.sb.ok` / `.sb.bad`, from `synBits(size)`).** These are the five bits `[p0 · s3 s2 s1 s0]`, where p0 = 1 means a single flip. The position is s3·8 + s2·4 + s1·2 + s0. Write the result as "▲ caught at 5" in `--fail`. Never call it correction: only detection runs live.
 - **Background (`.glow` + `.field`).** `.glow` is an accent-soft radial glow. `.field` is a 24 px integer-lattice dot field in `--border-strong`, masked clear in the middle. For the site, keep the field behind a hero only, and add `aria-hidden="true"`.
 
-## Rules carried from the ruling
-- Every number must come from `src/claims.mjs`. To add one, it needs a CLAIMS-RULING entry first.
-- The six-model count is not on these images. CLAIMS-RULING Addendum E approves "Six", but the team held it back from the images until tensor clears it. Once cleared, add it to `ROWS` with its scope ("4.5 bpw target", "360M to 3B base models, embeddings in BF16").
+## Claim rules
+- Every number must come from `src/claims.mjs`, and must match the page's results strip and its public evidence: the page's Limits section (`#limits`), `experiments/hamming-lattices-real-weights-2026-11-24/README.md`, and `studies/aletheion-qwen25-live-llm-engine/ALETHEION_LIVE_LLM_ENGINE_REPORT.md`.
+- The images do not show the model count. The page does: 6 models in the results strip and the `#bench` table. To add it to an image, add a row to `ROWS` with its scope ("4.5 bpw target", "360M to 3B base models, embeddings in BF16"), and keep the ZeroCal "Transformers load test pending" note wherever the models are listed.
 - Never write these: "free", "zero overhead", "error-correcting", or anything comparing against FP16, cuBLAS or llama.cpp.
