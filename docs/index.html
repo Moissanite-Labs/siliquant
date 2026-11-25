@@ -10,16 +10,16 @@
   <meta property="og:description" content="Siliquant working paper, 24 Nov 2026: A16 Hamming-lattice weight quantization at 4.5 bits, CUDA kernels on a laptop RTX 3080, parity checks in the weights." />
   <meta property="og:url" content="https://moissanite-labs.github.io/siliquant/" />
   <meta property="og:site_name" content="Moissanite Labs" />
-  <meta property="og:image" content="https://moissanite-labs.github.io/siliquant/assets/og-a16-v2.png" />
+  <meta property="og:image" content="https://moissanite-labs.github.io/siliquant/assets/og-a16-v3.png" />
   <meta property="og:image:type" content="image/png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content="Siliquant. Lattice quantization, from silicon to model. 400 tok/s, 5.6× faster than PyTorch BF16 (Qwen2.5-0.5B, batch 1, laptop RTX 3080). 16–40% lower KL than plain Q4_K_M (A16 at 4.5 bpw vs Q4_K_M at 4.8, no calibration). Built-in bit-flip detection, 0 extra bytes in the engine's packed layout. Beside it, one A16 block's 16 low bits with bit 5 flipped and the syndrome 1·0101 pointing to position 5." />
+  <meta property="og:image:alt" content="Siliquant. Lattice quantization, from silicon to model. 400 tok/s, 5.6× faster than PyTorch BF16 (Qwen2.5-0.5B, batch 1, laptop RTX 3080). 16–40% lower KL than plain Q4_K_M (A16 at 4.5 bpw vs Q4_K_M at 4.8, no calibration). In-engine bit-flip detection, 0 extra bytes in the engine's packed layout. Beside it, one A16 block's 16 low bits with bit 5 flipped and the syndrome 1·0101 pointing to position 5." />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Siliquant: A16 and E8 Lattice Weight Quantization" />
   <meta name="twitter:description" content="Siliquant working paper, 24 Nov 2026: A16 Hamming-lattice weight quantization at 4.5 bits, CUDA kernels on a laptop RTX 3080, parity checks in the weights." />
-  <meta name="twitter:image" content="https://moissanite-labs.github.io/siliquant/assets/og-a16-v2.png" />
-  <meta name="twitter:image:alt" content="Siliquant. Lattice quantization, from silicon to model. 400 tok/s, 5.6× faster than PyTorch BF16 (Qwen2.5-0.5B, batch 1, laptop RTX 3080). 16–40% lower KL than plain Q4_K_M (A16 at 4.5 bpw vs Q4_K_M at 4.8, no calibration). Built-in bit-flip detection, 0 extra bytes in the engine's packed layout. Beside it, one A16 block's 16 low bits with bit 5 flipped and the syndrome 1·0101 pointing to position 5." />
+  <meta name="twitter:image" content="https://moissanite-labs.github.io/siliquant/assets/og-a16-v3.png" />
+  <meta name="twitter:image:alt" content="Siliquant. Lattice quantization, from silicon to model. 400 tok/s, 5.6× faster than PyTorch BF16 (Qwen2.5-0.5B, batch 1, laptop RTX 3080). 16–40% lower KL than plain Q4_K_M (A16 at 4.5 bpw vs Q4_K_M at 4.8, no calibration). In-engine bit-flip detection, 0 extra bytes in the engine's packed layout. Beside it, one A16 block's 16 low bits with bit 5 flipped and the syndrome 1·0101 pointing to position 5." />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2309090B' stroke-width='1.75'%3E%3Cpolygon points='12,2 20.5,6.8 20.5,17.2 12,22 3.5,17.2 3.5,6.8'/%3E%3Cpolygon points='12,6.2 17,9.1 17,14.9 12,17.8 7,14.9 7,9.1' stroke-opacity='0.55'/%3E%3Ccircle cx='12' cy='12' r='1.6' fill='%2309090B' stroke='none'/%3E%3C/svg%3E" />
 
   <!-- Typography: system sans + tabular monospace (no external fonts) -->
@@ -1902,7 +1902,7 @@
         </li>
         <li class="kpi">
           <div class="kpi-pillar">Bit flips</div>
-          <p class="kpi-num"><span class="kpi-lead">Built-in bit-flip detection, </span><span class="kpi-big">0 extra bytes</span></p>
+          <p class="kpi-num"><span class="kpi-lead">In-engine bit-flip detection, </span><span class="kpi-big">0 extra bytes</span></p>
           <p class="kpi-scope kpi-qual">detects flips in the lowest bit of each 4-bit weight code; costs 3.1% tok/s end to end</p>
           <p class="kpi-ev"><a href="https://github.com/Moissanite-Labs/siliquant/blob/main/studies/aletheion-qwen25-live-llm-engine/qwen25_sm86_a16_engine.cu" target="_blank" rel="noopener noreferrer">Engine kernel (.cu) ↗</a></p>
         </li>
