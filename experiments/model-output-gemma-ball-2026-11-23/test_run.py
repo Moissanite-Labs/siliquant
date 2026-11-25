@@ -795,6 +795,15 @@ class TestQ8RefStratum(unittest.TestCase):
             cmd2 = R.ensure_baseline_gguf("model.gguf", out2, "Q4_0", "/bin/echo", f_tensors, threads=4, dry_run=True)
             self.assertNotIn("--allow-requantize", cmd2)
 
+    def test_kld_cache_trusted_by_size_not_gguf_magic(self):
+        with tempfile.TemporaryDirectory() as td:
+            kld = os.path.join(td, "m.wikitext.kld")
+            with open(kld, "wb") as f:
+                f.write(b"_log" + b"\x00" * 64)  # .kld files start with "_log", not GGUF
+            cmd = R.ensure_kld("model.gguf", "text.raw", kld, "/bin/echo", 40, 512, 512, 40, 4)
+            self.assertTrue(os.path.exists(kld))  # non-empty kld cache is reused, not deleted
+            self.assertIn("--kl-divergence-base", cmd)
+
 
 if __name__ == "__main__":
     unittest.main()
