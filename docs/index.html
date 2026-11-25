@@ -2027,7 +2027,7 @@
             <li data-step="1"><b>Weights.</b> 16 BF16 weights (shown ×10³) from the base Qwen2.5-1.5B, layer 0 <code>k_proj</code>, row 0. The release stores columns in its own order; these are original columns 609, 1424, 553 … 419.</li>
             <li data-step="2"><b>Turn.</b> Each column is scaled, then each group of 4 is turned by a 4 × 4 Hadamard matrix (<code>block_h4</code>) so the rounding sees a more even spread. Shown in units of the block's FP16 scale, 0.004349.</li>
             <li data-step="3"><b>Lattice.</b> Each value becomes an integer <i>y</i>. Together the 16 integers are one point of A<sub>16</sub>: their low bits <i>c</i> form a codeword of the extended Hamming [16,11,4] code.</li>
-            <li data-step="4"><b>Stored.</b> <i>y</i> = 2<i>k</i> + <i>c</i>. The file keeps <i>k</i> as 4-bit codes (values outside −8…7, like −14 and 15 here, go to a sparse overflow list), 11 of the 16 low bits, and one FP16 scale per 128 weights. Linear layers come to 5.2–5.4 bits a weight packed.</li>
+            <li data-step="4"><b>Stored.</b> <i>y</i> = 2<i>k</i> + <i>c</i>. The file keeps <i>k</i> as 4-bit codes (values outside −8…7, like −14 and 15 here, go to a sparse overflow list), 11 of the 16 low bits, and one FP16 scale per 128 weights. Linear layers come to 5.17–5.40 bits a weight packed.</li>
             <li data-step="5"><b>Check and decode.</b> Five parity checks over the low bits all give 0. Decoding multiplies by the scale, turns back and restores the column order; the largest error in this block is 0.0054.</li>
             <li data-step="flip" class="flip-cap"><b>One flipped bit.</b> Low bit 5 now reads 0, so <i>y</i> becomes −6 and the 16 integers are no longer an A<sub>16</sub> point. The syndrome 1 · 0101 spells position 5 in binary: the check finds the flip, and the decoded values from this block can no longer be trusted.</li>
           </ol>
@@ -2105,7 +2105,7 @@
 
         <div class="models" id="models">
           <div class="models-head">
-            <h2 class="models-title">Released weights · 4.5 bpw target, 5.2–5.4 packed</h2>
+            <h2 class="models-title">Released weights · 4.5 bpw target, 5.17–5.40 packed</h2>
             <a href="https://huggingface.co/collections/ahrazzle/siliquant-stratified-lattice-quantized-llms-6b060e6988afd65942cd7768" target="_blank" rel="noopener noreferrer">Collection on Hugging Face ↗</a>
           </div>
           <ul class="models-list">
@@ -2114,7 +2114,7 @@
             <li><a href="https://huggingface.co/ahrazzle/Qwen2.5-1.5B-Siliquant-A16-BlockH4-QuadLPT-SharedNorm-4.5bpw" target="_blank" rel="noopener noreferrer"><span><span class="m-base">Qwen2.5-1.5B</span>-Siliquant-A16-BlockH4-QuadLPT-SharedNorm-4.5bpw</span><span class="m-lic">Apache-2.0</span></a></li>
             <li><a href="https://huggingface.co/ahrazzle/Qwen2.5-3B-Siliquant-A16-BlockH4-QuadSnake-4.5bpw" target="_blank" rel="noopener noreferrer"><span><span class="m-base">Qwen2.5-3B</span>-Siliquant-A16-BlockH4-QuadSnake-4.5bpw</span><span class="m-lic">Qwen Research</span></a></li>
             <li><a href="https://huggingface.co/ahrazzle/Qwen2.5-3B-Siliquant-A16-BlockH4-QuadLPT-Sqrt-4.5bpw" target="_blank" rel="noopener noreferrer"><span><span class="m-base">Qwen2.5-3B</span>-Siliquant-A16-BlockH4-QuadLPT-Sqrt-4.5bpw</span><span class="m-lic">Qwen Research</span></a></li>
-            <li><a href="https://huggingface.co/ahrazzle/Qwen2.5-3B-Siliquant-A16-ProjTypeUniform-ZeroCal-4.5bpw" target="_blank" rel="noopener noreferrer"><span><span class="m-base">Qwen2.5-3B</span>-Siliquant-A16-ProjTypeUniform-ZeroCal-4.5bpw</span><span class="m-lic">Qwen Research</span></a></li>
+            <li><a href="https://huggingface.co/ahrazzle/Qwen2.5-3B-Siliquant-A16-ProjTypeUniform-ZeroCal-4.5bpw" target="_blank" rel="noopener noreferrer"><span><span class="m-base">Qwen2.5-3B</span>-Siliquant-A16-ProjTypeUniform-ZeroCal-4.5bpw</span><span class="m-lic">Qwen Research · Transformers load test pending</span></a></li>
           </ul>
         </div>
           <div class="bench" id="bench">
@@ -2129,13 +2129,13 @@
                 <tr><td>SmolLM2-1.7B-Instruct</td><td>4.5</td><td>KL 0.048</td><td>imatrix Q4_K_M 0.038 (A<sub>16</sub> higher)</td><td>CPU, llama.cpp <code>eada89c</code></td><td><a href="#nov24-kl">§04b 4.2</a></td></tr>
                 <tr class="grp"><th scope="rowgroup" colspan="6">Engine build (uncalibrated A<sub>16</sub>, BF16 embeddings and head)</th></tr>
                 <tr><td>Qwen2.5-0.5B</td><td>4.5 linears</td><td>400&#8239;tok/s decode, 5.6× faster</td><td>PyTorch BF16, eager, batch 1</td><td>laptop RTX 3080</td><td><a href="https://github.com/Moissanite-Labs/siliquant/blob/main/studies/aletheion-qwen25-live-llm-engine/ALETHEION_LIVE_LLM_ENGINE_REPORT.md" target="_blank" rel="noopener noreferrer">engine report</a></td></tr>
-                <tr class="grp"><th scope="rowgroup" colspan="6">Released on Hugging Face · 4.5&#8239;bpw target, linears 5.2–5.4 packed</th></tr>
+                <tr class="grp"><th scope="rowgroup" colspan="6">Released on Hugging Face · 4.5&#8239;bpw target, linears 5.17–5.40 packed</th></tr>
                 <tr><td>SmolLM2-360M <span class="m-meta">A16-BlockH4-AdaptZeroCal</span></td><td>4.5</td><td>—</td><td>—</td><td>—</td><td><a href="https://huggingface.co/ahrazzle/SmolLM2-360M-Siliquant-A16-BlockH4-AdaptZeroCal-4.5bpw" target="_blank" rel="noopener noreferrer">model card ↗</a></td></tr>
                 <tr><td>Qwen2.5-0.5B <span class="m-meta">A16-BlockH4-QuadLPT</span></td><td>4.5</td><td>—</td><td>—</td><td>—</td><td><a href="https://huggingface.co/ahrazzle/Qwen2.5-0.5B-Siliquant-A16-BlockH4-QuadLPT-4.5bpw" target="_blank" rel="noopener noreferrer">model card ↗</a></td></tr>
                 <tr><td>Qwen2.5-1.5B <span class="m-meta">A16-BlockH4-QuadLPT-SharedNorm</span></td><td>4.5</td><td>—</td><td>—</td><td>—</td><td><a href="https://huggingface.co/ahrazzle/Qwen2.5-1.5B-Siliquant-A16-BlockH4-QuadLPT-SharedNorm-4.5bpw" target="_blank" rel="noopener noreferrer">model card ↗</a></td></tr>
                 <tr><td>Qwen2.5-3B <span class="m-meta">A16-BlockH4-QuadSnake</span></td><td>4.5</td><td>WikiText-2 PPL 10.97 → 11.06 (+0.85%)</td><td>its own BF16</td><td>—</td><td><a href="https://huggingface.co/ahrazzle/Qwen2.5-3B-Siliquant-A16-BlockH4-QuadSnake-4.5bpw" target="_blank" rel="noopener noreferrer">model card ↗</a></td></tr>
-                <tr><td>Qwen2.5-3B <span class="m-meta">A16-BlockH4-QuadLPT-Sqrt</span></td><td>4.5</td><td>—</td><td>—</td><td>—</td><td><a href="https://huggingface.co/ahrazzle/Qwen2.5-3B-Siliquant-A16-BlockH4-QuadLPT-Sqrt-4.5bpw" target="_blank" rel="noopener noreferrer">model card ↗</a></td></tr>
-                <tr><td>Qwen2.5-3B <span class="m-meta">A16-ProjTypeUniform-ZeroCal</span></td><td>4.5</td><td>—</td><td>—</td><td>—</td><td><a href="https://huggingface.co/ahrazzle/Qwen2.5-3B-Siliquant-A16-ProjTypeUniform-ZeroCal-4.5bpw" target="_blank" rel="noopener noreferrer">model card ↗</a></td></tr>
+                <tr><td>Qwen2.5-3B <span class="m-meta">A16-BlockH4-QuadLPT-Sqrt</span></td><td>4.5</td><td>WikiText-2 PPL 10.97 → 11.19 (+1.98%)</td><td>its own BF16</td><td>—</td><td><a href="https://huggingface.co/ahrazzle/Qwen2.5-3B-Siliquant-A16-BlockH4-QuadLPT-Sqrt-4.5bpw" target="_blank" rel="noopener noreferrer">model card ↗</a></td></tr>
+                <tr><td>Qwen2.5-3B <span class="m-meta">A16-ProjTypeUniform-ZeroCal · Transformers load test pending</span></td><td>4.5</td><td>WikiText-2 PPL 10.97 → 11.27 (+2.72%)</td><td>its own BF16</td><td>—</td><td><a href="https://huggingface.co/ahrazzle/Qwen2.5-3B-Siliquant-A16-ProjTypeUniform-ZeroCal-4.5bpw" target="_blank" rel="noopener noreferrer">model card ↗</a></td></tr>
               </tbody>
             </table>
             </div>
