@@ -6,9 +6,15 @@
 //   - Live Extended Hamming [16, 11, 4] 5-bit syndrome check via hardware __popc().
 //   - PTX `dp4a.s32.s32` fused INT8xINT8->INT32 dot product (zero register spill on sm_86).
 //   - Optional shared-RMSNorm input permutation gather (`perm_in == nullptr` => 0% gather overhead).
-//   - Built-in bit-exact GPU int32 vs CPU int64 verification self-test.
+//   - Built-in bit-exact GPU int32 vs CPU int64 verification self-test (`main()`, M=256 K=1024).
 //
-// Build & self-test:
+// Verification scope:
+//   - Static PTX/SASS compilation verified with `nvcc -arch=sm_86 --ptx/--cubin --ptxas-options=-v`
+//     (`0 B` stack frame, `0 B` spill, `PTX_LDL=0`, `PTX_STL=0`).
+//   - Running `./sm86_a16_blockh4` executes `main()` on physical `sm_86` hardware; CPU-only CI runs
+//     `avx512_a16_blockh4.c` live and does not bundle a separate GPU runtime log in this directory.
+//
+// Build & on-device self-test (requires `nvcc` and an `sm_86+` CUDA GPU):
 //   nvcc -O3 -std=c++17 -arch=sm_86 --ptxas-options=-v sm86_a16_blockh4.cu -o sm86_a16_blockh4
 //   ./sm86_a16_blockh4
 

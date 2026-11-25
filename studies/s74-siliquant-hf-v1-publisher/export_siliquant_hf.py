@@ -506,7 +506,7 @@ def _build_model_card(
         f"| Untouched Precision | `embed_tokens`, `lm_head`, RMSNorms, biases preserved in `bfloat16` |",
         f"| Effective Packed Weight Bits/Weight | `{stats['effective_packed_bpw']:.4f} bpw` |",
         f"| Checkpoint Size (`model.safetensors`) | `{packed_mb:.2f} MiB` vs `{bf16_mb:.2f} MiB` BF16 (`{ratio:.2f}x` smaller) |",
-        f"| Extended Hamming `[16, 11, 4]` Syndrome Errors | `{stats['total_syndrome_errors']}` / `{stats['total_a16_blocks']:,}` blocks |",
+        f"| Extended Hamming `[16, 11, 4]` Unpack Codec Check | `{stats['total_syndrome_errors']}` / `{stats['total_a16_blocks']:,}` blocks (`0` by construction; SHA-256 receipt enforces file integrity) |",
         f"| Max Abs Round-Trip Unpack Diff | `{stats['max_abs_roundtrip_diff']:.1e}` (exact bit-for-bit) |",
         "",
     ]
@@ -552,12 +552,38 @@ def _build_model_card(
 
 
 def _guard_output_dir(output_dir: Path) -> None:
-    resolved = str(output_dir.resolve()).replace("\\", "/")
+    """Enforce repo WEIGHTS=0 policy: reject exporting binary weights inside source trees or git worktrees."""
+    resolved_path = output_dir.resolve()
+    resolved = str(resolved_path).replace("\\", "/")
     if "/Projects/expedition/" in resolved or resolved.endswith("/Projects/expedition"):
         raise ValueError(
             "Refusing to export model weights inside Projects/expedition/ (WEIGHTS=0 policy); "
             "export to an external release directory or temporary directory."
         )
+
+    # Also block exporting inside the enclosing siliquant checkout (even in a git-less tarball).
+    script_dir = Path(__file__).resolve().parent
+    candidate_roots: list[Path] = [script_dir]
+    if script_dir.parent.name == "studies":
+        candidate_roots.append(script_dir.parent.parent)
+    for root in candidate_roots:
+        try:
+            resolved_path.relative_to(root)
+        except ValueError:
+            pass
+        else:
+            raise ValueError(
+                f"Refusing to export model weights inside siliquant source tree ({root.name}, WEIGHTS=0 policy); "
+                "export to an external release directory or temporary directory."
+            )
+
+    # Block exporting binary weights into any Git working tree or checkout containing repo checks.
+    for anc in (resolved_path, *resolved_path.parents):
+        if (anc / ".git").exists() or (anc / "checks" / "claim_ledger.py").is_file():
+            raise ValueError(
+                f"Refusing to export model weights inside git/source worktree ({anc.name}, WEIGHTS=0 policy); "
+                "export to a clean external release directory or temporary directory."
+            )
 
 
 @torch.no_grad()

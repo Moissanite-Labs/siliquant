@@ -10,12 +10,14 @@ Verifies:
      `license: other` + `license_name: qwen-research` + `license_link`, NEVER `apache-2.0`).
   4. Cold reload via `AutoModelForCausalLM.from_pretrained(export_dir, trust_remote_code=True,
      dtype="auto")` with `0` missing/unexpected keys and intact `tie_word_embeddings`.
-  5. Extended Hamming `[16, 11, 4]` syndrome check across 100% of blocks (`0` errors).
+  5. Extended Hamming `[16, 11, 4]` unpack codec consistency cross-check (`0` by construction;
+     actual file tamper integrity is enforced by step 1's SHA-256 manifest).
   6. Exact `0.0` max abs round-trip weight diff (against reference weights when supplied,
      plus dtype-immunity verification across `bfloat16` and `float32`).
   7. Live `.generate("The exact identity of the Hadamard matrix is", max_new_tokens=32)`
      non-empty finite output (zero NaN/Inf) + KV-cache incremental forward parity.
-  8. Optional held-out KL/PPL match against certified receipts (`< 1e-4` KL, `< 1e-3` PPL).
+  8. Optional receipt-metadata plumbing cross-check (`expected_benchmarks` vs `receipt["benchmarks"]`;
+     validates serialized receipt fields against caller-supplied values, not held-out dataset quality).
 """
 
 from __future__ import annotations
@@ -233,7 +235,11 @@ def verify_siliquant_export(
     device: str = "cpu",
     expected_benchmarks: dict[str, float] | None = None,
 ) -> dict[str, Any]:
-    """Run full fail-closed verification on an exported `siliquant-hf-v1` directory."""
+    """Run full fail-closed verification on an exported `siliquant-hf-v1` directory.
+
+    Note: `expected_benchmarks` compares `receipt["benchmarks"]` against caller-supplied dictionary
+    values to validate receipt serialization plumbing only; it does not evaluate held-out quality.
+    """
     _require(export_dir.is_dir(), f"Export directory does not exist: {export_dir}")
 
     # 1. Receipt SHA-256 manifest verification.
@@ -379,7 +385,8 @@ def verify_siliquant_export(
         else f"<synthetic_tokens:{gen_ids[0].tolist()[:12]}>"
     )
 
-    # 8. Optional certified benchmark cross-check.
+    # 8. Optional receipt-metadata plumbing check against caller-supplied benchmark numbers
+    #    (validates receipt serialization plumbing only, not independent held-out quality).
     benchmark_deltas: dict[str, float] = {}
     if expected_benchmarks is not None:
         rec_bench = receipt.get("benchmarks", {})

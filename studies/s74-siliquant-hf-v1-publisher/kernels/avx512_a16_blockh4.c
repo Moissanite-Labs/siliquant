@@ -108,6 +108,41 @@ static uint64_t decode_blockh4_gemv_scalar(
 }
 
 #if SILIQUANT_HAS_AVX512_FULL
+static const int8_t SILIQUANT_A16_S4_LUT[64] = {
+    0, 1, 2, 3, 4, 5, 6, 7, -8, -7, -6, -5, -4, -3, -2, -1,
+    0, 1, 2, 3, 4, 5, 6, 7, -8, -7, -6, -5, -4, -3, -2, -1,
+    0, 1, 2, 3, 4, 5, 6, 7, -8, -7, -6, -5, -4, -3, -2, -1,
+    0, 1, 2, 3, 4, 5, 6, 7, -8, -7, -6, -5, -4, -3, -2, -1
+};
+
+static const int8_t SILIQUANT_H4_IDX_C0[64] = {
+     0,  0,  0,  0,  4,  4,  4,  4,  8,  8,  8,  8, 12, 12, 12, 12,
+    16, 16, 16, 16, 20, 20, 20, 20, 24, 24, 24, 24, 28, 28, 28, 28,
+    32, 32, 32, 32, 36, 36, 36, 36, 40, 40, 40, 40, 44, 44, 44, 44,
+    48, 48, 48, 48, 52, 52, 52, 52, 56, 56, 56, 56, 60, 60, 60, 60
+};
+
+static const int8_t SILIQUANT_H4_IDX_C1[64] = {
+     1,  1,  1,  1,  5,  5,  5,  5,  9,  9,  9,  9, 13, 13, 13, 13,
+    17, 17, 17, 17, 21, 21, 21, 21, 25, 25, 25, 25, 29, 29, 29, 29,
+    33, 33, 33, 33, 37, 37, 37, 37, 41, 41, 41, 41, 45, 45, 45, 45,
+    49, 49, 49, 49, 53, 53, 53, 53, 57, 57, 57, 57, 61, 61, 61, 61
+};
+
+static const int8_t SILIQUANT_H4_IDX_C2[64] = {
+     2,  2,  2,  2,  6,  6,  6,  6, 10, 10, 10, 10, 14, 14, 14, 14,
+    18, 18, 18, 18, 22, 22, 22, 22, 26, 26, 26, 26, 30, 30, 30, 30,
+    34, 34, 34, 34, 38, 38, 38, 38, 42, 42, 42, 42, 46, 46, 46, 46,
+    50, 50, 50, 50, 54, 54, 54, 54, 58, 58, 58, 58, 62, 62, 62, 62
+};
+
+static const int8_t SILIQUANT_H4_IDX_C3[64] = {
+     3,  3,  3,  3,  7,  7,  7,  7, 11, 11, 11, 11, 15, 15, 15, 15,
+    19, 19, 19, 19, 23, 23, 23, 23, 27, 27, 27, 27, 31, 31, 31, 31,
+    35, 35, 35, 35, 39, 39, 39, 39, 43, 43, 43, 43, 47, 47, 47, 47,
+    51, 51, 51, 51, 55, 55, 55, 55, 59, 59, 59, 59, 63, 63, 63, 63
+};
+
 static inline uint64_t verify_8x_a16_avx512(const uint64_t* blk8) {
     const __m512i v = _mm512_loadu_si512((const void*)blk8);
     const __m512i p = _mm512_and_si512(v, _mm512_set1_epi64(0x1111111111111111LL));
@@ -131,12 +166,9 @@ static uint64_t decode_blockh4_gemv_avx512(
     const int n_blk16 = K / 16;
     const __m512i mask_lo = _mm512_set1_epi8(0x0F);
     const __m512i bias128 = _mm512_set1_epi8((char)0x80);
-    int8_t lut_arr[64];
-    for (int i = 0; i < 64; ++i) {
-        int nib = i & 0xF;
-        lut_arr[i] = (int8_t)((nib & 8) ? (nib - 16) : nib);
-    }
-    const __m512i lut = _mm512_loadu_si512((const void*)lut_arr);
+    // Load constant LUT & quad-permute tables from .rodata (zero stack-allocated ZMM arrays,
+    // avoiding GCC 14 ASan use-after-return fake-stack 32-byte alignment faults).
+    const __m512i lut = _mm512_loadu_si512((const void*)SILIQUANT_A16_S4_LUT);
 
     // Precompute sum(x_i8) ONLY across bulk AVX-512 128-weight chunks for exact +128 bias cancellation.
     const int n_bulk_blk = n_blk16 & ~7;
@@ -145,18 +177,10 @@ static uint64_t decode_blockh4_gemv_avx512(
     for (int i = 0; i < k_bulk; ++i) x_sum_bulk += (int64_t)x_i8[i];
 
     // Indices to gather lane positions 0,1,2,3 across 16 quads inside a 64-byte ZMM.
-    int8_t idx_c0[64], idx_c1[64], idx_c2[64], idx_c3[64];
-    for (int i = 0; i < 64; ++i) {
-        int q = i & ~3;
-        idx_c0[i] = (int8_t)(q + 0);
-        idx_c1[i] = (int8_t)(q + 1);
-        idx_c2[i] = (int8_t)(q + 2);
-        idx_c3[i] = (int8_t)(q + 3);
-    }
-    const __m512i v_i0 = _mm512_loadu_si512((const void*)idx_c0);
-    const __m512i v_i1 = _mm512_loadu_si512((const void*)idx_c1);
-    const __m512i v_i2 = _mm512_loadu_si512((const void*)idx_c2);
-    const __m512i v_i3 = _mm512_loadu_si512((const void*)idx_c3);
+    const __m512i v_i0 = _mm512_loadu_si512((const void*)SILIQUANT_H4_IDX_C0);
+    const __m512i v_i1 = _mm512_loadu_si512((const void*)SILIQUANT_H4_IDX_C1);
+    const __m512i v_i2 = _mm512_loadu_si512((const void*)SILIQUANT_H4_IDX_C2);
+    const __m512i v_i3 = _mm512_loadu_si512((const void*)SILIQUANT_H4_IDX_C3);
     // Exact H_4 rows:
     //   r0 = +c0 + c1 + c2 + c3
     //   r1 = +c0 - c1 + c2 - c3
@@ -198,10 +222,9 @@ static uint64_t decode_blockh4_gemv_avx512(
                 acc32 = _mm512_dpbusd_epi32(acc32, wh4_u8, xv);
             }
         }
-        int32_t lanes[16];
-        _mm512_storeu_si512((void*)lanes, acc32);
-        int64_t total = 0;
-        for (int i = 0; i < 16; ++i) total += (int64_t)lanes[i];
+        const __m512i acc_lo64 = _mm512_cvtepi32_epi64(_mm512_castsi512_si256(acc32));
+        const __m512i acc_hi64 = _mm512_cvtepi32_epi64(_mm512_extracti64x4_epi64(acc32, 1));
+        const int64_t total = (int64_t)_mm512_reduce_add_epi64(_mm512_add_epi64(acc_lo64, acc_hi64));
         int64_t tail_acc = 0;
         for (; b < n_blk16; ++b) {
             uint64_t w64 = row[b];

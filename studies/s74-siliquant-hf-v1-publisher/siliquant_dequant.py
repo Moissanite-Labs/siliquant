@@ -149,7 +149,12 @@ def inspect_model(model_dir: Path) -> dict[str, Any]:
 
 
 def verify_receipt_and_syndromes(model_dir: Path) -> dict[str, Any]:
-    """Verify exact SHA-256 receipt manifest (no missing/unlisted/symlink/traversal files) and A_16 syndromes."""
+    """Verify exact SHA-256 receipt manifest (the tamper/integrity guarantee) and unpack codec consistency.
+
+    Note: `total_syndrome_errors` on unpack is `0` by construction because `_unpack_hamming11`
+    rebuilds the 5 parity bits from the 11 stored info bits; tamper detection across `model.safetensors`,
+    `qquot`, `qham11`, scales, and metadata is enforced by the SHA-256 manifest check below.
+    """
     root_resolved = model_dir.resolve()
     receipt_path = model_dir / "siliquant_verification_receipt.json"
     if receipt_path.is_symlink() or not receipt_path.is_file():

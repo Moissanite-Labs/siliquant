@@ -46,8 +46,15 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
+# Pin deterministic single-threaded CPU execution so multi-core BF16 GEMM reduction order
+# never perturbs exact `0.0` forward-logits parity checks even without external OMP_NUM_THREADS=1.
+os.environ.setdefault("OMP_NUM_THREADS", "1")
+os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
+torch.set_num_threads(1)
+
 from configuration_siliquant import SiliquantConfig
 from export_siliquant_hf import (
+    _guard_output_dir,
     export_model_to_siliquant_hf,
     make_quad_lpt_perm,
     make_quad_snake_perm,
@@ -534,11 +541,32 @@ class TestComplianceAndNegativeGuards(unittest.TestCase):
         src = SCRIPT_DIR / "kernels" / "avx512_a16_blockh4.c"
         self.assertTrue(src.is_file())
         with tempfile.TemporaryDirectory(prefix="s74_avx512_") as tmp:
-            # Test BOTH native AVX-512 VNNI AND scalar fallback under ASan + UBSan + -Wall -Wextra
-            # across K=1024, K=960 (SmolLM2-360M, K%128!=0), and K=112 (pure tail).
-            for tag, flags in (
-                ("avx512_asan", ["-O2", "-g", "-Wall", "-Wextra", "-Werror", "-march=native", "-fsanitize=address,undefined"]),
-                ("scalar_asan", ["-O2", "-g", "-Wall", "-Wextra", "-Werror", "-mno-avx512f", "-fsanitize=address,undefined"]),
+            # Probe compiler flag for disabling ASan use-after-return fake stack if needed
+            # (`-fsanitize-address-use-after-return=never` on Clang, `--param=asan-use-after-return=0` on GCC),
+            # and ALSO test stock ASan defaults (with fake stack enabled) now that avx512_a16_blockh4.c
+            # loads constant ZMM LUTs from .rodata with zero stack ZMM arrays.
+            extra_uar_flags: list[str] = []
+            for candidate_flag in (
+                "-fsanitize-address-use-after-return=never",
+                "--param=asan-use-after-return=0",
+            ):
+                probe = subprocess.run(
+                    [gcc, "-O2", "-fsanitize=address", candidate_flag, "-x", "c", "-", "-o", str(Path(tmp) / "probe")],
+                    input="int main(void){return 0;}\n",
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+                if probe.returncode == 0:
+                    extra_uar_flags = [candidate_flag]
+                    break
+
+            # Test BOTH native AVX-512 VNNI (default ASan fake-stack AND explicit no-UAR flag)
+            # AND scalar fallback under ASan + UBSan + -Wall -Wextra -Werror across K=1024, K=960, K=112.
+            for tag, flags, disable_uar_env in (
+                ("avx512_asan_stock", ["-O2", "-g", "-Wall", "-Wextra", "-Werror", "-march=native", "-fsanitize=address,undefined"], False),
+                ("avx512_asan_nouar", ["-O2", "-g", "-Wall", "-Wextra", "-Werror", "-march=native", "-fsanitize=address,undefined", *extra_uar_flags], True),
+                ("scalar_asan", ["-O2", "-g", "-Wall", "-Wextra", "-Werror", "-mno-avx512f", "-fsanitize=address,undefined"], False),
             ):
                 exe = Path(tmp) / f"avx512_a16_blockh4_{tag}"
                 comp = subprocess.run(
@@ -548,12 +576,10 @@ class TestComplianceAndNegativeGuards(unittest.TestCase):
                     check=False,
                 )
                 self.assertEqual(comp.returncode, 0, f"gcc build ({tag}) failed: {comp.stderr}")
-                # GCC 14 enables ASan's use-after-return fake stack by default, which SEGVs the
-                # AVX-512 build at avx512_a16_blockh4.c:139. GCC has no -fsanitize-address-use-after-return
-                # flag, so turn it off at runtime; every other ASan/UBSan check stays on.
                 env = dict(os.environ)
                 prior = env.get("ASAN_OPTIONS", "")
-                env["ASAN_OPTIONS"] = (prior + ":" if prior else "") + "detect_stack_use_after_return=0:halt_on_error=1"
+                asan_tail = "detect_stack_use_after_return=0:halt_on_error=1" if disable_uar_env else "halt_on_error=1"
+                env["ASAN_OPTIONS"] = (prior + ":" if prior else "") + asan_tail
                 env["UBSAN_OPTIONS"] = "halt_on_error=1:print_stacktrace=1"
                 run = subprocess.run([str(exe)], capture_output=True, text=True, check=False, env=env)
                 self.assertEqual(run.returncode, 0, f"self-test ({tag}) failed: {run.stdout}\n{run.stderr}")
@@ -952,6 +978,34 @@ class TestAudit174ARegressions(unittest.TestCase):
             resolve_upstream_license("Qwen/Qwen2.5-1.5B", override_license="mit")
         with self.assertRaises(ValueError):
             resolve_upstream_license("HuggingFaceTB/SmolLM2-360M", override_license="mit")
+
+    def test_s74_f8_output_dir_guard_rejects_repo_tree_git_worktree_and_expedition(self) -> None:
+        # 1. Enclosing study/repo directory MUST be rejected (even in a git-less tarball).
+        with self.assertRaises(ValueError):
+            _guard_output_dir(SCRIPT_DIR / "forbidden_weights_out")
+
+        with tempfile.TemporaryDirectory(prefix="s74_guard_") as tmp:
+            base = Path(tmp)
+            # 2. Clean external directory MUST pass.
+            _guard_output_dir(base / "clean_release_out")
+
+            # 3. Any Git working tree (.git dir or worktree file) MUST be rejected.
+            git_repo = base / "arbitrary_git_clone"
+            (git_repo / ".git").mkdir(parents=True)
+            with self.assertRaises(ValueError):
+                _guard_output_dir(git_repo / "sub" / "weights_out")
+
+            # 4. Tarball-style siliquant root (no .git, has checks/claim_ledger.py) MUST be rejected.
+            tarball_root = base / "siliquant_tarball"
+            (tarball_root / "checks").mkdir(parents=True)
+            (tarball_root / "checks" / "claim_ledger.py").write_text("# marker\n", encoding="utf-8")
+            with self.assertRaises(ValueError):
+                _guard_output_dir(tarball_root / "out")
+
+            # 5. Any /Projects/expedition/ path fragment MUST be rejected.
+            exp_path = base / "Projects" / "expedition" / "out"
+            with self.assertRaises(ValueError):
+                _guard_output_dir(exp_path)
 
 
 if __name__ == "__main__":

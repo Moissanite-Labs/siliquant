@@ -501,7 +501,16 @@ def unpack_a16_integers(
     qov_val: torch.Tensor | None = None,
     verify_syndrome: bool = True,
 ) -> tuple[torch.Tensor, int]:
-    """Unpack exact integer lattice matrix `y_int = 2*k + c` (`int32 [M, K]`, no int16 wrap)."""
+    """Unpack exact integer lattice matrix `y_int = 2*k + c` (`int32 [M, K]`, no int16 wrap).
+
+    Note on `verify_syndrome=True`: `_unpack_hamming11` algebraically reconstructs the 5 Extended
+    Hamming [16, 11, 4] parity bits from the 11 stored systematic info bits (failing closed on any
+    non-zero tail padding bits). Consequently, `verify_syndrome=True` cannot report a non-zero
+    syndrome error on unpack — it acts strictly as a decoder/parity-mask self-consistency check,
+    not tamper detection (`qquot` and stored `qham11` info bits are protected against tampering by
+    the SHA-256 manifest in `siliquant_verification_receipt.json`, whereas `pack_a16_tensor` checks
+    input lattice parity before packing).
+    """
     if out_features <= 0 or in_features <= 0 or (in_features % 16) != 0:
         raise ValueError(
             f"Invalid dimensions (out_features={out_features}, in_features={in_features}); "
