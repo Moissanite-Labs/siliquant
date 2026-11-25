@@ -1440,6 +1440,7 @@ def run_sweep(args):
                     # every other text's KLD cache (a 27B ball arm is ~53 GB and the wikitext
                     # KLD alone is 5.3 GB; left cached, Metal OOMs mid-arm on a 64 GB host).
                     _drop_file_cache(args.model_path)
+                    _drop_file_cache(eval_path)
                     for tn2, info2 in kld_info.items():
                         if tn2 != tname:
                             _drop_file_cache(info2["kld_path"])
