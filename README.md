@@ -50,6 +50,71 @@ python3 harness/test_tq.py
 python3 checks/plan_before_data.py && python3 checks/claim_ledger.py
 ```
 
+## Run the kernel harness
+
+The CUDA decode engine and its benchmark live in `studies/aletheion-qwen25-live-llm-engine/` (`qwen25_sm86_a16_engine.cu` for the sm_86 GPU engine, `qwen25_avx512_a16_engine.c` for the AVX-512 CPU engine, driven by `aletheion_live_llm_bench.py`). The standalone sm_86 PTX/SASS and AVX-512 kernel benchmarks live in `studies/aletheion-sm86-ptx-avx512-foundry/` (`aletheion_sm86_ptx_foundry.cu`, `aletheion_avx512_a16_decoder.c`).
+
+Build and run the standalone kernel benchmarks with the commands below, copied verbatim from `studies/aletheion-sm86-ptx-avx512-foundry/SM86_PTX_AVX512_FOUNDRY_REPORT.md`, section "3. Build & Verification Commands":
+
+```bash
+# Verify committed JSON receipts and study invariants (Python 3 stdlib only):
+python3 -I -B studies/aletheion-sm86-ptx-avx512-foundry/test_sm86_avx512_foundry_r5.py
+
+# Re-compile and run CUDA sm_86 foundry (requires CUDA toolkit + sm_86 GPU):
+nvcc -O3 -std=c++17 -arch=sm_86 --ptxas-options=-v \
+  studies/aletheion-sm86-ptx-avx512-foundry/aletheion_sm86_ptx_foundry.cu -o /tmp/sm86_foundry
+/tmp/sm86_foundry
+
+# Re-compile and run Intel AVX-512 decoder (requires AVX-512F/BW/VL/VBMI/VPOPCNTDQ/VNNI CPU):
+gcc -O3 -march=native -mavx512f -mavx512bw -mavx512vl -mavx512vbmi -mavx512vpopcntdq -mavx512vnni \
+  -funroll-loops -fopenmp -Wall -Wextra \
+  studies/aletheion-sm86-ptx-avx512-foundry/aletheion_avx512_a16_decoder.c -o /tmp/avx512_decoder -lm
+OMP_PROC_BIND=spread OMP_PLACES=cores /tmp/avx512_decoder
+```
+
+### Full-model decode engine (PR #88): pending confirmation on an sm_86 GPU
+
+The four core steps, run from `studies/aletheion-qwen25-live-llm-engine/`. Marks: VERIFIED-ON-BOX means it ran on a check machine with no GPU; STATIC means read from the code, not run; NEEDS-SM86 means it can only be confirmed on an sm_86 GPU.
+
+```bash
+huggingface-cli download Qwen/Qwen2.5-0.5B --revision 060db6499f32faf8b98477b0a26969ef7d8b9987
+export HF_HOME="${HF_HOME:-$HOME/.cache/huggingface}"
+export MODEL_DIR="$HF_HOME/hub/models--Qwen--Qwen2.5-0.5B/snapshots/060db6499f32faf8b98477b0a26969ef7d8b9987"
+sha256sum "$MODEL_DIR/model.safetensors"   # must equal 88c142557820ccad55bb59756bfcfcf891de9cc6202816bd346445188a0ed342
+# STATIC (inferred — command itself is a GAP; repo id/snapshot/sha pins are STATIC from oracle.py:45-61)
+
+nvcc -O3 -std=c++17 -arch=sm_86 --ptxas-options=-v -shared -Xcompiler -fPIC \
+  qwen25_sm86_a16_engine.cu -o libqwen25_sm86_a16_engine.so
+# NEEDS-SM86 (flags STATIC from report line 28; -shared/-o are GAP-1)
+
+gcc -O3 -march=native -mavx512f -mavx512bw -mavx512vl -mavx512vbmi -mavx512vpopcntdq \
+  -mavx512vnni -fopenmp -shared -fPIC \
+  qwen25_avx512_a16_engine.c -o libqwen25_avx512_a16_engine.so -lm
+# VERIFIED-ON-BOX (compile only; flags STATIC from report line 33; -shared -fPIC -o -lm are GAP-1)
+
+python3 aletheion_live_llm_bench.py \
+  --phase all \
+  --model-dir "$MODEL_DIR" \
+  --sm86-so ./libqwen25_sm86_a16_engine.so \
+  --avx512-so ./libqwen25_avx512_a16_engine.so \
+  --out-json ./qwen25_live_engine_empirical_results_repro.json \
+  --cpu-threads 8
+# NEEDS-SM86 (invocation STATIC from bench.py:1489-1523; run aborts without CUDA at bench.py:751-752 "CUDA GPU not available")
+```
+
+In the `--out-json` file the B1 figure is the `gpu_event_tok_s` field of `arm_b_sm86_ptx_a16_gpu.b1_pure_dp4a.full_e2e_with_bf16_lm_head`.
+
+Known gaps:
+
+- No script writes the `.so` link step, and the `-shared`/`-fPIC` flags are an addition untested with nvcc (GAP-1).
+- CUDA toolkit and Python package versions are unrecorded; only driver 615.78.08 and Python 3.14.8 are recorded (GAP-2, GAP-3).
+- The model download is not scripted (GAP-4).
+- RAPL must be readable or CPU energy silently reads 0 (GAP-5).
+- There is no per-arm flag, so B1 and A need one full run with both `.so` files and an AVX-512 CPU (GAP-8).
+- The `mlos` tool and its profile are not in the repo (GAP-6).
+
+Full steps, citations and checks: [REPRO.md](studies/aletheion-qwen25-live-llm-engine/REPRO.md). Nothing in the B1 path has been confirmed without an sm_86 GPU.
+
 ## How records are kept
 
 The conventions are those of [weft-loom's CONTRIBUTING.md](https://github.com/Moissanite-Labs/weft-loom/blob/main/CONTRIBUTING.md). In short:

@@ -3,16 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Siliquant: 8D E8 Lattice Weight Quantization | Moissanite Labs</title>
-  <meta name="description" content="Siliquant quantization research working paper (24 November 2026): 8-dimensional E8 lattice codes for weight-only LLM quantization across Gemma 4 E4B, Gemma 3, Qwen2.5, SmolLM2, and Llama 3.2." />
+  <title>Siliquant: A16 and E8 Lattice Quantization | Moissanite Labs</title>
+  <meta name="description" content="Siliquant working paper, 24 Nov 2026: A16 Hamming-lattice weight quantization at 4.5 bits, CUDA kernels on a laptop RTX 3080, parity checks in the weights." />
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="Siliquant: 8D E8 Lattice Weight Quantization" />
-  <meta property="og:description" content="Siliquant quantization research working paper (24 November 2026): 8-dimensional E8 lattice codes for weight-only LLM quantization across Gemma 4 E4B, Gemma 3, Qwen2.5, SmolLM2, and Llama 3.2." />
+  <meta property="og:title" content="Siliquant: A16 and E8 Lattice Weight Quantization" />
+  <meta property="og:description" content="Siliquant working paper, 24 Nov 2026: A16 Hamming-lattice weight quantization at 4.5 bits, CUDA kernels on a laptop RTX 3080, parity checks in the weights." />
   <meta property="og:url" content="https://moissanite-labs.github.io/siliquant/" />
-  <meta property="og:image" content="https://moissanite-labs.github.io/siliquant/assets/og.png" />
+  <meta property="og:site_name" content="Moissanite Labs" />
+  <meta property="og:image" content="https://moissanite-labs.github.io/siliquant/assets/og-a16.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Siliquant. Lattice quantization, from silicon to model. Kernel: 400 tok/s, 5.6× faster than PyTorch BF16. Quantization: 16–40% lower KL than plain Q4_K_M. Bit flips: built-in bit-flip detection, 0 extra bytes. Release: 6 models, 4.5 bpw target." />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Siliquant: 8D E8 Lattice Weight Quantization" />
-  <meta name="twitter:description" content="Siliquant quantization research working paper (24 November 2026): 8-dimensional E8 lattice codes for weight-only LLM quantization." />
+  <meta name="twitter:title" content="Siliquant: A16 and E8 Lattice Weight Quantization" />
+  <meta name="twitter:description" content="Siliquant working paper, 24 Nov 2026: A16 Hamming-lattice weight quantization at 4.5 bits, CUDA kernels on a laptop RTX 3080, parity checks in the weights." />
+  <meta name="twitter:image" content="https://moissanite-labs.github.io/siliquant/assets/og-a16.png" />
+  <meta name="twitter:image:alt" content="Siliquant. Lattice quantization, from silicon to model. Kernel: 400 tok/s, 5.6× faster than PyTorch BF16. Quantization: 16–40% lower KL than plain Q4_K_M. Bit flips: built-in bit-flip detection, 0 extra bytes. Release: 6 models, 4.5 bpw target." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2309090B' stroke-width='1.75'%3E%3Cpolygon points='12,2 20.5,6.8 20.5,17.2 12,22 3.5,17.2 3.5,6.8'/%3E%3Cpolygon points='12,6.2 17,9.1 17,14.9 12,17.8 7,14.9 7,9.1' stroke-opacity='0.55'/%3E%3Ccircle cx='12' cy='12' r='1.6' fill='%2309090B' stroke='none'/%3E%3C/svg%3E" />
 
   <!-- Typography: system sans + tabular monospace (no external fonts) -->
 
@@ -31,7 +39,7 @@
 
       --text-primary: #09090B;
       --text-secondary: #3F3F46;
-      --text-muted: #71717A;
+      --text-muted: #68686F;
 
       --accent: #1D4ED8;
       --accent-soft: #EFF6FF;
@@ -62,6 +70,7 @@
       --radius-md: 6px;
       --radius-lg: 8px;
 
+      --font-display: 'Newsreader Display', 'Newsreader Fallback', Georgia, serif;
       --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     }
@@ -137,6 +146,14 @@
       text-decoration: underline;
       text-underline-offset: 3px;
     }
+    /* Links inside running text carry a quiet underline, so they read as links without colour */
+    .main-col p a, .main-col td a, .main-col li a:not([class]), .hl-more a {
+      text-decoration: underline;
+      text-decoration-color: var(--accent-border);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+    .models-list a { text-decoration: none; }
 
     code, pre, .mono {
       font-family: var(--font-mono);
@@ -1210,6 +1227,483 @@
     }
 
     /* =========================================================================
+       HERO: LEDE, ACTIONS, HIGHLIGHTS, RELEASED WEIGHTS (24 Nov 2026)
+       ========================================================================= */
+    .paper-lede {
+      margin: 0 0 10px;
+      max-width: 40ch;
+      font-size: 1.22rem;
+      font-weight: 600;
+      line-height: 1.35;
+      letter-spacing: -0.015em;
+      color: var(--text-primary);
+    }
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .hero-actions .btn { height: 36px; padding: 0 13px; font-size: 0.8rem; }
+    .hl-grid {
+      margin-top: 22px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .hl {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-hairline);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+    .hl-k {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .hl-v {
+      font-family: var(--font-mono);
+      font-size: 1.24rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      color: var(--win);
+    }
+    .hl-v code { font-size: inherit; }
+    .hl-sub {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      line-height: 1.45;
+      color: var(--text-muted);
+    }
+    .hl-limit {
+      margin: 6px 0 0;
+      padding-top: 10px;
+      border-top: 1px solid var(--border-hairline);
+      font-size: 0.8rem;
+      line-height: 1.5;
+      color: var(--text-secondary);
+    }
+    .hl-more { margin-top: auto; }
+    .hl-more summary {
+      display: flex;
+      align-items: center;
+      min-height: 44px;
+      margin-bottom: -10px;
+      cursor: pointer;
+      list-style: none;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--accent);
+    }
+    .hl-more summary::-webkit-details-marker { display: none; }
+    .hl-more summary::before { content: '+'; width: 1.2em; }
+    .hl-more[open] summary::before { content: '\2212'; }
+    .hl-more p {
+      margin: 10px 0 0;
+      font-size: 0.84rem;
+      line-height: 1.6;
+      color: var(--text-secondary);
+    }
+    .models {
+      margin-top: 22px;
+      border-top: 1px solid var(--border-hairline);
+      padding-top: 14px;
+    }
+    .models-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 4px 16px;
+      margin-bottom: 4px;
+    }
+    .models-title {
+      margin: 0;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .models-head a { font-family: var(--font-mono); font-size: 0.74rem; }
+    .models-list { list-style: none; margin: 0; padding: 0; }
+    .models-list li { border-bottom: 1px solid var(--border-hairline); }
+    .models-list li:last-child { border-bottom: none; }
+    .models-list a {
+      display: flex;
+      align-items: center;
+      min-height: 36px;
+      padding: 6px 0;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      line-height: 1.4;
+      color: var(--text-secondary);
+      overflow-wrap: anywhere;
+    }
+    .models-list a:hover { color: var(--accent); }
+    .models-list .m-base { color: var(--text-primary); font-weight: 600; }
+
+    /* =========================================================================
+       FIRST SCREEN (after2): full-width hero, one CTA, four-cell results strip.
+       Tokens only. Static: no motion here (motion lives only in #chain).
+       ========================================================================= */
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+    }
+    section.hero {
+      display: block;
+      position: relative;
+      overflow: hidden;
+      border-bottom: 1px solid var(--border-hairline);
+      background: var(--bg-page);
+    }
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: clamp(24px, 5vh, 56px) 20px clamp(20px, 3.5vh, 36px);
+    }
+    .hero-meta { margin-bottom: clamp(10px, 1.6vh, 16px); }
+    .hero-title {
+      margin: 0;
+      max-width: 15ch;
+      font-size: clamp(2.1rem, 1.1rem + 2.6vw, 3.4rem);
+      font-weight: 700;
+      letter-spacing: -0.035em;
+      line-height: 1.04;
+      color: var(--text-primary);
+    }
+    .hero-sub {
+      margin: clamp(12px, 2vh, 18px) 0 0;
+      max-width: 64ch;
+      font-size: 1.06rem;
+      line-height: 1.55;
+      color: var(--text-secondary);
+    }
+    .hero-cta { margin-top: clamp(16px, 2.6vh, 24px); }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      height: 44px;
+      padding: 0 18px;
+      border-radius: var(--radius-md);
+      background: var(--accent);
+      color: var(--bg-surface);
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: -0.005em;
+      box-shadow: var(--shadow-sm);
+    }
+    .btn-primary:hover { background: color-mix(in srgb, var(--accent) 86%, var(--text-primary)); text-decoration: none; }
+    .kpi-strip {
+      list-style: none;
+      margin: clamp(20px, 3.4vh, 32px) 0 0;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-rows: auto auto 1fr auto;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-hairline);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+    }
+    .kpi {
+      container-type: inline-size;
+      display: grid;
+      grid-row: span 4;
+      grid-template-rows: subgrid;
+      row-gap: 0;
+      padding: clamp(14px, 2.2vh, 20px) 20px clamp(10px, 1.6vh, 14px);
+      min-width: 0;
+    }
+    .kpi + .kpi { border-left: 1px solid var(--border-hairline); }
+    .kpi-pillar {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .kpi-num { margin: 8px 0 0; }
+    .kpi-big {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: clamp(1.25rem, 10.2cqi, 2.1rem);
+      font-weight: 600;
+      letter-spacing: -0.035em;
+      line-height: 1.1;
+      white-space: nowrap;
+      color: var(--win);
+    }
+    .kpi-rest {
+      display: block;
+      margin-top: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 600;
+      line-height: 1.35;
+      color: var(--text-primary);
+    }
+    .kpi-rest code, .kpi-scope code { font-size: inherit; }
+    .kpi-lead {
+      display: block;
+      margin-bottom: 3px;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 600;
+      line-height: 1.35;
+      color: var(--text-primary);
+    }
+    /* Ruled qualifier next to cell 3's claim: small, muted, still AA (#68686F on #FFF = 5.53:1) */
+    .kpi-scope.kpi-qual { font-family: var(--font-mono); font-size: 0.72rem; line-height: 1.45; color: var(--text-muted); }
+    .kpi-scope {
+      margin: 10px 0 0;
+      font-size: 0.8rem;
+      line-height: 1.45;
+      color: var(--text-secondary);
+    }
+    .kpi-ev {
+      margin: 10px 0 0;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      line-height: 1.3;
+      color: var(--text-muted);
+    }
+    .kpi-ev a { display: inline-flex; align-items: center; min-height: 32px; text-decoration: underline; text-decoration-color: var(--accent-border); text-underline-offset: 3px; }
+    .hero-links {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0 14px;
+      margin: clamp(8px, 1.4vh, 14px) 0 0;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      color: var(--text-muted);
+    }
+    .hero-links a, .records a { display: inline-flex; align-items: center; min-height: 32px; }
+    .link-btn {
+      display: inline-flex; align-items: center; min-height: 32px;
+      padding: 0; border: 0; background: none; cursor: pointer;
+      font: inherit; color: var(--accent);
+    }
+    .link-btn:hover { text-decoration: underline; text-underline-offset: 3px; }
+    /* Emblem as a hairline mark in the empty top-right of the hero; the strip (opaque) always sits above it */
+    .hero-mark {
+      position: absolute;
+      z-index: 0;
+      top: -40px;
+      right: max(-60px, calc((100vw - 1240px) / 2 - 60px));
+      width: 380px;
+      height: 380px;
+      pointer-events: none;
+    }
+    .hero-mark polygon { stroke: var(--border-strong); stroke-width: 1px; vector-effect: non-scaling-stroke; }
+    .hero-mark polygon.in { stroke: var(--accent-border); }
+    .hero-mark circle { fill: var(--accent); opacity: 0.7; }
+
+    /* =========================================================================
+       00.1 ONE BLOCK, END TO END (the only moving part on the page)
+       ========================================================================= */
+    .chain {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-hairline);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .chain-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+    .chain-step {
+      display: inline-flex; align-items: center; gap: 8px;
+      min-height: 44px; padding: 0 12px;
+      border: 1px solid var(--border-hairline); border-radius: var(--radius-md);
+      background: var(--bg-page); color: var(--text-secondary);
+      font-family: var(--font-mono); font-size: 0.74rem; cursor: pointer;
+    }
+    .chain-step:hover { border-color: var(--border-strong); color: var(--text-primary); }
+    .chain-step[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent-border); color: var(--accent); }
+    .cs-n {
+      display: inline-grid; place-items: center; width: 20px; height: 20px;
+      border-radius: 50%; border: 1px solid currentColor; font-size: 0.66rem;
+    }
+    .chain-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .chain-scroll:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .chain-grid { border-collapse: collapse; font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 0.72rem; width: 100%; }
+    .chain-grid th { text-align: left; font-weight: 500; color: var(--text-muted); white-space: nowrap; padding: 7px 10px 7px 0; position: sticky; left: 0; background: var(--bg-surface); }
+    .chain-grid thead th { font-size: 0.66rem; padding-bottom: 4px; text-align: right; }
+    .chain-grid thead th:first-child { text-align: left; }
+    .chain-grid td { text-align: right; padding: 7px 0 7px 6px; color: var(--text-primary); white-space: nowrap; transition: opacity 260ms ease, color 160ms ease, background-color 160ms ease; }
+    .chain-grid tbody tr { border-top: 1px solid var(--border-hairline); }
+    .chain-grid tr.dim td { color: var(--text-muted); }
+    .chain-grid tr.dim .bit { border-color: var(--border-strong); color: var(--text-muted); background: transparent; }
+    .chain-grid tr.cur td, .chain-grid tr.cur th { background: var(--accent-soft); }
+    .chain-grid tr[data-row="5"] td { color: var(--win); }
+    .bit {
+      display: inline-grid; place-items: center; width: 20px; height: 20px;
+      border-radius: var(--radius-sm); border: 1.5px solid var(--accent);
+      color: var(--accent); font-size: 0.66rem; font-weight: 600;
+      transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease;
+    }
+    .bit.on { background: var(--accent); color: var(--bg-surface); }
+    .bit.flipped { border-color: var(--fail); background: var(--fail-soft); color: var(--fail); }
+    td.flipped { color: var(--fail) !important; }
+    tr.stale td { opacity: 0.35; }
+    .chain:not(.js) .flip-cap { display: none; }
+    .chain-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; }
+    .syndrome { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 0.76rem; color: var(--text-secondary); }
+    .syn-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+    .syn-bits { display: inline-flex; align-items: center; gap: 3px; }
+    .sb { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: var(--radius-sm); border: 1px solid var(--win-border); background: var(--win-soft); color: var(--win); font-weight: 600; }
+    .sb.bad { border-color: var(--fail-border); background: var(--fail-soft); color: var(--fail); }
+    .syn-dot { color: var(--text-muted); padding: 0 2px; }
+    .chain-flip { height: 44px; min-width: 44px; font-family: var(--font-mono); font-size: 0.76rem; }
+    .chain-flip[aria-pressed="true"] { background: var(--fail-soft); border-color: var(--fail-border); color: var(--fail); }
+    .chain-captions { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 0.84rem; line-height: 1.55; color: var(--text-secondary); max-width: 80ch; }
+    .chain-captions b { color: var(--text-primary); font-weight: 600; }
+    .chain.js .chain-captions { gap: 0; }
+    .chain.js .chain-captions li { grid-area: 1 / 1; visibility: hidden; }
+    .chain.js .chain-captions li.on { visibility: visible; }
+    .chain-note { margin: 0; font-size: 0.74rem; line-height: 1.5; color: var(--text-muted); max-width: 90ch; }
+    .chain-note a { text-decoration: underline; text-decoration-color: var(--accent-border); text-underline-offset: 3px; }
+    @media (prefers-reduced-motion: reduce) {
+      .chain-grid td, .bit { transition: none !important; }
+    }
+
+    /* Proof section extras: licence tags, lineage, records */
+    .models-list .m-lic { margin-left: auto; padding-left: 12px; font-size: 0.66rem; color: var(--text-muted); white-space: nowrap; }
+    .lineage { margin-top: 18px; border-top: 1px solid var(--border-hairline); padding-top: 14px; }
+    .lineage p { margin: 6px 0 0; max-width: 80ch; font-size: 0.84rem; line-height: 1.55; color: var(--text-secondary); }
+    .lineage p a { text-decoration: underline; text-decoration-color: var(--accent-border); text-underline-offset: 3px; }
+    .records { display: flex; flex-wrap: wrap; align-items: center; gap: 0 14px; margin: 10px 0 0; font-family: var(--font-mono); font-size: 0.74rem; color: var(--text-muted); }
+
+    @media (max-width: 1100px) { .hero-mark { display: none; } }
+    @media (max-width: 900px) {
+      .kpi-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: auto auto 1fr auto auto auto 1fr auto; }
+      .kpi:nth-child(3) { border-left: 0; }
+      .kpi:nth-child(n+3) { border-top: 1px solid var(--border-hairline); }
+    }
+    @media (max-width: 520px) {
+      /* Phones: headline, subline, the 2x2 strip and the CTA all inside the first screen (390x844, 360x780) */
+      .hero-inner { display: flex; flex-direction: column; padding: 10px 12px 12px; }
+      .hero-meta { margin-bottom: 6px; font-size: 0.66rem; }
+      .hero-title { font-size: 1.6rem; line-height: 1.06; letter-spacing: -0.03em; }
+      .hero-sub { margin-top: 8px; font-size: 0.84rem; line-height: 1.42; }
+      .kpi-strip { order: 3; margin-top: 12px; }
+      .hero-cta { order: 4; margin-top: 10px; }
+      .hero-links { order: 5; margin-top: 4px; }
+      .hero-cta .btn-primary { width: 100%; justify-content: center; }
+      .kpi { display: flex; flex-direction: column; padding: 8px 9px 4px; }
+      .kpi-pillar { font-size: 0.58rem; }
+      .kpi-num { margin-top: 3px; }
+      .kpi-big { white-space: normal; font-size: 1.12rem; letter-spacing: -0.04em; }
+      .kpi-lead, .kpi-rest { font-size: 0.66rem; line-height: 1.3; margin-top: 2px; }
+      .kpi-lead { margin: 0 0 2px; }
+      .kpi-scope, .kpi-scope.kpi-qual { font-size: 0.66rem; line-height: 1.32; margin-top: 4px; }
+      .kpi-ev { margin-top: auto; padding-top: 2px; font-size: 0.64rem; display: flex; flex-wrap: wrap; column-gap: 8px; }
+      .kpi-ev a { min-height: 24px; }
+      .kpi-dot { display: none; }
+      .hero-links a, .records a, .link-btn { min-height: 44px; }
+      .chain { padding: 12px; }
+      .models-list .m-lic { display: none; }
+    }
+    .main-col .models-list a { text-decoration: none; }
+    .main-col div > a[href*='/blob/'] { text-decoration: underline; text-decoration-color: var(--accent-border); text-underline-offset: 3px; }
+
+    /* ---- Pass 2c: type, material headline, precision details ---- */
+    .hero-title, h2.sec-title, .hl-k, .models-title {
+      font-family: var(--font-display);
+      font-weight: 500;
+    }
+    .hero-title {
+      font-size: clamp(2.4rem, 1.2rem + 3vw, 3.9rem);
+      letter-spacing: -0.022em;
+      line-height: 1.0;
+      font-optical-sizing: auto;
+      color: var(--text-primary);
+    }
+    /* Ink-to-accent fill from the site's own tokens; every stop >= 9.3:1 on --bg-page (dark >= 11.8:1). Solid fallback above. */
+    @supports ((-webkit-background-clip: text) or (background-clip: text)) {
+      .hero-title {
+        background-image: linear-gradient(100deg, var(--text-primary) 0%, var(--text-secondary) 46%, color-mix(in srgb, var(--accent) 72%, var(--text-primary)) 100%);
+        -webkit-background-clip: text; background-clip: text;
+        -webkit-text-fill-color: transparent; color: transparent;
+      }
+      [data-theme="dark"] .hero-title {
+        background-image: linear-gradient(100deg, var(--text-primary) 0%, color-mix(in srgb, var(--text-primary) 82%, var(--accent)) 50%, color-mix(in srgb, var(--accent) 55%, var(--text-primary)) 100%);
+      }
+    }
+    @media (forced-colors: active) { .hero-title { background: none; -webkit-text-fill-color: CanvasText; color: CanvasText; } }
+    .hero-title::selection { -webkit-text-fill-color: var(--text-primary); background: var(--accent-soft); }
+    h2.sec-title { font-size: 1.42rem; letter-spacing: -0.012em; line-height: 1.15; }
+    .hl-k { font-size: 1.02rem; letter-spacing: -0.005em; text-transform: none; }
+    .models-title { font-size: 1.08rem; letter-spacing: -0.005em; }
+    .hero-sub { letter-spacing: -0.006em; }
+    .sec-num { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.02em; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+    .kpi-big, .kpi-rest, .chain-grid td, .bench-t td, .kf-lab, .chain-detail { font-variant-numeric: tabular-nums slashed-zero; }
+    .kpi-big { letter-spacing: -0.035em; }
+
+    /* kernel bandwidth figure */
+    .kfig { margin: 12px 0 10px; padding: 10px 0 0; border-top: 1px solid var(--border-hairline); }
+    .kfig svg { display: block; width: 100%; height: auto; max-width: 420px; }
+    .kf-axis line { stroke: var(--border-strong); stroke-width: 1; }
+    .kf-axis text, .kf-ceil-t { font-family: var(--font-mono); font-size: 8.5px; fill: var(--text-muted); }
+    .kf-ceil { stroke: var(--text-muted); stroke-width: 1; stroke-dasharray: 2 2; }
+    .kf-bar { fill: var(--border-strong); }
+    .kf-bar.win { fill: var(--win); }
+    .kf-range { fill: var(--win); opacity: 0.55; }
+    .kf-lab { font-family: var(--font-mono); font-size: 9px; font-weight: 600; fill: #FFFFFF; }
+    .kf-lab.dark { fill: var(--text-primary); }
+    .kfig figcaption { margin-top: 4px; font-size: 0.72rem; color: var(--text-muted); line-height: 1.45; }
+    .kf-repro { margin: 6px 0 0; display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: baseline; font-size: 0.7rem; }
+    .kf-repro-k { font-family: var(--font-mono); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
+    .kf-repro code { display: block; overflow-x: auto; white-space: pre; padding: 4px 6px; border: 1px solid var(--border-hairline); border-radius: 4px; background: var(--bg-page); font-size: 0.68rem; color: var(--text-primary); }
+
+    /* chain: bit roles, catch row, detail */
+    .chain-grid .pos-btn { all: unset; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; min-width: 24px; min-height: 24px; padding: 0 2px; border-radius: 3px; cursor: pointer; font: inherit; }
+    .chain-grid .pos-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+    .chain-grid tr.roles th { font-family: var(--font-mono); font-size: 0.68rem; font-weight: 500; color: var(--text-muted); border-bottom: 1px solid var(--border-hairline); }
+    .chain-grid tr.roles th.par { color: var(--accent); font-weight: 600; }
+    .chain-grid tr.roles th.flipped { color: var(--fail); }
+    .chain-grid tr.catch td { font-family: var(--font-mono); font-size: 0.7rem; font-weight: 700; color: var(--fail); height: 18px; }
+    .chain-grid .col-on { background: var(--accent-soft); }
+    .chain-detail { margin: 8px 0 0; min-height: 2.9em; font-family: var(--font-mono); font-size: 0.72rem; line-height: 1.45; color: var(--text-secondary); }
+    .chain-legend { margin: 4px 0 0; font-size: 0.72rem; color: var(--text-muted); }
+    .chain-legend .role { font-family: var(--font-mono); font-weight: 600; color: var(--text-secondary); }
+    .chain-legend .role.par { color: var(--accent); }
+
+    /* benchmark table */
+    .bench { margin-top: 18px; }
+    .bench-scroll { overflow-x: auto; border-top: 1px solid var(--border-strong); }
+    .bench-t { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+    .bench-t th, .bench-t td { padding: 7px 10px 7px 0; text-align: left; vertical-align: baseline; border-bottom: 1px solid var(--border-hairline); }
+    .bench-t thead th { font-family: var(--font-mono); font-size: 0.62rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
+    .bench-t tr.grp th { padding-top: 12px; font-size: 0.7rem; font-weight: 600; color: var(--text-secondary); }
+    .bench-t td:nth-child(2), .bench-t td:nth-child(3) { font-family: var(--font-mono); white-space: nowrap; }
+    .bench-t .m-meta { display: block; font-size: 0.68rem; color: var(--text-muted); }
+    .bench-t a { display: inline-flex; min-height: 24px; align-items: center; }
+    .bench-note { margin: 6px 0 0; font-size: 0.72rem; color: var(--text-muted); }
+    @media (max-width: 520px) { .hero-title { max-width: none; font-size: 1.8rem; line-height: 1.04; letter-spacing: -0.018em; } }
+    .chain-grid th, .chain-grid td { padding-left: 4px; padding-right: 4px; }
+    .kfig a, .bench-note a, .chain-legend a { text-decoration: underline; text-underline-offset: 2px; }
+    /* Below-the-fold sections skip layout until near the viewport (anchors still resolve). */
+    .layout .paper-section:not(#chain) { content-visibility: auto; contain-intrinsic-size: auto 900px; }
+    @media print { .layout .paper-section { content-visibility: visible; } }
+
+    /* =========================================================================
        RESPONSIVE BREAKPOINTS
        ========================================================================= */
     @media (max-width: 1024px) {
@@ -1227,7 +1721,7 @@
       .kpi-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
-      .grid-2, .grid-asymmetric, .geo-grid-3, .arm-glossary {
+      .grid-2, .grid-asymmetric, .geo-grid-3, .arm-glossary, .hl-grid {
         grid-template-columns: minmax(0, 1fr);
       }
       .bar-row {
@@ -1247,6 +1741,16 @@
       }
       .bar-val { text-align: left; }
       .btn-label-hide { display: none; }
+      .topbar-actions { gap: 4px; }
+      .topbar-actions .btn { height: 44px; min-width: 44px; padding: 0 10px; }
+      .mobile-toc-inner { padding: 0 12px; }
+      .mobile-toc a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 10px; }
+      .paper-lede { font-size: 1.12rem; }
+      .hero-actions .btn { height: 44px; flex: 1 1 auto; }
+      .models-list a { min-height: 44px; }
+      .brand, .models-head a { display: inline-flex; align-items: center; min-height: 44px; }
+      .paper-footer .btn { height: 44px !important; }
+      .seg-btn, .arm-preset-btn { min-height: 44px; }
     }
 
     /* =========================================================================
@@ -1287,6 +1791,11 @@
       }
     }
   </style>
+  <link rel="preload" href="assets/fonts/newsreader-display-500.woff2" as="font" type="font/woff2" crossorigin>
+  <style>
+    @font-face { font-family: 'Newsreader Display'; src: url('assets/fonts/newsreader-display-500.woff2') format('woff2'); font-weight: 500; font-style: normal; font-display: swap; }
+    @font-face { font-family: 'Newsreader Fallback'; src: local('Georgia'), local('Times New Roman'), local('DejaVu Serif'); size-adjust: 96%; ascent-override: 92%; descent-override: 26%; line-gap-override: 0%; }
+  </style>
 </head>
 <body>
   <!-- =======================================================================
@@ -1302,11 +1811,11 @@
           <circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none" />
         </svg>
         <span>SILIQUANT</span>
-        <span class="brand-tag">Working Paper · 23 Nov 2026</span>
+        <span class="brand-tag">Working Paper · 24 Nov 2026</span>
       </a>
 
       <div class="topbar-actions">
-        <a class="btn btn-accent" href="https://github.com/Moissanite-Labs/siliquant" target="_blank" rel="noopener noreferrer">
+        <a class="btn btn-accent" href="https://github.com/Moissanite-Labs/siliquant" target="_blank" rel="noopener noreferrer" aria-label="Moissanite-Labs/siliquant on GitHub">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.57.11.78-.25.78-.55 0-.27-.01-1.18-.02-2.14-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.29 1.19-3.09-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.17 1.18a11.02 11.02 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.77.11 3.06.74.8 1.19 1.83 1.19 3.09 0 4.41-2.69 5.39-5.25 5.67.41.36.78 1.06.78 2.14 0 1.54-.01 2.79-.01 3.17 0 .31.21.67.79.55A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/>
           </svg>
@@ -1338,11 +1847,14 @@
   <nav class="mobile-toc" aria-label="Section navigation">
     <div class="mobile-toc-inner">
       <a href="#overview" class="active">00 Overview</a>
-      <a href="#roofline">Roofline</a>
+      <a href="#chain">One block</a>
+      <a href="#proof">Proof</a>
+      <a href="#roofline">00b Roofline</a>
       <a href="#geometry">00c Geometry</a>
       <a href="#gemma">01 Gemma 4</a>
       <a href="#scale-closures">02–03 Scale &amp; Closures</a>
       <a href="#integer-ball">04 Integer Ball</a>
+      <a href="#nov24">04b 24 Nov</a>
       <a href="#systems">05 Matrix &amp; File</a>
       <a href="#limits">06 Limits</a>
     </div>
@@ -1351,6 +1863,68 @@
   <!-- =======================================================================
        MAIN LAYOUT SHELL
        ======================================================================= -->
+  <!-- =======================================================================
+       00 FIRST SCREEN: headline, subline, one CTA, four-cell results strip (NARRATIVE.md §3, §7)
+       ======================================================================= -->
+  <section id="overview" class="paper-section hero" aria-labelledby="heroTitle">
+    <div class="hero-inner">
+      <div class="eyebrow-row hero-meta">
+        <span>Siliquant</span>
+        <span class="dot-sep" aria-hidden="true"></span>
+        <span>Working Paper</span>
+        <span class="dot-sep" aria-hidden="true"></span>
+        <span>24 November 2026</span>
+      </div>
+      <h1 class="hero-title" id="heroTitle">Lattice quantization, from silicon to model</h1>
+      <p class="hero-sub">Siliquant rounds LLM weights onto the A<sub>16</sub> Hamming lattice, decodes them with hand-written CUDA kernels on a laptop RTX 3080, and checks them for flipped bits at no storage cost. Six models are released with their full records.</p>
+      <div class="hero-cta">
+        <a class="btn-primary" href="https://huggingface.co/collections/ahrazzle/siliquant-stratified-lattice-quantized-llms-6b060e6988afd65942cd7768" target="_blank" rel="noopener noreferrer">Models on Hugging Face <span aria-hidden="true">↗</span></a>
+      </div>
+      <ol class="kpi-strip" id="results-strip" aria-label="Headline results">
+        <li class="kpi">
+          <div class="kpi-pillar">Kernel</div>
+          <p class="kpi-num"><span class="kpi-big">400 tok/s</span><span class="sr-only">, </span><span class="kpi-rest">5.6× faster than PyTorch BF16</span></p>
+          <p class="kpi-scope">Qwen2.5-0.5B, batch 1, laptop RTX 3080, research engine, 4.9× lower energy</p>
+          <p class="kpi-ev"><a href="https://github.com/Moissanite-Labs/siliquant/blob/main/studies/aletheion-qwen25-live-llm-engine/ALETHEION_LIVE_LLM_ENGINE_REPORT.md" target="_blank" rel="noopener noreferrer">Engine report (PR #88) ↗</a></p>
+        </li>
+        <li class="kpi">
+          <div class="kpi-pillar">Quantization</div>
+          <p class="kpi-num"><span class="kpi-big">16–40%</span><span class="sr-only">, </span><span class="kpi-rest">lower KL than plain <code>Q4_K_M</code></span></p>
+          <p class="kpi-scope">A<sub>16</sub> at 4.5 bits vs <code>Q4_K_M</code> at 4.8, no calibration data, three 1–2B Instruct models. Not the released models.</p>
+          <p class="kpi-ev"><a href="#nov24-kl">§04b table 4.2</a> <span class="kpi-dot" aria-hidden="true">·</span> <a href="https://github.com/Moissanite-Labs/siliquant/blob/main/experiments/hamming-lattices-real-weights-2026-11-24/README.md" target="_blank" rel="noopener noreferrer">Experiment README ↗</a></p>
+        </li>
+        <li class="kpi">
+          <div class="kpi-pillar">Bit flips</div>
+          <p class="kpi-num"><span class="kpi-lead">Built-in bit-flip detection, </span><span class="kpi-big">0 extra bytes</span></p>
+          <p class="kpi-scope kpi-qual">detects flips in the lowest bit of each 4-bit weight code; costs 3.1% tok/s end to end</p>
+          <p class="kpi-ev"><a href="https://github.com/Moissanite-Labs/siliquant/blob/main/studies/aletheion-qwen25-live-llm-engine/qwen25_sm86_a16_engine.cu" target="_blank" rel="noopener noreferrer">Engine kernel (.cu) ↗</a></p>
+        </li>
+        <li class="kpi">
+          <div class="kpi-pillar">Release</div>
+          <p class="kpi-num"><span class="kpi-big">6 models</span><span class="sr-only">, </span><span class="kpi-rest">4.5 bpw target</span></p>
+          <p class="kpi-scope">360M to 3B base models, embeddings in BF16; three Apache-2.0, three Qwen Research</p>
+          <p class="kpi-ev"><a href="https://huggingface.co/ahrazzle/models" target="_blank" rel="noopener noreferrer">All models ↗</a> <span class="kpi-dot" aria-hidden="true">·</span> <a href="#bench">Model table</a></p>
+        </li>
+      </ol>
+      <p class="hero-links">
+        <a href="https://github.com/Moissanite-Labs/siliquant" target="_blank" rel="noopener noreferrer">Code and records ↗</a>
+        <span class="dot-sep" aria-hidden="true"></span>
+        <a href="https://github.com/Moissanite-Labs/siliquant#run-the-kernel-harness" target="_blank" rel="noopener noreferrer">Kernel harness: how to run it ↗</a>
+        <span class="dot-sep" aria-hidden="true"></span>
+        <a href="#limits">Method &amp; limits</a>
+        <span class="dot-sep" aria-hidden="true"></span>
+        <a href="#nov24">Paper (§04b)</a>
+        <span class="dot-sep" aria-hidden="true"></span>
+        <button type="button" class="link-btn" data-cite>Cite</button>
+      </p>
+    </div>
+    <svg class="hero-mark" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+      <polygon points="12,2 20.5,6.8 20.5,17.2 12,22 3.5,17.2 3.5,6.8" />
+      <polygon points="12,6.2 17,9.1 17,14.9 12,17.8 7,14.9 7,9.1" class="in" />
+      <circle cx="12" cy="12" r="0.45" />
+    </svg>
+  </section>
+
   <div class="layout">
     <!-- Left Sticky Navigation & Artifact Verification Summary -->
     <aside class="sidebar" aria-label="Table of contents">
@@ -1358,6 +1932,8 @@
         <div class="toc-label">Contents</div>
         <ul class="toc-list" id="desktopToc">
           <li><a href="#overview" class="toc-link active"><span class="toc-num">00</span><span>Highlights</span></a></li>
+          <li><a href="#chain" class="toc-link"><span class="toc-num">00.1</span><span>One Block, End to End</span></a></li>
+          <li><a href="#proof" class="toc-link"><span class="toc-num">00.2</span><span>Proof &amp; Models</span></a></li>
           <li><a href="#roofline" class="toc-link"><span class="toc-num">00b</span><span>TPU v5e Roofline</span></a></li>
           <li><a href="#geometry" class="toc-link"><span class="toc-num">00c</span><span>Geometry &amp; Arms</span></a></li>
           <li><a href="#gemma" class="toc-link"><span class="toc-num">01</span><span>Gemma 4 E4B</span></a></li>
@@ -1402,49 +1978,186 @@
     <main class="main-col">
 
       <!-- ===================================================================
-           00 OVERVIEW & HIGHLIGHTS
+           00a ONE BLOCK, END TO END: 16 real weights from the released 1.5B model (data: block/extract.py)
            =================================================================== -->
-      <section id="overview" class="paper-section">
-        <header class="paper-header">
-          <div class="eyebrow-row">
-            <span>Quantization Research</span>
-            <span class="dot-sep" aria-hidden="true"></span>
-            <a href="https://github.com/Moissanite-Labs/siliquant" target="_blank" rel="noopener noreferrer">Moissanite-Labs/siliquant</a>
-            <span class="dot-sep" aria-hidden="true"></span>
-            <span>24 November 2026</span>
-            <span class="dot-sep" aria-hidden="true"></span>
-            <span>Working Paper</span>
+      <section id="chain" class="paper-section"><span id="block-walk" aria-hidden="true"></span>
+        <div class="sec-head">
+          <div class="sec-title-wrap">
+            <span class="sec-num">00.1</span>
+            <h2 class="sec-title">One block, end to end</h2>
           </div>
-
-          <h1 class="paper-title">Siliquant</h1>
-          <p class="paper-subtitle">
-            Weight-only LLM quantization using 8-dimensional <strong>E<sub>8</sub> lattice codes</strong> (integer ball <code>hZBG128</code> and Hadamard-turned E<sub>8</sub>) targeting memory-bound single-batch decode at 4.0–5.0 bits per weight. All measurements, preregistration failures, denominator discrepancies, and implementation limits are reported alongside primary results.
-          </p>
-
-          <!-- Four-card Highlight Strip matching paper header -->
-          <div class="kpi-grid">
-            <div class="kpi-card">
-              <div class="kpi-value win">−36%</div>
-              <div class="kpi-label">E<sub>8</sub> KL divergence vs <code>Q4_0</code> on Gemma 4 E4B, both 4.5 bpw</div>
-              <div class="kpi-meta"><code>Q4_K_M</code> at 4.8 bpw is lower (0.069 vs 0.075) · 8-bit ref</div>
-            </div>
-            <div class="kpi-card">
-              <div class="kpi-value win">−19% / −25%</div>
-              <div class="kpi-label">Gemma 3 4B calibrated ball vs calibrated <code>Q4_K_M</code>, both texts</div>
-              <div class="kpi-meta">WikiText-2 / Python · 4.50 vs 4.82 bpw · provisional</div>
-            </div>
-            <div class="kpi-card">
-              <div class="kpi-value win">−16% to −40%</div>
-              <div class="kpi-label">A<sub>16</sub> ball KL vs plain <code>Q4_K_M</code> (no importance matrix) on 1B–1.7B models</div>
-              <div class="kpi-meta">Qwen2.5, SmolLM2, Llama-3.2 Instruct · 4.5 vs 4.8 bpw · WikiText-2</div>
-            </div>
-            <div class="kpi-card">
-              <div class="kpi-value accent">3.56× ceiling</div>
-              <div class="kpi-label">HBM bandwidth over FP16 at 4.50 bpw (1.78× vs INT8)</div>
-              <div class="kpi-meta">Rational bound · Kernel separate</div>
-            </div>
+          <span class="sec-spec">Qwen2.5-1.5B release · layer 0 <code>k_proj</code> · row 0 · block 0</span>
+        </div>
+        <p class="prose">Sixteen real weights from the released Qwen2.5-1.5B, walked through the format: the base model's weights, the turn, the lattice, the bits on disk, and the check on the way back out. The weights, lattice points, codes and scale are read from the published files; the turned and decoded rows are computed from them with the release's own decoder.</p>
+        <div class="chain" id="chainFig" data-block='{"source":{"model":"ahrazzle/Qwen2.5-1.5B-Siliquant-A16-BlockH4-QuadLPT-SharedNorm-4.5bpw","base":"Qwen/Qwen2.5-1.5B@8faed761","tensor":"model.layers.0.self_attn.k_proj.*","row":0,"stored_block":0,"original_columns":[609,1424,553,1421,420,1046,1226,887,454,148,1450,30,1025,1048,1488,419],"rotation":"block_h4","group_size":128,"k_bits":4},"w":[0.003784,-0.002167,-0.076172,-0.036621,-0.048096,-0.016846,-0.025391,0.026611,0.029419,-0.048096,0.065918,0.040771,0.048096,-0.080078,-0.020752,0.040527],"turned_over_scale":[-27.9951,-8.3183,30.7864,14.2817,-3.9966,-5.2132,-4.1438,1.2945,5.4971,6.4142,-7.8283,3.2721,-0.7625,4.1822,-3.2225,11.8055],"scale":0.0043487548828125,"y":[-28,-9,31,14,-4,-5,-4,1,5,6,-8,3,-1,4,-3,12],"k":[-14,-5,15,7,-2,-3,-2,0,2,3,-4,1,-1,2,-2,6],"c":[0,1,1,0,0,1,0,1,1,0,0,1,1,0,1,0],"syndrome":{"p0":0,"s0":0,"s1":0,"s2":0,"s3":0},"deq":[0.003458,-0.001366,-0.076751,-0.036437,-0.047861,-0.015961,-0.023952,0.023993,0.023999,-0.048026,0.064047,0.040038,0.048085,-0.080188,-0.024114,0.040193],"abs_err":[0.000326,0.000801,0.000579,0.000184,0.000235,0.000885,0.001439,0.002619,0.00542,7e-05,0.001871,0.000733,1e-05,0.00011,0.003363,0.000335],"layer_syndrome_errors":0,"layer_bytes":{"qquot":196608,"qham11":33792,"scales_fp16_bits":6144,"qov_rowptr":1028,"qov_col":13020,"qov_val":6510,"colscale_fp32_bits":6144,"perm_in":6144},"layer_weights":393216,"layer_packed_bpw":5.4808}'>
+          <ol class="chain-steps" aria-label="Steps">
+            <li><button type="button" class="chain-step" data-step="1" aria-pressed="false"><span class="cs-n">1</span>Weights</button></li>
+            <li><button type="button" class="chain-step" data-step="2" aria-pressed="false"><span class="cs-n">2</span>Turn</button></li>
+            <li><button type="button" class="chain-step" data-step="3" aria-pressed="false"><span class="cs-n">3</span>Lattice</button></li>
+            <li><button type="button" class="chain-step" data-step="4" aria-pressed="false"><span class="cs-n">4</span>Stored</button></li>
+            <li><button type="button" class="chain-step" data-step="5" aria-pressed="false"><span class="cs-n">5</span>Check &amp; decode</button></li>
+          </ol>
+          <div class="chain-scroll" tabindex="0" role="region" aria-label="Block values, 16 columns">
+            <table class="chain-grid">
+              <caption class="sr-only">Sixteen weights of one A16 block at each step</caption>
+              <thead><tr><th scope="col">position</th><th scope="col" data-i="0"><button type="button" class="pos-btn" data-i="0" aria-label="Show exact values at position 0">0</button></th><th scope="col" data-i="1"><button type="button" class="pos-btn" data-i="1" aria-label="Show exact values at position 1">1</button></th><th scope="col" data-i="2"><button type="button" class="pos-btn" data-i="2" aria-label="Show exact values at position 2">2</button></th><th scope="col" data-i="3"><button type="button" class="pos-btn" data-i="3" aria-label="Show exact values at position 3">3</button></th><th scope="col" data-i="4"><button type="button" class="pos-btn" data-i="4" aria-label="Show exact values at position 4">4</button></th><th scope="col" data-i="5"><button type="button" class="pos-btn" data-i="5" aria-label="Show exact values at position 5">5</button></th><th scope="col" data-i="6"><button type="button" class="pos-btn" data-i="6" aria-label="Show exact values at position 6">6</button></th><th scope="col" data-i="7"><button type="button" class="pos-btn" data-i="7" aria-label="Show exact values at position 7">7</button></th><th scope="col" data-i="8"><button type="button" class="pos-btn" data-i="8" aria-label="Show exact values at position 8">8</button></th><th scope="col" data-i="9"><button type="button" class="pos-btn" data-i="9" aria-label="Show exact values at position 9">9</button></th><th scope="col" data-i="10"><button type="button" class="pos-btn" data-i="10" aria-label="Show exact values at position 10">10</button></th><th scope="col" data-i="11"><button type="button" class="pos-btn" data-i="11" aria-label="Show exact values at position 11">11</button></th><th scope="col" data-i="12"><button type="button" class="pos-btn" data-i="12" aria-label="Show exact values at position 12">12</button></th><th scope="col" data-i="13"><button type="button" class="pos-btn" data-i="13" aria-label="Show exact values at position 13">13</button></th><th scope="col" data-i="14"><button type="button" class="pos-btn" data-i="14" aria-label="Show exact values at position 14">14</button></th><th scope="col" data-i="15"><button type="button" class="pos-btn" data-i="15" aria-label="Show exact values at position 15">15</button></th></tr>
+              <tr class="roles"><th scope="row">bit role</th><th scope="col" class="role par" data-i="0" title="parity bit">p<sub>0</sub></th><th scope="col" class="role par" data-i="1" title="parity bit">p<sub>1</sub></th><th scope="col" class="role par" data-i="2" title="parity bit">p<sub>2</sub></th><th scope="col" class="role" data-i="3" title="data bit">d</th><th scope="col" class="role par" data-i="4" title="parity bit">p<sub>4</sub></th><th scope="col" class="role" data-i="5" title="data bit">d</th><th scope="col" class="role" data-i="6" title="data bit">d</th><th scope="col" class="role" data-i="7" title="data bit">d</th><th scope="col" class="role par" data-i="8" title="parity bit">p<sub>8</sub></th><th scope="col" class="role" data-i="9" title="data bit">d</th><th scope="col" class="role" data-i="10" title="data bit">d</th><th scope="col" class="role" data-i="11" title="data bit">d</th><th scope="col" class="role" data-i="12" title="data bit">d</th><th scope="col" class="role" data-i="13" title="data bit">d</th><th scope="col" class="role" data-i="14" title="data bit">d</th><th scope="col" class="role" data-i="15" title="data bit">d</th></tr></thead>
+              <tbody>
+                <tr data-row="1"><th scope="row">weight ×10³</th><td data-i="0">3.78</td><td data-i="1">−2.17</td><td data-i="2">−76.17</td><td data-i="3">−36.62</td><td data-i="4">−48.10</td><td data-i="5">−16.85</td><td data-i="6">−25.39</td><td data-i="7">26.61</td><td data-i="8">29.42</td><td data-i="9">−48.10</td><td data-i="10">65.92</td><td data-i="11">40.77</td><td data-i="12">48.10</td><td data-i="13">−80.08</td><td data-i="14">−20.75</td><td data-i="15">40.53</td></tr>
+                <tr data-row="2"><th scope="row">turned ÷ scale</th><td data-i="0">−28.0</td><td data-i="1">−8.3</td><td data-i="2">30.8</td><td data-i="3">14.3</td><td data-i="4">−4.0</td><td data-i="5">−5.2</td><td data-i="6">−4.1</td><td data-i="7">1.3</td><td data-i="8">5.5</td><td data-i="9">6.4</td><td data-i="10">−7.8</td><td data-i="11">3.3</td><td data-i="12">−0.8</td><td data-i="13">4.2</td><td data-i="14">−3.2</td><td data-i="15">11.8</td></tr>
+                <tr data-row="3"><th scope="row">A<sub>16</sub> point <i>y</i></th><td data-i="0">−28</td><td data-i="1">−9</td><td data-i="2">31</td><td data-i="3">14</td><td data-i="4">−4</td><td data-i="5">−5</td><td data-i="6">−4</td><td data-i="7">1</td><td data-i="8">5</td><td data-i="9">6</td><td data-i="10">−8</td><td data-i="11">3</td><td data-i="12">−1</td><td data-i="13">4</td><td data-i="14">−3</td><td data-i="15">12</td></tr>
+                <tr data-row="3" class="bits"><th scope="row">low bit <i>c</i></th><td data-i="0"><span class="bit" aria-label="0">0</span></td><td data-i="1"><span class="bit on" aria-label="1">1</span></td><td data-i="2"><span class="bit on" aria-label="1">1</span></td><td data-i="3"><span class="bit" aria-label="0">0</span></td><td data-i="4"><span class="bit" aria-label="0">0</span></td><td data-i="5"><span class="bit on" aria-label="1">1</span></td><td data-i="6"><span class="bit" aria-label="0">0</span></td><td data-i="7"><span class="bit on" aria-label="1">1</span></td><td data-i="8"><span class="bit on" aria-label="1">1</span></td><td data-i="9"><span class="bit" aria-label="0">0</span></td><td data-i="10"><span class="bit" aria-label="0">0</span></td><td data-i="11"><span class="bit on" aria-label="1">1</span></td><td data-i="12"><span class="bit on" aria-label="1">1</span></td><td data-i="13"><span class="bit" aria-label="0">0</span></td><td data-i="14"><span class="bit on" aria-label="1">1</span></td><td data-i="15"><span class="bit" aria-label="0">0</span></td></tr>
+                <tr data-row="4"><th scope="row">code <i>k</i></th><td data-i="0">−14</td><td data-i="1">−5</td><td data-i="2">15</td><td data-i="3">7</td><td data-i="4">−2</td><td data-i="5">−3</td><td data-i="6">−2</td><td data-i="7">0</td><td data-i="8">2</td><td data-i="9">3</td><td data-i="10">−4</td><td data-i="11">1</td><td data-i="12">−1</td><td data-i="13">2</td><td data-i="14">−2</td><td data-i="15">6</td></tr>
+                <tr data-row="5"><th scope="row">decoded ×10³</th><td data-i="0">3.46</td><td data-i="1">−1.37</td><td data-i="2">−76.75</td><td data-i="3">−36.44</td><td data-i="4">−47.86</td><td data-i="5">−15.96</td><td data-i="6">−23.95</td><td data-i="7">23.99</td><td data-i="8">24.00</td><td data-i="9">−48.03</td><td data-i="10">64.05</td><td data-i="11">40.04</td><td data-i="12">48.09</td><td data-i="13">−80.19</td><td data-i="14">−24.11</td><td data-i="15">40.19</td></tr>
+                <tr data-row="5" class="catch"><th scope="row">caught at</th><td data-i="0"></td><td data-i="1"></td><td data-i="2"></td><td data-i="3"></td><td data-i="4"></td><td data-i="5"></td><td data-i="6"></td><td data-i="7"></td><td data-i="8"></td><td data-i="9"></td><td data-i="10"></td><td data-i="11"></td><td data-i="12"></td><td data-i="13"></td><td data-i="14"></td><td data-i="15"></td></tr>
+              </tbody>
+            </table>
           </div>
-        </header>
+          <div class="chain-foot">
+            <div class="syndrome" aria-live="polite">
+              <span class="syn-label">Syndrome</span>
+              <span class="syn-bits" id="synBits"><span class="sb ok">0</span><span class="syn-dot">·</span><span class="sb ok">0</span><span class="sb ok">0</span><span class="sb ok">0</span><span class="sb ok">0</span></span>
+              <span class="syn-text" id="synText">all five checks pass</span>
+            </div>
+            <button type="button" class="btn chain-flip" id="flipBtn" aria-pressed="false">Flip low bit 5</button>
+          </div>
+          <p class="chain-detail" id="chainDetail" aria-live="polite">Hover or focus a position for its exact values.</p>
+          <p class="chain-legend"><span class="role par">p</span> parity bit (positions 0, 1, 2, 4, 8) · <span class="role">d</span> data bit (the other 11) · from <code>A16_INFO_POSITIONS</code> in the release decoder. The HF files store the 11 data bits; the engine stores all 16.</p>
+          <ol class="chain-captions">
+            <li data-step="1"><b>Weights.</b> 16 BF16 weights (shown ×10³) from the base Qwen2.5-1.5B, layer 0 <code>k_proj</code>, row 0. The release stores columns in its own order; these are original columns 609, 1424, 553 … 419.</li>
+            <li data-step="2"><b>Turn.</b> Each column is scaled, then each group of 4 is turned by a 4 × 4 Hadamard matrix (<code>block_h4</code>) so the rounding sees a more even spread. Shown in units of the block's FP16 scale, 0.004349.</li>
+            <li data-step="3"><b>Lattice.</b> Each value becomes an integer <i>y</i>. Together the 16 integers are one point of A<sub>16</sub>: their low bits <i>c</i> form a codeword of the extended Hamming [16,11,4] code.</li>
+            <li data-step="4"><b>Stored.</b> <i>y</i> = 2<i>k</i> + <i>c</i>. The file keeps <i>k</i> as 4-bit codes (values outside −8…7, like −14 and 15 here, go to a sparse overflow list), 11 of the 16 low bits, and one FP16 scale per 128 weights. Linear layers come to 5.17–5.40 bits a weight packed.</li>
+            <li data-step="5"><b>Check and decode.</b> Five parity checks over the low bits all give 0. Decoding multiplies by the scale, turns back and restores the column order; the largest error in this block is 0.0054.</li>
+            <li data-step="flip" class="flip-cap"><b>One flipped bit.</b> Low bit 5 now reads 0, so <i>y</i> becomes −6 and the 16 integers are no longer an A<sub>16</sub> point. The syndrome 1 · 0101 spells position 5 in binary: the check finds the flip, and the decoded values from this block can no longer be trusted.</li>
+          </ol>
+          <p class="chain-note">The Hugging Face files store 11 of the 16 low bits and rebuild the other 5 on load, so they rely on SHA-256 checks; the flip shown here is what the live engine's per-block check sees, where all 16 low bits are stored. Sources: <a href="https://huggingface.co/ahrazzle/Qwen2.5-1.5B-Siliquant-A16-BlockH4-QuadLPT-SharedNorm-4.5bpw/blob/main/modeling_siliquant.py" target="_blank" rel="noopener noreferrer">release decoder</a>, <a href="https://huggingface.co/Qwen/Qwen2.5-1.5B" target="_blank" rel="noopener noreferrer">base model</a>, <a href="https://github.com/Moissanite-Labs/siliquant/blob/main/studies/aletheion-qwen25-live-llm-engine/qwen25_sm86_a16_engine.cu" target="_blank" rel="noopener noreferrer">engine check</a>.</p>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           00a PROOF: three pillars (kernel, quantization, bit flips), models, lineage, records
+           =================================================================== -->
+      <section id="proof" class="paper-section">
+        <div class="sec-head">
+          <div class="sec-title-wrap">
+            <span class="sec-num">00.2</span>
+            <h2 class="sec-title">Proof, models and lineage</h2>
+          </div>
+          <span class="sec-spec">each number with its scope and its limit</span>
+        </div>
+        <p class="prose">Weight-only LLM quantization at <strong>4.5 bits per weight</strong>. With no calibration data, A<sub>16</sub> Hamming-lattice rounding scores 16–40% lower KL than plain <code>Q4_K_M</code> (4.8 bits) on three 1–2B models. A separate A<sub>16</sub> engine runs Qwen2.5-0.5B end to end on a laptop RTX 3080 and parity-checks the low bit of every packed weight as it decodes.</p>
+
+        <div class="hl-grid" id="highlights">
+          <article class="hl">
+            <div class="hl-k">1 &middot; Fast on a laptop GPU</div>
+            <div class="hl-v">400 tok/s</div>
+            <div class="hl-sub">CUDA kernels on an RTX 3080, end to end</div>
+            <figure class="kfig" aria-labelledby="kfigCap">
+              <svg viewBox="0 0 320 92" role="img" aria-labelledby="kfigT"><title id="kfigT">Isolated matrix-vector kernels, billions of weights a second, log scale: pre-encoded A16 611 to 647, at the measured memory-bandwidth ceiling; on-the-fly hampack unranking 3.7.</title>
+                <g class="kf-axis"><line x1="8" y1="70" x2="312" y2="70"/><line x1="8" y1="66" x2="8" y2="74"/><line x1="109" y1="66" x2="109" y2="74"/><line x1="211" y1="66" x2="211" y2="74"/><line x1="312" y1="66" x2="312" y2="74"/>
+                <text x="8" y="86">1</text><text x="109" y="86">10</text><text x="211" y="86">100</text><text x="312" y="86" text-anchor="end">1000 Gw/s</text></g>
+                <line class="kf-ceil" x1="293" y1="2" x2="293" y2="70"/><text class="kf-ceil-t" x="289" y="10" text-anchor="end">measured bandwidth ceiling</text>
+                <rect class="kf-bar win" x="8" y="18" width="282" height="14" rx="2"/><rect class="kf-range" x="290" y="18" width="3" height="14"/><text class="kf-lab" x="14" y="29">pre-encoded A16 · 611–647</text>
+                <rect class="kf-bar" x="8" y="44" width="58" height="14" rx="2"/><text class="kf-lab dark" x="72" y="55">on-the-fly hampack · 3.7</text>
+              </svg>
+              <figcaption id="kfigCap">Isolated matrix-vector kernels, <code>sm_86</code>, billions of weights a second (Gw/s), log scale. Source: <a href="https://github.com/Moissanite-Labs/siliquant/blob/main/studies/aletheion-sm86-ptx-avx512-foundry/aletheion_sm86_ptx_foundry.cu" target="_blank" rel="noopener noreferrer">aletheion_sm86_ptx_foundry.cu</a> · <a href="https://github.com/Moissanite-Labs/siliquant/tree/main/studies/aletheion-sm86-ptx-avx512-foundry" target="_blank" rel="noopener noreferrer">kernel study</a></figcaption>
+              <p class="kf-repro"><span class="kf-repro-k">reproduce</span><code>nvcc -O3 -std=c++17 -arch=sm_86 --ptxas-options=-v studies/aletheion-sm86-ptx-avx512-foundry/aletheion_sm86_ptx_foundry.cu -o /tmp/sm86_foundry &amp;&amp; /tmp/sm86_foundry</code></p>
+              <p class="kf-repro"><span class="kf-repro-k">verify receipts</span><code>python3 -I -B studies/aletheion-sm86-ptx-avx512-foundry/test_sm86_avx512_foundry_r5.py</code></p>
+            </figure>
+            <p class="hl-limit"><strong>Limit:</strong> one 0.5B model, batch 1, against PyTorch BF16, not against llama.cpp or Q4. The engine uses uncalibrated A<sub>16</sub> rounding: 82% top-1 agreement with BF16 when teacher-forced, and free-running text diverges after 4 tokens.</p>
+            <details class="hl-more">
+              <summary>Details</summary>
+              <p>Qwen2.5-0.5B runs at <strong>400 tokens a second</strong> on an RTX 3080 laptop GPU. That is <strong>5.6 times faster than PyTorch BF16</strong>, and it uses <strong>4.9 times less energy</strong>.
+              Its linear layers are stored at 4.5 bits a weight; the embeddings and output head stay in BF16.
+              In isolated matrix-vector kernels, pre-encoded A<sub>16</sub> weights stream at 611 to 647 billion weights a second, at the measured memory-bandwidth ceiling. Unranking the compact <code>hampack</code> file on the fly reaches only 3.7 billion, so serving uses the pre-encoded layout.
+              The method and audit program come from Foundation-0's <a href="https://github.com/Foundation-0/cave-expedition">cave-expedition</a> and <a href="https://github.com/Foundation-0/aletheia">aletheia</a>; the CUDA kernels and the decode engine were written in this repository, and neither origin repository has GPU code to compare against.
+              Details: <a href="https://github.com/Moissanite-Labs/siliquant/tree/main/studies/aletheion-qwen25-live-llm-engine">engine study (PR #88)</a> and <a href="https://github.com/Moissanite-Labs/siliquant/tree/main/studies/aletheion-sm86-ptx-avx512-foundry">kernel study</a>.</p>
+            </details>
+          </article>
+          <article class="hl">
+            <div class="hl-k">2 &middot; Fewer bits, lower error than Q4_K_M</div>
+            <div class="hl-v">16–40% lower KL than <code>Q4_K_M</code></div>
+            <div class="hl-sub">A<sub>16</sub> at 4.5 bits vs <code>Q4_K_M</code> at 4.8, no calibration data, three 1–2B models</div>
+            <p class="hl-limit"><strong>Limit:</strong> three 1–2B models, one text. Against <code>Q4_K_M</code> made with an importance matrix (scored with 8-bit activations, so not exactly like-for-like), A<sub>16</sub> is lower on Qwen2.5 (0.019 vs 0.028) and Llama-3.2 (0.034 vs 0.036) but higher on SmolLM2 (0.048 vs 0.038). Not the released Hugging Face models, which use other A<sub>16</sub> recipes and have no <code>Q4_K_M</code> comparison.</p>
+            <details class="hl-more">
+              <summary>Details</summary>
+              <p>Mean KL against the 16-bit model on WikiText-2 (10,200 positions, llama.cpp <code>llama-perplexity</code>): <strong>0.019</strong> on Qwen2.5-1.5B-Instruct, <strong>0.048</strong> on SmolLM2-1.7B-Instruct, <strong>0.034</strong> on Llama-3.2-1B-Instruct. <code>Q4_K_M</code> at 4.80–4.82 bits, decoded to 16 bits and scored the same way, gets 0.032, 0.072 and 0.041, so A<sub>16</sub> is <strong>16 to 40 percent lower</strong>.
+              Lower error at fewer bits, with no retraining and no calibration data. These are rounded weights scored inside the 16-bit model; both sides use 16-bit activations.
+              Stored in the packed file (18 bytes per 32 weights, read back bit for bit, ten <code>ffn_down</code> columns kept), A<sub>16</sub> scores 0.021 / 0.048 / 0.027, 34 to 35 percent below <code>Q4_K_M</code>.
+              Details in <a href="#nov24">&sect;04b</a>.</p>
+            </details>
+          </article>
+          <article class="hl">
+            <div class="hl-k">3 &middot; The format checks itself</div>
+            <div class="hl-v">0 extra bytes</div>
+            <div class="hl-sub">Bit-flip detection with no ECC hardware</div>
+            <p class="hl-limit"><strong>Limit:</strong> the check sees only the lowest of each weight's 4 stored bits, so flips in the other 3 bits, the scales, activations or the KV cache go unseen. The Hugging Face files rely on SHA-256 checks instead. No flipped bit has been caught live in the middle of a run yet.</p>
+            <details class="hl-more">
+              <summary>Details</summary>
+              <p>A<sub>16</sub> is built on the extended Hamming [16,11,4] code: in each block of 16 weights, the lowest bits of the 16 weight codes form a codeword. A single flipped low bit gives a unique fingerprint, so the check can find it; two flips in a block are detected but not located.
+              The live engine checks every block as it decodes, on a consumer GPU with no ECC memory, at a cost of 3.1% of tokens a second on Qwen2.5-0.5B (0.4–0.7% in an isolated kernel). A kernel that also corrects the flipped bit exists but runs 26–44% slower and is not in the engine.
+              Checked over all 65,536 possible 16-bit words. All 16 single-bit flips map to distinct fingerprints. Live full-model runs on an ASUS ZenBook with an RTX 3080 show 0 syndrome errors.
+              Details: <a href="https://github.com/Moissanite-Labs/siliquant/tree/main/studies/aletheion-qwen25-live-llm-engine">engine study (PR #88)</a> and <a href="https://github.com/Moissanite-Labs/siliquant/tree/main/studies/rtx3080-siliquant-a16">A<sub>16</sub> kernel study</a>.</p>
+            </details>
+          </article>
+        </div>
+
+        <div class="models" id="models">
+          <div class="models-head">
+            <h2 class="models-title">Released weights · 4.5 bpw target, 5.17–5.40 packed</h2>
+            <a href="https://huggingface.co/collections/ahrazzle/siliquant-stratified-lattice-quantized-llms-6b060e6988afd65942cd7768" target="_blank" rel="noopener noreferrer">Collection on Hugging Face ↗</a>
+          </div>
+          <ul class="models-list">
+            <li><a href="https://huggingface.co/ahrazzle/SmolLM2-360M-Siliquant-A16-BlockH4-AdaptZeroCal-4.5bpw" target="_blank" rel="noopener noreferrer"><span><span class="m-base">SmolLM2-360M</span>-Siliquant-A16-BlockH4-AdaptZeroCal-4.5bpw</span><span class="m-lic">Apache-2.0</span></a></li>
+            <li><a href="https://huggingface.co/ahrazzle/Qwen2.5-0.5B-Siliquant-A16-BlockH4-QuadLPT-4.5bpw" target="_blank" rel="noopener noreferrer"><span><span class="m-base">Qwen2.5-0.5B</span>-Siliquant-A16-BlockH4-QuadLPT-4.5bpw</span><span class="m-lic">Apache-2.0</span></a></li>
+            <li><a href="https://huggingface.co/ahrazzle/Qwen2.5-1.5B-Siliquant-A16-BlockH4-QuadLPT-SharedNorm-4.5bpw" target="_blank" rel="noopener noreferrer"><span><span class="m-base">Qwen2.5-1.5B</span>-Siliquant-A16-BlockH4-QuadLPT-SharedNorm-4.5bpw</span><span class="m-lic">Apache-2.0</span></a></li>
+            <li><a href="https://huggingface.co/ahrazzle/Qwen2.5-3B-Siliquant-A16-BlockH4-QuadSnake-4.5bpw" target="_blank" rel="noopener noreferrer"><span><span class="m-base">Qwen2.5-3B</span>-Siliquant-A16-BlockH4-QuadSnake-4.5bpw</span><span class="m-lic">Qwen Research</span></a></li>
+            <li><a href="https://huggingface.co/ahrazzle/Qwen2.5-3B-Siliquant-A16-BlockH4-QuadLPT-Sqrt-4.5bpw" target="_blank" rel="noopener noreferrer"><span><span class="m-base">Qwen2.5-3B</span>-Siliquant-A16-BlockH4-QuadLPT-Sqrt-4.5bpw</span><span class="m-lic">Qwen Research</span></a></li>
+            <li><a href="https://huggingface.co/ahrazzle/Qwen2.5-3B-Siliquant-A16-ProjTypeUniform-ZeroCal-4.5bpw" target="_blank" rel="noopener noreferrer"><span><span class="m-base">Qwen2.5-3B</span>-Siliquant-A16-ProjTypeUniform-ZeroCal-4.5bpw</span><span class="m-lic">Qwen Research · Transformers load test pending</span></a></li>
+          </ul>
+        </div>
+          <div class="bench" id="bench">
+            <h3 class="models-title">Benchmarks, with their baselines</h3>
+            <div class="bench-scroll" tabindex="0" role="region" aria-label="Benchmark table">
+            <table class="bench-t">
+              <thead><tr><th scope="col">Model</th><th scope="col">bpw</th><th scope="col">Result</th><th scope="col">Baseline</th><th scope="col">Hardware</th><th scope="col">Source</th></tr></thead>
+              <tbody>
+                <tr class="grp"><th scope="rowgroup" colspan="6">Research arms (not the released models) · mean KL vs the 16-bit model, WikiText-2, 10,200 positions</th></tr>
+                <tr><td>Qwen2.5-1.5B-Instruct</td><td>4.5</td><td>KL 0.019</td><td>imatrix Q4_K_M 0.028 · plain Q4_K_M (4.8&#8239;bpw): 16–40% lower across the three</td><td>CPU, llama.cpp <code>eada89c</code></td><td><a href="#nov24-kl">§04b 4.2</a></td></tr>
+                <tr><td>Llama-3.2-1B-Instruct</td><td>4.5</td><td>KL 0.034</td><td>imatrix Q4_K_M 0.036</td><td>CPU, llama.cpp <code>eada89c</code></td><td><a href="#nov24-kl">§04b 4.2</a></td></tr>
+                <tr><td>SmolLM2-1.7B-Instruct</td><td>4.5</td><td>KL 0.048</td><td>imatrix Q4_K_M 0.038 (A<sub>16</sub> higher)</td><td>CPU, llama.cpp <code>eada89c</code></td><td><a href="#nov24-kl">§04b 4.2</a></td></tr>
+                <tr class="grp"><th scope="rowgroup" colspan="6">Engine build (uncalibrated A<sub>16</sub>, BF16 embeddings and head)</th></tr>
+                <tr><td>Qwen2.5-0.5B</td><td>4.5 linears</td><td>400&#8239;tok/s decode, 5.6× faster</td><td>PyTorch BF16, eager, batch 1</td><td>laptop RTX 3080</td><td><a href="https://github.com/Moissanite-Labs/siliquant/blob/main/studies/aletheion-qwen25-live-llm-engine/ALETHEION_LIVE_LLM_ENGINE_REPORT.md" target="_blank" rel="noopener noreferrer">engine report</a></td></tr>
+                <tr class="grp"><th scope="rowgroup" colspan="6">Released on Hugging Face · 4.5&#8239;bpw target, linears 5.17–5.40 packed</th></tr>
+                <tr><td>SmolLM2-360M <span class="m-meta">A16-BlockH4-AdaptZeroCal</span></td><td>4.5</td><td>—</td><td>—</td><td>—</td><td><a href="https://huggingface.co/ahrazzle/SmolLM2-360M-Siliquant-A16-BlockH4-AdaptZeroCal-4.5bpw" target="_blank" rel="noopener noreferrer">model card ↗</a></td></tr>
+                <tr><td>Qwen2.5-0.5B <span class="m-meta">A16-BlockH4-QuadLPT</span></td><td>4.5</td><td>—</td><td>—</td><td>—</td><td><a href="https://huggingface.co/ahrazzle/Qwen2.5-0.5B-Siliquant-A16-BlockH4-QuadLPT-4.5bpw" target="_blank" rel="noopener noreferrer">model card ↗</a></td></tr>
+                <tr><td>Qwen2.5-1.5B <span class="m-meta">A16-BlockH4-QuadLPT-SharedNorm</span></td><td>4.5</td><td>—</td><td>—</td><td>—</td><td><a href="https://huggingface.co/ahrazzle/Qwen2.5-1.5B-Siliquant-A16-BlockH4-QuadLPT-SharedNorm-4.5bpw" target="_blank" rel="noopener noreferrer">model card ↗</a></td></tr>
+                <tr><td>Qwen2.5-3B <span class="m-meta">A16-BlockH4-QuadSnake</span></td><td>4.5</td><td>WikiText-2 PPL 10.97 → 11.06 (+0.85%)</td><td>its own BF16</td><td>—</td><td><a href="https://huggingface.co/ahrazzle/Qwen2.5-3B-Siliquant-A16-BlockH4-QuadSnake-4.5bpw" target="_blank" rel="noopener noreferrer">model card ↗</a></td></tr>
+                <tr><td>Qwen2.5-3B <span class="m-meta">A16-BlockH4-QuadLPT-Sqrt</span></td><td>4.5</td><td>WikiText-2 PPL 10.97 → 11.19 (+1.98%)</td><td>its own BF16</td><td>—</td><td><a href="https://huggingface.co/ahrazzle/Qwen2.5-3B-Siliquant-A16-BlockH4-QuadLPT-Sqrt-4.5bpw" target="_blank" rel="noopener noreferrer">model card ↗</a></td></tr>
+                <tr><td>Qwen2.5-3B <span class="m-meta">A16-ProjTypeUniform-ZeroCal · Transformers load test pending</span></td><td>4.5</td><td>WikiText-2 PPL 10.97 → 11.27 (+2.72%)</td><td>its own BF16</td><td>—</td><td><a href="https://huggingface.co/ahrazzle/Qwen2.5-3B-Siliquant-A16-ProjTypeUniform-ZeroCal-4.5bpw" target="_blank" rel="noopener noreferrer">model card ↗</a></td></tr>
+              </tbody>
+            </table>
+            </div>
+            <p class="bench-note">A dash means no ruled number yet. The released models have no <code>Q4_K_M</code> comparison.</p>
+          </div>
+        <div class="lineage" id="lineage">
+          <h3 class="models-title">Lineage</h3>
+          <p><a href="https://foundation-0.github.io/aletheia/" target="_blank" rel="noopener noreferrer">aletheia</a> gave the method and the audit gates; <a href="https://foundation-0.github.io/cave-expedition/" target="_blank" rel="noopener noreferrer">cave-expedition</a>'s audit program produced the expedition studies.</p>
+          <p>The CUDA kernels, the decode engine and the parity check were written in this repository.</p>
+        </div>
+
+        <p class="records">
+          <a href="https://github.com/Moissanite-Labs/siliquant" target="_blank" rel="noopener noreferrer">Code and records ↗</a>
+          <span class="dot-sep" aria-hidden="true"></span>
+          <a href="https://github.com/Moissanite-Labs/siliquant/tree/main/studies" target="_blank" rel="noopener noreferrer">Studies ↗</a>
+          <span class="dot-sep" aria-hidden="true"></span>
+          <a href="https://github.com/Moissanite-Labs/siliquant#run-the-kernel-harness" target="_blank" rel="noopener noreferrer">Kernel harness ↗</a>
+          <span class="dot-sep" aria-hidden="true"></span>
+          <a href="#nov24">Paper (§04b)</a>
+          <span class="dot-sep" aria-hidden="true"></span>
+          <button type="button" class="link-btn" data-cite>Cite</button>
+        </p>
       </section>
 
       <!-- ===================================================================
@@ -2308,7 +3021,7 @@
           </div>
         </div>
 
-        <h3 class="sub-title" style="margin-top: 18px;">
+        <h3 class="sub-title" id="nov24-kl" style="margin-top: 18px;">
           <span class="mono" style="color:var(--text-muted);">4.2</span>
           <span>4.5 bpw, no calibration: all arms, three models (mean KL, WikiText-2)</span>
         </h3>
@@ -2644,7 +3357,7 @@
           <div>Siliquant · Working Paper · 24 November 2026</div>
           <div style="display:flex; gap:14px; align-items:center;">
             <a href="https://github.com/Moissanite-Labs/siliquant" target="_blank" rel="noopener noreferrer">github.com/Moissanite-Labs/siliquant ↗</a>
-            <button type="button" class="btn" id="footerCiteBtn" style="height:26px; font-size:0.72rem;">Copy BibTeX</button>
+            <button type="button" class="btn" id="footerCiteBtn" style="font-size:0.72rem;">Copy BibTeX</button>
           </div>
         </footer>
       </section>
@@ -2661,7 +3374,7 @@
         <button type="button" class="btn" id="closeModalBtn" aria-label="Close citation dialog" style="height:28px;">Esc</button>
       </div>
       <pre class="modal-code" id="bibtexText">@misc{moissanite2026siliquant,
-  title        = {Siliquant: 8-Dimensional E8 Lattice Weight Quantization},
+  title        = {Siliquant: A16 and E8 Lattice Weight Quantization},
   author       = {{Moissanite Labs}},
   year         = {2026},
   month        = nov,
@@ -3942,6 +4655,126 @@
         sections.forEach((sec) => observer.observe(sec));
       }
     })();
+  </script>
+  <script>
+    (function () {
+      'use strict';
+      // Cite links reuse the existing BibTeX modal.
+      document.querySelectorAll('[data-cite]').forEach(function (b) {
+        b.addEventListener('click', function () { document.getElementById('citeBtn').click(); });
+      });
+
+      // 00.1 One block, end to end. All values are server-rendered; this only adds stepping and the flip.
+      var fig = document.getElementById('chainFig');
+      if (!fig) return;
+      var B = JSON.parse(fig.dataset.block);
+      var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var steps = Array.prototype.slice.call(fig.querySelectorAll('.chain-step'));
+      var rows = Array.prototype.slice.call(fig.querySelectorAll('tbody tr'));
+      var caps = Array.prototype.slice.call(fig.querySelectorAll('.chain-captions li'));
+      var FLIP = 5;
+      var current = 5;
+      var flipBtn = document.getElementById('flipBtn');
+      fig.classList.add('js');
+
+      function show(n) {
+        steps.forEach(function (b) { b.setAttribute('aria-pressed', String(+b.dataset.step === n)); });
+        rows.forEach(function (r) {
+          var k = parseInt(r.dataset.row, 10);
+          r.classList.toggle('dim', k > n);
+          r.classList.toggle('cur', k === n);
+        });
+        current = n;
+        var flippedNow = flipBtn && flipBtn.getAttribute('aria-pressed') === 'true';
+        caps.forEach(function (c) { c.classList.toggle('on', flippedNow ? c.dataset.step === 'flip' : +c.dataset.step === n); });
+      }
+      steps.forEach(function (b) { b.addEventListener('click', function () { walking = false; show(+b.dataset.step); }); });
+
+      // Syndrome of the low bits, exactly as check_a16_syndrome_errors in the release decoder.
+      function syndrome(c) {
+        var sum = function (a) { return a.reduce(function (x, y) { return x + y; }, 0); };
+        var p0 = sum(c) & 1;
+        var s0 = sum(c.filter(function (_, i) { return i % 2 === 1; })) & 1;
+        var s1 = sum(c.filter(function (_, i) { return i % 4 === 2 || i % 4 === 3; })) & 1;
+        var s2 = sum(c.slice(4, 8).concat(c.slice(12, 16))) & 1;
+        var s3 = sum(c.slice(8, 16)) & 1;
+        return [p0, s3, s2, s1, s0];
+      }
+      var synBits = document.getElementById('synBits');
+      var synText = document.getElementById('synText');
+      function render(flipped) {
+        var c = B.c.slice();
+        if (flipped) c[FLIP] ^= 1;
+        var s = syndrome(c);
+        var bits = synBits.querySelectorAll('.sb');
+        s.forEach(function (v, i) { bits[i].textContent = v; bits[i].classList.toggle('bad', v === 1); bits[i].classList.toggle('ok', v === 0); });
+        var pos = s[1] * 8 + s[2] * 4 + s[3] * 2 + s[4];
+        synText.textContent = s.every(function (v) { return v === 0; })
+          ? 'all five checks pass'
+          : (s[0] === 1 ? 'one flip, at position ' + pos : 'two flips: detected, not located');
+        var bitCell = fig.querySelector('tr.bits td[data-i="' + FLIP + '"] .bit');
+        bitCell.textContent = c[FLIP];
+        bitCell.classList.toggle('on', c[FLIP] === 1);
+        bitCell.classList.toggle('flipped', flipped);
+        var yCell = fig.querySelector('tr[data-row="3"]:not(.bits) td[data-i="' + FLIP + '"]');
+        yCell.textContent = String(flipped ? (B.y[FLIP] ^ 1) : B.y[FLIP]).replace('-', '\u2212');
+        yCell.classList.toggle('flipped', flipped);
+        fig.querySelector('tr[data-row="5"]').classList.toggle('stale', flipped);
+        fig.querySelectorAll('tr.catch td').forEach(function (td) {
+          var hit = flipped && s[0] === 1 && +td.dataset.i === pos;
+          td.textContent = hit ? '\u25B2 ' + pos : '';
+          td.classList.toggle('hit', hit);
+        });
+        var roleCell = fig.querySelector('tr.roles th[data-i="' + FLIP + '"]');
+        if (roleCell) roleCell.classList.toggle('flipped', flipped);
+        flipBtn.setAttribute('aria-pressed', String(flipped));
+        caps.forEach(function (c) { c.classList.toggle('on', flipped ? c.dataset.step === 'flip' : c.dataset.step === String(current)); });
+      }
+      // Exact values per position, on hover or focus (mono detail line).
+      var detail = document.getElementById('chainDetail');
+      var oc = B.source.original_columns;
+      var PAR = { 0: 1, 1: 1, 2: 1, 4: 1, 8: 1 };
+      function m(v) { return String(v).replace('-', '\u2212'); }
+      function reveal(i) {
+        var flipped = flipBtn.getAttribute('aria-pressed') === 'true';
+        var c = B.c[i] ^ (flipped && i === FLIP ? 1 : 0);
+        var y = flipped && i === FLIP ? (B.y[i] ^ 1) : B.y[i];
+        detail.textContent = 'pos ' + i + ' (' + (PAR[i] ? 'parity' : 'data') + ' bit) · column ' + oc[i] + ' · w = ' + m(B.w[i].toFixed(6)) +
+          ' · turned/scale = ' + m(B.turned_over_scale[i].toFixed(4)) + ' · y = ' + m(y) + ' = 2·(' + m(B.k[i]) + ') + ' + c +
+          ' · decoded = ' + m(B.deq[i].toFixed(6)) + ' · |err| = ' + B.abs_err[i].toFixed(6);
+        fig.querySelectorAll('[data-i]').forEach(function (el) { el.classList.toggle('col-on', +el.dataset.i === i); });
+      }
+      fig.querySelectorAll('.pos-btn').forEach(function (b) {
+        b.addEventListener('focus', function () { reveal(+b.dataset.i); });
+        b.addEventListener('click', function () { reveal(+b.dataset.i); });
+      });
+      fig.querySelectorAll('td[data-i], th[data-i]').forEach(function (td) {
+        td.addEventListener('mouseenter', function () { reveal(+td.dataset.i); });
+      });
+      flipBtn.addEventListener('click', function () {
+        var on = flipBtn.getAttribute('aria-pressed') !== 'true';
+        render(on);
+        if (on) show(5);
+      });
+
+      // One walk through the five steps the first time the figure scrolls into view; static final state otherwise.
+      var walking = false;
+      if (reduce || !('IntersectionObserver' in window)) { show(5); return; }
+      show(1);
+      var io = new IntersectionObserver(function (entries) {
+        if (!entries[0].isIntersecting) return;
+        io.disconnect();
+        walking = true;
+        var n = 1;
+        (function next() {
+          if (!walking) return;
+          n += 1; show(n);
+          if (n < 5) setTimeout(next, 900); else walking = false;
+        })();
+      }, { threshold: 0.5 });
+      io.observe(fig);
+    })();
+
   </script>
 </body>
 </html>
