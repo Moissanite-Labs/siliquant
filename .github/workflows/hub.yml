@@ -1,0 +1,107 @@
+# Rebuild the Siliquant research hub on every merge to main that touches
+# an experiment record, the builder, or the hub files, and commit the
+# regenerated docs/hub.html and docs/data.json back to main. On pull
+# requests that touch the same paths, the builder runs against the PR
+# tree, and any committed hub files must match a fresh build.
+#
+# Loop guard: the rebuild commit message carries [skip ci], and the
+# rebuild job also skips runs whose actor is the bot. This workflow only
+# regenerates files under docs/; it does not change the Pages build type
+# or source (legacy build, main, /docs).
+name: Research hub
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'experiments/**'
+      - 'site/build_hub.py'
+      - 'site/hub_template.html'
+      - 'docs/hub.html'
+      - 'docs/data.json'
+      - '.github/workflows/hub.yml'
+  pull_request:
+    paths:
+      - 'experiments/**'
+      - 'site/build_hub.py'
+      - 'site/hub_template.html'
+      - 'docs/hub.html'
+      - 'docs/data.json'
+      - '.github/workflows/hub.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: siliquant-hub
+  cancel-in-progress: false
+
+jobs:
+  check:
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the PR head with full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build the hub against this PR's tree
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 site/build_hub.py --fetch-prs --out-dir "${RUNNER_TEMP}/hub"
+
+      - name: Reject hand-edited or stale hub files
+        run: |
+          BASE=$(git merge-base "origin/${{ github.base_ref }}" HEAD)
+          if ! git diff --quiet "$BASE" HEAD -- docs/data.json docs/hub.html; then
+            if ! diff -u docs/data.json "${RUNNER_TEMP}/hub/data.json"; then
+              echo "docs/data.json does not match a fresh build of this tree."
+              echo "Run: python3 site/build_hub.py --fetch-prs  (needs GITHUB_TOKEN)"
+              exit 1
+            fi
+          fi
+
+  rebuild:
+    if: github.event_name != 'pull_request' && github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build the hub
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 site/build_hub.py --fetch-prs
+
+      - name: Verify the build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 site/build_hub.py --check --fetch-prs
+
+      - name: Commit the rebuilt hub
+        run: |
+          if git status --porcelain docs/data.json docs/hub.html | grep -q .; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add docs/data.json docs/hub.html
+            git commit -m "docs: rebuild research hub from merged records [skip ci]"
+            git push
+          else
+            echo "Hub is already up to date, nothing to commit."
+          fi
