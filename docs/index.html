@@ -9,10 +9,18 @@
   <meta property="og:title" content="Siliquant: 4.5-bit A16 Quantization, CUDA Kernels &amp; Built-in Bit-Flip Checks" />
   <meta property="og:description" content="Siliquant quantization research working paper (24 November 2026): A16 Hamming-lattice codes at 4.5 bits per weight beat Q4_K_M with no calibration data, run end to end on a consumer RTX 3080, and check packed weights for flipped bits with no ECC hardware." />
   <meta property="og:url" content="https://moissanite-labs.github.io/siliquant/" />
-  <meta property="og:image" content="https://moissanite-labs.github.io/siliquant/assets/og.png" />
+  <meta property="og:site_name" content="Moissanite Labs" />
+  <meta property="og:image" content="https://moissanite-labs.github.io/siliquant/assets/og-a16.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Siliquant. Smaller, faster, and self-checking. On a consumer GPU. 4.5 bits per weight, 400 tok/s, 0 extra bytes." />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Siliquant: 4.5-bit A16 Quantization, CUDA Kernels &amp; Built-in Bit-Flip Checks" />
   <meta name="twitter:description" content="Siliquant quantization research working paper (24 November 2026): A16 Hamming-lattice codes at 4.5 bits per weight beat Q4_K_M with no calibration data, run end to end on a consumer RTX 3080, and check packed weights for flipped bits with no ECC hardware." />
+  <meta name="twitter:image" content="https://moissanite-labs.github.io/siliquant/assets/og-a16.png" />
+  <meta name="twitter:image:alt" content="Siliquant. Smaller, faster, and self-checking. On a consumer GPU. 4.5 bits per weight, 400 tok/s, 0 extra bytes." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2309090B' stroke-width='1.75'%3E%3Cpolygon points='12,2 20.5,6.8 20.5,17.2 12,22 3.5,17.2 3.5,6.8'/%3E%3Cpolygon points='12,6.2 17,9.1 17,14.9 12,17.8 7,14.9 7,9.1' stroke-opacity='0.55'/%3E%3Ccircle cx='12' cy='12' r='1.6' fill='%2309090B' stroke='none'/%3E%3C/svg%3E" />
 
   <!-- Typography: system sans + tabular monospace (no external fonts) -->
 
@@ -31,7 +39,7 @@
 
       --text-primary: #09090B;
       --text-secondary: #3F3F46;
-      --text-muted: #71717A;
+      --text-muted: #68686F;
 
       --accent: #1D4ED8;
       --accent-soft: #EFF6FF;
@@ -137,6 +145,14 @@
       text-decoration: underline;
       text-underline-offset: 3px;
     }
+    /* Links inside running text carry a quiet underline, so they read as links without colour */
+    .main-col p a, .main-col td a, .main-col li a:not([class]), .hl-more a {
+      text-decoration: underline;
+      text-decoration-color: var(--accent-border);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+    .models-list a { text-decoration: none; }
 
     code, pre, .mono {
       font-family: var(--font-mono);
@@ -1210,6 +1226,131 @@
     }
 
     /* =========================================================================
+       HERO: LEDE, ACTIONS, HIGHLIGHTS, RELEASED WEIGHTS (24 Nov 2026)
+       ========================================================================= */
+    .paper-lede {
+      margin: 0 0 10px;
+      max-width: 40ch;
+      font-size: 1.22rem;
+      font-weight: 600;
+      line-height: 1.35;
+      letter-spacing: -0.015em;
+      color: var(--text-primary);
+    }
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .hero-actions .btn { height: 36px; padding: 0 13px; font-size: 0.8rem; }
+    .hl-grid {
+      margin-top: 22px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .hl {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-hairline);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+    .hl-k {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .hl-v {
+      font-family: var(--font-mono);
+      font-size: 1.24rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      color: var(--win);
+    }
+    .hl-v code { font-size: inherit; }
+    .hl-sub {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      line-height: 1.45;
+      color: var(--text-muted);
+    }
+    .hl-limit {
+      margin: 6px 0 0;
+      padding-top: 10px;
+      border-top: 1px solid var(--border-hairline);
+      font-size: 0.8rem;
+      line-height: 1.5;
+      color: var(--text-secondary);
+    }
+    .hl-more { margin-top: auto; }
+    .hl-more summary {
+      display: flex;
+      align-items: center;
+      min-height: 44px;
+      margin-bottom: -10px;
+      cursor: pointer;
+      list-style: none;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--accent);
+    }
+    .hl-more summary::-webkit-details-marker { display: none; }
+    .hl-more summary::before { content: '+'; width: 1.2em; }
+    .hl-more[open] summary::before { content: '\2212'; }
+    .hl-more p {
+      margin: 10px 0 0;
+      font-size: 0.84rem;
+      line-height: 1.6;
+      color: var(--text-secondary);
+    }
+    .models {
+      margin-top: 22px;
+      border-top: 1px solid var(--border-hairline);
+      padding-top: 14px;
+    }
+    .models-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 4px 16px;
+      margin-bottom: 4px;
+    }
+    .models-title {
+      margin: 0;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .models-head a { font-family: var(--font-mono); font-size: 0.74rem; }
+    .models-list { list-style: none; margin: 0; padding: 0; }
+    .models-list li { border-bottom: 1px solid var(--border-hairline); }
+    .models-list li:last-child { border-bottom: none; }
+    .models-list a {
+      display: flex;
+      align-items: center;
+      min-height: 36px;
+      padding: 6px 0;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      line-height: 1.4;
+      color: var(--text-secondary);
+      overflow-wrap: anywhere;
+    }
+    .models-list a:hover { color: var(--accent); }
+    .models-list .m-base { color: var(--text-primary); font-weight: 600; }
+
+    /* =========================================================================
        RESPONSIVE BREAKPOINTS
        ========================================================================= */
     @media (max-width: 1024px) {
@@ -1227,7 +1368,7 @@
       .kpi-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
-      .grid-2, .grid-asymmetric, .geo-grid-3, .arm-glossary {
+      .grid-2, .grid-asymmetric, .geo-grid-3, .arm-glossary, .hl-grid {
         grid-template-columns: minmax(0, 1fr);
       }
       .bar-row {
@@ -1247,6 +1388,16 @@
       }
       .bar-val { text-align: left; }
       .btn-label-hide { display: none; }
+      .topbar-actions { gap: 4px; }
+      .topbar-actions .btn { height: 44px; min-width: 44px; padding: 0 10px; }
+      .mobile-toc-inner { padding: 0 12px; }
+      .mobile-toc a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 10px; }
+      .paper-lede { font-size: 1.12rem; }
+      .hero-actions .btn { height: 44px; flex: 1 1 auto; }
+      .models-list a { min-height: 44px; }
+      .brand, .models-head a { display: inline-flex; align-items: center; min-height: 44px; }
+      .paper-footer .btn { height: 44px !important; }
+      .seg-btn, .arm-preset-btn { min-height: 44px; }
     }
 
     /* =========================================================================
@@ -1302,11 +1453,11 @@
           <circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none" />
         </svg>
         <span>SILIQUANT</span>
-        <span class="brand-tag">Working Paper · 23 Nov 2026</span>
+        <span class="brand-tag">Working Paper · 24 Nov 2026</span>
       </a>
 
       <div class="topbar-actions">
-        <a class="btn btn-accent" href="https://github.com/Moissanite-Labs/siliquant" target="_blank" rel="noopener noreferrer">
+        <a class="btn btn-accent" href="https://github.com/Moissanite-Labs/siliquant" target="_blank" rel="noopener noreferrer" aria-label="Moissanite-Labs/siliquant on GitHub">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.57.11.78-.25.78-.55 0-.27-.01-1.18-.02-2.14-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.29 1.19-3.09-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.17 1.18a11.02 11.02 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.77.11 3.06.74.8 1.19 1.83 1.19 3.09 0 4.41-2.69 5.39-5.25 5.67.41.36.78 1.06.78 2.14 0 1.54-.01 2.79-.01 3.17 0 .31.21.67.79.55A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/>
           </svg>
@@ -1338,11 +1489,12 @@
   <nav class="mobile-toc" aria-label="Section navigation">
     <div class="mobile-toc-inner">
       <a href="#overview" class="active">00 Overview</a>
-      <a href="#roofline">Roofline</a>
+      <a href="#roofline">00b Roofline</a>
       <a href="#geometry">00c Geometry</a>
       <a href="#gemma">01 Gemma 4</a>
       <a href="#scale-closures">02–03 Scale &amp; Closures</a>
       <a href="#integer-ball">04 Integer Ball</a>
+      <a href="#nov24">04b 24 Nov</a>
       <a href="#systems">05 Matrix &amp; File</a>
       <a href="#limits">06 Limits</a>
     </div>
@@ -1417,63 +1569,70 @@
           </div>
 
           <h1 class="paper-title">Siliquant</h1>
+          <p class="paper-lede">Smaller, faster, and self-checking. On a consumer GPU.</p>
           <p class="paper-subtitle">
             Weight-only LLM quantization at <strong>4.5 bits per weight</strong>. A<sub>16</sub> Hamming-lattice codes beat <code>Q4_K_M</code> with no calibration data, run end to end on a consumer RTX 3080, and check every packed weight for flipped bits as they decode.
           </p>
+          <div class="hero-actions">
+            <a class="btn btn-accent" href="https://huggingface.co/ahrazzle/models" target="_blank" rel="noopener noreferrer">Models on Hugging Face ↗</a>
+            <a class="btn" href="#nov24">24 Nov results · §04b</a>
+          </div>
 
-          <!-- Highlights: the three strongest results, first (24 Nov 2026) -->
-          <p style="font-size: 1.12rem; font-weight: 600; color: var(--text-primary); line-height: 1.35; margin-top: 16px;">
-            Smaller, faster, and self-checking. On a consumer GPU.
-          </p>
-          <div class="geo-grid-3" id="highlights" style="margin-top: 12px;">
-            <div class="panel">
-              <div class="panel-head">
-                <div>
-                  <div class="panel-title">1 &middot; Smaller weights, same quality</div>
-                  <div class="panel-sub">A<sub>16</sub> quantization at 4.5 bits per weight, no calibration data</div>
-                </div>
-                <span class="pill pill-win">0.019 / 0.048 / 0.034</span>
-              </div>
-              <div style="font-size: 0.79rem; color: var(--text-secondary); line-height: 1.55;">
-                Mean KL against the 16-bit model: <strong>0.019</strong> on Qwen2.5-1.5B, <strong>0.048</strong> on SmolLM2-1.7B, <strong>0.034</strong> on Llama-3.2-1B. That is <strong>16 to 40 percent below <code>Q4_K_M</code></strong>, which uses about 4.8 bits.
+          <!-- Highlights: the three strongest results (24 Nov 2026). Value, scope, limit; the full account folds open. -->
+          <div class="hl-grid" id="highlights">
+            <article class="hl">
+              <div class="hl-k">1 &middot; Smaller weights, same quality</div>
+              <div class="hl-v">16–40% below <code>Q4_K_M</code></div>
+              <div class="hl-sub">A<sub>16</sub> quantization at 4.5 bits per weight, no calibration data</div>
+              <p class="hl-limit"><strong>Limit:</strong> it does not transfer to Gemma. It falls below the 2.0 SE gate on Gemma 4B and 12B, and it is worse on Gemma E4B.</p>
+              <details class="hl-more">
+                <summary>Details</summary>
+                <p>Mean KL against the 16-bit model: <strong>0.019</strong> on Qwen2.5-1.5B, <strong>0.048</strong> on SmolLM2-1.7B, <strong>0.034</strong> on Llama-3.2-1B. That is <strong>16 to 40 percent below <code>Q4_K_M</code></strong>, which uses about 4.8 bits.
                 The same quality at fewer bits, so less memory and less bandwidth, with no retraining and no calibration data.
                 The packed file keeps the same 18 bytes per 32 weights and reads back bit for bit. The result holds at 3B scale: KL 0.023 on WikiText and 0.020 on Python.
-                <strong>Limit:</strong> it does not transfer to Gemma. It falls below the 2.0 SE gate on Gemma 4B and 12B, and it is worse on Gemma E4B.
-                Details in <a href="#nov24">&sect;04b</a>.
-              </div>
-            </div>
-            <div class="panel">
-              <div class="panel-head">
-                <div>
-                  <div class="panel-title">2 &middot; Fast on a laptop GPU</div>
-                  <div class="panel-sub">CUDA kernels on an RTX 3080, end to end</div>
-                </div>
-                <span class="pill pill-win">400 tok/s</span>
-              </div>
-              <div style="font-size: 0.79rem; color: var(--text-secondary); line-height: 1.55;">
-                Qwen2.5-0.5B runs at <strong>400 tokens a second</strong> on an RTX 3080 laptop GPU. That is <strong>5.6 times faster than PyTorch BF16</strong>, and it uses <strong>4.9 times less energy</strong>.
+                Details in <a href="#nov24">&sect;04b</a>.</p>
+              </details>
+            </article>
+            <article class="hl">
+              <div class="hl-k">2 &middot; Fast on a laptop GPU</div>
+              <div class="hl-v">400 tok/s</div>
+              <div class="hl-sub">CUDA kernels on an RTX 3080, end to end</div>
+              <p class="hl-limit"><strong>Limit:</strong> measured on a 0.5B model against PyTorch BF16, not against llama.cpp or Q4. Free-running text can drift after a few tokens at this size.</p>
+              <details class="hl-more">
+                <summary>Details</summary>
+                <p>Qwen2.5-0.5B runs at <strong>400 tokens a second</strong> on an RTX 3080 laptop GPU. That is <strong>5.6 times faster than PyTorch BF16</strong>, and it uses <strong>4.9 times less energy</strong>.
                 A 4.5-bit model runs in real time on hardware people already own.
                 Pre-encoded weights decode at 611 to 647 billion weights a second, near the memory ceiling. Decoding on the fly falls to 3.7 billion, so the weights are transcoded once and served pre-encoded.
-                <strong>Limit:</strong> measured on a 0.5B model against PyTorch BF16, not against llama.cpp or Q4. Free-running text can drift after a few tokens at this size.
-                Details in <a href="#nov24">&sect;04b</a>.
-              </div>
-            </div>
-            <div class="panel">
-              <div class="panel-head">
-                <div>
-                  <div class="panel-title">3 &middot; The format checks itself</div>
-                  <div class="panel-sub">Bit-flip detection with no ECC hardware</div>
-                </div>
-                <span class="pill pill-win">0 extra bytes</span>
-              </div>
-              <div style="font-size: 0.79rem; color: var(--text-secondary); line-height: 1.55;">
-                A<sub>16</sub> is a Hamming [16,11,4] code. Each 16-bit word holds 11 data bits and 5 parity bits. A flipped bit gives a unique fingerprint, so the check can find it and the decoder can put it right.
+                Details in <a href="#nov24">&sect;04b</a>.</p>
+              </details>
+            </article>
+            <article class="hl">
+              <div class="hl-k">3 &middot; The format checks itself</div>
+              <div class="hl-v">0 extra bytes</div>
+              <div class="hl-sub">Bit-flip detection with no ECC hardware</div>
+              <p class="hl-limit"><strong>Limit:</strong> the check covers packed weights only. It does not cover scales, activations, or the KV cache. No flipped bit has been caught live in the middle of a run yet.</p>
+              <details class="hl-more">
+                <summary>Details</summary>
+                <p>A<sub>16</sub> is a Hamming [16,11,4] code. Each 16-bit word holds 11 data bits and 5 parity bits. A flipped bit gives a unique fingerprint, so the check can find it and the decoder can put it right.
                 Packed weights can be checked for silent corruption on a consumer GPU with no ECC memory, at about half a percent of speed.
                 Checked over all 65,536 possible 16-bit words. All 16 single-bit flips map to distinct fingerprints. Live full-model runs on an ASUS ZenBook with an RTX 3080 show 0 syndrome errors.
-                <strong>Limit:</strong> the check covers packed weights only. It does not cover scales, activations, or the KV cache. No flipped bit has been caught live in the middle of a run yet.
-                Details in <a href="#nov24">&sect;04b</a>.
-              </div>
+                Details in <a href="#nov24">&sect;04b</a>.</p>
+              </details>
+            </article>
+          </div>
+
+          <!-- Released weights: one row per Hugging Face repo; add a row when a model ships -->
+          <div class="models" id="models">
+            <div class="models-head">
+              <h2 class="models-title">Released weights · 4.5 bpw</h2>
+              <a href="https://huggingface.co/ahrazzle/models" target="_blank" rel="noopener noreferrer">huggingface.co/ahrazzle ↗</a>
             </div>
+            <ul class="models-list">
+              <li><a href="https://huggingface.co/ahrazzle/SmolLM2-360M-Siliquant-A16-BlockH4-AdaptZeroCal-4.5bpw" target="_blank" rel="noopener noreferrer"><span><span class="m-base">SmolLM2-360M</span>-Siliquant-A16-BlockH4-AdaptZeroCal-4.5bpw</span></a></li>
+              <li><a href="https://huggingface.co/ahrazzle/Qwen2.5-0.5B-Siliquant-A16-BlockH4-QuadLPT-4.5bpw" target="_blank" rel="noopener noreferrer"><span><span class="m-base">Qwen2.5-0.5B</span>-Siliquant-A16-BlockH4-QuadLPT-4.5bpw</span></a></li>
+              <li><a href="https://huggingface.co/ahrazzle/Qwen2.5-1.5B-Siliquant-A16-BlockH4-QuadLPT-SharedNorm-4.5bpw" target="_blank" rel="noopener noreferrer"><span><span class="m-base">Qwen2.5-1.5B</span>-Siliquant-A16-BlockH4-QuadLPT-SharedNorm-4.5bpw</span></a></li>
+              <li><a href="https://huggingface.co/ahrazzle/Qwen2.5-3B-Siliquant-A16-BlockH4-QuadSnake-4.5bpw" target="_blank" rel="noopener noreferrer"><span><span class="m-base">Qwen2.5-3B</span>-Siliquant-A16-BlockH4-QuadSnake-4.5bpw</span></a></li>
+            </ul>
           </div>
         </header>
       </section>
@@ -2675,7 +2834,7 @@
           <div>Siliquant · Working Paper · 24 November 2026</div>
           <div style="display:flex; gap:14px; align-items:center;">
             <a href="https://github.com/Moissanite-Labs/siliquant" target="_blank" rel="noopener noreferrer">github.com/Moissanite-Labs/siliquant ↗</a>
-            <button type="button" class="btn" id="footerCiteBtn" style="height:26px; font-size:0.72rem;">Copy BibTeX</button>
+            <button type="button" class="btn" id="footerCiteBtn" style="font-size:0.72rem;">Copy BibTeX</button>
           </div>
         </footer>
       </section>
