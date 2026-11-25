@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Siliquant: 8D E8 Lattice Weight Quantization | Moissanite Labs</title>
-  <meta name="description" content="Siliquant quantization research working paper (24 November 2026): 8-dimensional E8 lattice codes for weight-only LLM quantization across Gemma 4 E4B, Gemma 3, Qwen2.5, SmolLM2, and Llama 3.2." />
+  <title>Siliquant: 4.5-bit A16 Quantization, CUDA Kernels &amp; Built-in Bit-Flip Checks | Moissanite Labs</title>
+  <meta name="description" content="Siliquant quantization research working paper (24 November 2026): A16 Hamming-lattice codes at 4.5 bits per weight beat Q4_K_M with no calibration data, run end to end on a consumer RTX 3080, and check packed weights for flipped bits with no ECC hardware." />
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="Siliquant: 8D E8 Lattice Weight Quantization" />
-  <meta property="og:description" content="Siliquant quantization research working paper (24 November 2026): 8-dimensional E8 lattice codes for weight-only LLM quantization across Gemma 4 E4B, Gemma 3, Qwen2.5, SmolLM2, and Llama 3.2." />
+  <meta property="og:title" content="Siliquant: 4.5-bit A16 Quantization, CUDA Kernels &amp; Built-in Bit-Flip Checks" />
+  <meta property="og:description" content="Siliquant quantization research working paper (24 November 2026): A16 Hamming-lattice codes at 4.5 bits per weight beat Q4_K_M with no calibration data, run end to end on a consumer RTX 3080, and check packed weights for flipped bits with no ECC hardware." />
   <meta property="og:url" content="https://moissanite-labs.github.io/siliquant/" />
   <meta property="og:image" content="https://moissanite-labs.github.io/siliquant/assets/og.png" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Siliquant: 8D E8 Lattice Weight Quantization" />
-  <meta name="twitter:description" content="Siliquant quantization research working paper (24 November 2026): 8-dimensional E8 lattice codes for weight-only LLM quantization." />
+  <meta name="twitter:title" content="Siliquant: 4.5-bit A16 Quantization, CUDA Kernels &amp; Built-in Bit-Flip Checks" />
+  <meta name="twitter:description" content="Siliquant quantization research working paper (24 November 2026): A16 Hamming-lattice codes at 4.5 bits per weight beat Q4_K_M with no calibration data, run end to end on a consumer RTX 3080, and check packed weights for flipped bits with no ECC hardware." />
 
   <!-- Typography: system sans + tabular monospace (no external fonts) -->
 
@@ -1418,30 +1418,61 @@
 
           <h1 class="paper-title">Siliquant</h1>
           <p class="paper-subtitle">
-            Weight-only LLM quantization using 8-dimensional <strong>E<sub>8</sub> lattice codes</strong> (integer ball <code>hZBG128</code> and Hadamard-turned E<sub>8</sub>) targeting memory-bound single-batch decode at 4.0–5.0 bits per weight. All measurements, preregistration failures, denominator discrepancies, and implementation limits are reported alongside primary results.
+            Weight-only LLM quantization at <strong>4.5 bits per weight</strong>. A<sub>16</sub> Hamming-lattice codes beat <code>Q4_K_M</code> with no calibration data, run end to end on a consumer RTX 3080, and check every packed weight for flipped bits as they decode.
           </p>
 
-          <!-- Four-card Highlight Strip matching paper header -->
-          <div class="kpi-grid">
-            <div class="kpi-card">
-              <div class="kpi-value win">−36% to −52%</div>
-              <div class="kpi-label">E<sub>8</sub> KL divergence vs <code>Q4_0</code> on Gemma 4 E4B</div>
-              <div class="kpi-meta">4.005–5.005 bpw · 8-bit ref</div>
+          <!-- Highlights: the three strongest results, first (24 Nov 2026) -->
+          <p style="font-size: 1.12rem; font-weight: 600; color: var(--text-primary); line-height: 1.35; margin-top: 16px;">
+            Smaller, faster, and self-checking. On a consumer GPU.
+          </p>
+          <div class="geo-grid-3" id="highlights" style="margin-top: 12px;">
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <div class="panel-title">1 &middot; Smaller weights, same quality</div>
+                  <div class="panel-sub">A<sub>16</sub> quantization at 4.5 bits per weight, no calibration data</div>
+                </div>
+                <span class="pill pill-win">0.019 / 0.048 / 0.034</span>
+              </div>
+              <div style="font-size: 0.79rem; color: var(--text-secondary); line-height: 1.55;">
+                Mean KL against the 16-bit model: <strong>0.019</strong> on Qwen2.5-1.5B, <strong>0.048</strong> on SmolLM2-1.7B, <strong>0.034</strong> on Llama-3.2-1B. That is <strong>16 to 40 percent below <code>Q4_K_M</code></strong>, which uses about 4.8 bits.
+                The same quality at fewer bits, so less memory and less bandwidth, with no retraining and no calibration data.
+                The packed file keeps the same 18 bytes per 32 weights and reads back bit for bit. The result holds at 3B scale: KL 0.023 on WikiText and 0.020 on Python.
+                <strong>Limit:</strong> it does not transfer to Gemma. It falls below the 2.0 SE gate on Gemma 4B and 12B, and it is worse on Gemma E4B.
+                Details in <a href="#nov24">&sect;04b</a>.
+              </div>
             </div>
-            <div class="kpi-card">
-              <div class="kpi-value win">−19% / −25%</div>
-              <div class="kpi-label">Gemma 3 4B ball vs <code>Q4_K_M</code> across both texts</div>
-              <div class="kpi-meta">WikiText-2 / Python · ~4.5 bpw · unequal rates</div>
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <div class="panel-title">2 &middot; Fast on a laptop GPU</div>
+                  <div class="panel-sub">CUDA kernels on an RTX 3080, end to end</div>
+                </div>
+                <span class="pill pill-win">400 tok/s</span>
+              </div>
+              <div style="font-size: 0.79rem; color: var(--text-secondary); line-height: 1.55;">
+                Qwen2.5-0.5B runs at <strong>400 tokens a second</strong> on an RTX 3080 laptop GPU. That is <strong>5.6 times faster than PyTorch BF16</strong>, and it uses <strong>4.9 times less energy</strong>.
+                A 4.5-bit model runs in real time on hardware people already own.
+                Pre-encoded weights decode at 611 to 647 billion weights a second, near the memory ceiling. Decoding on the fly falls to 3.7 billion, so the weights are transcoded once and served pre-encoded.
+                <strong>Limit:</strong> measured on a 0.5B model against PyTorch BF16, not against llama.cpp or Q4. Free-running text can drift after a few tokens at this size.
+                Details in <a href="#nov24">&sect;04b</a>.
+              </div>
             </div>
-            <div class="kpi-card">
-              <div class="kpi-value win">−17% to −43%</div>
-              <div class="kpi-label">Ball + Hadamard E<sub>8</sub> vs <code>Q4_K_M</code> on 1B–1.7B models</div>
-              <div class="kpi-meta">Qwen2.5, SmolLM2, Llama-3.2</div>
-            </div>
-            <div class="kpi-card">
-              <div class="kpi-value accent">3.56× ceiling</div>
-              <div class="kpi-label">HBM bandwidth over FP16 at 4.50 bpw (1.78× vs INT8)</div>
-              <div class="kpi-meta">Rational bound · Kernel separate</div>
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <div class="panel-title">3 &middot; The format checks itself</div>
+                  <div class="panel-sub">Bit-flip detection with no ECC hardware</div>
+                </div>
+                <span class="pill pill-win">0 extra bytes</span>
+              </div>
+              <div style="font-size: 0.79rem; color: var(--text-secondary); line-height: 1.55;">
+                A<sub>16</sub> is a Hamming [16,11,4] code. Each 16-bit word holds 11 data bits and 5 parity bits. A flipped bit gives a unique fingerprint, so the check can find it and the decoder can put it right.
+                Packed weights can be checked for silent corruption on a consumer GPU with no ECC memory, at about half a percent of speed.
+                Checked over all 65,536 possible 16-bit words. All 16 single-bit flips map to distinct fingerprints. Live full-model runs on an ASUS ZenBook with an RTX 3080 show 0 syndrome errors.
+                <strong>Limit:</strong> the check covers packed weights only. It does not cover scales, activations, or the KV cache. No flipped bit has been caught live in the middle of a run yet.
+                Details in <a href="#nov24">&sect;04b</a>.
+              </div>
             </div>
           </div>
         </header>
@@ -2399,7 +2430,7 @@
               <em>falsified</em> on 4/4 models (group-ball Hessian budget-transfer cannibalization); the coupled-coherent cure
               (<code>ProjType_Uniform</code>, zero calibration) scores WikiKL 0.046336 / PyKL 0.034327. <strong>#95:</strong> rank-invariant
               quad-snake interleaving sets the 3B record <strong>0.023154 / 0.020494</strong>, shattering hA16_BlockH2 on all 3 Qwen models.
-              <strong>#88:</strong> Qwen2.5-0.5B full-model engine, 400.58 tok/s at 4.91× lower energy than AVX-512.
+              <strong>#88:</strong> Qwen2.5-0.5B full-model engine, 400.58 tok/s at 4.91&times; lower energy than PyTorch BF16.
               <strong>Theory (#87, #92, #94):</strong> 12 + 21 kernel-checked Lean 4.36.0 theorems — the exact 8× opposite-sign
               E<sub>8</sub>-vs-A<sub>16</sub> Hadamard contrast, the cross-layer R<sub>cross</sub> reversal threshold, and the two-level
               saddle-point dominance of stratified quad-interleaving.
