@@ -14,12 +14,12 @@
   <meta property="og:image:type" content="image/png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content="Siliquant. Lattice quantization, from silicon to model. Kernel: 400 tok/s, 5.6× faster than PyTorch BF16. Quantization: 16–40% lower KL than plain Q4_K_M. Bit flips: built-in bit-flip detection, 0 extra bytes. Release: 6 models, 4.5 bpw target." />
+  <meta property="og:image:alt" content="Siliquant. Lattice quantization, from silicon to model. Kernel: 400 tok/s, 5.6× faster than PyTorch BF16. Quantization: 16–40% lower KL than plain Q4_K_M. Bit flips: built-in bit-flip detection, 0 extra bytes in the engine's packed layout. Release: 6 models, 4.5 bpw target." />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Siliquant: A16 and E8 Lattice Weight Quantization" />
   <meta name="twitter:description" content="Siliquant working paper, 24 Nov 2026: A16 Hamming-lattice weight quantization at 4.5 bits, CUDA kernels on a laptop RTX 3080, parity checks in the weights." />
   <meta name="twitter:image" content="https://moissanite-labs.github.io/siliquant/assets/og-a16.png" />
-  <meta name="twitter:image:alt" content="Siliquant. Lattice quantization, from silicon to model. Kernel: 400 tok/s, 5.6× faster than PyTorch BF16. Quantization: 16–40% lower KL than plain Q4_K_M. Bit flips: built-in bit-flip detection, 0 extra bytes. Release: 6 models, 4.5 bpw target." />
+  <meta name="twitter:image:alt" content="Siliquant. Lattice quantization, from silicon to model. Kernel: 400 tok/s, 5.6× faster than PyTorch BF16. Quantization: 16–40% lower KL than plain Q4_K_M. Bit flips: built-in bit-flip detection, 0 extra bytes in the engine's packed layout. Release: 6 models, 4.5 bpw target." />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2309090B' stroke-width='1.75'%3E%3Cpolygon points='12,2 20.5,6.8 20.5,17.2 12,22 3.5,17.2 3.5,6.8'/%3E%3Cpolygon points='12,6.2 17,9.1 17,14.9 12,17.8 7,14.9 7,9.1' stroke-opacity='0.55'/%3E%3Ccircle cx='12' cy='12' r='1.6' fill='%2309090B' stroke='none'/%3E%3C/svg%3E" />
 
   <!-- Typography: system sans + tabular monospace (no external fonts) -->
@@ -1620,6 +1620,13 @@
       .chain { padding: 12px; }
       .models-list .m-lic { display: none; }
     }
+    @media (max-width: 520px) and (max-height: 760px) {
+      /* Short phones (360x740): trim hero spacing so the CTA stays inside the first screen */
+      .hero-inner { padding-top: 6px; padding-bottom: 8px; }
+      .hero-meta { margin-bottom: 4px; }
+      .kpi-strip { margin-top: 8px; }
+      .hero-cta { margin-top: 6px; }
+    }
     .main-col .models-list a { text-decoration: none; }
     .main-col div > a[href*='/blob/'] { text-decoration: underline; text-decoration-color: var(--accent-border); text-underline-offset: 3px; }
 
@@ -2209,7 +2216,7 @@
           <div class="callout callout-warn" style="margin-top: 16px;">
             <span class="callout-tag">Caveat</span>
             <div>
-              <strong>Gemma denominator discrepancy (unflagged in certificate source):</strong> The certificate implies <code>4.0B</code> weights (yielding <code>102.4</code> FP16, <code>364.0</code> Ball, <code>366.4</code> Hadamard tok/s on v5e), whereas the scored <code>gemma-4-E4B-it</code> model contains approximately <code>7.5B</code> weights. At <code>7.5B</code> weights on TPU v5e (819 GB/s), true ceilings are approximately <code>55 tok/s</code> (FP16), <code>182 tok/s</code> (Q4_K_M), <code>194 tok/s</code> (Ball @ 4.50 bpw), and <code>195 tok/s</code> (Hadamard @ 4.47 bpw).
+              <strong>Gemma denominator:</strong> The certificate counts the <code>3.95B</code> block-matrix weights that are rounded (≈<code>4.0B</code>: <code>102.4</code> FP16, <code>364.0</code> Ball, <code>366.4</code> Hadamard tok/s on v5e). The scored gemma-4-E4B-it file holds ~<code>7.5B</code> weights, but its <code>3.49B</code> token-table weights are not rounded and are read by row, so whole-model ceilings depend on how those tables are stored and are not computed here.
             </div>
           </div>
         </div>
@@ -3317,7 +3324,7 @@
               <tr>
                 <td><strong>Gemma Denominator</strong></td>
                 <td><span class="pill pill-warn">DISCREPANCY</span></td>
-                <td>Roofline certificate implies <code>4.0B</code> weights while scored Gemma 4 E4B has <code>~7.5B</code> weights (unflagged in source; corrected ceilings: <code>55</code> FP16, <code>182</code> Q4_K_M, <code>194</code> Ball, <code>195</code> Hadamard tok/s).</td>
+                <td>Roofline certificate counts the <code>~4.0B</code> rounded block weights; the scored Gemma 4 E4B file has <code>~7.5B</code> weights including <code>3.49B</code> unrounded token tables, so whole-model ceilings are not computed.</td>
               </tr>
               <tr>
                 <td><strong>Stage 2 Certificate</strong></td>
