@@ -31,7 +31,13 @@ if (missing.length && !process.env.ALLOW_FALLBACK_FONTS) { await b.close(); cons
 const raw = path.join(R, name + '.raw.png'), bgp = path.join(R, '.' + name + '.bg.png');
 await p.screenshot({ path: raw });
 const boxes = await p.evaluate(() => [...document.querySelectorAll('[data-m]')].map(e => { const r = e.getBoundingClientRect(); return { m: e.dataset.m, x0: Math.floor(r.left), y0: Math.floor(r.top), x1: Math.ceil(r.right), y1: Math.ceil(r.bottom) }; }));
-const overflow = await p.evaluate(() => [...document.querySelectorAll('.big,.rest,.scope,h1')].filter(e => e.scrollWidth > e.clientWidth + 1).map(e => e.dataset.m));
+// Overflow: an element wider than its box, or text running past the right edge of its metrics strip (.rows).
+const overflow = await p.evaluate(() => [...document.querySelectorAll('.big,.rest,.scope,h1')].filter(e => {
+  if (e.scrollWidth > e.clientWidth + 1) return true;
+  const rows = e.closest('.rows'); if (!rows) return false;
+  const r = document.createRange(); r.selectNodeContents(e);
+  return r.getBoundingClientRect().right > rows.getBoundingClientRect().right + 0.5;
+}).map(e => e.dataset.m));
 await p.evaluate(() => document.body.classList.add('bgonly'));
 await p.screenshot({ path: bgp });
 await b.close();

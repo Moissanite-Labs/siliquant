@@ -44,7 +44,7 @@ const post = (theme) => page(theme, 1600, 900, `
 .eyebrow{font-size:19px;margin-bottom:20px}
 .rows{margin-top:44px;border-top:1px solid var(--border-hairline)}
 .row>*{padding:17px 0}.row>.big{padding-right:40px}.left .scope{white-space:nowrap}
-.txt .scope{margin-top:6px}.url{font-size:18px;margin-top:26px}
+.txt .scope{margin-top:6px}.txt .models{margin-top:3px}.url{font-size:18px;margin-top:26px}
 .right{position:absolute;left:1072px;top:0;bottom:0;width:440px;display:flex;flex-direction:column;justify-content:center;--cell:92px;--gap:11px}
 .cap{font-family:var(--font-mono);font-size:15px;color:var(--text-muted);letter-spacing:.06em;text-transform:uppercase;font-weight:600;margin-bottom:8px}
 .src{font-family:var(--font-mono);font-size:14px;color:var(--text-muted);margin-bottom:18px}
@@ -57,7 +57,7 @@ const post = (theme) => page(theme, 1600, 900, `
 .legend .acc{font-weight:700}
 `, `<div class="glow" style="background:radial-gradient(ellipse 50% 60% at 78% 50%, var(--accent-soft), transparent 70%)"></div><div class="field"></div>
 <div class="left"><div class="eyebrow t" data-m="eyebrow">${EYEBROW}</div>${h1(88)}
-<div class="rows">${rows({ big: 50, rest: 23, scope: 17.5 })}</div><div class="url t" data-m="url">${URL_TXT}</div></div>
+<div class="rows">${rows({ big: 50, rest: 23, scope: 17.5, models: 14 })}</div><div class="url t" data-m="url">${URL_TXT}</div></div>
 <div class="right"><div class="cap t" data-m="w-cap">One A<sub>16</sub> block, one flipped bit</div>
 <div class="src t" data-m="w-src">Qwen2.5-1.5B release · layer 0 k_proj · row 0</div>
 <div class="sq"><div class="cross-r"></div><div class="cross-c"></div>${square({ showY: true })}</div>
