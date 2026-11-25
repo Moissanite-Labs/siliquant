@@ -1695,7 +1695,7 @@
 
           <h1 class="paper-title">Lattice quantization, from silicon to model</h1>
           <p class="paper-subtitle">
-            Siliquant rounds LLM weights onto the A<sub>16</sub> Hamming lattice, decodes them with hand-written CUDA kernels on a laptop RTX 3080, and checks them for flipped bits at no storage cost. Five models are released with their full records.
+            Siliquant rounds LLM weights onto the A<sub>16</sub> Hamming lattice, decodes them with hand-written CUDA kernels on a laptop RTX 3080, and checks them for flipped bits at no storage cost. Six models are released with their full records.
           </p>
 
           <div class="results-strip" id="results-strip" role="list">
@@ -1715,8 +1715,8 @@
               <p class="rs-evidence"><a href="https://github.com/Moissanite-Labs/siliquant/blob/main/studies/aletheion-qwen25-live-llm-engine/qwen25_sm86_a16_engine.cu">qwen25_sm86_a16_engine.cu</a></p>
             </article>
             <article class="rs-cell" role="listitem">
-              <div class="rs-v">5 models</div>
-              <p class="rs-scope">360M to 3B; 4.5 bpw target, 5.2–5.4 packed on linears; three Apache-2.0, two Qwen Research License.</p>
+              <div class="rs-v">6 models</div>
+              <p class="rs-scope">360M to 3B; 4.5 bpw target, 5.2–5.4 packed on linears; three Apache-2.0, three Qwen Research License.</p>
               <p class="rs-evidence"><a href="https://huggingface.co/collections/ahrazzle/siliquant-stratified-lattice-quantized-llms-6b060e6988afd65942cd7768">HF collection</a></p>
             </article>
           </div>
@@ -1809,6 +1809,7 @@
               <li><a href="https://huggingface.co/ahrazzle/Qwen2.5-1.5B-Siliquant-A16-BlockH4-QuadLPT-SharedNorm-4.5bpw" target="_blank" rel="noopener noreferrer"><span><span class="m-base">Qwen2.5-1.5B</span>-Siliquant-A16-BlockH4-QuadLPT-SharedNorm-4.5bpw</span></a></li>
               <li><a href="https://huggingface.co/ahrazzle/Qwen2.5-3B-Siliquant-A16-BlockH4-QuadSnake-4.5bpw" target="_blank" rel="noopener noreferrer"><span><span class="m-base">Qwen2.5-3B</span>-Siliquant-A16-BlockH4-QuadSnake-4.5bpw<span class="m-meta">quad_snake · Qwen Research License · WikiText-2 PPL 10.97 → 11.06 (+0.85%) vs its own BF16</span></span></a></li>
               <li><a href="https://huggingface.co/ahrazzle/Qwen2.5-3B-Siliquant-A16-BlockH4-QuadLPT-Sqrt-4.5bpw" target="_blank" rel="noopener noreferrer"><span><span class="m-base">Qwen2.5-3B</span>-Siliquant-A16-BlockH4-QuadLPT-Sqrt-4.5bpw<span class="m-meta">quad_lpt_sqrt · Qwen Research License · WikiText-2 PPL 10.97 → 11.19 (+1.98%) vs its own BF16, calibrated on 6,144 WikiText-2 validation tokens · CPython PPL 3.11 → 3.17 (+1.90%) · 2327 MiB (2.53× smaller than BF16)</span></span></a></li>
+              <li><a href="https://huggingface.co/ahrazzle/Qwen2.5-3B-Siliquant-A16-ProjTypeUniform-ZeroCal-4.5bpw" target="_blank" rel="noopener noreferrer"><span><span class="m-base">Qwen2.5-3B</span>-Siliquant-A16-ProjTypeUniform-ZeroCal-4.5bpw<span class="m-meta">zero-data variant, no calibration text · Qwen Research License · WikiText-2 PPL 10.97 → 11.27 (+2.72%) vs its own BF16 · CPython PPL 3.11 → 3.22 (+3.38%) · 2306 MiB (2.55× smaller than BF16)</span></span></a></li>
             </ul>
           </div>
         </header>
