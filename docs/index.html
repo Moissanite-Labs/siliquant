@@ -1771,7 +1771,7 @@
               <div class="hl-k">2 &middot; Fewer bits, lower error than Q4_K_M</div>
               <div class="hl-v">16–40% lower KL than <code>Q4_K_M</code></div>
               <div class="hl-sub">A<sub>16</sub> at 4.5 bits vs <code>Q4_K_M</code> at 4.8, no calibration data, three 1–2B models</div>
-              <p class="hl-limit"><strong>Limit:</strong> three 1–2B models, one text. Against <code>Q4_K_M</code> made with an importance matrix (scored with 8-bit activations, so not exactly like-for-like), A<sub>16</sub> is lower on Qwen2.5 (0.019 vs 0.028) but higher on SmolLM2 (0.048 vs 0.038); Llama was not tested. Not the released Hugging Face models, which use other A<sub>16</sub> recipes and have no <code>Q4_K_M</code> comparison.</p>
+              <p class="hl-limit"><strong>Limit:</strong> three 1–2B models, one text. Against <code>Q4_K_M</code> made with an importance matrix (scored with 8-bit activations, so not exactly like-for-like), A<sub>16</sub> is lower on Qwen2.5 (0.019 vs 0.028) and Llama-3.2 (0.034 vs 0.036) but higher on SmolLM2 (0.048 vs 0.038). Not the released Hugging Face models, which use other A<sub>16</sub> recipes and have no <code>Q4_K_M</code> comparison.</p>
               <details class="hl-more">
                 <summary>Details</summary>
                 <p>Mean KL against the 16-bit model on WikiText-2 (10,200 positions, llama.cpp <code>llama-perplexity</code>): <strong>0.019</strong> on Qwen2.5-1.5B-Instruct, <strong>0.048</strong> on SmolLM2-1.7B-Instruct, <strong>0.034</strong> on Llama-3.2-1B-Instruct. <code>Q4_K_M</code> at 4.80–4.82 bits, decoded to 16 bits and scored the same way, gets 0.032, 0.072 and 0.041, so A<sub>16</sub> is <strong>16 to 40 percent lower</strong>.
