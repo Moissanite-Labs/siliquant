@@ -16,5 +16,7 @@ export const METRICS_CSS = '.rows{display:grid;grid-template-columns:auto 1fr} .
 export const h1 = (size, m = 'title') => `<h1 class="hl t" data-m="${m}" style="font-size:${size}px">${HEADLINE[0]}<br>${HEADLINE[1]}</h1>`;
 
 // Metrics strip rows: big number | claim + scope line. Wrap in <div class="rows">.
-// o.models = true adds the row's `models` line (where the row has one) under its scope line.
-export const rows = (o) => ROWS.map((r, i) => `<div class="row"><div class="big t" data-m="big${i}" style="font-size:${o.big}px">${r.big}</div><div class="txt"><div class="rest t" data-m="rest${i}" style="font-size:${o.rest}px">${r.rest}</div><div class="scope t" data-m="scope${i}" style="font-size:${o.scope}px">${r.scope}</div>${o.models && r.models ? `<div class="scope models t" data-m="models${i}" style="font-size:${o.models}px">${r.models}</div>` : ''}</div></div>`).join('');
+// o.big, o.rest, o.scope: font sizes in px. o.models: font size in px of the optional models line; it is
+// required, so every layout states its choice. A non-zero size adds the line under the scope line, for rows
+// that have a `models` field (only Quantization). 0 leaves it out. Only the 1600x900 post image sets it.
+export const rows = (o) => { if (!('models' in o)) throw new Error('rows(): set o.models (px, or 0 for no models line)'); return ROWS.map((r, i) => `<div class="row"><div class="big t" data-m="big${i}" style="font-size:${o.big}px">${r.big}</div><div class="txt"><div class="rest t" data-m="rest${i}" style="font-size:${o.rest}px">${r.rest}</div><div class="scope t" data-m="scope${i}" style="font-size:${o.scope}px">${r.scope}</div>${o.models && r.models ? `<div class="scope models t" data-m="models${i}" style="font-size:${o.models}px">${r.models}</div>` : ''}</div></div>`).join(''); };
