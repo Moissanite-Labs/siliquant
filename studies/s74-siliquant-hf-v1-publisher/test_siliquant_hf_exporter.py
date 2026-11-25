@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import copy
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -547,7 +548,14 @@ class TestComplianceAndNegativeGuards(unittest.TestCase):
                     check=False,
                 )
                 self.assertEqual(comp.returncode, 0, f"gcc build ({tag}) failed: {comp.stderr}")
-                run = subprocess.run([str(exe)], capture_output=True, text=True, check=False)
+                # GCC 14 enables ASan's use-after-return fake stack by default, which SEGVs the
+                # AVX-512 build at avx512_a16_blockh4.c:139. GCC has no -fsanitize-address-use-after-return
+                # flag, so turn it off at runtime; every other ASan/UBSan check stays on.
+                env = dict(os.environ)
+                prior = env.get("ASAN_OPTIONS", "")
+                env["ASAN_OPTIONS"] = (prior + ":" if prior else "") + "detect_stack_use_after_return=0:halt_on_error=1"
+                env["UBSAN_OPTIONS"] = "halt_on_error=1:print_stacktrace=1"
+                run = subprocess.run([str(exe)], capture_output=True, text=True, check=False, env=env)
                 self.assertEqual(run.returncode, 0, f"self-test ({tag}) failed: {run.stdout}\n{run.stderr}")
                 self.assertIn("K=1024", run.stdout)
                 self.assertIn("K=960", run.stdout)
