@@ -1359,14 +1359,22 @@ def run_sweep(args):
             made_temp = True
             qmap = {t.name: t for t in ggufedit.open_model(q_path).tensors}
             ref = {t.name: t for t in rd.tensors}
-            replace, infos = {}, {}
+            replace, infos, replace_files = {}, {}, {}
+            tensor_dir = os.path.join(work_dir, "tensors") if args.stream_arms else None
+            if tensor_dir:
+                os.makedirs(tensor_dir, exist_ok=True)
             for n in names:
                 W = _matrix_of(ref[n])
                 qt = qmap[n]
                 Wh = ggufedit.tensor_float(qt).reshape(W.shape)
                 bits = 8.0 * qt.data.nbytes / W.size
                 Wh16, _ = finish(W, Wh, bits, 0.0)
-                replace[n] = Wh16
+                if tensor_dir:
+                    sidecar = os.path.join(tensor_dir, re.sub(r"[^A-Za-z0-9_.+-]", "_", n) + ".f16.npy")
+                    np.save(sidecar, Wh16)
+                    replace_files[n] = sidecar
+                else:
+                    replace[n] = Wh16
                 W64 = np.asarray(W, dtype=np.float64)
                 energy = float(np.sum(W64 ** 2))
                 rel = float(np.sum((W64 - Wh16.astype(np.float64)) ** 2) / energy) if energy > 0 else 0.0
@@ -1376,9 +1384,14 @@ def run_sweep(args):
             base_row["source_file_sha256"] = sha256_of(q_path)
             base_row["build_seconds"] = round(time.time() - t0, 1)
             if not args.metrics_only:
-                ggufedit.write_copy(rd, eval_path, replace)
+                if args.stream_arms:
+                    ggufedit.write_copy_streaming(rd, eval_path, replace_files)
+                else:
+                    ggufedit.write_copy(rd, eval_path, replace)
                 base_row["other_tensors_that_differ"] = compare_file(rd, eval_path, args.model_id, n_layers)["other_tensors_that_differ"]
                 base_row["file_sha256"] = sha256_of(eval_path)
+            if tensor_dir and os.path.isdir(tensor_dir):
+                shutil.rmtree(tensor_dir, ignore_errors=True)
             del replace
         else:
             eval_path = os.path.join(work_dir, re.sub(r"[^A-Za-z0-9_.+-]", "_", f"{args.model_id}_{arm}") + ".gguf")
