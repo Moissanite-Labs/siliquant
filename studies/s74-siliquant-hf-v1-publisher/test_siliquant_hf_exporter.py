@@ -868,6 +868,73 @@ class TestAudit174ARegressions(unittest.TestCase):
                 verify_readme_license(out_dir, "Qwen/Qwen2.5-3B")
             readme.write_text(orig_rd, encoding="utf-8")
 
+    def test_s74_f6b_hf_download_artifacts_ignored_and_other_unlisted_fail(self) -> None:
+        """Fresh `snapshot_download(local_dir=...)` artifacts must not trip the unlisted-file check.
+
+        Ignored (both verifiers PASS): top-level `.gitattributes`, anything under
+        `.cache/huggingface/`, and `__pycache__/**/*.pyc`. Everything else unlisted
+        (and any symlink, even one named `.gitattributes`) must still fail closed.
+        """
+        orig = _make_tiny_qwen2(tie_word_embeddings=True, seed=517)
+        with tempfile.TemporaryDirectory(prefix="s74_f6b_") as tmp:
+            out_dir = Path(tmp) / "Qwen2.5-3B-F6B"
+            export_model_to_siliquant_hf(
+                orig,
+                out_dir,
+                base_model_id="Qwen/Qwen2.5-3B",
+                repo_name="siliquant-test/Qwen2.5-3B-F6B",
+                group_size=128,
+                bpw_key="4.5",
+                rotation="axis",
+                device=torch.device("cpu"),
+            )
+
+            # (1) HF download metadata + __pycache__ MUST be ignored by BOTH verifiers.
+            gitattributes = out_dir / ".gitattributes"
+            gitattributes.write_text("* text=auto\n", encoding="utf-8")
+            cache_meta = out_dir / ".cache" / "huggingface" / "download" / "x.metadata"
+            cache_meta.parent.mkdir(parents=True, exist_ok=True)
+            cache_meta.write_text("{}\n", encoding="utf-8")
+            pyc = out_dir / "__pycache__" / "m.cpython-312.pyc"
+            pyc.parent.mkdir(parents=True, exist_ok=True)
+            pyc.write_bytes(b"\x00" * 16)
+            vcli = verify_receipt_and_syndromes(out_dir)
+            self.assertEqual(vcli["status"], "PASS")
+            ver = verify_siliquant_export(out_dir, max_new_tokens=4)
+            self.assertEqual(ver["status"], "PASS")
+            gitattributes.unlink()
+            shutil.rmtree(out_dir / ".cache")
+            shutil.rmtree(out_dir / "__pycache__")
+
+            # (2) Any OTHER unlisted file MUST still fail BOTH verifiers.
+            for rogue_rel in ("notes.txt", ".cache/other/x", "extra.gitattributes"):
+                rogue = out_dir / rogue_rel
+                rogue.parent.mkdir(parents=True, exist_ok=True)
+                rogue.write_text("rogue\n", encoding="utf-8")
+                with self.assertRaises(ValueError):
+                    verify_receipt_and_syndromes(out_dir)
+                with self.assertRaises(VerificationError):
+                    verify_siliquant_export(out_dir, max_new_tokens=4)
+                if rogue_rel.startswith(".cache/"):
+                    shutil.rmtree(out_dir / ".cache")
+                else:
+                    rogue.unlink()
+
+            # (3) A symlink named .gitattributes (inside an ignored path) MUST still fail BOTH verifiers.
+            outside = Path(tmp) / "outside_gitattributes.txt"
+            outside.write_text("secret\n", encoding="utf-8")
+            sym = out_dir / ".gitattributes"
+            sym.symlink_to(outside)
+            with self.assertRaises(ValueError):
+                verify_receipt_and_syndromes(out_dir)
+            with self.assertRaises(VerificationError):
+                verify_siliquant_export(out_dir, max_new_tokens=4)
+            sym.unlink()
+
+            # Sanity: with everything cleaned up, both verifiers PASS again.
+            self.assertEqual(verify_receipt_and_syndromes(out_dir)["status"], "PASS")
+            self.assertEqual(verify_siliquant_export(out_dir, max_new_tokens=4)["status"], "PASS")
+
     def test_s74_f7_permuter_divisibility_and_conflicting_license_override(self) -> None:
         with self.assertRaises(ValueError):
             make_quad_snake_perm(torch.arange(100, dtype=torch.float32), 32)
