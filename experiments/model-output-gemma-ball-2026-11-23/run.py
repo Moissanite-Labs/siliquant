@@ -1423,6 +1423,13 @@ def run_sweep(args):
                 row["text_sha256"] = kld_info[tname]["text_sha256"]
                 row["timestamp_utc"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
                 if not args.metrics_only:
+                    # Free DRAM before each scoring: drop the source model's page cache and
+                    # every other text's KLD cache (a 27B ball arm is ~53 GB and the wikitext
+                    # KLD alone is 5.3 GB; left cached, Metal OOMs mid-arm on a 64 GB host).
+                    _drop_file_cache(args.model_path)
+                    for tn2, info2 in kld_info.items():
+                        if tn2 != tname:
+                            _drop_file_cache(info2["kld_path"])
                     t1 = time.time()
                     scores, _ = evalkl.score(
                         eval_path,
