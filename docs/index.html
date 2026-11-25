@@ -428,19 +428,20 @@
     }
 
     h1.paper-title {
-      margin: 0 0 10px;
-      font-size: clamp(1.85rem, 3vw, 2.35rem);
+      margin: 0 0 8px;
+      font-size: clamp(1.45rem, 2.6vw, 2.05rem);
       font-weight: 700;
       letter-spacing: -0.03em;
-      line-height: 1.15;
+      line-height: 1.12;
+      max-width: 22ch;
     }
 
     .paper-subtitle {
       margin: 0;
-      max-width: 68ch;
-      font-size: 0.98rem;
+      max-width: 70ch;
+      font-size: 0.94rem;
       color: var(--text-secondary);
-      line-height: 1.6;
+      line-height: 1.55;
     }
 
     .kpi-grid {
@@ -1226,26 +1227,150 @@
     }
 
     /* =========================================================================
-       HERO: LEDE, ACTIONS, HIGHLIGHTS, RELEASED WEIGHTS (24 Nov 2026)
+       HERO: STRIP, CTA, WALKTHROUGH, HIGHLIGHTS, RELEASED WEIGHTS
        ========================================================================= */
-    .paper-lede {
-      margin: 0 0 10px;
-      max-width: 40ch;
-      font-size: 1.22rem;
-      font-weight: 600;
-      line-height: 1.35;
-      letter-spacing: -0.015em;
-      color: var(--text-primary);
+    .results-strip {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
     }
-    .hero-actions {
+    .rs-cell {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-hairline);
+      border-radius: var(--radius-md);
+      padding: 10px 11px;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .rs-v {
+      font-family: var(--font-mono);
+      font-size: clamp(0.78rem, 1.6vw, 0.9rem);
+      font-weight: 600;
+      line-height: 1.25;
+      color: var(--win);
+    }
+    .rs-scope {
+      font-size: 0.7rem;
+      line-height: 1.45;
+      color: var(--text-muted);
+    }
+    .rs-evidence {
+      margin-top: auto;
+      padding-top: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      line-height: 1.35;
+    }
+    .rs-evidence a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      text-decoration: underline;
+      text-decoration-color: var(--accent-border);
+      text-underline-offset: 3px;
+    }
+    .hero-cta { margin-top: 10px; }
+    .hero-cta .btn {
+      height: 36px;
+      padding: 0 16px;
+      font-size: 0.82rem;
+    }
+    .hero-secondary {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 16px;
+      align-items: center;
+      gap: 6px 14px;
+      margin-top: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.73rem;
+      color: var(--text-muted);
     }
-    .hero-actions .btn { height: 36px; padding: 0 13px; font-size: 0.8rem; }
+    .hero-secondary a,
+    .hero-secondary button.hero-link-btn {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 0;
+      border: 0;
+      background: none;
+      color: var(--accent);
+      cursor: pointer;
+      font: inherit;
+      text-decoration: underline;
+      text-decoration-color: var(--accent-border);
+      text-underline-offset: 3px;
+    }
+    .block-walk {
+      margin-top: 18px;
+      padding: 14px;
+      border: 1px solid var(--border-hairline);
+      border-radius: var(--radius-md);
+      background: var(--bg-surface);
+    }
+    .block-walk-title {
+      margin: 0 0 6px;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .block-walk-lead {
+      margin: 0 0 10px;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      color: var(--text-secondary);
+      max-width: 72ch;
+    }
+    .block-walk-stage { min-width: 0; }
+    .block-walk-svg {
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+    .block-walk-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .block-walk-controls .btn { min-height: 44px; font-size: 0.74rem; }
+    .block-walk-status {
+      margin: 0;
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      color: var(--text-primary);
+    }
+    .block-walk-static {
+      margin-top: 10px;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      line-height: 1.55;
+      color: var(--text-secondary);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .block-walk-stage { display: none; }
+      .block-walk-static { display: block !important; }
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .block-walk-static:not([data-force]) { display: none; }
+    }
+    .lineage-prose { max-width: 68ch; }
+    .models-list .m-meta {
+      display: block;
+      margin-top: 2px;
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
     .hl-grid {
-      margin-top: 22px;
+      margin-top: 18px;
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 12px;
@@ -1392,8 +1517,8 @@
       .topbar-actions .btn { height: 44px; min-width: 44px; padding: 0 10px; }
       .mobile-toc-inner { padding: 0 12px; }
       .mobile-toc a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 10px; }
-      .paper-lede { font-size: 1.12rem; }
-      .hero-actions .btn { height: 44px; flex: 1 1 auto; }
+      .results-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .hero-cta .btn { height: 44px; width: 100%; justify-content: center; }
       .models-list a { min-height: 44px; }
       .brand, .models-head a { display: inline-flex; align-items: center; min-height: 44px; }
       .paper-footer .btn { height: 44px !important; }
@@ -1568,20 +1693,82 @@
             <span>Working Paper</span>
           </div>
 
-          <h1 class="paper-title">Siliquant</h1>
-          <p class="paper-lede">Smaller, faster, and self-checking. On a consumer GPU.</p>
+          <h1 class="paper-title">Lattice quantization, from silicon to model</h1>
           <p class="paper-subtitle">
-            Weight-only LLM quantization at <strong>4.5 bits per weight</strong>. With no calibration data, A<sub>16</sub> Hamming-lattice rounding scores 16–40% lower KL than plain <code>Q4_K_M</code> (4.8 bits) on three 1–2B models. A separate A<sub>16</sub> engine runs Qwen2.5-0.5B end to end on a laptop RTX 3080 and parity-checks the low bit of every packed weight as it decodes.
+            Siliquant rounds LLM weights onto the A<sub>16</sub> Hamming lattice, decodes them with hand-written CUDA kernels on a laptop RTX 3080, and checks them for flipped bits at no storage cost. Four models are released with their full records.
           </p>
-          <div class="hero-actions">
-            <a class="btn btn-accent" href="https://huggingface.co/ahrazzle/models" target="_blank" rel="noopener noreferrer">Models on Hugging Face ↗</a>
-            <a class="btn" href="#nov24">24 Nov results · §04b</a>
+
+          <div class="results-strip" id="results-strip" role="list">
+            <article class="rs-cell" role="listitem">
+              <div class="rs-v">400 tok/s, 5.6× PyTorch BF16</div>
+              <p class="rs-scope">Qwen2.5-0.5B, batch 1, laptop RTX 3080, research engine, 4.9× lower energy.</p>
+              <p class="rs-evidence"><a href="https://github.com/Moissanite-Labs/siliquant/tree/main/studies/aletheion-qwen25-live-llm-engine">engine study (PR #88)</a></p>
+            </article>
+            <article class="rs-cell" role="listitem">
+              <div class="rs-v">16–40% lower KL than plain Q4_K_M</div>
+              <p class="rs-scope">A<sub>16</sub> at 4.5 bits vs Q4_K_M at 4.8, no calibration data, three 1–2B Instruct models. Not the released models.</p>
+              <p class="rs-evidence"><a href="#nov24">§04b table 4.2</a> · <a href="https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/hamming-lattices-real-weights-2026-11-24">experiment</a></p>
+            </article>
+            <article class="rs-cell" role="listitem">
+              <div class="rs-v">Built-in bit-flip detection, 0 extra bytes</div>
+              <p class="rs-scope">detects flips in the lowest bit of each 4-bit weight code; costs 3.1% tok/s end to end.</p>
+              <p class="rs-evidence"><a href="https://github.com/Moissanite-Labs/siliquant/blob/main/studies/aletheion-qwen25-live-llm-engine/qwen25_sm86_a16_engine.cu">qwen25_sm86_a16_engine.cu</a></p>
+            </article>
+            <article class="rs-cell" role="listitem">
+              <div class="rs-v">4 models</div>
+              <p class="rs-scope">360M to 3B; 4.5 bpw target, 5.2–5.4 packed on linears.</p>
+              <p class="rs-evidence"><a href="https://huggingface.co/collections/ahrazzle/siliquant-stratified-lattice-quantized-llms-6b060e6988afd65942cd7768">HF collection</a></p>
+            </article>
           </div>
 
-          <!-- Highlights: the three strongest results (24 Nov 2026). Value, scope, limit; the full account folds open. -->
+          <div class="hero-cta">
+            <a class="btn btn-accent" href="https://huggingface.co/collections/ahrazzle/siliquant-stratified-lattice-quantized-llms-6b060e6988afd65942cd7768" target="_blank" rel="noopener noreferrer">Models on Hugging Face ↗</a>
+          </div>
+          <div class="hero-secondary">
+            <a href="https://github.com/Moissanite-Labs/siliquant" target="_blank" rel="noopener noreferrer">Code and records</a>
+            <span aria-hidden="true">·</span>
+            <a href="#nov24">Paper (§04b)</a>
+            <span aria-hidden="true">·</span>
+            <button type="button" class="hero-link-btn" id="heroCiteBtn">Cite</button>
+          </div>
+
+          <div class="block-walk" id="block-walk" aria-labelledby="block-walk-title">
+            <h2 class="block-walk-title" id="block-walk-title">One block of 16 weights</h2>
+            <p class="block-walk-lead">
+              Extended Hamming [16,11,4]: the low bit of each of 16 weight codes forms a codeword. The engine checks that codeword as it decodes. A single flipped low bit gives a unique syndrome; two flips are detected but not located; detection only.
+            </p>
+            <div class="block-walk-static" id="blockWalkStatic">
+              16 weights → Hadamard turn → A<sub>16</sub> rounding → 18 bytes per 32 weights → syndrome check on decode (0 when intact; non-zero when one low bit flips).
+            </div>
+            <div class="block-walk-stage" id="blockWalkStage">
+              <svg class="block-walk-svg" id="blockWalkSvg" viewBox="0 0 640 168" role="img" aria-labelledby="blockWalkSvgTitle">
+                <title id="blockWalkSvgTitle">Sixteen weight codes with low-bit parity row; syndrome readout</title>
+              </svg>
+              <div class="block-walk-controls">
+                <button type="button" class="btn" id="blockFlipBtn" aria-pressed="false" aria-controls="blockWalkSvg blockWalkStatus">Flip one low bit</button>
+                <p class="block-walk-status" id="blockWalkStatus" aria-live="polite">Syndrome: 0 — codeword valid (detection only)</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Proof cards: kernel, quantization, bit-flip detection (pillar order). -->
           <div class="hl-grid" id="highlights">
             <article class="hl">
-              <div class="hl-k">1 &middot; Fewer bits, lower error than Q4_K_M</div>
+              <div class="hl-k">1 &middot; Fast on a laptop GPU</div>
+              <div class="hl-v">400 tok/s</div>
+              <div class="hl-sub">CUDA kernels on an RTX 3080, end to end</div>
+              <p class="hl-limit"><strong>Limit:</strong> one 0.5B model, batch 1, against PyTorch BF16, not against llama.cpp or Q4. The engine uses uncalibrated A<sub>16</sub> rounding: 82% top-1 agreement with BF16 when teacher-forced, and free-running text diverges after 4 tokens.</p>
+              <details class="hl-more">
+                <summary>Details</summary>
+                <p>Qwen2.5-0.5B runs at <strong>400 tokens a second</strong> on an RTX 3080 laptop GPU. That is <strong>5.6 times faster than PyTorch BF16</strong>, and it uses <strong>4.9 times less energy</strong>.
+                Its linear layers are stored at 4.5 bits a weight; the embeddings and output head stay in BF16.
+                In isolated matrix-vector kernels, pre-encoded A<sub>16</sub> weights stream at 611 to 647 billion weights a second, at the measured memory-bandwidth ceiling. Unranking the compact <code>hampack</code> file on the fly reaches only 3.7 billion, so serving uses the pre-encoded layout.
+                The method and audit program come from Foundation-0's <a href="https://github.com/Foundation-0/cave-expedition">cave-expedition</a> and <a href="https://github.com/Foundation-0/aletheia">aletheia</a>; the CUDA kernels and the decode engine were written in this repository, and neither origin repository has GPU code to compare against.
+                Details: <a href="https://github.com/Moissanite-Labs/siliquant/tree/main/studies/aletheion-qwen25-live-llm-engine">engine study (PR #88)</a> and <a href="https://github.com/Moissanite-Labs/siliquant/tree/main/studies/aletheion-sm86-ptx-avx512-foundry">kernel study</a>.</p>
+              </details>
+            </article>
+            <article class="hl">
+              <div class="hl-k">2 &middot; Fewer bits, lower error than Q4_K_M</div>
               <div class="hl-v">16–40% lower KL than <code>Q4_K_M</code></div>
               <div class="hl-sub">A<sub>16</sub> at 4.5 bits vs <code>Q4_K_M</code> at 4.8, no calibration data, three 1–2B models</div>
               <p class="hl-limit"><strong>Limit:</strong> three 1–2B models, one text. Against <code>Q4_K_M</code> made with an importance matrix (scored with 8-bit activations, so not exactly like-for-like), A<sub>16</sub> is lower on Qwen2.5 (0.019 vs 0.028) but higher on SmolLM2 (0.048 vs 0.038); Llama was not tested. Not the released Hugging Face models, which use other A<sub>16</sub> recipes and have no <code>Q4_K_M</code> comparison.</p>
@@ -1594,21 +1781,8 @@
               </details>
             </article>
             <article class="hl">
-              <div class="hl-k">2 &middot; Fast on a laptop GPU</div>
-              <div class="hl-v">400 tok/s</div>
-              <div class="hl-sub">CUDA kernels on an RTX 3080, end to end</div>
-              <p class="hl-limit"><strong>Limit:</strong> one 0.5B model, batch 1, against PyTorch BF16, not against llama.cpp or Q4. The engine uses uncalibrated A<sub>16</sub> rounding: 82% top-1 agreement with BF16 when teacher-forced, and free-running text diverges after 4 tokens.</p>
-              <details class="hl-more">
-                <summary>Details</summary>
-                <p>Qwen2.5-0.5B runs at <strong>400 tokens a second</strong> on an RTX 3080 laptop GPU. That is <strong>5.6 times faster than PyTorch BF16</strong>, and it uses <strong>4.9 times less energy</strong>.
-                Its linear layers are stored at 4.5 bits a weight; the embeddings and output head stay in BF16.
-                In isolated matrix-vector kernels, pre-encoded A<sub>16</sub> weights stream at 611 to 647 billion weights a second, at the measured memory-bandwidth ceiling. Unranking the compact <code>hampack</code> file on the fly reaches only 3.7 billion, so serving uses the pre-encoded layout.
-                Details: <a href="https://github.com/Moissanite-Labs/siliquant/tree/main/studies/aletheion-qwen25-live-llm-engine">engine study (PR #88)</a> and <a href="https://github.com/Moissanite-Labs/siliquant/tree/main/studies/aletheion-sm86-ptx-avx512-foundry">kernel study</a>.</p>
-              </details>
-            </article>
-            <article class="hl">
               <div class="hl-k">3 &middot; The format checks itself</div>
-              <div class="hl-v">0 extra bytes</div>
+              <div class="hl-v">Built-in bit-flip detection, 0 extra bytes</div>
               <div class="hl-sub">Bit-flip detection with no ECC hardware</div>
               <p class="hl-limit"><strong>Limit:</strong> the check sees only the lowest of each weight's 4 stored bits, so flips in the other 3 bits, the scales, activations or the KV cache go unseen. The Hugging Face files rely on SHA-256 checks instead. No flipped bit has been caught live in the middle of a run yet.</p>
               <details class="hl-more">
@@ -1631,10 +1805,28 @@
               <li><a href="https://huggingface.co/ahrazzle/SmolLM2-360M-Siliquant-A16-BlockH4-AdaptZeroCal-4.5bpw" target="_blank" rel="noopener noreferrer"><span><span class="m-base">SmolLM2-360M</span>-Siliquant-A16-BlockH4-AdaptZeroCal-4.5bpw</span></a></li>
               <li><a href="https://huggingface.co/ahrazzle/Qwen2.5-0.5B-Siliquant-A16-BlockH4-QuadLPT-4.5bpw" target="_blank" rel="noopener noreferrer"><span><span class="m-base">Qwen2.5-0.5B</span>-Siliquant-A16-BlockH4-QuadLPT-4.5bpw</span></a></li>
               <li><a href="https://huggingface.co/ahrazzle/Qwen2.5-1.5B-Siliquant-A16-BlockH4-QuadLPT-SharedNorm-4.5bpw" target="_blank" rel="noopener noreferrer"><span><span class="m-base">Qwen2.5-1.5B</span>-Siliquant-A16-BlockH4-QuadLPT-SharedNorm-4.5bpw</span></a></li>
-              <li><a href="https://huggingface.co/ahrazzle/Qwen2.5-3B-Siliquant-A16-BlockH4-QuadSnake-4.5bpw" target="_blank" rel="noopener noreferrer"><span><span class="m-base">Qwen2.5-3B</span>-Siliquant-A16-BlockH4-QuadSnake-4.5bpw</span></a></li>
+              <li><a href="https://huggingface.co/ahrazzle/Qwen2.5-3B-Siliquant-A16-BlockH4-QuadSnake-4.5bpw" target="_blank" rel="noopener noreferrer"><span><span class="m-base">Qwen2.5-3B</span>-Siliquant-A16-BlockH4-QuadSnake-4.5bpw<span class="m-meta">quad_snake · Qwen Research License · WikiText-2 PPL 10.97 → 11.06 (+0.85%) vs its own BF16</span></span></a></li>
             </ul>
           </div>
         </header>
+      </section>
+
+      <section id="lineage" class="paper-section">
+        <div class="sec-head">
+          <div class="sec-title-wrap">
+            <span class="sec-num">&mdash;</span>
+            <h2 class="sec-title">Lineage</h2>
+          </div>
+        </div>
+        <p class="prose lineage-prose">
+          <a href="https://github.com/Foundation-0/aletheia" target="_blank" rel="noopener noreferrer">aletheia</a> supplied the method and audit gates;
+          <a href="https://github.com/Foundation-0/cave-expedition" target="_blank" rel="noopener noreferrer">cave-expedition</a>&rsquo;s audit program produced the expedition studies in this repository.
+        </p>
+        <p class="prose lineage-prose">
+          The CUDA kernels, decode engine and in-engine parity check were written in
+          <a href="https://github.com/Moissanite-Labs/siliquant">Moissanite-Labs/siliquant</a>;
+          neither origin repository ships GPU code.
+        </p>
       </section>
 
       <!-- ===================================================================
@@ -4117,6 +4309,64 @@
       function setActiveNav(id) {
         desktopLinks.forEach((a) => a.classList.toggle('active', a.getAttribute('href') === `#${id}`));
         mobileLinks.forEach((a) => a.classList.toggle('active', a.getAttribute('href') === `#${id}`));
+      }
+
+      /* ---------------------------------------------------------------------
+         BLOCK WALK (signature moment; sole page motion)
+         --------------------------------------------------------------------- */
+      const blockFlipBtn = document.getElementById('blockFlipBtn');
+      const blockWalkSvg = document.getElementById('blockWalkSvg');
+      const blockWalkStatus = document.getElementById('blockWalkStatus');
+      const heroCiteBtn = document.getElementById('heroCiteBtn');
+      if (heroCiteBtn) {
+        heroCiteBtn.addEventListener('click', () => document.getElementById('citeBtn').click());
+      }
+      const lowBits = [1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0];
+      let blockFlipped = false;
+      const blockFlipIndex = 5;
+      const blockFlipSyndrome = 10;
+
+      function renderBlockWalk() {
+        if (!blockWalkSvg || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        blockWalkSvg.innerHTML = '';
+        const NS = 'http://www.w3.org/2000/svg';
+        function svgEl(name, attrs, text) {
+          const n = document.createElementNS(NS, name);
+          Object.entries(attrs || {}).forEach(([k, v]) => n.setAttribute(k, String(v)));
+          if (text != null) n.textContent = text;
+          return n;
+        }
+        blockWalkSvg.appendChild(svgEl('text', { x: 8, y: 18, fill: 'var(--text-muted)', 'font-family': 'var(--font-mono)', 'font-size': 9 }, 'Low bit of each 4-bit code → Hamming codeword'));
+        for (let i = 0; i < 16; i++) {
+          const x = 16 + i * 38;
+          for (let b = 3; b >= 0; b--) {
+            const y = 32 + (3 - b) * 15;
+            const bit = b === 0
+              ? (blockFlipped && i === blockFlipIndex ? 1 - lowBits[i] : lowBits[i])
+              : ((i + b) % 2);
+            blockWalkSvg.appendChild(svgEl('rect', {
+              x, y, width: 30, height: 12, rx: 2,
+              fill: b === 0 ? (bit ? 'var(--win)' : 'var(--bg-hover)') : 'var(--bg-subtle)',
+              stroke: 'var(--border-hairline)', 'stroke-width': 0.8,
+            }));
+          }
+        }
+        const syn = blockFlipped ? blockFlipSyndrome : 0;
+        blockWalkSvg.appendChild(svgEl('text', { x: 16, y: 118, fill: 'var(--text-primary)', 'font-family': 'var(--font-mono)', 'font-size': 10 }, `Syndrome: ${syn}`));
+        blockWalkSvg.appendChild(svgEl('text', { x: 16, y: 140, fill: 'var(--text-muted)', 'font-family': 'var(--font-mono)', 'font-size': 9 }, 'Extended Hamming [16,11,4] · detection only'));
+        if (blockWalkStatus) {
+          blockWalkStatus.textContent = blockFlipped
+            ? `Syndrome: ${syn} — single low-bit flip detected (not located for repair)`
+            : 'Syndrome: 0 — codeword valid (detection only)';
+        }
+      }
+      if (blockFlipBtn && blockWalkSvg && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        renderBlockWalk();
+        blockFlipBtn.addEventListener('click', () => {
+          blockFlipped = !blockFlipped;
+          blockFlipBtn.setAttribute('aria-pressed', blockFlipped ? 'true' : 'false');
+          renderBlockWalk();
+        });
       }
 
       if ('IntersectionObserver' in window) {
