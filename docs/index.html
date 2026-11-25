@@ -1424,19 +1424,19 @@
           <!-- Four-card Highlight Strip matching paper header -->
           <div class="kpi-grid">
             <div class="kpi-card">
-              <div class="kpi-value win">−36% to −52%</div>
-              <div class="kpi-label">E<sub>8</sub> KL divergence vs <code>Q4_0</code> on Gemma 4 E4B</div>
-              <div class="kpi-meta">4.005–5.005 bpw · 8-bit ref</div>
+              <div class="kpi-value win">−36%</div>
+              <div class="kpi-label">E<sub>8</sub> KL divergence vs <code>Q4_0</code> on Gemma 4 E4B, both 4.5 bpw</div>
+              <div class="kpi-meta"><code>Q4_K_M</code> at 4.8 bpw is lower (0.069 vs 0.075) · 8-bit ref</div>
             </div>
             <div class="kpi-card">
               <div class="kpi-value win">−19% / −25%</div>
-              <div class="kpi-label">Gemma 3 4B ball vs <code>Q4_K_M</code> across both texts</div>
-              <div class="kpi-meta">WikiText-2 / Python · ~4.5 bpw · unequal rates</div>
+              <div class="kpi-label">Gemma 3 4B calibrated ball vs calibrated <code>Q4_K_M</code>, both texts</div>
+              <div class="kpi-meta">WikiText-2 / Python · 4.50 vs 4.82 bpw · provisional</div>
             </div>
             <div class="kpi-card">
-              <div class="kpi-value win">−17% to −43%</div>
-              <div class="kpi-label">Ball + Hadamard E<sub>8</sub> vs <code>Q4_K_M</code> on 1B–1.7B models</div>
-              <div class="kpi-meta">Qwen2.5, SmolLM2, Llama-3.2</div>
+              <div class="kpi-value win">−16% to −40%</div>
+              <div class="kpi-label">A<sub>16</sub> ball KL vs plain <code>Q4_K_M</code> (no importance matrix) on 1B–1.7B models</div>
+              <div class="kpi-meta">Qwen2.5, SmolLM2, Llama-3.2 Instruct · 4.5 vs 4.8 bpw · WikiText-2</div>
             </div>
             <div class="kpi-card">
               <div class="kpi-value accent">3.56× ceiling</div>
@@ -1735,7 +1735,7 @@
             <span class="sec-num">01</span>
             <h2 class="sec-title">Gemma 4 E4B Rate-Distortion</h2>
           </div>
-          <span class="sec-spec">gemma-4-E4B-it · 7.5B weights · 294 matrices · 10,200 pos · 61 variants · 8-bit ref</span>
+          <span class="sec-spec">gemma-4-E4B-it · 7.5B weights · 294 matrices · 10,200 pos · 8-bit ref</span>
         </div>
 
         <p class="prose">
@@ -1756,7 +1756,7 @@
               </div>
               <div class="legend">
                 <span class="legend-item"><span class="swatch" style="background: var(--chart-e8);"></span>E<sub>8</sub></span>
-                <span class="legend-item"><span class="swatch" style="background: var(--chart-q4);"></span>Q4_0</span>
+                <span class="legend-item"><span class="swatch" style="background: var(--chart-q4);"></span>Q4_0 / scalar XR</span>
                 <span class="legend-item"><span class="swatch" style="background: var(--warn); border-radius: 50%;"></span>Q4_K_M (ctx)</span>
               </div>
             </div>
@@ -1795,10 +1795,10 @@
                   <td><strong>E<sub>8</sub></strong></td>
                   <td class="num">5.005</td>
                   <td class="num"><strong>0.059</strong></td>
-                  <td><span class="pill pill-win">−50% vs Q4_0</span></td>
+                  <td><span class="pill pill-win">−50% vs scalar XR</span></td>
                 </tr>
                 <tr>
-                  <td>Q4_0</td>
+                  <td>Scalar XR (per-row)</td>
                   <td class="num">5.005</td>
                   <td class="num">0.118</td>
                   <td class="mono" style="color:var(--text-muted);">n/a</td>
@@ -1807,10 +1807,10 @@
                   <td><strong>E<sub>8</sub></strong></td>
                   <td class="num">4.005</td>
                   <td class="num"><strong>0.215</strong></td>
-                  <td><span class="pill pill-win">−52% vs Q4_0</span> <span class="mono" style="font-size:0.7rem; color:var(--text-muted);">(over 50% below)</span></td>
+                  <td><span class="pill pill-win">−52% vs scalar XR</span> <span class="mono" style="font-size:0.7rem; color:var(--text-muted);">(over 50% below)</span></td>
                 </tr>
                 <tr>
-                  <td>Q4_0</td>
+                  <td>Scalar XR (per-row)</td>
                   <td class="num">4.005</td>
                   <td class="num">0.448</td>
                   <td class="mono" style="color:var(--text-muted);">n/a</td>
@@ -1912,7 +1912,7 @@
               </div>
 
               <p class="prose" style="font-size: 0.83rem; margin-bottom: 14px;">
-                A substantial fraction of Gemma weights carry strictly zero load for the tested text, alongside a smaller universal core that zeros out cleanly across arbitrary text without shifting output logits.
+                For the tested text, 2.79B weights (rows of <code>per_layer_token_embd</code> for tokens the text never uses) can be zeroed with every score unchanged. For any text, 55M weights (the <code>attn_k</code>/<code>attn_v</code> of the last 18 layers, which reuse earlier layers' keys and values and are never read) can be zeroed.
               </p>
 
               <!-- Proportional budget visual of 7.5B weights -->
@@ -1938,7 +1938,7 @@
               <div class="mini-stat">
                 <div class="mini-stat-k">Zeroed (Any Text)</div>
                 <div class="mini-stat-v" style="color: var(--win);">55M</div>
-                <div class="mini-stat-sub">KL <code>0.000000</code> universal core</div>
+                <div class="mini-stat-sub">KL <code>0.000000</code> unread K/V weights</div>
               </div>
             </div>
           </div>
@@ -2034,9 +2034,9 @@
               </tbody>
             </table>
             <div style="padding: 10px 12px; border-top: 1px solid var(--border-hairline); font-size: 0.75rem; color: var(--text-muted); line-height: 1.5;">
-              <div><strong>*</strong> Ball baseline uses Q4_K_M + importance matrix.</div>
-              <div><strong>Ten-column repair:</strong> Leaving 10 loud <code>ffn_down</code> columns unquantized (+<code>0.005</code> extra bpw) beats Q4_K_M on all three models: KL <code>0.0222</code>, <code>0.0528</code>, <code>0.0302</code>.</div>
-              <div><strong>Additional findings:</strong> Plain ball beats Q4_K_M on 2/3 models (Llama exception). Turned lattice is lowest or within 2 errors on all three at 4.5 bits. At <code>3.0 bpw</code>, no single arm wins. Zero-retention on smallest-magnitude weights: <code>85.9%</code> (Hadamard arm).</div>
+              <div><strong>*</strong> Ball baseline uses Q4_K_M + importance matrix. The Had. E<sub>8</sub> baseline is plain Q4_K_M (no importance matrix) scored with 8-bit activations; at 16-bit activations it is 0.031690 / 0.072237 / 0.041195, and the Had. E<sub>8</sub> gains become −40.4%, −28.7%, −12.5%.</div>
+              <div><strong>Ten-column repair:</strong> Leaving 10 loud <code>ffn_down</code> columns unquantized (+<code>0.005</code> extra bpw, no importance matrix) gives KL <code>0.0222</code>, <code>0.0528</code>, <code>0.0302</code>: below plain Q4_K_M (no importance matrix) on all three models, but above Q4_K_M with an importance matrix on SmolLM2 (<code>0.0378</code>).</div>
+              <div><strong>Additional findings:</strong> Plain ball beats plain Q4_K_M (no importance matrix) on 2/3 models (Llama exception). Turned lattice is lowest or within 2 errors on all three at 4.5 bits. At <code>3.0 bpw</code>, no single arm wins. Zero-retention on smallest-magnitude weights: <code>83.7–85.9%</code> (Hadamard arm).</div>
               <div><strong>At 3.0 bpw:</strong> plain E8 wins on Qwen2.5 (<code>0.169338</code> vs turned <code>0.178526</code>) and integer levels win on SmolLM2 (<code>0.419643</code> vs turned <code>0.629902</code>). In the separate 4.5-bpw Voronoi code, turning helps SmolLM2 but hurts Qwen2.5, and both turned arms trail stock Q4_K_M.</div>
               <div><strong>Counted bits:</strong> The ball arms count about <code>4.5 bpw</code> against stock’s roughly <code>4.8 bpw</code>. That count is not a packed file size.</div>
             </div>
@@ -2050,7 +2050,7 @@
         </h3>
 
         <p class="prose">
-          Mean KL to the 16-bit reference. At about <code>4.5 bpw</code>, the calibrated ball beats calibrated <code>Q4_K_M</code> only on WikiText for the <a href="https://github.com/Moissanite-Labs/siliquant/blob/main/site/results.html#gemma">270M</a> model and on neither text for <a href="https://github.com/Moissanite-Labs/siliquant/blob/main/site/results.html#gemma">1B</a>. At about <code>5 bpw</code>, it is lower on both texts for both models, against stock rates of about <code>5.43–5.48 bpw</code>.
+          Mean KL to the 16-bit reference. At about <code>4.5 bpw</code>, the calibrated ball beats calibrated <code>Q4_K_M</code> (which falls back to <code>5.43–5.48 bpw</code> on these two models) only on WikiText for the <a href="https://github.com/Moissanite-Labs/siliquant/blob/main/site/results.html#gemma">270M</a> model and on neither text for <a href="https://github.com/Moissanite-Labs/siliquant/blob/main/site/results.html#gemma">1B</a>. At about <code>5 bpw</code>, it is lower on both texts for both models, against stock rates of about <code>5.43–5.48 bpw</code>.
         </p>
         <p class="prose">
           On <a href="https://github.com/Moissanite-Labs/siliquant/blob/main/site/results.html#gemma">4B</a>, the calibrated ball at <code>4.5040 bpw</code> scores lower on both texts than calibrated <code>Q4_K_M</code> at its normal <code>4.8151 bpw</code>. The rates are unequal, and the <a href="https://github.com/Moissanite-Labs/siliquant/blob/main/site/results.html#gemma">stock receipts</a> flag a change to <code>token_embd.weight</code> outside the counted blocks; the ball runner copies it unchanged from the reference.
@@ -2070,7 +2070,7 @@
                 <th class="num">Ball Python</th>
                 <th class="num">Q4_K_M Python</th>
                 <th class="num">Δ Python</th>
-                <th>Outcome (~4.5 bpw)</th>
+                <th>Outcome (ball ~4.5 bpw)</th>
               </tr>
             </thead>
             <tbody>
@@ -2298,7 +2298,7 @@
           </div>
           <div class="kpi-card">
             <div class="kpi-value win">0.023154 / 0.020494</div>
-            <div class="kpi-label">Qwen2.5-3B record KL (Wiki / Python), stratified quad-snake A<sub>16</sub>_BlockH4</div>
+            <div class="kpi-label">Qwen2.5-3B lowest repo KL (Wiki / Python, calibrated), stratified quad-snake A<sub>16</sub>_BlockH4</div>
             <div class="kpi-meta">−4.24% vs hA16_BlockH2_real · 87 arms · 4,757,127,168 weights</div>
           </div>
           <div class="kpi-card">
@@ -2360,7 +2360,7 @@
           At 3.0 bpw the Hamming lattices close the gap on SmolLM2 (A<sub>32</sub> 0.358845, A<sub>16</sub> 0.380994, against 0.419643 for
           integer levels, which had been far ahead of every E<sub>8</sub> arm) and A<sub>16</sub> is the lowest arm on Qwen2.5 (0.160368).
           The committed <code>Q4_K_M</code> rows paid for 8-bit activations the ball arms never paid: multiplied at 16 bits it scores
-          0.031690 / 0.072237 / 0.041195, so every ball-arm lead holds by 0.8 to 5.4 errors more. bitsandbytes' NF4 at 4.5 bpw is
+          0.031690 / 0.072237 / 0.041195, so every ball-arm lead shrinks by 0.8 to 5.4 errors and all still hold. bitsandbytes' NF4 at 4.5 bpw is
           26.5–46.4 errors behind E<sub>8</sub> turned. Sources: <code>experiments/hamming-lattices-real-weights-2026-11-24/results.out</code>,
           <code>experiments/packed-hamming-2026-11-24/results.out</code> at <code>0a40250</code>.
         </p>
@@ -2398,8 +2398,8 @@
               0 B spill, bit-exact over 6,144 rows) and 575.31 Gw/s on 2048×11008. <strong>#93:</strong> global channel sort is
               <em>falsified</em> on 4/4 models (group-ball Hessian budget-transfer cannibalization); the coupled-coherent cure
               (<code>ProjType_Uniform</code>, zero calibration) scores WikiKL 0.046336 / PyKL 0.034327. <strong>#95:</strong> rank-invariant
-              quad-snake interleaving sets the 3B record <strong>0.023154 / 0.020494</strong>, shattering hA16_BlockH2 on all 3 Qwen models.
-              <strong>#88:</strong> Qwen2.5-0.5B full-model engine, 400.58 tok/s at 4.91× lower energy than AVX-512.
+              quad-snake interleaving gives the lowest calibrated 3B KL in the repo, <strong>0.023154 / 0.020494</strong>, below hA16_BlockH2 on WikiText-2 KL on all 3 Qwen models.
+              <strong>#88:</strong> Qwen2.5-0.5B full-model engine on an RTX 3080 Laptop, 400.58 tok/s, 5.60× faster and 4.91× lower energy than PyTorch BF16.
               <strong>Theory (#87, #92, #94):</strong> 12 + 21 kernel-checked Lean 4.36.0 theorems — the exact 8× opposite-sign
               E<sub>8</sub>-vs-A<sub>16</sub> Hadamard contrast, the cross-layer R<sub>cross</sub> reversal threshold, and the two-level
               saddle-point dominance of stratified quad-interleaving.
@@ -2461,7 +2461,7 @@
             <text x="462" y="37" fill="var(--text-muted)" font-family="var(--font-mono)" font-size="10" font-weight="600">03 · PACKED FORMAT</text>
             <text x="462" y="58" fill="var(--text-primary)" font-family="var(--font-sans)" font-size="12.5" font-weight="600">4.505 bits / weight</text>
             <text x="462" y="76" fill="var(--text-secondary)" font-family="var(--font-mono)" font-size="10.5">Bit-for-bit readback</text>
-            <text x="462" y="92" fill="var(--text-muted)" font-family="var(--font-mono)" font-size="10">MMLU: −0.70 to +0.15 pts</text>
+            <text x="462" y="92" fill="var(--text-muted)" font-family="var(--font-mono)" font-size="10">MMLU (counted ball): −0.70 to +0.15</text>
 
             <line x1="632" y1="59" x2="660" y2="59" stroke="var(--chart-axis)" stroke-width="1.4" marker-end="url(#arrowHead)" />
 
@@ -2470,7 +2470,7 @@
             <text x="678" y="37" fill="var(--win)" font-family="var(--font-mono)" font-size="10" font-weight="600">04 · VERIFICATION</text>
             <text x="678" y="58" fill="var(--text-primary)" font-family="var(--font-sans)" font-size="12.5" font-weight="600">48 / 48 Exact Matches</text>
             <text x="678" y="76" fill="var(--text-secondary)" font-family="var(--font-mono)" font-size="10.5">Squared-distance check</text>
-            <text x="678" y="92" fill="var(--text-muted)" font-family="var(--font-mono)" font-size="10">Under Q4_K_M: 10.2–13.5 err</text>
+            <text x="678" y="92" fill="var(--text-muted)" font-family="var(--font-mono)" font-size="10">Under plain Q4_K_M: 10.2–13.5 err</text>
           </svg>
         </div>
 
@@ -2480,7 +2480,7 @@
             <div class="panel-head">
               <div>
                 <div class="panel-title">Data-Free Importance Matrix Recovery</div>
-                <div class="panel-sub">Built from random vocabulary pieces vs real-text matrix</div>
+                <div class="panel-sub">Share of <code>Q4_K_M</code>'s real-text gain recovered by a random-vocabulary matrix</div>
               </div>
             </div>
 
@@ -2503,7 +2503,7 @@
             </div>
 
             <div style="border-top: 1px solid var(--border-hairline); padding-top: 12px; font-size: 0.79rem; color: var(--text-secondary); line-height: 1.55;">
-              <strong>Packed file (merged):</strong> <code>4.505 bpw</code>, verified bit-for-bit on readback, scoring under <code>Q4_K_M</code> by <code>10.2</code>, <code>13.5</code>, and <code>11.9</code> errors respectively. On Llama-3.2, keeping the ten loud <code>ffn_down</code> columns lowers mean KL from <code>0.051877</code> to <code>0.033987</code> at <code>4.50542 bpw</code>, a 34.5% reduction.
+              <strong>Packed file (merged):</strong> <code>4.505 bpw</code>, verified bit-for-bit on readback, scoring under plain <code>Q4_K_M</code> (no importance matrix) by <code>10.2</code>, <code>13.5</code>, and <code>11.9</code> errors respectively; against <code>Q4_K_M</code> with an importance matrix the SmolLM2 file is higher (<code>0.0581</code> vs <code>0.0378</code>). On Llama-3.2, keeping the ten loud <code>ffn_down</code> columns lowers mean KL from <code>0.051877</code> to <code>0.033987</code> at <code>4.50542 bpw</code>, a 34.5% reduction.
             </div>
 
             <div style="padding-top: 8px; font-size: 0.79rem; color: var(--text-secondary); line-height: 1.55;">
@@ -2964,14 +2964,14 @@
         }, 'KL Divergence ↓'));
 
         const e8Pts = [
-          { bpw: 4.005, kl: 0.215, note: '−52% vs Q4_0 (over 50% below)' },
+          { bpw: 4.005, kl: 0.215, note: '−52% vs per-row scalar XR at 4.005 bpw' },
           { bpw: 4.500, kl: 0.075, note: '−36% vs Q4_0 · Top-1: 91.6%' },
-          { bpw: 5.005, kl: 0.059, note: '−50% vs Q4_0' }
+          { bpw: 5.005, kl: 0.059, note: '−50% vs per-row scalar XR at 5.005 bpw' }
         ];
         const q4Pts = [
-          { bpw: 4.005, kl: 0.448, note: 'Baseline Q4_0 @ 4.005 bpw' },
+          { bpw: 4.005, kl: 0.448, note: 'Baseline per-row scalar XR @ 4.005 bpw (not Q4_0)' },
           { bpw: 4.500, kl: 0.117, note: 'Baseline Q4_0 · Top-1: 89.4%' },
-          { bpw: 5.005, kl: 0.118, note: 'Baseline Q4_0 @ 5.005 bpw' }
+          { bpw: 5.005, kl: 0.118, note: 'Baseline per-row scalar XR @ 5.005 bpw (not Q4_0)' }
         ];
         const ctxPt = { bpw: 4.800, kl: 0.069, note: 'Context only · not bit-matched' };
 
@@ -3019,7 +3019,7 @@
           });
         }
 
-        addPoints(q4Pts, 'Q4_0', 'var(--chart-q4)');
+        addPoints(q4Pts, 'Q4_0 / scalar XR', 'var(--chart-q4)');
         addPoints(e8Pts, 'Siliquant E8', 'var(--chart-e8)');
         addPoints([ctxPt], 'Q4_K_M (context)', 'var(--warn)');
       }
@@ -3182,7 +3182,7 @@
 
         const pts = [
           { bpw: 4.0, kl: 0.131, note: 'INT4 floor boundary (sharp KL rise below 4.0)' },
-          { bpw: 4.5, kl: 0.072, note: 'Primary measured operating point (−19% vs Q4_K_M)' },
+          { bpw: 4.5, kl: 0.072, note: 'Primary measured operating point (−19% vs calibrated Q4_K_M, provisional)' },
           { bpw: 5.0, kl: 0.038, note: 'KL still improving; sweet spot awaits cost data' }
         ];
 
@@ -3248,7 +3248,7 @@
             { code: 'b560', role: 'Codebook Cap',    desc: '≤ 2⁵⁶⁰ pts (‖y‖² ≤ 3380)', tone: 't-win' },
             { code: 's16',  role: 'Scale Precision', desc: 'Unsnapped fp16 per-block scale', tone: 't-warn' }
           ],
-          formula: '560 / 128 + 16 / 128 = 4.500 bpw · Gemma 3 4B: −19% Wiki / −25% Python vs Q4_K_M',
+          formula: '560 / 128 + 16 / 128 = 4.500 bpw · Gemma 3 4B: −19% Wiki / −25% Python vs calibrated Q4_K_M (provisional)',
           badge: 'Primary Ball Arm · 4.50 bpw'
         },
         hbg: {
@@ -3259,7 +3259,7 @@
             { code: 'b560', role: 'Codebook Cap',    desc: '≤ 2⁵⁶⁰ codepoints', tone: 't-win' },
             { code: 's16',  role: 'Scale Precision', desc: 'Unsnapped fp16 scale', tone: 't-warn' }
           ],
-          formula: 'Calibration-free Hadamard arm · Qwen2.5 −43.4%, SmolLM2 −38.5%, Llama −16.5% vs Q4_K_M',
+          formula: 'Calibration-free Hadamard arm · Qwen2.5 −40.4%, SmolLM2 −28.7%, Llama −12.5% vs plain Q4_K_M@16 (no imatrix)',
           badge: 'Zero-Calib Turn · ~4.47–4.50 bpw'
         },
         ve8z: {
@@ -3286,9 +3286,9 @@
           tokens: [
             { code: 'hZBG128', role: 'Base Arm',     desc: '0.25-power imatrix Z⁸ ball, 128-weight blocks', tone: 't-accent' },
             { code: '+K10',    role: 'Outlier Repair',desc: 'Leave 10 loud ffn_down columns unquantized in fp16 (+0.005 bpw)', tone: 't-win' },
-            { code: '~rand',   role: 'Data-Free Calib',desc: 'Imatrix built from random vocab tokens (recovers 69–96% of real)', tone: 't-warn' }
+            { code: '~rand',   role: 'Data-Free Calib',desc: 'Imatrix built from random vocab tokens (recovers 69–96% of real for Q4_K_M; 82–89% for the ball on SmolLM2/Llama, none needed on Qwen2.5)', tone: 't-warn' }
           ],
-          formula: '+0.005 bpw for +K10 beats Q4_K_M on Qwen/SmolLM2/Llama (does not transfer to Gemma)',
+          formula: '+0.005 bpw for +K10 beats plain Q4_K_M (no imatrix) on Qwen/SmolLM2/Llama (does not transfer to Gemma)',
           badge: 'Repair + Data-Free'
         }
       };
