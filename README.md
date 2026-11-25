@@ -72,7 +72,48 @@ gcc -O3 -march=native -mavx512f -mavx512bw -mavx512vl -mavx512vbmi -mavx512vpopc
 OMP_PROC_BIND=spread OMP_PLACES=cores /tmp/avx512_decoder
 ```
 
-For the full-model engine in `studies/aletheion-qwen25-live-llm-engine/`, the study files give the compiler flags — `nvcc -O3 -std=c++17 -arch=sm_86 --ptxas-options=-v` for `qwen25_sm86_a16_engine.cu` and `gcc -O3 -march=native -mavx512f -mavx512bw -mavx512vl -mavx512vbmi -mavx512vpopcntdq -mavx512vnni -fopenmp` for `qwen25_avx512_a16_engine.c` (see `ALETHEION_LIVE_LLM_ENGINE_REPORT.md`, section 2) — but no single ready-to-paste run command is written there. The exact `aletheion_live_llm_bench.py` arguments (`--phase`, `--model-dir`, `--sm86-so`, `--avx512-so`, `--out-json`, `--cpu-threads`, `--disk-18b-path`, `--expected-disk-sha`, `--parity-dir`) are defined in that script's `main()`; read `studies/aletheion-qwen25-live-llm-engine/aletheion_live_llm_bench.py` (lines 1489–1498) for the full invocation.
+### Full-model decode engine (PR #88): pending confirmation on an sm_86 GPU
+
+The four core steps, run from `studies/aletheion-qwen25-live-llm-engine/`. Marks: VERIFIED-ON-BOX means it ran on a check machine with no GPU; STATIC means read from the code, not run; NEEDS-SM86 means it can only be confirmed on an sm_86 GPU.
+
+```bash
+huggingface-cli download Qwen/Qwen2.5-0.5B --revision 060db6499f32faf8b98477b0a26969ef7d8b9987
+export HF_HOME="${HF_HOME:-$HOME/.cache/huggingface}"
+export MODEL_DIR="$HF_HOME/hub/models--Qwen--Qwen2.5-0.5B/snapshots/060db6499f32faf8b98477b0a26969ef7d8b9987"
+sha256sum "$MODEL_DIR/model.safetensors"   # must equal 88c142557820ccad55bb59756bfcfcf891de9cc6202816bd346445188a0ed342
+# STATIC (inferred — command itself is a GAP; repo id/snapshot/sha pins are STATIC from oracle.py:45-61)
+
+nvcc -O3 -std=c++17 -arch=sm_86 --ptxas-options=-v -shared -Xcompiler -fPIC \
+  qwen25_sm86_a16_engine.cu -o libqwen25_sm86_a16_engine.so
+# NEEDS-SM86 (flags STATIC from report line 28; -shared/-o are GAP-1)
+
+gcc -O3 -march=native -mavx512f -mavx512bw -mavx512vl -mavx512vbmi -mavx512vpopcntdq \
+  -mavx512vnni -fopenmp -shared -fPIC \
+  qwen25_avx512_a16_engine.c -o libqwen25_avx512_a16_engine.so -lm
+# VERIFIED-ON-BOX (compile only; flags STATIC from report line 33; -shared -fPIC -o -lm are GAP-1)
+
+python3 aletheion_live_llm_bench.py \
+  --phase all \
+  --model-dir "$MODEL_DIR" \
+  --sm86-so ./libqwen25_sm86_a16_engine.so \
+  --avx512-so ./libqwen25_avx512_a16_engine.so \
+  --out-json ./qwen25_live_engine_empirical_results_repro.json \
+  --cpu-threads 8
+# NEEDS-SM86 (invocation STATIC from bench.py:1489-1523; run aborts without CUDA at bench.py:751-752 "CUDA GPU not available")
+```
+
+In the `--out-json` file the B1 figure is the `gpu_event_tok_s` field of `arm_b_sm86_ptx_a16_gpu.b1_pure_dp4a.full_e2e_with_bf16_lm_head`.
+
+Known gaps:
+
+- No script writes the `.so` link step, and the `-shared`/`-fPIC` flags are an addition untested with nvcc (GAP-1).
+- CUDA toolkit and Python package versions are unrecorded; only driver 615.78.08 and Python 3.14.8 are recorded (GAP-2, GAP-3).
+- The model download is not scripted (GAP-4).
+- RAPL must be readable or CPU energy silently reads 0 (GAP-5).
+- There is no per-arm flag, so B1 and A need one full run with both `.so` files and an AVX-512 CPU (GAP-8).
+- The `mlos` tool and its profile are not in the repo (GAP-6).
+
+Full steps, citations and checks: [REPRO.md](studies/aletheion-qwen25-live-llm-engine/REPRO.md). Nothing in the B1 path has been confirmed without an sm_86 GPU.
 
 ## How records are kept
 
