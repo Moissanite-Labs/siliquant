@@ -50,6 +50,30 @@ python3 harness/test_tq.py
 python3 checks/plan_before_data.py && python3 checks/claim_ledger.py
 ```
 
+## Run the kernel harness
+
+The CUDA decode engine and its benchmark live in `studies/aletheion-qwen25-live-llm-engine/` (`qwen25_sm86_a16_engine.cu` for the sm_86 GPU engine, `qwen25_avx512_a16_engine.c` for the AVX-512 CPU engine, driven by `aletheion_live_llm_bench.py`). The standalone sm_86 PTX/SASS and AVX-512 kernel benchmarks live in `studies/aletheion-sm86-ptx-avx512-foundry/` (`aletheion_sm86_ptx_foundry.cu`, `aletheion_avx512_a16_decoder.c`).
+
+Build and run the standalone kernel benchmarks with the commands below, copied verbatim from `studies/aletheion-sm86-ptx-avx512-foundry/SM86_PTX_AVX512_FOUNDRY_REPORT.md`, section "3. Build & Verification Commands":
+
+```bash
+# Verify committed JSON receipts and study invariants (Python 3 stdlib only):
+python3 -I -B studies/aletheion-sm86-ptx-avx512-foundry/test_sm86_avx512_foundry_r5.py
+
+# Re-compile and run CUDA sm_86 foundry (requires CUDA toolkit + sm_86 GPU):
+nvcc -O3 -std=c++17 -arch=sm_86 --ptxas-options=-v \
+  studies/aletheion-sm86-ptx-avx512-foundry/aletheion_sm86_ptx_foundry.cu -o /tmp/sm86_foundry
+/tmp/sm86_foundry
+
+# Re-compile and run Intel AVX-512 decoder (requires AVX-512F/BW/VL/VBMI/VPOPCNTDQ/VNNI CPU):
+gcc -O3 -march=native -mavx512f -mavx512bw -mavx512vl -mavx512vbmi -mavx512vpopcntdq -mavx512vnni \
+  -funroll-loops -fopenmp -Wall -Wextra \
+  studies/aletheion-sm86-ptx-avx512-foundry/aletheion_avx512_a16_decoder.c -o /tmp/avx512_decoder -lm
+OMP_PROC_BIND=spread OMP_PLACES=cores /tmp/avx512_decoder
+```
+
+For the full-model engine in `studies/aletheion-qwen25-live-llm-engine/`, the study files give the compiler flags — `nvcc -O3 -std=c++17 -arch=sm_86 --ptxas-options=-v` for `qwen25_sm86_a16_engine.cu` and `gcc -O3 -march=native -mavx512f -mavx512bw -mavx512vl -mavx512vbmi -mavx512vpopcntdq -mavx512vnni -fopenmp` for `qwen25_avx512_a16_engine.c` (see `ALETHEION_LIVE_LLM_ENGINE_REPORT.md`, section 2) — but no single ready-to-paste run command is written there. The exact `aletheion_live_llm_bench.py` arguments (`--phase`, `--model-dir`, `--sm86-so`, `--avx512-so`, `--out-json`, `--cpu-threads`, `--disk-18b-path`, `--expected-disk-sha`, `--parity-dir`) are defined in that script's `main()`; read `studies/aletheion-qwen25-live-llm-engine/aletheion_live_llm_bench.py` (lines 1489–1498) for the full invocation.
+
 ## How records are kept
 
 The conventions are those of [weft-loom's CONTRIBUTING.md](https://github.com/Moissanite-Labs/weft-loom/blob/main/CONTRIBUTING.md). In short:
