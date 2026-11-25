@@ -1,8 +1,10 @@
 # Gemma integer ball results summary
 
-Rows: 2
+Rows: 4
 
 | Model | Text | Variant | Bits (all) | Bits (active) | W-err dB (mean) | Mean KL | SE | Top-1 kept | Build s | Score s |
 | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | gemma-3-27b-it-q8ref | wikitext | file:Q4_0 | 4.5000 | 4.5000 | -21.08 | 0.086433 | 0.002512 | 89.4710 | 153.7 | 869.9 |
 | gemma-3-27b-it-q8ref | python | file:Q4_0 | 4.5000 | 4.5000 | -21.08 | 0.042251 | 0.004366 | 95.2940 | 153.7 | 153.6 |
+| gemma-3-27b-it-q8ref | wikitext | file:Q4_K_M | 4.8060 | 4.8060 | -24.42 | 0.058552 | 0.001851 | 91.1180 | 203.4 | 1554.8 |
+| gemma-3-27b-it-q8ref | python | file:Q4_K_M | 4.8060 | 4.8060 | -24.42 | 0.027235 | 0.002590 | 95.9100 | 203.4 | 280.7 |
