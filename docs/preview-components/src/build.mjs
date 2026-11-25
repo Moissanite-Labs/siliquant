@@ -1,5 +1,5 @@
 // Builds the three approved preview layouts into renders/*.html. Run via ../finalize.sh.
-//   og-a16-v2.html        1200x630  link card (summary_large_image) -> docs/assets/og-a16-v2.png
+//   og-a16-v3.html        1200x630  link card (summary_large_image) -> docs/assets/og-a16-v3.png
 //   x-post-1600x900.html  1600x900  image attached to the X announcement post
 //   x-post-1080x1350.html 1080x1350 optional portrait variant
 //   components-demo.html  each component on its own, for reuse in the site
@@ -36,7 +36,7 @@ const ogB = theme => page(theme, 1200, 630, `
   <div class="eq t" data-m="w-eq">0101₂ = ${POS}<br><b>▲ caught at ${POS}</b></div></div>
 <div class="stack"><div class="eyebrow t" data-m="eyebrow">${EYEBROW}</div>${h1(60)}
 <div class="rows">${rows({ big: 34, rest: 17, scope: 14, models: 0 /* og card: no models line, no room in the centre 630 */ })}</div><div class="url t" data-m="url">${URL_TXT}</div></div>`);
-out('og-a16-v2.html', ogB('dark'));
+out('og-a16-v3.html', ogB('dark'));
 
 /* ---------- Post image 1600x900 (direction B expanded) ---------- */
 const post = (theme) => page(theme, 1600, 900, `

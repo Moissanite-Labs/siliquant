@@ -9,9 +9,9 @@ const chrome = process.env.CHROME_PATH || (fs.existsSync('/usr/bin/google-chrome
 const b = await chromium.launch(chrome ? { executablePath: chrome } : {});
 // [source png, output, crop x, y, w, h, output width]
 const jobs = [
-  ['og-a16-v2.png', 'og-506w.png', 0, 0, 1200, 630, 506],                 // X card in the timeline
-  ['og-a16-v2.png', 'og-x-2to1-506w.png', 0, 15, 1200, 600, 506],         // X 2:1 crop
-  ['og-a16-v2.png', 'og-whatsapp-centre-300.png', 285, 0, 630, 630, 300], // WhatsApp square crop
+  ['og-a16-v3.png', 'og-506w.png', 0, 0, 1200, 630, 506],                 // X card in the timeline
+  ['og-a16-v3.png', 'og-x-2to1-506w.png', 0, 15, 1200, 600, 506],         // X 2:1 crop
+  ['og-a16-v3.png', 'og-whatsapp-centre-300.png', 285, 0, 630, 630, 300], // WhatsApp square crop
   ['x-post-1600x900.png', 'x-post-1600x900-506w.png', 0, 0, 1600, 900, 506],
   ['x-post-1080x1350.png', 'x-post-1080x1350-380w.png', 0, 0, 1080, 1350, 380],
 ];

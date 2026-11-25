@@ -18,7 +18,7 @@
 const STRIP = [
   { pillar: 'Kernel', big: '400 tok/s', rest: '5.6× faster than PyTorch BF16' },
   { pillar: 'Quantization', big: '16–40%', rest: 'lower KL than plain Q4_K_M' },
-  { pillar: 'Bit flips', lead: 'Built-in bit-flip detection,', big: '0 extra bytes', rest: '' },
+  { pillar: 'Bit flips', lead: 'In-engine bit-flip detection,', big: '0 extra bytes', rest: '' },
 ];
 const by = p => STRIP.find(s => s.pillar === p);
 const k = by('Kernel'), q = by('Quantization'), b = by('Bit flips');

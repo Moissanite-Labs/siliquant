@@ -10,7 +10,7 @@ These are source files for images. `docs/index.html` does not load them. GitHub 
 
 | File | Size | Use |
 |---|---|---|
-| `renders/og-a16-v2.png` | 1200×630, about 76 KB | Link card for `og:image` / `twitter:image` (summary_large_image). The site copy lives at `docs/assets/og-a16-v2.png`. |
+| `renders/og-a16-v3.png` | 1200×630, about 76 KB | Link card for `og:image` / `twitter:image` (summary_large_image). The site copy lives at `docs/assets/og-a16-v3.png`. |
 | `renders/x-post-1600x900.png` | 16:9, about 110 KB | Image attached to the X announcement post. The only layout that names the three KL models |
 | `renders/x-post-1080x1350.png` | 4:5, about 116 KB | Optional portrait variant |
 | `renders/*.raw.png` | | Uncompressed renders, before pngquant |
@@ -19,7 +19,7 @@ These are source files for images. `docs/index.html` does not load them. GitHub 
 | `renders/*.html` | | The generated pages that get screenshotted |
 | `renders/components-demo.html` | | Each component on its own |
 
-If `--install-og` is passed, the script also copies the card to `../assets/og-a16-v2.png`. `docs/assets/` is the only asset source for the site, so the PNG the site uses lives there and nowhere else.
+If `--install-og` is passed, the script also copies the card to `../assets/og-a16-v3.png`. `docs/assets/` is the only asset source for the site, so the PNG the site uses lives there and nowhere else.
 
 ## Dependencies
 
@@ -41,7 +41,7 @@ After that the build runs offline. Pages load only `file://` URLs.
 ```
 cd docs/preview-components
 ./finalize.sh                 # build, render, check, compress, previews
-./finalize.sh --install-og    # the same, then copy the card to docs/assets/og-a16-v2.png
+./finalize.sh --install-og    # the same, then copy the card to docs/assets/og-a16-v3.png
 ```
 The script exits non-zero if any of these fail:
 - text contrast is below 4.5:1;
