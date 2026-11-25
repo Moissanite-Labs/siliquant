@@ -804,6 +804,14 @@ class TestQ8RefStratum(unittest.TestCase):
             self.assertTrue(os.path.exists(kld))  # non-empty kld cache is reused, not deleted
             self.assertIn("--kl-divergence-base", cmd)
 
+    def test_drop_file_cache_best_effort(self):
+        with tempfile.TemporaryDirectory() as td:
+            f = os.path.join(td, "x.bin")
+            with open(f, "wb") as fh:
+                fh.write(b"\x00" * 4096)
+            R._drop_file_cache(f)                      # real file: must not raise
+            R._drop_file_cache(os.path.join(td, "nope"))  # missing file: must not raise
+
 
 if __name__ == "__main__":
     unittest.main()
