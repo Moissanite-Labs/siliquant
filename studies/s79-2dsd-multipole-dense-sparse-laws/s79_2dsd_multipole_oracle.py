@@ -13,6 +13,7 @@ from fractions import Fraction
 import hashlib
 import hmac
 import json
+import os
 from typing import Any, Sequence
 
 PROJECT_ID = "WAVE4B-S79-2DSD-MULTIPOLE-DENSE-SPARSE"
@@ -36,6 +37,13 @@ PRIMARY_SOURCE_COMMITS: dict[str, str] = {
     "multipole_repo_commit": "db65e51d582b9bcb89807b9d9397c3532d1099ef",
 }
 
+# Offline verification status of these pins: the external source digests below
+# (2DSD repo 431aade2, MultipoleAttention db65e51d, SqueezeLLM, KVQuant, HF
+# minseo25/2dsd snapshots) are pinned by SHA-256/commit but are NOT verified
+# against their sources by any code in this bundle - those sources are external
+# and are never fetched here. Only `s72_empirical_results_sha256` is verifiable
+# in-repo, against
+# studies/rtx3080-s72-stratified-quad-blockh4/rtx3080_s72_empirical_results.json.
 PRIMARY_SOURCE_SHA256: dict[str, str] = {
     "twodsd_readme_sha256": "8f92e3b0aac9825b114f1611c55071a7bf386319bcf74da4c698118b850635fa",
     "twodsd_tree_sha256": "ce7d65b6fce8ffe21d7f48d67f9589acec19bd33a9378722fda8207b27996a3f",
@@ -51,7 +59,7 @@ LEAN_MODULE_SPECS: tuple[dict[str, Any], ...] = (
     {
         "relpath": "TwoDSDAndDenseSparseLaws.lean",
         "namespace": "TwoDSDAndDenseSparseLaws",
-        "sha256": "a570018936e24a9ecffeedbf4991743b59a94a93e3d410076b19cf144ceaf69b",
+        "sha256": "de4e4bf710007630c07dbe9be458ec668fc68c22d49db8f00b6ce338fdd44771",
         "theorems": (
             ("cascade_single_step_lossless_universal", ()),
             ("cascade_arbitrary_length_lossless_universal", ()),
@@ -75,6 +83,49 @@ LEAN_MODULE_SPECS: tuple[dict[str, Any], ...] = (
     },
 )
 
+# Theorems 16-18 of TwoDSDAndDenseSparseLaws.lean are `decide` numeral-ordering
+# (literal) checks over hardcoded typed constants quoted from external sources.
+# The Lean kernel only proves that the typed numerals are ordered as written; it
+# never sees those external sources, so these three declarations are counted
+# separately from the universal theorems in every headline.
+LITERAL_ORDERING_WITNESSES: tuple[str, ...] = (
+    "twodsd_ouro_dory_kv_and_speedup_witness",
+    "squeezellm_portal77_siliquant_csr_crossover_witness",
+    "multipole_truncation_barrier_and_covariance_witness",
+)
+
+
+def declaration_counts() -> tuple[int, int, int]:
+    """(total kernel-checked declarations, universal theorems, literal-ordering checks)."""
+    names = frozenset(n for spec in LEAN_MODULE_SPECS for n, _ in spec["theorems"])
+    require_ok(
+        frozenset(LITERAL_ORDERING_WITNESSES) <= names,
+        "LITERAL_WITNESS_NOT_IN_SPEC",
+        "every literal-ordering witness must appear in LEAN_MODULE_SPECS",
+    )
+    total = sum(len(spec["theorems"]) for spec in LEAN_MODULE_SPECS)
+    lit = len(LITERAL_ORDERING_WITNESSES)
+    require_ok(0 < lit < total, "LITERAL_WITNESS_COUNT_INVALID", "literal-ordering check count out of range")
+    return total, total - lit, lit
+
+
+def declaration_kinds_note() -> str:
+    total, univ, lit = declaration_counts()
+    return (
+        f"{univ} universal theorems + {lit} `decide` literal-ordering checks "
+        f"= {total} kernel-checked declarations"
+    )
+
+
+def compute_oracle_module_sha256() -> str:
+    """SHA-256 of this oracle module file on disk; pinned inside the certificate so the
+    verifier's full replay compares against a fixed target instead of the live module."""
+    module_path = os.path.abspath(__file__)
+    with open(module_path, "rb") as fh:
+        data = fh.read()
+    return sha256_bytes(data)
+
+
 # Pinned verbatim 2DSD (431aade2) Tables 1-3 anchors (scaled by 100 as exact integers)
 TWODSD_SPEEDUP_X100: dict[str, dict[str, int]] = {
     "ouro_1_4b_greedy": {"twodsd": 573, "dflash": 479, "loopspec": 238},
@@ -94,7 +145,9 @@ TWODSD_TABLE3_HARD32K_BP: dict[str, dict[str, int]] = {
 # Pinned Hugging Face varloop drafter anchor from hf_minseo25_2dsd.json
 INKLING2_MINI_VARLOOP_DRAFTER_PARAMS = 541_880_065
 
-# Pinned siliquant S72 Qwen2.5-3B exact nanonats (10^-9 nats) from a7c35c64...
+# Pinned siliquant S72 Qwen2.5-3B exact WikiText-2 mean-KL nanonats (10^-9 nats)
+# from a7c35c64... - KL vs its own BF16 reference (S72 record `reference_bf16`,
+# WikiText-2 BF16 PPL 10.970193).
 SILIQUANT_S72_QWEN3B_NANONATS: dict[str, int] = {
     "wt_snake": 23_154_136,
     "wt_h2": 24_178_790,
@@ -601,6 +654,7 @@ def compute_pillar4_formal_inventory() -> dict[str, Any]:
     total_thms = 0
     zero_ax_thms = 0
     propext_only_thms = 0
+    total_decl, univ_decl, lit_decl = declaration_counts()
     for spec in LEAN_MODULE_SPECS:
         tmap: dict[str, list[str]] = {}
         for tname, axs in spec["theorems"]:
@@ -627,6 +681,9 @@ def compute_pillar4_formal_inventory() -> dict[str, Any]:
         "theorem_count": total_thms,
         "zero_axiom_theorem_count": zero_ax_thms,
         "propext_only_theorem_count": propext_only_thms,
+        "universal_theorem_count": univ_decl,
+        "literal_ordering_check_count": lit_decl,
+        "literal_ordering_checks": list(LITERAL_ORDERING_WITNESSES),
         "modules": modules_out,
         "primary_source_commits": dict(PRIMARY_SOURCE_COMMITS),
         "primary_source_sha256": dict(PRIMARY_SOURCE_SHA256),
@@ -648,6 +705,7 @@ def build_payload() -> dict[str, Any]:
     p2 = compute_pillar2_dense_sparse()
     p3 = compute_pillar3_multipole()
     p4 = compute_pillar4_formal_inventory()
+    total_decl, univ_decl, lit_decl = declaration_counts()
     return {
         "project_id": PROJECT_ID,
         "pillar1_2dsd_cascade_and_kv_laws": p1,
@@ -656,8 +714,13 @@ def build_payload() -> dict[str, Any]:
         "pillar4_formal_inventory_and_scope": p4,
         "summary": {
             "all_pillars_verified": True,
-            "total_lean4_theorems": p4["theorem_count"],
-            "zero_axiom_lean4_theorems": p4["zero_axiom_theorem_count"],
+            "kernel_checked_declaration_count": total_decl,
+            "universal_theorem_count": univ_decl,
+            "literal_ordering_check_count": lit_decl,
+            "literal_ordering_checks": list(LITERAL_ORDERING_WITNESSES),
+            "zero_axiom_declaration_count": p4["zero_axiom_theorem_count"],
+            "propext_only_declaration_count": p4["propext_only_theorem_count"],
+            "declaration_kinds_note": declaration_kinds_note(),
             "target_max_cert_bytes": TARGET_MAX_CERT_BYTES,
         },
     }
@@ -666,9 +729,14 @@ def build_payload() -> dict[str, Any]:
 def build_certificate() -> dict[str, Any]:
     payload = build_payload()
     payload_sha256 = sha256_bytes(canonical_json_bytes(payload))
+    # Pin this oracle module's own SHA-256 inside the certificate so the verifier's
+    # full replay is checked against a fixed target, not against the live module
+    # that produced the certificate (fail closed on any oracle edit).
+    oracle_sha = compute_oracle_module_sha256()
     cert_pre = {
         "schema_version": SCHEMA_VERSION,
         "project_id": PROJECT_ID,
+        "oracle_module_sha256": oracle_sha,
         "payload_sha256": payload_sha256,
         "payload": payload,
     }
@@ -676,6 +744,7 @@ def build_certificate() -> dict[str, Any]:
     cert = {
         "schema_version": SCHEMA_VERSION,
         "project_id": PROJECT_ID,
+        "oracle_module_sha256": oracle_sha,
         "payload_sha256": payload_sha256,
         "certificate_sha256": certificate_sha256,
         "payload": payload,

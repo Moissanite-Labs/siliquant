@@ -55,11 +55,13 @@ def _find_lean_bin() -> str | None:
     return None
 
 
-def _resign_cert(payload: dict) -> dict:
+def _resign_cert(payload: dict, oracle_sha: str | None = None) -> dict:
     p_sha = oracle.sha256_bytes(oracle.canonical_json_bytes(payload))
+    o_sha = oracle_sha if oracle_sha is not None else oracle.compute_oracle_module_sha256()
     cert_pre = {
         "schema_version": oracle.SCHEMA_VERSION,
         "project_id": oracle.PROJECT_ID,
+        "oracle_module_sha256": o_sha,
         "payload_sha256": p_sha,
         "payload": payload,
     }
@@ -67,6 +69,7 @@ def _resign_cert(payload: dict) -> dict:
     return {
         "schema_version": oracle.SCHEMA_VERSION,
         "project_id": oracle.PROJECT_ID,
+        "oracle_module_sha256": o_sha,
         "payload_sha256": p_sha,
         "certificate_sha256": c_sha,
         "payload": payload,
@@ -1002,6 +1005,17 @@ class TestSecondaryAuditAndParametricTamper(unittest.TestCase):
         with self.assertRaises(oracle.S79Error) as c_cse:
             audit.verify_certificate_dict(c_csha, full_replay=False)
         self.assertEqual(c_cse.exception.code, "CERTIFICATE_SHA256_MISMATCH")
+        c_osha = copy.deepcopy(base_cert)
+        c_osha["oracle_module_sha256"] = "0" * 64
+        with self.assertRaises(oracle.S79Error) as c_osraw:
+            audit.verify_certificate_dict(c_osha, full_replay=False)
+        self.assertEqual(c_osraw.exception.code, "CERTIFICATE_SHA256_MISMATCH")
+        # Re-signed envelope with a wrong oracle pin: only the pre-replay oracle
+        # pin check can catch it -> fail closed ORACLE_SHA256_MISMATCH.
+        c_osha = _resign_cert(base_payload, oracle_sha="0" * 64)
+        with self.assertRaises(oracle.S79Error) as c_ose:
+            audit.verify_certificate_dict(c_osha, full_replay=True)
+        self.assertEqual(c_ose.exception.code, "ORACLE_SHA256_MISMATCH")
 
         # Full replay mismatch (simulated with patched secondary_audit_payload)
         p_alt = copy.deepcopy(base_payload)
@@ -1174,6 +1188,49 @@ class TestCLISurfaceAndCommittedCert(unittest.TestCase):
             self.assertEqual(rc_w2, 0)
             self.assertTrue(json.loads(out_wj)["written"])
             self.assertEqual(stat.S_IMODE(os.lstat(out_w2).st_mode), 0o600)
+
+    def test_planted_oracle_edit_fails_closed(self) -> None:
+        # M2 control: the certificate pins sha256(s79_2dsd_multipole_oracle.py); the
+        # verifier must check that pin BEFORE full replay and fail closed (rc=2,
+        # ORACLE_SHA256_MISMATCH) when the oracle module on disk was edited.
+        with tempfile.TemporaryDirectory() as td:
+            bundle = Path(td) / "bundle"
+            bundle.mkdir()
+            for name in (
+                "s79_2dsd_multipole_oracle.py",
+                "verify_s79_2dsd_multipole.py",
+                "s79_2dsd_multipole_certificate.json",
+            ):
+                shutil.copy2(_THIS_DIR / name, bundle / name)
+            verifier_copy = bundle / "verify_s79_2dsd_multipole.py"
+            cert_copy = bundle / "s79_2dsd_multipole_certificate.json"
+            oracle_copy = bundle / "s79_2dsd_multipole_oracle.py"
+
+            def _run_check() -> subprocess.CompletedProcess[str]:
+                return subprocess.run(
+                    [sys.executable, "-I", "-B", str(verifier_copy), "--check", str(cert_copy)],
+                    capture_output=True,
+                    text=True,
+                    timeout=120,
+                    check=False,
+                )
+
+            # Positive control: unmodified copy of the bundle passes --check.
+            proc_ok = _run_check()
+            self.assertEqual(proc_ok.returncode, 0, msg=proc_ok.stderr)
+            self.assertIn("VALID ", proc_ok.stdout)
+
+            # Plant an oracle edit (constant bump) in the copied bundle.
+            raw = oracle_copy.read_bytes()
+            planted = raw.replace(b"MAX_INT_BITS = 3321", b"MAX_INT_BITS = 3322")
+            self.assertNotEqual(planted, raw)
+            oracle_copy.write_bytes(planted)
+
+            # The planted edit must fail closed with a clear error code before replay.
+            proc_bad = _run_check()
+            self.assertEqual(proc_bad.returncode, 2)
+            self.assertIn("ORACLE_SHA256_MISMATCH", proc_bad.stderr)
+            self.assertIn("ERROR ORACLE_SHA256_MISMATCH", proc_bad.stderr)
 
     def test_self_check_verify_lean_and_cli_errors(self) -> None:
         # Default self_check (text & --json & argv=None)

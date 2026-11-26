@@ -115,7 +115,7 @@ _AXIOM_BLOCK_RE = re.compile(
 )
 
 # Strict schema keysets for field-complete secondary audit
-_CERT_KEYS = frozenset({"schema_version", "project_id", "payload_sha256", "certificate_sha256", "payload"})
+_CERT_KEYS = frozenset({"schema_version", "project_id", "oracle_module_sha256", "payload_sha256", "certificate_sha256", "payload"})
 _PAYLOAD_KEYS = frozenset({
     "project_id",
     "pillar1_2dsd_cascade_and_kv_laws",
@@ -190,6 +190,9 @@ _P4_KEYS = frozenset({
     "theorem_count",
     "zero_axiom_theorem_count",
     "propext_only_theorem_count",
+    "universal_theorem_count",
+    "literal_ordering_check_count",
+    "literal_ordering_checks",
     "modules",
     "primary_source_commits",
     "primary_source_sha256",
@@ -207,8 +210,13 @@ _P4_KEYS = frozenset({
 _MOD_ROW_KEYS = frozenset({"relpath", "namespace", "sha256", "theorem_count", "theorems"})
 _SUMMARY_KEYS = frozenset({
     "all_pillars_verified",
-    "total_lean4_theorems",
-    "zero_axiom_lean4_theorems",
+    "kernel_checked_declaration_count",
+    "universal_theorem_count",
+    "literal_ordering_check_count",
+    "literal_ordering_checks",
+    "zero_axiom_declaration_count",
+    "propext_only_declaration_count",
+    "declaration_kinds_note",
     "target_max_cert_bytes",
 })
 
@@ -941,16 +949,25 @@ def secondary_audit_payload(payload: dict[str, Any]) -> None:
 
     # Pillar 4: Formal Lean 4 Inventory & Honest Scope
     p4 = _require_dict_exact_keys(p["pillar4_formal_inventory_and_scope"], _P4_KEYS, "pillar4")
+    total_decl, univ_decl, lit_decl = oracle.declaration_counts()
     if (
         p4["lean_toolchain"] != oracle.LEAN_TOOLCHAIN_TEXT
         or not oracle.check_digest_eq(p4["lean_toolchain_sha256"], oracle.LEAN_TOOLCHAIN_SHA256)
         or not oracle.check_digest_eq(p4["lakefile_sha256"], oracle.LAKEFILE_SHA256)
         or oracle.require_exact_int(p4["module_count"], "mod_cnt") != 1
-        or oracle.require_exact_int(p4["theorem_count"], "thm_cnt") != 18
+        or oracle.require_exact_int(p4["theorem_count"], "thm_cnt") != total_decl
         or oracle.require_exact_int(p4["zero_axiom_theorem_count"], "zero_ax") != 14
         or oracle.require_exact_int(p4["propext_only_theorem_count"], "propext_ax") != 4
+        or oracle.require_exact_int(p4["universal_theorem_count"], "univ_cnt") != univ_decl
+        or oracle.require_exact_int(p4["literal_ordering_check_count"], "lit_cnt") != lit_decl
+        or oracle.require_exact_int(p4["universal_theorem_count"], "univ_cnt")
+        + oracle.require_exact_int(p4["literal_ordering_check_count"], "lit_cnt")
+        != total_decl
     ):
         raise oracle.S79Error("P4_HEADER_MISMATCH", "Pillar 4 formal header pins mismatch")
+    _require_exact_str_list(
+        p4["literal_ordering_checks"], list(oracle.LITERAL_ORDERING_WITNESSES), "p4.literal_ordering_checks"
+    )
     mods = p4["modules"]
     if type(mods) is not list or len(mods) != len(oracle.LEAN_MODULE_SPECS):
         raise oracle.S79Error("P4_MODULES_SHAPE", "modules list length mismatch")
@@ -999,15 +1016,22 @@ def secondary_audit_payload(payload: dict[str, Any]) -> None:
     summ = _require_dict_exact_keys(p["summary"], _SUMMARY_KEYS, "summary")
     if (
         oracle.require_exact_bool(summ["all_pillars_verified"], "all_pillars_verified") is not True
-        or oracle.require_exact_int(summ["total_lean4_theorems"], "total_lean4_theorems") != 18
-        or oracle.require_exact_int(summ["zero_axiom_lean4_theorems"], "zero_axiom_lean4_theorems") != 14
+        or oracle.require_exact_int(summ["kernel_checked_declaration_count"], "kcd") != total_decl
+        or oracle.require_exact_int(summ["universal_theorem_count"], "univ") != univ_decl
+        or oracle.require_exact_int(summ["literal_ordering_check_count"], "lit") != lit_decl
+        or oracle.require_exact_int(summ["zero_axiom_declaration_count"], "zero_ax") != 14
+        or oracle.require_exact_int(summ["propext_only_declaration_count"], "propext_ax") != 4
+        or summ["declaration_kinds_note"] != oracle.declaration_kinds_note()
         or oracle.require_exact_int(summ["target_max_cert_bytes"], "target_max_cert_bytes") != oracle.TARGET_MAX_CERT_BYTES
     ):
         raise oracle.S79Error("SUMMARY_MISMATCH", "summary fields mismatch")
+    _require_exact_str_list(
+        summ["literal_ordering_checks"], list(oracle.LITERAL_ORDERING_WITNESSES), "summary.literal_ordering_checks"
+    )
 
 
 def verify_certificate_dict(cert: Any, *, full_replay: bool = True) -> dict[str, Any]:
-    """Verify certificate schema, constant-time digests, secondary audit, and optional full replay."""
+    """Verify certificate schema, oracle-module pin, constant-time digests, secondary audit, and optional full replay."""
     replay_flag = oracle.require_exact_bool(full_replay, "full_replay")
     oracle.check_json_value_strict(cert)
     c = _require_dict_exact_keys(cert, _CERT_KEYS, "certificate")
@@ -1015,6 +1039,7 @@ def verify_certificate_dict(cert: Any, *, full_replay: bool = True) -> dict[str,
         raise oracle.S79Error("SCHEMA_MISMATCH", "unexpected schema_version")
     if c["project_id"] != oracle.PROJECT_ID:
         raise oracle.S79Error("PROJECT_ID_MISMATCH", "unexpected project_id")
+    decl_o_sha = oracle.require_sha256_hex(c["oracle_module_sha256"], "oracle_module_sha256")
     decl_p_sha = oracle.require_sha256_hex(c["payload_sha256"], "payload_sha256")
     decl_c_sha = oracle.require_sha256_hex(c["certificate_sha256"], "certificate_sha256")
     payload = _require_dict_exact_keys(c["payload"], _PAYLOAD_KEYS, "payload")
@@ -1025,12 +1050,23 @@ def verify_certificate_dict(cert: Any, *, full_replay: bool = True) -> dict[str,
     cert_pre = {
         "schema_version": c["schema_version"],
         "project_id": c["project_id"],
+        "oracle_module_sha256": decl_o_sha,
         "payload_sha256": decl_p_sha,
         "payload": payload,
     }
     actual_c_sha = oracle.sha256_bytes(oracle.canonical_json_bytes(cert_pre))
     if not oracle.check_digest_eq(decl_c_sha, actual_c_sha):
         raise oracle.S79Error("CERTIFICATE_SHA256_MISMATCH", "certificate digest mismatch")
+
+    # Oracle-module pin: fail closed BEFORE any replay if the on-disk oracle module
+    # differs from the module the certificate was built from, so `full_replay` never
+    # re-derives the expected certificate from an edited (self-referential) module.
+    actual_o_sha = oracle.sha256_bytes(read_regular_bytes_capped(oracle.__file__, max_bytes=MAX_JSON_BYTES))
+    if not oracle.check_digest_eq(decl_o_sha, actual_o_sha):
+        raise oracle.S79Error(
+            "ORACLE_SHA256_MISMATCH",
+            "s79_2dsd_multipole_oracle.py SHA-256 does not match the certificate pin; refusing replay",
+        )
 
     secondary_audit_payload(payload)
 
@@ -1150,6 +1186,9 @@ def verify_lean_modules_live(
                 raise oracle.S79Error("LEAN_EXEC_FAILED", f"cannot invoke lean: {exc}") from exc
             if proc.returncode != 0:
                 raise oracle.S79Error("LEAN_KERNEL_FAILED", f"lean exited {proc.returncode} on {spec['relpath']}")
+            # Note: Lean 4.36 prints compiler warnings on stdout (stderr stays empty),
+            # so the LEAN_UNEXPECTED_STDOUT check in _verify_lean_stdout_axioms is what
+            # actually catches warnings; LEAN_STDERR_NONEMPTY alone would not.
             if proc.stderr.strip():
                 raise oracle.S79Error("LEAN_STDERR_NONEMPTY", f"lean produced stderr on {spec['relpath']}")
             _verify_lean_stdout_axioms(proc.stdout, spec["namespace"], spec["theorems"])

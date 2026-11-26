@@ -3,7 +3,7 @@
 **Project ID:** `WAVE4B-S79-2DSD-MULTIPOLE-DENSE-SPARSE`  
 **Novelty Tier:** `N1` (exact algebraic formalization, cross-family synthesis, obstructions, and formula transposition; all foundational algorithms quarantined as `N0`)  
 **Oracle Class:** `exact` (pure Python 3 stdlib over $\mathbb{Z}/\mathbb{Q}$, zero IEEE-754 floats on trust paths, zero bare `assert`s, zero mathematical RNG)  
-**Lean 4 Kernel:** `leanprover/lean4:v4.36.0` (pure `Init`, zero Mathlib, `18/18` theorems live-verified with `0` stderr/warnings; `14/18` strictly `0` axioms `[]`, `4/18` `Int` ring theorems `[propext]` only; zero `Classical.choice`, `Quot.sound`, `sorryAx`, or `Lean.ofReduceBool`)  
+**Lean 4 Kernel:** `leanprover/lean4:v4.36.0` (pure `Init`, zero Mathlib, `18/18` kernel-checked declarations live-verified — 15 universal theorems + 3 `decide` literal-ordering checks — with `0` stderr/warnings; `14/18` declarations strictly `0` axioms `[]`, `4/18` `Int` ring theorems `[propext]` only; zero `Classical.choice`, `Quot.sound`, `sorryAx`, or `Lean.ofReduceBool`)  
 **Live GPU Measured in This Bundle:** `False` (pure formal/exact analytical track; empirical numbers are verbatim pinned anchors from primary sources)
 
 ---
@@ -41,7 +41,7 @@
   - `SqueezeLLM` (`0.45% @ 32b -> 18/125 = 0.1440` bpw, `b_eff = 518/125 = 4.1440` bpw; $M=5/4, \gamma=1, S_{\mathrm{out}}/S_{\mathrm{bulk}}=40\%$): distortion ratio `25/28 = 0.8929 < 1` -> **CSR wins**.
   - `Portal 77` (`0.057% @ 48b -> 171/6250 = 0.0274` bpw; $M=104/100$): distortion ratio `26/35 = 0.7429 < 1` -> **CSR wins**.
   - **High-CSR Phase Reversal** ($\rho_s = 1/32, b_{\mathrm{csr}}=32 \implies \Delta b = 1$ bpw, $M = 4, \gamma = 1, S_{\mathrm{out}}/S_{\mathrm{bulk}} = 200\%$): ratio `4/3 = 1.3333 > 1` -> **pure dense wins**!
-  - **Simultaneous Triple Dominance (`siliquant` `BlockH4 QuadSnake + CSR`):** Whenever lattice geometry beats uniform scalar ($c_{\mathrm{lat}} < c_{\mathrm{unif}}$, anchored on `S72` `Qwen2.5-3B` nanonats: `23,154,136 < 24,178,790 < 24,774,488`, i.e., `-4.24%` vs `H2` and `-6.54%` vs `H4`) AND CSR sits inside the crossover cone, `BlockH4 QuadSnake + CSR` strictly dominates pure dense lattice, scalar+CSR, and pure dense scalar simultaneously.
+  - **Simultaneous Triple Dominance (`siliquant` `BlockH4 QuadSnake + CSR`):** Whenever lattice geometry beats uniform scalar ($c_{\mathrm{lat}} < c_{\mathrm{unif}}$, anchored on `S72` `Qwen2.5-3B` WikiText-2 mean-KL nanonats **vs its own BF16** reference: `23,154,136 < 24,178,790 < 24,774,488`, i.e., `-4.24%` vs `H2` and `-6.54%` vs `H4`, all vs its own BF16) AND CSR sits inside the crossover cone, `BlockH4 QuadSnake + CSR` strictly dominates pure dense lattice, scalar+CSR, and pure dense scalar simultaneously.
   - **Exact Safe Sparsity Cap for `siliquant`:** At $b_{\mathrm{csr}}=32, \gamma=1, S_{\mathrm{out}}/S_{\mathrm{bulk}}=40\%$, exact 5th-power certification $4 \cdot 5^5 = 12{,}500 < 16{,}807 = 7^5$ proves $2^{2 \cdot (1/5)} < 7/5$, locking $\rho_s \le 1/160 = 0.625\%$ (`0.63%`) as a mathematically guaranteed win ceiling!
 
 ### Pillar 3: MultipoleAttention Centroid Error, Jensen Underestimation, Truncation Barrier & KV Covariance Residual
@@ -55,7 +55,7 @@
 
 ## 3. Formal Lean 4 Attribution Table (Zero Over-Attribution)
 
-Every theorem in [TwoDSDAndDenseSparseLaws.lean](TwoDSDAndDenseSparseLaws.lean) (`SHA-256: a570018936e24a9ecffeedbf4991743b59a94a93e3d410076b19cf144ceaf69b`) is verified live by Lean `4.36.0` with zero imports and exact `#print axioms` accounting:
+Every kernel-checked declaration in [TwoDSDAndDenseSparseLaws.lean](TwoDSDAndDenseSparseLaws.lean) (`SHA-256: de4e4bf710007630c07dbe9be458ec668fc68c22d49db8f00b6ce338fdd44771`) — 15 universal theorems (rows 1–15) + 3 `decide` literal-ordering checks (rows 16–18) — is verified live by Lean `4.36.0` with zero imports and exact `#print axioms` accounting:
 
 | # | Lean 4 Theorem (`TwoDSDAndDenseSparseLaws.*`) | Type | Exact Axioms | Role |
 |---|---|---|---|---|
@@ -74,18 +74,23 @@ Every theorem in [TwoDSDAndDenseSparseLaws.lean](TwoDSDAndDenseSparseLaws.lean) 
 | 13 | `multipole_two_point_jensen_underestimation_universal` | Universal (`Int`) | `[propext]` | Exact 2nd-order Jensen partition bias |
 | 14 | `multipole_softmax_ratio_bracket_universal` | Universal (`Nat`) | `[]` | Exact multiplicative softmax ratio bracket |
 | 15 | `multipole_exact_vs_centroid_value_covariance_universal` | Universal (`Int`) | `[propext]` | Exact 2-key value-weight covariance residual |
-| 16 | `twodsd_ouro_dory_kv_and_speedup_witness` | Anchored Witness (`decide`) | `[]` | Pinned `2DSD` (`431aade2`) Tables 1–3 & Eq. 6 |
-| 17 | `squeezellm_portal77_siliquant_csr_crossover_witness` | Anchored Witness (`decide`) | `[]` | Pinned SqueezeLLM / Portal 77 / `S72` / reversal |
-| 18 | `multipole_truncation_barrier_and_covariance_witness` | Anchored Witness (`decide`) | `[]` | Pinned `d_k=128` barrier & nonzero covariance |
+| 16 | `twodsd_ouro_dory_kv_and_speedup_witness` | Literal-ordering check (`decide`) | `[]` | Orders quoted `2DSD` (`431aade2`) Tables 1–3 & Eq. 6 numerals as typed literals |
+| 17 | `squeezellm_portal77_siliquant_csr_crossover_witness` | Literal-ordering check (`decide`) | `[]` | Orders quoted SqueezeLLM / Portal 77 / `S72` (nanonats vs its own BF16) / reversal numerals |
+| 18 | `multipole_truncation_barrier_and_covariance_witness` | Literal-ordering check (`decide`) | `[]` | Orders quoted `d_k=128` barrier & covariance numerals as typed literals |
 
-*Attribution discipline:* Exact rational ratios (`Fraction`), 5th-power safe CSR cap (`12,500 < 16,807`), and `541,880,065`-param `Inkling-2-Mini` drafter metadata are checked by [s79_2dsd_multipole_oracle.py](s79_2dsd_multipole_oracle.py) and independently re-audited by [verify_s79_2dsd_multipole.py](verify_s79_2dsd_multipole.py); they are NOT claimed as Lean theorems unless listed in rows 1–18 above.
+*Attribution discipline:* Exact rational ratios (`Fraction`), 5th-power safe CSR cap (`12,500 < 16,807`), and `541,880,065`-param `Inkling-2-Mini` drafter metadata are checked by [s79_2dsd_multipole_oracle.py](s79_2dsd_multipole_oracle.py) and independently re-audited by [verify_s79_2dsd_multipole.py](verify_s79_2dsd_multipole.py); they are NOT claimed as Lean theorems unless listed in rows 1–18 above. Rows 16–18 are `decide` numeral-ordering checks on quoted external constants: the kernel only proves that the typed literals are ordered as written and never sees the external 2DSD / SqueezeLLM / S72 / MultipoleAttention sources, so they are **not** evidence about those sources (mutating a numeral's value, e.g. `23154136 → 23154137`, still passes the kernel; only the ordering is checked).
+
+### Anchor & oracle-pinning status (offline verification)
+
+- The certificate (`s79_2dsd_multipole_certificate.json`, `certificate_sha256 = e0753699fdfba9f12321e97d82a41503ffa2688da414acf946a9ce805a71b3a7`) pins `oracle_module_sha256` = SHA-256 of `s79_2dsd_multipole_oracle.py`. `--check` hashes the on-disk oracle module and compares it against that pin **before** the deterministic full replay, failing closed with `ERROR ORACLE_SHA256_MISMATCH` (rc=2) on any oracle edit — the replay target is therefore fixed, not self-referential. `test_s79_r5.py` includes a planted-oracle-edit control that must fail with exactly that error.
+- The external `PRIMARY_SOURCE_SHA256` pins in the oracle (2DSD repo `431aade2`, MultipoleAttention `db65e51d`, SqueezeLLM, KVQuant, HF `minseo25/2dsd` snapshots) are **not verified offline by any code in this bundle** — those sources are external and are never fetched here. Only `s72_empirical_results_sha256` (`a7c35c646a9c29fa645f207697c74e181ad19d8ce61acbe489a265a132968647`) is verifiable in-repo, against `studies/rtx3080-s72-stratified-quad-blockh4/rtx3080_s72_empirical_results.json` (sha256 matches; `models/Qwen/Qwen2.5-3B/reference_bf16` records the BF16 baseline, WikiText-2 PPL `10.970193`, that the `Qwen2.5-3B` KL nanonats are measured **vs its own BF16**).
 
 ---
 
 ## 4. Honest `N0` Prior-Art Quarantine & `N1` Scope (Law 4)
 
 - **Quarantined `N0` Prior Art:** Fast Multipole Method (Greengard & Rokhlin 1987); speculative decoding rejection sampling (Stern et al. 2018; Leviathan et al. 2023; Chen et al. 2023); SqueezeLLM (Kim et al. 2023); KVQuant (Hooper et al. 2024); MultipoleAttention (Hooper et al. 2025); DFlash (Chen et al. 2026); LoopSpec (Cho et al. 2026); 2DSD (SqueezeAILab 2026); CircularEP (Salvatori & Forasassi 2026); classical Lagrange/Cauchy–Schwarz/Jensen/Shannon inequalities.
-- **Claimed `N1` Synthesis:** Unified machine-checked Lean 4.36.0 pure-`Init` kernel proofs (`14/18` zero axioms, `4/18` `[propext]`-only) + exact $\mathbb{Z}/\mathbb{Q}$ oracle/auditor connecting (i) `2DSD` Eq. 6 KV non-commutativity to `CircularEP` contraction, (ii) `SqueezeLLM`/`Portal 77`/`Track S74` CSR overhead to `siliquant` `BlockH4 QuadSnake` with an exact `0.625%` break-even cap and phase-reversal obstruction, and (iii) `MultipoleAttention` far-field cluster error to exact Jensen underestimation, opening-angle barrier ($Q^2 \delta^2 \ge d_k$), and irreducible key-value covariance residuals.
+- **Claimed `N1` Synthesis:** Unified machine-checked Lean 4.36.0 pure-`Init` kernel proofs (18 kernel-checked declarations = 15 universal theorems + 3 `decide` literal-ordering checks; `14/18` zero axioms `[]`, `4/18` `[propext]`-only) + exact $\mathbb{Z}/\mathbb{Q}$ oracle/auditor connecting (i) `2DSD` Eq. 6 KV non-commutativity to `CircularEP` contraction, (ii) `SqueezeLLM`/`Portal 77`/`Track S74` CSR overhead to `siliquant` `BlockH4 QuadSnake` with an exact `0.625%` break-even cap and phase-reversal obstruction, and (iii) `MultipoleAttention` far-field cluster error to exact Jensen underestimation, opening-angle barrier ($Q^2 \delta^2 \ge d_k$), and irreducible key-value covariance residuals.
 
 ---
 

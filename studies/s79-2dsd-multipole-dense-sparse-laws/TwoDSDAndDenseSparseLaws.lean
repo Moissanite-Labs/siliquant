@@ -10,10 +10,14 @@
 --             Lagrange-Cauchy-Schwarz logit error bound, exact first-order centroid
 --             cancellation, quadratic Jensen partition underestimation, multiplicative
 --             softmax ratio bracket, and key-value covariance residual identity.
---   Witnesses: Exact anchored witnesses for 2DSD (431aade2), SqueezeLLM/siliquant S72,
---              and MultipoleAttention (db65e51d).
+--   Literal-ordering checks (`decide`, theorems 16-18): quoted 2DSD (431aade2),
+--              SqueezeLLM/siliquant S72, and MultipoleAttention (db65e51d) numerals.
+--              These `decide` proofs only order the typed literals as written; the
+--              kernel never sees the external sources, so they are NOT evidence
+--              about those sources.
 -- Zero imports, zero Mathlib, zero sorry/native_decide/Classical.choice/Quot.sound:
---   14/18 theorems depend on strictly zero axioms (`[]`);
+--   18 kernel-checked declarations = 15 universal theorems + 3 literal-ordering checks;
+--   14/18 declarations depend on strictly zero axioms (`[]`);
 --    4/18 Int ring theorems depend on `[propext]` only (via Lean 4 Init `Int.*`).
 
 namespace TwoDSDAndDenseSparseLaws
@@ -558,10 +562,15 @@ theorem multipole_exact_vs_centroid_value_covariance_universal (w1 w2 v1 v2 : In
       Int.add_assoc (-C) (-D) B, ← Int.add_assoc A (-C) (-D + B)]
 
 -- ============================================================================
--- ANCHORED EXACT WITNESS THEOREMS (Zero-Axiom `decide`)
+-- NUMERAL-ORDERING (LITERAL) CHECKS (Zero-Axiom `decide`)
+-- Theorems 16-18 below are `decide` over hardcoded typed numerals: the kernel
+-- proves only that those literals are ordered as written. It never sees the
+-- external 2DSD / SqueezeLLM / S72 / MultipoleAttention sources the numerals
+-- are quoted from, so these are literal-ordering checks, not pinned evidence.
 -- ============================================================================
 
--- Theorem 16 (Zero-Axiom Witness): Pinned 2DSD (431aade2) Table 1-4 & Eq. 6 KV Compression Witness.
+-- Theorem 16 (Zero-Axiom Literal-Ordering Check): orders the quoted 2DSD (431aade2)
+-- Table 1-4 & Eq. 6 KV constants as typed literals (not kernel evidence about the paper).
 -- Checks:
 --   - Ouro R=4, W=64, L=32768 KV compression = 131072 / 32960 = 2048 / 515 > 397 / 100
 --   - Ouro-2.6B greedy speedup 764 > 470 > 252 (x100) and sampling 553 > 381 > 241 (x100)
@@ -577,12 +586,14 @@ theorem twodsd_ouro_dory_kv_and_speedup_witness :
     4549 < 5095 ∧ 5136 < 5849 ∧ 7634 ≤ 7706 := by
   decide
 
--- Theorem 17 (Zero-Axiom Witness): Pinned SqueezeLLM / Portal 77 / siliquant S72 CSR Crossover Witness.
+-- Theorem 17 (Zero-Axiom Literal-Ordering Check): orders the quoted SqueezeLLM /
+-- Portal 77 / siliquant S72 / CSR-reversal constants as typed literals.
 -- Checks:
 --   - SqueezeLLM 0.45% CSR (b_csr=32 => delta_b = 144/1000 bpw, 2^(2*delta_b) < 5/4):
 --     M/D = 5/4, gamma = 1, sBulk = 1000, sOut = 400 -> 5*1000 < 4*(1000+400) (5000 < 5600)
 --   - Portal 77 0.057% FP32 sidecar (b_csr=48 => delta_b = 2736/100000 bpw < 3/100 bpw)
---   - siliquant S72 Qwen2.5-3B ordering (nanonats): 23154136 < 24178790 < 24774488
+--   - siliquant S72 Qwen2.5-3B WikiText-2 mean-KL nanonats vs its own BF16 reference
+--     (S72 record `reference_bf16`): 23154136 < 24178790 < 24774488
 --   - High-CSR overhead reversal (rho_s = 1/32, b_csr = 32 => delta_b = 1 bpw, M = 4,
 --     gamma = 1, sBulk = 1000, sOut = 2000 -> 1*(1000+2000) = 3000 < 4*1000 = 4000).
 theorem squeezellm_portal77_siliquant_csr_crossover_witness :
@@ -594,8 +605,8 @@ theorem squeezellm_portal77_siliquant_csr_crossover_witness :
     1 * (1000 + 2000) < 4 * 1000 := by
   decide
 
--- Theorem 18 (Zero-Axiom Witness): Pinned MultipoleAttention (db65e51d) Opening-Angle
--- Truncation Barrier & Nonzero Covariance Residual Witness (d_k = 128).
+-- Theorem 18 (Zero-Axiom Literal-Ordering Check): orders the quoted MultipoleAttention
+-- (db65e51d) opening-angle barrier & covariance numerals as typed literals (d_k = 128).
 -- Checks:
 --   - Well-separated far-field cluster (Q=8, delta=1, d_k=128): Q^2 * delta^2 = 64 < 128 (eps^2 = 1/2 < 1)
 --   - Barrier-violating cluster (Q=8, delta=2, d_k=128): Q^2 * delta^2 = 256 >= 128 (eps^2 = 2 >= 1)
