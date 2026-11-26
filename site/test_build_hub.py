@@ -153,9 +153,37 @@ class BuildHubTests(unittest.TestCase):
         built = self.build()
         self.assertEqual(built.returncode, 0, built.stderr)
         for name in ("hub.html", "data.json"):
-            text = read_text(self.docs_path(name))
-            for token in ("tok/s", "GB/s", "Gw/s", "1000+", "drop-in"):
+            text = read_text(self.docs_path(name)).lower()
+            for token in ("tok/s", "gb/s", "gw/s", "1000+", "drop-in",
+                          "post-freeze", "lossless"):
                 self.assertNotIn(token, text, "%s contains %r" % (name, token))
+
+    def plant_study_title(self, title):
+        folder = os.path.join(self.tmp, "studies", "zz-planted-title")
+        os.makedirs(folder)
+        with open(os.path.join(folder, "README.md"), "w", encoding="utf-8") as fh:
+            fh.write("# " + title + "\n\nPlanted by test.\n")
+
+    def assert_build_refuses(self, title, term):
+        self.plant_study_title(title)
+        for extra in ((), ("--check",)):
+            built = self.build(*extra)
+            self.assertEqual(built.returncode, 1, (extra, built.stdout))
+            self.assertIn("zz-planted-title", built.stderr)
+            self.assertIn(term, built.stderr)
+
+    def test_10_build_refuses_a_drop_in_study_title(self):
+        before = read_bytes(self.docs_path("hub.html"))
+        self.assert_build_refuses("Publisher & Drop-In `transformers` Loader", "drop-in")
+        self.assertEqual(read_bytes(self.docs_path("hub.html")), before,
+                         "refused build must not write docs/")
+
+    def test_11_build_refuses_a_post_freeze_study_title(self):
+        self.assert_build_refuses("Track S20b Post-Freeze Live Gate-8 Evaluation",
+                                  "post-freeze")
+
+    def test_12_build_refuses_lossless_and_speed_titles(self):
+        self.assert_build_refuses("Lossless packing at 1000+ tok/s", "lossless")
 
 
 if __name__ == "__main__":
