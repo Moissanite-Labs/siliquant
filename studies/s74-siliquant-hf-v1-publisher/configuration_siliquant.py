@@ -1,6 +1,6 @@
 """Hugging Face PretrainedConfig for Siliquant bit-packed lattice models (`siliquant-hf-v1`).
 
-Supports drop-in `AutoConfig.from_pretrained(..., trust_remote_code=True)` and
+Supports `AutoConfig.from_pretrained(..., trust_remote_code=True)` and
 `AutoModelForCausalLM.from_pretrained(..., trust_remote_code=True)` for both
 Qwen2 (`qwen2`) and Llama (`llama`, e.g. SmolLM2) decoder-only architectures.
 """

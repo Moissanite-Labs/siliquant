@@ -1,4 +1,4 @@
-"""Drop-in Hugging Face CausalLM & bit-packed `A_16` lattice decoder (`siliquant-hf-v1`).
+"""Hugging Face CausalLM loader & bit-packed `A_16` lattice decoder (`siliquant-hf-v1`).
 
 Zero extra dependencies beyond `torch` and `transformers`.
 Supports `AutoModelForCausalLM.from_pretrained(repo_or_dir, trust_remote_code=True, ...)`
@@ -614,7 +614,7 @@ def dequantize_a16_weight(
 
 
 class SiliquantLinear(nn.Module):
-    """Drop-in bit-packed `A_16` quantized linear projection with exact round-trip decode."""
+    """Bit-packed `A_16` quantized linear projection with exact round-trip decode."""
 
     def __init__(
         self,
@@ -824,7 +824,7 @@ def _replace_verified_block_linear(
 
 
 class SiliquantForCausalLM(PreTrainedModel, GenerationMixin):
-    """Drop-in Hugging Face CausalLM wrapping Qwen2 / Llama decoders with `SiliquantLinear`."""
+    """Hugging Face CausalLM wrapping Qwen2 / Llama decoders with `SiliquantLinear`."""
 
     config_class = SiliquantConfig
     base_model_prefix = "model"

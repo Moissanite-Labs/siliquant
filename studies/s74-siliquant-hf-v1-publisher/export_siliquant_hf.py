@@ -471,7 +471,7 @@ def _build_model_card(
         f"[`{base_model_id}`](https://huggingface.co/{base_model_id}) in **`{SILIQUANT_FORMAT_VERSION}`** "
         f"format (`recipe={recipe}`, target `{bpw_key} bpw`, group size `g={group_size}`).",
         "",
-        "## Quickstart (`transformers` Drop-In)",
+        "## Quickstart (`transformers`)",
         "",
         "Requires only standard `torch`, `transformers`, and `safetensors` — **zero custom C++/CUDA builds required**.",
         "",
