@@ -12,8 +12,8 @@
 //                 (a16_syndrome_check_16w) and the engine report. A storage claim about the engine's packed layout
 //                 (18 B per 32 weights) only: the Hugging Face files store 11 of the 16 low bits and rely on SHA-256
 //                 checks instead. Must carry the qualifier: lowest bit of each 4-bit weight code; costs 3.1% tok/s.
-// Not on the images: the model count (the page's strip and #bench carry it), 4.9× lower energy than PyTorch BF16
-// (same engine report and setup as the 5.6×), kernel Gw/s, and any FP16 / cuBLAS / llama.cpp comparison.
+// Not on the images: the model count (the page's strip and #bench carry it), any laptop energy figure
+// (none is published until a controlled rerun), kernel Gw/s, and any FP16 / cuBLAS / llama.cpp comparison.
 // Never write "free", "zero overhead" or "error-correcting".
 const STRIP = [
   { pillar: 'Kernel', big: '400 tok/s', rest: '5.6× faster than PyTorch BF16' },
