@@ -1898,7 +1898,7 @@
         <li class="kpi">
           <div class="kpi-pillar">Kernel</div>
           <p class="kpi-num"><span class="kpi-big">400 tok/s</span><span class="sr-only">, </span><span class="kpi-rest">5.6× faster than PyTorch BF16</span></p>
-          <p class="kpi-scope">Qwen2.5-0.5B, batch 1, laptop RTX 3080, research engine, 4.9× lower energy</p>
+          <p class="kpi-scope">Qwen2.5-0.5B, batch 1, laptop RTX 3080, research engine</p>
           <p class="kpi-ev"><a href="https://github.com/Moissanite-Labs/siliquant/blob/main/studies/aletheion-qwen25-live-llm-engine/ALETHEION_LIVE_LLM_ENGINE_REPORT.md" target="_blank" rel="noopener noreferrer">Engine report (PR #88) ↗</a></p>
         </li>
         <li class="kpi">
@@ -2083,7 +2083,7 @@
             <p class="hl-limit"><strong>Limit:</strong> one 0.5B model, batch 1, against PyTorch BF16, not against llama.cpp or Q4. The engine uses uncalibrated A<sub>16</sub> rounding: 82% top-1 agreement with BF16 when teacher-forced, and free-running text diverges after 4 tokens.</p>
             <details class="hl-more">
               <summary>Details</summary>
-              <p>Qwen2.5-0.5B runs at <strong>400 tokens a second</strong> on an RTX 3080 laptop GPU. That is <strong>5.6 times faster than PyTorch BF16</strong>, and it uses <strong>4.9 times less energy</strong>.
+              <p>Qwen2.5-0.5B runs at <strong>400 tokens a second</strong> on an RTX 3080 laptop GPU. That is <strong>5.6 times faster than PyTorch BF16</strong>.
               Its linear layers are stored at 4.5 bits a weight; the embeddings and output head stay in BF16.
               In isolated matrix-vector kernels, pre-encoded A<sub>16</sub> weights stream at 611 to 647 billion weights a second, at the measured memory-bandwidth ceiling. Unranking the compact <code>hampack</code> file on the fly reaches only 3.7 billion, so serving uses the pre-encoded layout.
               The method and audit program come from Foundation-0's <a href="https://github.com/Foundation-0/cave-expedition">cave-expedition</a> and <a href="https://github.com/Foundation-0/aletheia">aletheia</a>; the CUDA kernels and the decode engine were written in this repository, and neither origin repository has GPU code to compare against.
@@ -3176,7 +3176,7 @@
               <em>falsified</em> on 4/4 models (group-ball Hessian budget-transfer cannibalization); the coupled-coherent cure
               (<code>ProjType_Uniform</code>, zero calibration) scores WikiKL 0.046336 / PyKL 0.034327. <strong>#95:</strong> rank-invariant
               quad-snake interleaving gives the lowest calibrated 3B KL in the repo, <strong>0.023154 / 0.020494</strong>, below hA16_BlockH2 on WikiText-2 KL on all 3 Qwen models.
-              <strong>#88:</strong> Qwen2.5-0.5B full-model engine on an RTX 3080 Laptop, 400.58 tok/s, 5.60× faster and 4.91× lower energy than PyTorch BF16.
+              <strong>#88:</strong> Qwen2.5-0.5B full-model engine on an RTX 3080 Laptop, 400.58 tok/s, 5.60× faster than PyTorch BF16.
               <strong>Theory (#87, #92, #94):</strong> 12 + 21 kernel-checked Lean 4.36.0 theorems — the exact 8× opposite-sign
               E<sub>8</sub>-vs-A<sub>16</sub> Hadamard contrast, the cross-layer R<sub>cross</sub> reversal threshold, and the two-level
               saddle-point dominance of stratified quad-interleaving.
