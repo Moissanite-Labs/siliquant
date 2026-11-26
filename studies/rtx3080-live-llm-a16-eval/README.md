@@ -2,6 +2,8 @@
 
 Live bare-metal NVIDIA RTX 3080 Laptop (`GA104M`, `sm_86`, `110W` AC `P0`) real-weight LLM quantization evaluation and CUDA transcode-serving study accompanying `Moissanite-Labs/siliquant` (`#58`, `#77`), paired with a pure-$\mathbb{Z}/\mathbb{Q}$ zero-float verifier and deterministic certificate (`measured_live_model_weights: true`, zero model weights committed).
 
+> **Energy figures: uncontrolled, provisional.** The `mJ/tok`, J and W figures in this README (Highlights, item 3) and in `RTX3080_LIVE_LLM_A16_REPORT.md` (§2 item 3, and the §3 "Measured Energy" bullets) come from one laptop benchmark run with no repeats and no reported spread. The GPU figure is a single `nvidia-smi` power reading taken after the run, multiplied by the projected time per token; the CPU figure is the `intel-rapl:0` package counter for the whole CPU, so it also counts anything else the CPU was doing. CPU load, other processes and user activity were not recorded, and `clean_hardware_run: true` covers GPU-side checks only. No controlled rerun has been done yet. The report is left byte-identical so its SHA-256 in the File Manifest below still holds; this note applies to it.
+
 ## Highlights
 
 1. **Opposite-Sign `E_8` vs. `A_16` Hadamard Law on Both Real Pretrained LLMs (`672.4M` Real Parameters, `26` Arms, `0` Syndrome Errors):**
@@ -17,7 +19,7 @@ Live bare-metal NVIDIA RTX 3080 Laptop (`GA104M`, `sm_86`, `110W` AC `P0`) real-
 3. **End-to-End Real-Weight CUDA Transcode & Serving (`Qwen2.5-0.5B` `52.30M` Real `down_proj` Weights, `10/10` Zero-Spill `sm_86` Kernels):**
    - One-time GPU decode from spherical-ball cold storage to lossless VRAM `int8` SoA takes `23.75 ms` (`18B` `hampack`, `~162.5 ms` full `Qwen2.5-0.5B`) and `206.64 ms` (`72B` `hammingindex`, `~1.41 s` full `Qwen2.5-0.5B`) with `0` bit mismatches and `0` syndrome errors.
    - Lossless transcoded VRAM `int8` `__dp4a` GEMV serves exact `72B` weights at **`358.52 Gweights/s` (`364.45 GB/s` = `102.24%` STREAM Triad — `727.4x` faster than on-the-fly GPU `72B` GEMV)** and exact `18B` weights at **`342.43 Gweights/s` (`102.15%` Triad — `91.7x` faster)** (`rel_l2 <= 9.10e-8`).
-   - Direct `4.50-bpw` `A16_axis_preencoded_dp4a` reaches **`612.42 Gweights/s` (`96.79%` Triad)** (`0.5843 ms/token` / `1,711.5 tok/s` full 24-layer linear-GEMV floor at `50.79 mJ/tok` GPU + `32.62 mJ/tok` live `intel-rapl:0` CPU = `83.40 mJ/tok` combined).
+   - Direct `4.50-bpw` `A16_axis_preencoded_dp4a` reaches **`612.42 Gweights/s` (`96.79%` Triad)** (`0.5843 ms/token` / `1,711.5 tok/s` full 24-layer linear-GEMV floor at `50.79 mJ/tok` GPU + `32.62 mJ/tok` live `intel-rapl:0` CPU = `83.40 mJ/tok` combined; energy figures uncontrolled, provisional).
 
 ## Reproduce Verification (Zero External Dependencies)
 
