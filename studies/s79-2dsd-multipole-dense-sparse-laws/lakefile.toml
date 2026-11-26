@@ -1,0 +1,7 @@
+name = "TwoDSDAndDenseSparseLaws"
+version = "0.1.0"
+defaultTargets = ["TwoDSDAndDenseSparseLaws"]
+
+[[lean_lib]]
+name = "TwoDSDAndDenseSparseLaws"
+roots = ["TwoDSDAndDenseSparseLaws"]
