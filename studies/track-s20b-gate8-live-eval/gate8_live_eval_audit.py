@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Track S20b Post-Freeze Gate-8 Live Evaluation (`AUDIT-119B-LIVE`):
+Track S20b Live Gate-8 Evaluation (`AUDIT-119B-LIVE`):
 Zone-B-Hardened Fail-Closed Certificate Auditor (`gate8_live_eval_audit.py`).
 
 Independently verifies canonical JSON bytes, symlink/ancestor safety, CR/CRLF
@@ -100,7 +100,7 @@ def verify_certificate_file(path: Path) -> dict[str, Any]:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Track S20b post-freeze Gate-8 live eval auditor")
+    parser = argparse.ArgumentParser(description="Track S20b Gate-8 live eval auditor (G8-P1 post-hoc)")
     parser.add_argument("--check", type=str, default=None, help="Verify canonical certificate JSON file")
     parser.add_argument("--standalone", action="store_true", help="Audit freshly generated standalone certificate")
     parser.add_argument("--json", action="store_true", help="Emit canonical JSON audit verdict")

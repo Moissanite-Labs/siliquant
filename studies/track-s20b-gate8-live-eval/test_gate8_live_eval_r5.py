@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 """
-Track S20b Post-Freeze Gate-8 Live Evaluation (`AUDIT-119B-LIVE`):
+Track S20b Live Gate-8 Evaluation (`AUDIT-119B-LIVE`):
 R5 Adversarial, Zone-B & Mutation-Killing Test Suite (`test_gate8_live_eval_r5.py`).
 
 Pure stdlib, zero bare `assert`s (`-O`-safe), zero floats on trust paths,
-4-mode `-I` parity verified.
+4-mode `-I` parity verified. G8-P1 is a post-hoc check (consistent with the
+data, not pre-registered); the real-oracle parity branch runs when
+`S20B_LIVE_DIR` points at the pinned files from git `4f7e4adf` and otherwise
+reports one explicit, visible skip.
 """
 from __future__ import annotations
 
@@ -118,8 +121,10 @@ class TestTrackS20bGate8LiveEvalR5(unittest.TestCase):
         self.assertEqual(ts["exact_deltas_s"]["ebg_commit_minus_report_mtime_s"], -146)
         self.assertEqual(ts["exact_deltas_s"]["hbg_commit_minus_report_mtime_s"], 442)
         self.assertEqual(ts["exact_deltas_s"]["board_1155_minus_hbg_commit_s"], 806)
+        self.assertEqual(ts["exact_deltas_s"]["git_4f7e4adf_minus_0d843d95_ebg_commit_s"], 10285)
+        self.assertEqual(ts["exact_deltas_s"]["git_4f7e4adf_minus_be63add8_hbg_commit_s"], 9697)
         self.assertEqual(
-            ts["locally_authored_before_upstream_commit"],
+            {k: v for k, v in ts["self_reported_local_authoring_before_data_rows"].items() if k != "verifiability"},
             {
                 "g8p1_oracle_before_0d843d95_ebg": True,
                 "g8p1_oracle_before_be63add8_hbg": True,
@@ -127,6 +132,34 @@ class TestTrackS20bGate8LiveEvalR5(unittest.TestCase):
                 "report_mtime_before_be63add8_hbg": True,
             },
         )
+        self.assertIn("self-reported", ts["self_reported_local_authoring_before_data_rows"]["verifiability"])
+        freeze = ts["externally_verifiable_git_freeze_4f7e4adf"]
+        self.assertEqual(freeze["commit"], "4f7e4adf362782dc409350b44ce2a8203fbbc719")
+        self.assertEqual(freeze["utc"], "2026-11-23T02:07:40Z")
+        self.assertEqual(freeze["epoch_s"], 1795399660)
+        self.assertTrue(freeze["after_0d843d95_ebg_row_2026-11-22T23:16:15Z"])
+        self.assertTrue(freeze["after_be63add8_hbg_row_2026-11-22T23:26:03Z"])
+        self.assertFalse(freeze["g8p1_predates_data_rows_externally_verifiable"])
+        self.assertIn("post-hoc", ts["g8p1_classification"])
+        ev = ts["events_utc"]
+        self.assertEqual(ev["g8p1_oracle_cert_first_git_commit_4f7e4adf"]["utc"], "2026-11-23T02:07:40Z")
+        self.assertEqual(ev["g8p1_oracle_cert_first_git_commit_4f7e4adf"]["epoch_s"], 1795399660)
+        for k in (
+            "anchor_51235fa7_commit",
+            "upstream_0d843d95_ebg_commit",
+            "upstream_be63add8_hbg_commit",
+            "upstream_462fb2f8_branch_head",
+            "g8p1_oracle_cert_first_git_commit_4f7e4adf",
+        ):
+            self.assertIn("externally-verifiable", ev[k]["verifiability"])
+        for k in (
+            "g8p1_oracle_first_written",
+            "g8p1_oracle_finalized",
+            "report_md_final_mtime",
+            "cert_json_final_mtime",
+            "board_post_1155_r1",
+        ):
+            self.assertIn("self-reported", ev[k]["verifiability"])
         self.assertEqual(
             ts["externally_cryptographically_precommitted_via_board_1155"],
             {"G8-P1": False, "G8-P2": True, "G8-P3": True, "G8-P4": True},
@@ -177,14 +210,7 @@ class TestTrackS20bGate8LiveEvalR5(unittest.TestCase):
                 oracle._round_dec_to_int(bad_d, 1000, "bad")
 
     def test_03_live_s20b_loader_and_results_jsonl_parser(self) -> None:
-        # 1. If real frozen sibling Track S20b exists, verify live read-only execution with 0 pycache!
-        real_s20b = _HERE.parent / "track-s20b-e8had-anisotropy-gate8"
-        if real_s20b.is_dir():
-            live_res = oracle.verify_live_s20b_scorer(real_s20b)
-            self.assertTrue(live_res["live_s20b_verified"])
-            self.assertFalse(live_res["pycache_created_in_s20b"])
-            self.assertEqual(live_res["s20b_live_verdicts"]["G8-P1"], "PASS")
-
+        # 1. (Real pinned Track S20b live parity is test_03b below: explicit visible skip when unavailable.)
         # 2. Deterministic isolated synthetic Track S20b & results.jsonl fixtures (kills 100% of mutants even in tempdir!)
         standalone = oracle.score_g8_p1_standalone(oracle.LIVE_SCORER_INPUT_ROWS)
         good_stub = (
@@ -361,6 +387,61 @@ class TestTrackS20bGate8LiveEvalR5(unittest.TestCase):
                         with redirect_stderr(err_rj):
                             self.assertEqual(oracle.main(["--live-s20b", str(s_dir), "--results-jsonl", str(good_jsonl)]), 1)
                         self.assertIn("FAIL RESULTS_JSONL_MISMATCH", err_rj.getvalue())
+
+            # --results-jsonl without --live-s20b must fail closed with a clear error, never be silently ignored
+            for bad_argv in (
+                ["--standalone", "--results-jsonl", str(good_jsonl)],
+                ["--results-jsonl", str(good_jsonl)],
+                ["--standalone", "--results-jsonl", str(good_jsonl), "--json"],
+            ):
+                err_sr = io.StringIO()
+                with redirect_stderr(err_sr):
+                    self.assertEqual(oracle.main(bad_argv), 1)
+                self.assertIn("FAIL RESULTS_JSONL_WITHOUT_LIVE_S20B", err_sr.getvalue())
+
+    def test_03b_real_pinned_s20b_live_parity(self) -> None:
+        # Real-oracle parity against the pinned Track S20b R2 files (oracle sha256
+        # dc139227... / certificate 84e79bb9..., first committed at git 4f7e4adf,
+        # 2026-11-23T02:07:40Z). Explicit, visible skip when those pinned files are not
+        # available; set S20B_LIVE_DIR to a dir holding the 4f7e4adf extractions, e.g.:
+        #   mkdir -p /tmp/s20b-4f7e4adf
+        #   git show 4f7e4adf:studies/expedition-e8had-anisotropy-audit119br/e8had_anisotropy_oracle.py > /tmp/s20b-4f7e4adf/e8had_anisotropy_oracle.py
+        #   git show 4f7e4adf:studies/expedition-e8had-anisotropy-audit119br/e8had_anisotropy_certificate.json > /tmp/s20b-4f7e4adf/e8had_anisotropy_certificate.json
+        #   S20B_LIVE_DIR=/tmp/s20b-4f7e4adf python3 -I -B test_gate8_live_eval_r5.py
+        env_dir = os.environ.get("S20B_LIVE_DIR")
+        s20b = Path(env_dir) if env_dir else (_HERE.parent / "track-s20b-e8had-anisotropy-gate8")
+        o_file = s20b / "e8had_anisotropy_oracle.py"
+        c_file = s20b / "e8had_anisotropy_certificate.json"
+        if not (s20b.is_dir() and o_file.is_file() and c_file.is_file()):
+            self.skipTest(
+                "pinned Track S20b R2 files (oracle sha256 "
+                f"{oracle.TRACK_S20B_FROZEN_PINS['oracle_r2_sha256']}, certificate "
+                f"{oracle.TRACK_S20B_FROZEN_PINS['certificate_file_sha256']}, first committed at git "
+                "4f7e4adf 2026-11-23T02:07:40Z) are not available at "
+                f"{s20b}; extract them from git 4f7e4adf into a scratch dir and set S20B_LIVE_DIR"
+            )
+        if env_dir is None:
+            o_sha = hashlib.sha256(o_file.read_bytes()).hexdigest()
+            c_sha = hashlib.sha256(c_file.read_bytes()).hexdigest()
+            if (
+                o_sha != oracle.TRACK_S20B_FROZEN_PINS["oracle_r2_sha256"]
+                or c_sha != oracle.TRACK_S20B_FROZEN_PINS["certificate_file_sha256"]
+            ):
+                self.skipTest(
+                    f"Track S20b files at {s20b} do not match the pinned 4f7e4adf hashes "
+                    f"(oracle {o_sha}, certificate {c_sha}); the in-tree "
+                    "studies/expedition-e8had-anisotropy-audit119br copy has since moved on. "
+                    "Set S20B_LIVE_DIR to a dir with the files extracted from git 4f7e4adf"
+                )
+        live_res = oracle.verify_live_s20b_scorer(s20b)
+        self.assertTrue(live_res["live_s20b_verified"])
+        self.assertFalse(live_res["pycache_created_in_s20b"])
+        self.assertEqual(
+            live_res["s20b_live_verdicts"],
+            {"G8-P1": "PASS", "G8-P2": "PENDING", "G8-P3": "PENDING", "G8-P4": "PENDING"},
+        )
+        self.assertEqual(live_res["s20b_oracle_sha256"], oracle.TRACK_S20B_FROZEN_PINS["oracle_r2_sha256"])
+        self.assertEqual(live_res["s20b_certificate_sha256"], oracle.TRACK_S20B_FROZEN_PINS["certificate_file_sha256"])
 
     def test_04_zone_b_strict_io_auditor_and_cli(self) -> None:
         max_2048 = (1 << oracle.MAX_INT_BITS) - 1

@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 """
-Track S20b Post-Freeze Live Evaluation (`AUDIT-119B-LIVE`): Exact-Q Gate-8
+Track S20b Live Gate-8 Evaluation (`AUDIT-119B-LIVE`): Exact-Q Gate-8
 Evaluation Receipt & Brutally Honest Law-4 Timestamp Audit against Frozen
 Track S20b (`e8had_anisotropy_oracle.evaluate_gate8_rows`).
+
+G8-P1 is a POST-HOC check (consistent with the data, not pre-registered):
+the only externally verifiable freeze of the G8-P1 oracle/certificate is git
+commit `4f7e4adf` (2026-11-23T02:07:40Z), which is AFTER both data rows.
 
 Zero floats on all trust/certificate paths (pure stdlib `int`, `Fraction`, and
 `Decimal` for lossless raw JSONL ingestion). Zero bare `assert`s (`-O`-safe).
@@ -117,16 +121,29 @@ LIVE_SCORER_INPUT_ROWS: dict[str, dict[str, int]] = {
 }
 
 # Exact UTC epoch seconds for Law-4 timestamp audit (brutally honest provenance timeline).
-TIMELINE_UTC_EPOCHS: dict[str, tuple[str, int]] = {
-    "anchor_51235fa7_commit": ("2026-11-22T23:06:57Z", 1795388817),
-    "g8p1_oracle_first_written": ("2026-11-22T23:11:58Z", 1795389118),
-    "g8p1_oracle_finalized": ("2026-11-22T23:15:03Z", 1795389303),
-    "upstream_0d843d95_ebg_commit": ("2026-11-22T23:16:15Z", 1795389375),
-    "report_md_final_mtime": ("2026-11-22T23:18:41Z", 1795389521),
-    "upstream_be63add8_hbg_commit": ("2026-11-22T23:26:03Z", 1795389963),
-    "cert_json_final_mtime": ("2026-11-22T23:27:32Z", 1795390052),
-    "board_post_1155_r1": ("2026-11-22T23:39:29Z", 1795390769),
-    "upstream_462fb2f8_branch_head": ("2026-11-23T00:04:07Z", 1795392247),
+# Each entry is (utc, epoch_s, verifiability). Git commit timestamps are externally
+# verifiable; local file mtimes and the swarm board post are SELF-REPORTED and are
+# never used as evidence of pre-commitment.
+_GIT_COMMIT_VERIFIABLE = "externally-verifiable git commit timestamp"
+_SELF_REPORTED_MTIME = "self-reported local file mtime (not externally verifiable)"
+_SELF_REPORTED_BOARD = "self-reported swarm board post (not externally verifiable)"
+
+# First git commit of the G8-P1 oracle (dc139227...) and certificate (84e79bb9...)
+# under studies/expedition-e8had-anisotropy-audit119br/ — the only externally
+# verifiable freeze event, and it is AFTER both data rows on 2026-11-22.
+G8P1_GIT_FREEZE_COMMIT = "4f7e4adf362782dc409350b44ce2a8203fbbc719"
+
+TIMELINE_UTC_EPOCHS: dict[str, tuple[str, int, str]] = {
+    "anchor_51235fa7_commit": ("2026-11-22T23:06:57Z", 1795388817, _GIT_COMMIT_VERIFIABLE),
+    "g8p1_oracle_first_written": ("2026-11-22T23:11:58Z", 1795389118, _SELF_REPORTED_MTIME),
+    "g8p1_oracle_finalized": ("2026-11-22T23:15:03Z", 1795389303, _SELF_REPORTED_MTIME),
+    "upstream_0d843d95_ebg_commit": ("2026-11-22T23:16:15Z", 1795389375, _GIT_COMMIT_VERIFIABLE),
+    "report_md_final_mtime": ("2026-11-22T23:18:41Z", 1795389521, _SELF_REPORTED_MTIME),
+    "upstream_be63add8_hbg_commit": ("2026-11-22T23:26:03Z", 1795389963, _GIT_COMMIT_VERIFIABLE),
+    "cert_json_final_mtime": ("2026-11-22T23:27:32Z", 1795390052, _SELF_REPORTED_MTIME),
+    "board_post_1155_r1": ("2026-11-22T23:39:29Z", 1795390769, _SELF_REPORTED_BOARD),
+    "upstream_462fb2f8_branch_head": ("2026-11-23T00:04:07Z", 1795392247, _GIT_COMMIT_VERIFIABLE),
+    "g8p1_oracle_cert_first_git_commit_4f7e4adf": ("2026-11-23T02:07:40Z", 1795399660, _GIT_COMMIT_VERIFIABLE),
 }
 
 
@@ -556,7 +573,7 @@ def verify_live_s20b_scorer(
 
 
 def build_certificate_payload() -> dict[str, Any]:
-    """Compute the complete exact-Z/Q Track S20b post-freeze Gate-8 evaluation payload."""
+    """Compute the complete exact-Z/Q Track S20b Gate-8 live-eval payload (G8-P1 post-hoc)."""
     eval_res = score_g8_p1_standalone(LIVE_SCORER_INPUT_ROWS)
     rz = QWEN25_3P0_ROWS_U6["qwen25_3p0_zbg"]
     re = QWEN25_3P0_ROWS_U6["qwen25_3p0_ebg"]
@@ -569,13 +586,18 @@ def build_certificate_payload() -> dict[str, Any]:
     z2_hbg_vs_ebg = _exact_z_sq(re["kl_u6"], re["se_u6"], rh["kl_u6"], rh["se_u6"])
 
     t = TIMELINE_UTC_EPOCHS
+    freeze_key = "g8p1_oracle_cert_first_git_commit_4f7e4adf"
     deltas_sec = {
         "ebg_commit_minus_g8p1_oracle_finalized_s": t["upstream_0d843d95_ebg_commit"][1] - t["g8p1_oracle_finalized"][1],
         "hbg_commit_minus_g8p1_oracle_finalized_s": t["upstream_be63add8_hbg_commit"][1] - t["g8p1_oracle_finalized"][1],
         "ebg_commit_minus_report_mtime_s": t["upstream_0d843d95_ebg_commit"][1] - t["report_md_final_mtime"][1],
         "hbg_commit_minus_report_mtime_s": t["upstream_be63add8_hbg_commit"][1] - t["report_md_final_mtime"][1],
         "board_1155_minus_hbg_commit_s": t["board_post_1155_r1"][1] - t["upstream_be63add8_hbg_commit"][1],
+        "git_4f7e4adf_minus_0d843d95_ebg_commit_s": t[freeze_key][1] - t["upstream_0d843d95_ebg_commit"][1],
+        "git_4f7e4adf_minus_be63add8_hbg_commit_s": t[freeze_key][1] - t["upstream_be63add8_hbg_commit"][1],
     }
+    freeze_after_ebg = deltas_sec["git_4f7e4adf_minus_0d843d95_ebg_commit_s"] > 0
+    freeze_after_hbg = deltas_sec["git_4f7e4adf_minus_be63add8_hbg_commit_s"] > 0
 
     return {
         "track": "S20b-live-eval",
@@ -597,13 +619,24 @@ def build_certificate_payload() -> dict[str, Any]:
             "steiner_jump_model_020_energy_ratio_hbg_over_ebg": fmt_q(nz_020_ratio),
         },
         "law4_timestamp_audit": {
-            "events_utc": {k: {"utc": v[0], "epoch_s": v[1]} for k, v in t.items()},
+            "events_utc": {k: {"utc": v[0], "epoch_s": v[1], "verifiability": v[2]} for k, v in t.items()},
             "exact_deltas_s": deltas_sec,
-            "locally_authored_before_upstream_commit": {
+            "self_reported_local_authoring_before_data_rows": {
+                "verifiability": "self-reported local mtimes; NOT externally verifiable and NOT used as evidence of pre-commitment",
                 "g8p1_oracle_before_0d843d95_ebg": deltas_sec["ebg_commit_minus_g8p1_oracle_finalized_s"] > 0,
                 "g8p1_oracle_before_be63add8_hbg": deltas_sec["hbg_commit_minus_g8p1_oracle_finalized_s"] > 0,
                 "report_mtime_before_0d843d95_ebg": deltas_sec["ebg_commit_minus_report_mtime_s"] > 0,
                 "report_mtime_before_be63add8_hbg": deltas_sec["hbg_commit_minus_report_mtime_s"] > 0,
+            },
+            "externally_verifiable_git_freeze_4f7e4adf": {
+                "commit": G8P1_GIT_FREEZE_COMMIT,
+                "utc": t[freeze_key][0],
+                "epoch_s": t[freeze_key][1],
+                "first_commits_oracle_sha256": TRACK_S20B_FROZEN_PINS["oracle_r2_sha256"],
+                "first_commits_certificate_file_sha256": TRACK_S20B_FROZEN_PINS["certificate_file_sha256"],
+                "after_0d843d95_ebg_row_2026-11-22T23:16:15Z": freeze_after_ebg,
+                "after_be63add8_hbg_row_2026-11-22T23:26:03Z": freeze_after_hbg,
+                "g8p1_predates_data_rows_externally_verifiable": not (freeze_after_ebg and freeze_after_hbg),
             },
             "externally_cryptographically_precommitted_via_board_1155": {
                 "G8-P1": False,
@@ -611,6 +644,10 @@ def build_certificate_payload() -> dict[str, Any]:
                 "G8-P3": True,
                 "G8-P4": True,
             },
+            "g8p1_classification": (
+                "post-hoc check: consistent with the data, not pre-registered "
+                "(externally verifiable git freeze 4f7e4adf 2026-11-23T02:07:40Z is AFTER both data rows)"
+            ),
         },
     }
 
@@ -633,14 +670,24 @@ def generate_certificate() -> dict[str, Any]:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Track S20b post-freeze Gate-8 live evaluation oracle")
+    parser = argparse.ArgumentParser(description="Track S20b Gate-8 live evaluation oracle (G8-P1 post-hoc)")
     parser.add_argument("--standalone", action="store_true", help="Compute self-contained exact certificate")
     parser.add_argument("--live-s20b", type=str, default=None, help="Read-only path to frozen Track S20b directory")
-    parser.add_argument("--results-jsonl", type=str, default=None, help="Optional committed results.jsonl to cross-check")
+    parser.add_argument(
+        "--results-jsonl",
+        type=str,
+        default=None,
+        help="Optional committed results.jsonl to cross-check (only honoured together with --live-s20b)",
+    )
     parser.add_argument("--json", action="store_true", help="Emit canonical JSON output to stdout")
     try:
         checked_argv = validate_cli_argv(argv)
         args = parser.parse_args(checked_argv)
+        if args.results_jsonl is not None and args.live_s20b is None:
+            raise Gate8EvalError(
+                "RESULTS_JSONL_WITHOUT_LIVE_S20B",
+                "--results-jsonl is only honoured together with --live-s20b; refusing to silently ignore it",
+            )
         cert = generate_certificate()
         if args.live_s20b is not None:
             live_out: dict[str, Any] = {
