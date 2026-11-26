@@ -607,5 +607,211 @@ class TestGemmaBallRunner(unittest.TestCase):
             self.assertIn("0.041200", content)
 
 
+class TestAddendumArms(unittest.TestCase):
+    """2026-11-24 addendum: A_n Hamming-lattice ball arms and stock files decoded to 16-bit weights."""
+
+    def setUp(self):
+        rng = np.random.default_rng(321)
+        self.W = (rng.standard_normal((8, 256)) * 0.05).astype(np.float32)
+
+    def test_arm_regexes_and_imatrix_routing(self):
+        for arm in ("A16BG128:b560s16", "hA16BG128:b560s16", "iA16BG128:b560s16~rand", "A32BG128:b368s16"):
+            self.assertTrue(R.HAMMING_BALL_RE.match(arm), arm)
+            self.assertFalse(R.WEIGHTED_BALL_RE.match(arm), arm)
+            self.assertFalse(R.GROUP_BALL_RE.match(arm), arm)
+        self.assertFalse(R.arm_needs_real_imat("A16BG128:b560s16"))
+        self.assertTrue(R.arm_needs_real_imat("hA16BG128:b560s16"))
+        self.assertFalse(R.arm_needs_real_imat("iA16BG128:b560s16~rand"))
+        for arm in ("file:Q4_0@16", "file:Q4_K_M@16", "file:Q4_K_M-imat@16"):
+            self.assertTrue(R.STOCK16_RE.match(arm), arm)
+            self.assertFalse(R.STOCK16_RE.match(arm.replace("@16", "")), arm)
+        self.assertFalse(R.arm_needs_real_imat("file:Q4_K_M@16"))
+        self.assertTrue(R.arm_needs_real_imat("file:Q4_K_M-imat@16"))
+
+    def test_hamming_ball_arms_dispatch_bits_and_lattice(self):
+        import math
+
+        def fake_colscale(name, cols, power, which="real"):
+            return np.linspace(0.5, 1.5, cols, dtype=np.float64)
+
+        ham = R.hamming_module()
+        for variant, lo, hi in (("A16BG128:b560s16", 4.45, 4.55), ("hA16BG128:b560s16", 4.45, 6.60),
+                                ("A16BG128:b368s16", 2.95, 3.05)):
+            Wh, info = R.round_matrix_variant(variant, "blk.0.attn_q.weight", self.W, colscale_fn=fake_colscale)
+            self.assertEqual(Wh.shape, self.W.shape)
+            self.assertEqual(Wh.dtype, np.float16)
+            self.assertGreaterEqual(info["bits"], lo, variant)
+            self.assertLessEqual(info["bits"], hi, variant)
+            # every group of the rounded matrix lies in the ball of the lattice, at its own scale
+            W64 = np.asarray(self.W, dtype=np.float64)
+            n, bbits = 128, int(R.HAMMING_BALL_RE.match(variant).group(4))
+            bound, points = ham.ball_bound(4, n, bbits)
+            X = W64.reshape(-1, n)
+            t = R._hamming_block_scales(X, 4, bound, math.sqrt(ham.covering_sq(4, n)))
+            Y = ham.closest(X / t[:, None], 4)
+            self.assertTrue(bool(np.all((Y ** 2).sum(axis=1) <= bound + 1e-9)), variant)
+            self.assertTrue(bool(np.array_equal(ham.closest(Y, 4), Y)), variant)
+
+    def test_hamming_decoder_c_numpy_parity(self):
+        ham = R.hamming_module()
+        rng = np.random.default_rng(7)
+        X = rng.standard_normal((200, 128)) * 2.0
+        self.assertTrue(np.array_equal(ham.closest(X, 4, use_c=True), ham.closest(X, 4, use_c=False)))
+
+    def test_hamming_scales_match_addendum_ball_round_bit_for_bit(self):
+        """The port's scale bisection equals the 2026-11-24 record's ball_round on the same input."""
+        import math
+
+        ham = R.hamming_module()
+        bd = R.ball_module()
+        W64 = np.asarray(self.W, dtype=np.float64)
+        X = W64.reshape(-1, 128)
+        bound, points = ham.ball_bound(4, 128, 560)
+        margin = math.sqrt(ham.covering_sq(4, 128))
+        # the record's bisection (experiments/hamming-lattices-real-weights-2026-11-24/run.py)
+        g = np.maximum(np.sqrt((X ** 2).sum(axis=1)), 1e-30)
+        r = math.sqrt(bound)
+        lo = g / (r + margin) * 0.99
+        hi = g / max(r - margin, 0.05 * r) * 1.01
+        for _ in range(bd.BISECT_STEPS):
+            mid = np.sqrt(lo * hi)
+            ok = (ham.closest(X / mid[:, None], 4) ** 2).sum(axis=1) <= bound + 1e-9
+            hi = np.where(ok, mid, hi)
+            lo = np.where(ok, lo, mid)
+        t = R._hamming_block_scales(X, 4, bound, margin)
+        np.testing.assert_array_equal(t, hi)
+        self.assertEqual((math.log2(points) + 16) / 128, (math.log2(points) + 16) / 128)
+
+
+
+class TestStreamArms(unittest.TestCase):
+    """--stream-arms: sidecar-based arm writing must be byte-identical to write_copy."""
+
+    def _tiny_gguf(self, path):
+        import gguf
+        rng = np.random.default_rng(7)
+        writer = gguf.GGUFWriter(path, arch="gemma3")
+        writer.add_tensor_info("token_embd.weight", (8, 4), np.dtype(np.float32), 8 * 4 * 4,
+                               gguf.GGMLQuantizationType.F32)
+        writer.add_tensor_info("blk.0.attn_q.weight", (4, 128), np.dtype(np.float32), 4 * 128 * 4,
+                               gguf.GGMLQuantizationType.F32)
+        writer.add_tensor_info("blk.0.ffn_down.weight", (4, 128), np.dtype(np.float32), 4 * 128 * 4,
+                               gguf.GGMLQuantizationType.F32)
+        writer.write_header_to_file()
+        writer.write_kv_data_to_file()
+        writer.write_ti_data_to_file()
+        writer.write_tensor_data(rng.standard_normal((8, 4)).astype(np.float32))
+        writer.write_tensor_data(rng.standard_normal((4, 128)).astype(np.float32))
+        writer.write_tensor_data(rng.standard_normal((4, 128)).astype(np.float32))
+        writer.close()
+
+    def test_streaming_writer_byte_parity(self):
+        ggufedit = R._load_ggufedit()
+        with tempfile.TemporaryDirectory() as td:
+            model = os.path.join(td, "tiny.gguf")
+            self._tiny_gguf(model)
+            rd = ggufedit.open_model(model)
+            names = [t.name for t in R._targets(rd)]
+            self.assertEqual(len(names), 2)
+            replace = {}
+            for n in names:
+                W = R._matrix_of(next(t for t in rd.tensors if t.name == n))
+                Wh, _ = R.round_matrix_variant("ZBG128:b560s16", n, W)
+                replace[n] = Wh
+            out_a = os.path.join(td, "a.gguf")
+            ggufedit.write_copy(rd, out_a, replace)
+            files = {}
+            for n in names:
+                os.makedirs(os.path.join(td, "sc"), exist_ok=True)
+                p = os.path.join(td, "sc", re.sub(r"[^A-Za-z0-9_.+-]", "_", n) + ".f16.npy")
+                np.save(p, replace[n])
+                files[n] = p
+            out_b = os.path.join(td, "b.gguf")
+            ggufedit.write_copy_streaming(rd, out_b, files)
+            self.assertEqual(R.sha256_of(out_a), R.sha256_of(out_b))
+
+    def test_round_one_worker_sidecar(self):
+        with tempfile.TemporaryDirectory() as td:
+            model = os.path.join(td, "tiny.gguf")
+            self._tiny_gguf(model)
+            tdir = os.path.join(td, "tensors")
+            try:
+                R._worker_init(model, None, None, tdir)
+                name = R._targets(R._get_reader())[0].name
+                got_name, Wh, info, sidecar = R._round_one_worker(("ZBG128:b560s16", name))
+                self.assertEqual(got_name, name)
+                self.assertIsNone(Wh)
+                self.assertTrue(sidecar.endswith(".f16.npy") and os.path.exists(sidecar))
+                W = R._matrix_of(next(t for t in R._get_reader().tensors if t.name == name))
+                Wh_ref, info_ref = R.round_matrix_variant("ZBG128:b560s16", name, W)
+                self.assertTrue(np.array_equal(np.load(sidecar), Wh_ref))
+                self.assertEqual(info, info_ref)
+            finally:
+                R._worker_init(model, None, None, None)
+
+    def test_stream_arms_flag_in_dry_run(self):
+        with tempfile.TemporaryDirectory() as td:
+            p = subprocess.run(
+                [sys.executable, "-B", str(RUN_PATH), "--model-id", "m", "--model-path", os.path.join(td, "m.gguf"),
+                 "--out-dir", td, "--stream-arms", "--dry-run"],
+                capture_output=True, text=True, check=True)
+            self.assertIn('"arms"', p.stdout)
+
+
+class TestQ8RefStratum(unittest.TestCase):
+    """Q8_0-reference stratum: --allow-requantize and GGUF-magic cache validation."""
+
+    def _fake_tensor(self, name, code):
+        return types.SimpleNamespace(name=name, tensor_type=code, shape=(128, 4))
+
+    def test_source_is_quantized(self):
+        self.assertTrue(R._source_is_quantized([self._fake_tensor("blk.0.attn_q.weight", 8)]))
+        self.assertFalse(R._source_is_quantized([self._fake_tensor("blk.0.attn_q.weight", 30)]))
+        self.assertFalse(R._source_is_quantized([self._fake_tensor("token_embd.weight", 0)]))
+
+    def test_valid_gguf_magic(self):
+        with tempfile.TemporaryDirectory() as td:
+            good = os.path.join(td, "good.gguf")
+            bad = os.path.join(td, "bad.gguf")
+            with open(good, "wb") as f:
+                f.write(b"GGUF" + b"\x00" * 100)
+            with open(bad, "wb") as f:
+                f.write(b"\x00" * 100)
+            self.assertTrue(R._valid_gguf(good))
+            self.assertFalse(R._valid_gguf(bad))
+            self.assertFalse(R._valid_gguf(os.path.join(td, "missing.gguf")))
+
+    def test_baseline_requant_flag_and_corrupt_cache_removal(self):
+        with tempfile.TemporaryDirectory() as td:
+            out = os.path.join(td, "out.gguf")
+            with open(out, "wb") as f:
+                f.write(b"\x00" * 64)  # zero-header partial from a killed run
+            q_tensors = [self._fake_tensor("blk.0.attn_q.weight", 8), self._fake_tensor("token_embd.weight", 8)]
+            cmd = R.ensure_baseline_gguf("model.gguf", out, "Q4_0", "/bin/echo", q_tensors, threads=4)
+            self.assertIn("--allow-requantize", cmd)
+            self.assertFalse(os.path.exists(out))  # corrupt cache was removed
+            f_tensors = [self._fake_tensor("blk.0.attn_q.weight", 30), self._fake_tensor("token_embd.weight", 30)]
+            out2 = os.path.join(td, "out2.gguf")
+            cmd2 = R.ensure_baseline_gguf("model.gguf", out2, "Q4_0", "/bin/echo", f_tensors, threads=4, dry_run=True)
+            self.assertNotIn("--allow-requantize", cmd2)
+
+    def test_kld_cache_trusted_by_size_not_gguf_magic(self):
+        with tempfile.TemporaryDirectory() as td:
+            kld = os.path.join(td, "m.wikitext.kld")
+            with open(kld, "wb") as f:
+                f.write(b"_log" + b"\x00" * 64)  # .kld files start with "_log", not GGUF
+            cmd = R.ensure_kld("model.gguf", "text.raw", kld, "/bin/echo", 40, 512, 512, 40, 4)
+            self.assertTrue(os.path.exists(kld))  # non-empty kld cache is reused, not deleted
+            self.assertIn("--kl-divergence-base", cmd)
+
+    def test_drop_file_cache_best_effort(self):
+        with tempfile.TemporaryDirectory() as td:
+            f = os.path.join(td, "x.bin")
+            with open(f, "wb") as fh:
+                fh.write(b"\x00" * 4096)
+            R._drop_file_cache(f)                      # real file: must not raise
+            R._drop_file_cache(os.path.join(td, "nope"))  # missing file: must not raise
+
+
 if __name__ == "__main__":
     unittest.main()
