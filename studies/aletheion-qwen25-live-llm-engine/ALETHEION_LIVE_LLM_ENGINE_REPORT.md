@@ -52,7 +52,7 @@ Energy methodology: Synchronized Linux `powercap` `intel-rapl` hardware microjou
 
 *Energy columns (`mJ/tok`): uncontrolled, provisional (see the note at the top of §3).*
 
-- **Backbone Speedup & Energy Ratios (Exact $\mathbb{Q}$ certified):** Arm B1 is **`7.428x`** faster than PyTorch `BF16` (`571367/76921`) and **`9.398x`** faster than `AVX-512 8C` (`571367/60794`), delivering **`408.901 GB/s`** `BF16`-equivalent effective bandwidth (`115.003 GB/s` physical) at **`6.148x`** lower combined `mJ/tok` than PyTorch `BF16` and **`5.479x`** lower than `AVX-512` CPU-pkg alone (energy ratios uncontrolled, provisional).
+- **Backbone Speedups (Exact $\mathbb{Q}$ certified) & Energy Ratios (uncontrolled, provisional):** Arm B1 is **`7.428x`** faster than PyTorch `BF16` (`571367/76921`) and **`9.398x`** faster than `AVX-512 8C` (`571367/60794`), delivering **`408.901 GB/s`** `BF16`-equivalent effective bandwidth (`115.003 GB/s` physical) at **`6.148x`** lower combined `mJ/tok` than PyTorch `BF16` and **`5.479x`** lower than `AVX-512` CPU-pkg alone (energy ratios uncontrolled, provisional).
 
 ### 3.2 Full End-to-End Decode (24 Layers + `151,936`-Vocab Tied `BF16` `lm_head` + Greedy `argmax`)
 

@@ -2,6 +2,8 @@
 
 Live bare-metal NVIDIA RTX 3080 Laptop (`GA104M`, `sm_86`, `110W` AC `P0`) CUDA & PyTorch empirical study accompanying `Moissanite-Labs/siliquant` (`#58`, `#77`, `#80`), paired with a pure-$\mathbb{Z}/\mathbb{Q}$ zero-float verifier and deterministic certificate (`measured_live_model_weights: false`).
 
+> **Power readings: uncontrolled, provisional.** The W figures in `RTX3080_SILIQUANT_A16_REPORT.md` (§2 "Live Telemetry" column and the note on sustained power telemetry) are single `nvidia-smi` readings from laptop runs with no repeats and no reported spread. They describe the power state during each benchmark and are not a controlled energy measurement. The report is left byte-identical so its SHA-256 in the File Manifest below still holds; this note applies to it.
+
 ## Highlights
 
 1. **Zero-Spill `flip_mask` Decode (`24/24` `sm_86` Kernels, `0 B` Stack / `0 B` Spills):**
