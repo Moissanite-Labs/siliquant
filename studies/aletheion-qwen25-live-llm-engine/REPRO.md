@@ -141,12 +141,14 @@ Expected output fields vs. reported §3.2 values (report lines 53-63;
 | JSON path | field | reported |
 |---|---|---|
 | `arm_b_sm86_ptx_a16_gpu.b1_pure_dp4a.full_e2e_with_bf16_lm_head` | `gpu_event_tok_s` / `gpu_event_ms_per_tok` | **400.580** / 2.49638 (bench.py:1188-1198) |
-| same | `gpu_mj_per_unit` / `cpu_pkg_mj_per_unit` / `combined_gpu_plus_cpu_pkg_mj_per_unit` / `psys_mj_per_unit` | 191.40979 / 121.37732 / 312.78711 / 18.12172 |
+| same | `gpu_mj_per_unit` / `cpu_pkg_mj_per_unit` / `combined_gpu_plus_cpu_pkg_mj_per_unit` / `psys_mj_per_unit` | 191.40979 / 121.37732 / 312.78711 / 18.12172 (energy: uncontrolled, provisional) |
 | `arm_a_pytorch_bf16_gpu.a2_full_e2e_with_bf16_lm_head` | `units_per_s` / `ms_per_unit` | **71.576** / 13.97115 (bench.py:865-868) |
-| same | combined mJ/tok | 1535.12265 |
+| same | combined mJ/tok | 1535.12265 (energy: uncontrolled, provisional) |
 | `arm_b_sm86_ptx_a16_gpu.b1_pure_dp4a.backbone_24layers` | `gpu_event_tok_s` | 571.367 (§3.1) |
 | `arm_a_pytorch_bf16_gpu.a1_backbone_24layers` | `units_per_s` | 76.921 (§3.1) |
 | `pareto_latency_energy_summary.decode_full_e2e_with_bf16_lm_head` | `speedup_b1_vs_a_bf16` | 5.597 (bench.py:1385) |
+
+Energy rows above (`mJ/tok`): uncontrolled, provisional. They come from one laptop run with one measurement window per arm, no repeats and no reported spread; CPU energy is the `intel-rapl` package counter for the whole CPU. No controlled rerun has been done yet (see the report's §3 note).
 
 ## 5. Test / audit / receipt verification (no GPU needed)
 
