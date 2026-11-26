@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Siliquant Research Hub | Quantization Results</title>
+  <meta name="description" content="Siliquant research hub: measured quantization results on real models and merged studies. Every number traces to a record in the repo." />
+  <style>
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #FAF8F5;
+      color: #1e293b;
+      line-height: 1.55;
+    }
+    header { background: #FAF8F5; border-bottom: 1px solid #e2e8f0; }
+    .wrap { max-width: 960px; margin: 0 auto; padding-left: 16px; padding-right: 16px; }
+    header .wrap { padding-top: 20px; padding-bottom: 20px; }
+    h1 { font-size: 1.35rem; line-height: 1.25; margin: 10px 0 4px; color: #0f172a; }
+    h2 { font-size: 1.1rem; margin: 0 0 6px; color: #0f172a; }
+    h3 { font-size: 0.98rem; margin: 18px 0 4px; color: #0f172a; }
+    p { margin: 6px 0; font-size: 0.9rem; color: #475569; }
+    .badges { display: flex; flex-wrap: wrap; gap: 6px; font-size: 0.68rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+    .badge { padding: 2px 8px; border-radius: 9999px; border: 1px solid #99f6e4; background: #ccfbf1; color: #115e59; }
+    .badge.paper { border-color: #fde68a; background: #fef3c7; color: #92400e; }
+    .nav { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; font-size: 0.8rem; }
+    .nav a { padding: 4px 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: #ffffff; color: #334155; text-decoration: none; }
+    .nav a:hover { background: #f1f5f9; }
+    main .wrap { padding-top: 4px; padding-bottom: 36px; }
+    section { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin-top: 16px; }
+    .table-wrap { overflow-x: auto; margin-top: 8px; }
+    table.data { width: 100%; border-collapse: collapse; font-size: 0.82rem; min-width: 480px; }
+    table.data th, table.data td { border-bottom: 1px solid #e2e8f0; padding: 6px 10px; text-align: left; vertical-align: top; }
+    table.data th { background: #f1f5f9; color: #0f766e; font-weight: 600; white-space: nowrap; }
+    table.data tr:hover td { background: #f8fafc; }
+    a { color: #0f766e; }
+    ul { margin: 6px 0; padding-left: 20px; font-size: 0.88rem; color: #334155; }
+    li { margin: 5px 0; }
+    .foot { font-size: 0.74rem; color: #64748b; margin-top: 10px; }
+    @media (max-width: 480px) {
+      section { padding: 12px; }
+      h1 { font-size: 1.15rem; }
+      table.data { min-width: 440px; font-size: 0.78rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <div class="badges">
+        <span class="badge">Siliquant</span>
+        <span class="badge">Research Hub</span>
+        <span class="badge paper">Working Paper, Not Peer Reviewed</span>
+      </div>
+      <h1>Siliquant: Quantization That Keeps Model Output Close</h1>
+      <p>Mean KL against the 16-bit model, at 4.5 bits a weight unless noted. Every number below traces to a record in this repo. Nothing here is a shipped quantizer.</p>
+      <nav class="nav">
+        <a href="index.html">Results report</a>
+        <a href="status/">Status</a>
+        <a href="https://github.com/Moissanite-Labs/siliquant">Repo</a>
+        <a href="data.json">data.json</a>
+        <a href="siliquant-one-pager.pdf">One Pager (PDF)</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap">
+
+    <section>
+      <h2>Latest Results</h2>
+      <p>Lower mean KL is closer to the 16-bit model. KL is measured on wikitext-2 test text, 10,200 positions, unless a row says otherwise.</p>
+
+      <h3>Gemma E8</h3>
+      <p>E8 at 4.5 bits on gemma-4-E4B-it, from <a href="https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/model-output-gemma-e4b-2026-11-15">model-output-gemma-e4b-2026-11-15</a>. The reference is an 8-bit file, not the weights as trained.</p>
+      <div class="table-wrap">
+        <table class="data">
+          <tr><th>Arm</th><th>Mean KL</th><th>Q4_K_M</th><th>Scalar, same bits</th></tr>
+          {{GEMMA_ROWS}}
+        </table>
+      </div>
+
+      <h3>Integer Ball on Three Models</h3>
+      <p>The half-strength matrix arm hZBG128:b560s16 at 4.5 bits, with the importance matrix on both sides for Qwen2.5 and SmolLM2, and the wikitext matrix on both sides for Llama-3.2. Sources: <a href="https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/imatrix-baseline-2026-11-17">imatrix-baseline-2026-11-17</a> and <a href="https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/third-model-llama32-2026-11-18">third-model-llama32-2026-11-18</a>.</p>
+      <div class="table-wrap">
+        <table class="data">
+          <tr><th>Model</th><th>Mean KL, ball</th><th>Mean KL, Q4_K_M</th><th>Bits a weight</th></tr>
+          {{BALL_ROWS}}
+        </table>
+      </div>
+
+      <h3>Packed Ball File</h3>
+      <p>The same arm stored as a file and read back bit for bit, from <a href="https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/packed-ball-format-2026-11-18">packed-ball-format-2026-11-18</a>. The file saves disk space only. No engine reads it.</p>
+      <div class="table-wrap">
+        <table class="data">
+          <tr><th>Model</th><th>Mean KL, from the file</th><th>Bits a weight</th></tr>
+          {{PACKED_ROWS}}
+        </table>
+      </div>
+
+      <h3>Hadamard-Turned E8</h3>
+      <p><span class="badge">On main · measured</span> Turned E8 at 4.5 bits, one ball per 128 weights, no calibration. The numbers come from the merged record at <a href="https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/e8-hadamard-real-weights-2026-11-22">e8-hadamard-real-weights-2026-11-22</a>, landed through <a href="https://github.com/Moissanite-Labs/siliquant/pull/41">PR #41</a>. Each KL is read from results.jsonl and checked against the results.out table. No E8 arm has a file or a decoder, and nothing here is timed.</p>
+      <div class="table-wrap">
+        <table class="data">
+          <tr><th>Model</th><th>Mean KL, turned E8</th><th>Mean KL, Q4_K_M, no matrix</th></tr>
+          {{HADAMARD_ROWS}}
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>Gemma 3 matched-KL savings (PR #57)</h2>
+      <p>Calibrated integer ball <code>hZBG128</code> against <code>Q4_K_M</code>-imat, bracketing-interpolated to each stock arm's own mean KL. Gemma 3 270M / 1B / 4B, both texts. The same six rows are in the results report at <a href="index.html#gemma-impact">§04 matched-KL table</a>; the builder fails if the two disagree.</p>
+      <div class="table-wrap">
+        <table class="data">
+          <tr><th>Model · text</th><th>Ball matched bpw</th><th>Stock bpw (Q4_K_M-imat)</th><th>Block storage saved</th><th>Basis</th><th>Source</th></tr>
+          {{GEMMA_KL_ROWS}}
+        </table>
+      </div>
+      <p class="foot">Matched bpw is interpolated between measured ball points, not a measured iso-quality run. Savings are quantized-block storage only, not whole-model memory or serving throughput. Sources: the impact reports under <a href="https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/model-output-gemma-ball-2026-11-23/reports/impact">reports/impact</a> and <a href="https://github.com/Moissanite-Labs/siliquant/pull/57">PR #57</a>.</p>
+    </section>
+
+    <section>
+      <h2>Experiments Index</h2>
+      <p>{{EXPERIMENT_COUNT}} folders under experiments/. Each link opens its folder on GitHub.</p>
+      <div class="table-wrap">
+        <table class="data">
+          <tr><th>Folder</th><th>Title</th><th>README</th><th>Prereg</th><th>Results</th><th>results.out</th></tr>
+          {{EXPERIMENT_ROWS}}
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>Studies on main</h2>
+      <p>{{STUDIES_COUNT}} folders under studies/ with a README. Each link opens its folder on GitHub.</p>
+      <div class="table-wrap">
+        <table class="data">
+          <tr><th>Folder</th><th>Title</th></tr>
+          {{STUDIES_ROWS}}
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>Preregistrations and Merged Work</h2>
+      <h3>Gemma Ball Preregistration</h3>
+      <p><a href="https://github.com/Moissanite-Labs/siliquant/pull/47">PR #47</a> landed the preregistration for the integer ball on Gemma, smallest models first, before any Gemma weight passed through the ball. It is now at <a href="https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/model-output-gemma-ball-2026-11-23">experiments/model-output-gemma-ball-2026-11-23</a>. Results from that sweep are on main; the preregistered primary Gemma 4 E4B BF16 sweep is still outstanding.</p>
+      <h3>Hadamard-Turned E8</h3>
+      <p><a href="https://github.com/Moissanite-Labs/siliquant/pull/41">PR #41</a> is merged and its turned E8 record is on main. Still open: a packed format and decoder for the turned lattice, the Voronoi arms on Llama-3.2, and Gemma-2B.</p>
+    </section>
+
+    <section>
+      <h2>Limits</h2>
+      <ul>
+        <li><strong>Decode is slow.</strong> A packed ball file decodes at 20 to 25 million weights a second on one core, about a minute for a model. The file is decoded to floats first, so nothing is saved when the model runs. No run-time saving yet. Source: <a href="https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/packed-ball-format-2026-11-18">packed-ball-format-2026-11-18</a>.</li>
+        <li><strong>The Gemma 4 E4B bridge has a limit.</strong> Its two E8 Voronoi arms were scored against Q8_0, not BF16, with no stock comparison arm. The preregistered BF16 sweep is still outstanding. The E8 headline above uses an 8-bit reference, not the weights as trained.</li>
+        <li><strong>The zero codeword is model-dependent.</strong> On Qwen2.5 a codeword at zero helps E8; on SmolLM2 it does not. The two models disagree about the centre.</li>
+        <li><strong>The headline line fails on the third model.</strong> With no matrix on either side, the ball arm is behind Q4_K_M on Llama-3.2: 0.0478 against 0.0432 on wikitext. With a matrix it is far ahead, and with ten loud columns left whole it is ahead with no data at all. Source: <a href="https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/third-model-llama32-2026-11-18">third-model-llama32-2026-11-18</a>.</li>
+        <li><strong>Accuracy is a bound, not a win.</strong> On the MMLU subset the ball arms sit within 0.70 points of the 16-bit model, and the run can only resolve a loss of 1.1 to 1.7 points. Source: <a href="https://github.com/Moissanite-Labs/siliquant/tree/main/experiments/mmlu-subset-2026-11-18">mmlu-subset-2026-11-18</a>.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Sources</h2>
+      <ul>
+        <li>Repo: <a href="https://github.com/Moissanite-Labs/siliquant">Moissanite-Labs/siliquant</a></li>
+        <li>All experiment records: <a href="https://github.com/Moissanite-Labs/siliquant/tree/main/experiments">experiments/</a>, indexed above</li>
+        <li>Machine-readable data for this page: <a href="data.json">data.json</a>, generated by <a href="https://github.com/Moissanite-Labs/siliquant/blob/main/site/build_hub.py">site/build_hub.py</a></li>
+        <li>One pager: <a href="siliquant-one-pager.pdf">siliquant-one-pager.pdf</a></li>
+      </ul>
+      <p class="foot">This page is generated from files in this repo only; the builder never uses the network. CI (.github/workflows/site-hub-check.yml) fails when this page or data.json no longer matches the sources.</p>
+    </section>
+
+    </div>
+  </main>
+</body>
+</html>

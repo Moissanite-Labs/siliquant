@@ -1248,7 +1248,7 @@
     .hl-grid {
       margin-top: 22px;
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 12px;
     }
     .hl {
@@ -1822,6 +1822,12 @@
       </a>
 
       <div class="topbar-actions">
+        <a class="btn" href="hub.html" aria-label="Research hub">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+          </svg>
+          <span class="btn-label-hide">Hub</span>
+        </a>
         <a class="btn btn-accent" href="https://github.com/Moissanite-Labs/siliquant" target="_blank" rel="noopener noreferrer" aria-label="Moissanite-Labs/siliquant on GitHub">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.57.11.78-.25.78-.55 0-.27-.01-1.18-.02-2.14-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.29 1.19-3.09-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.17 1.18a11.02 11.02 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.77.11 3.06.74.8 1.19 1.83 1.19 3.09 0 4.41-2.69 5.39-5.25 5.67.41.36.78 1.06.78 2.14 0 1.54-.01 2.79-.01 3.17 0 .31.21.67.79.55A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/>
@@ -1863,6 +1869,7 @@
       <a href="#integer-ball">04 Integer Ball</a>
       <a href="#nov24">04b 24 Nov</a>
       <a href="#systems">05 Matrix &amp; File</a>
+      <a href="#ecosystem">05b Lab repos</a>
       <a href="#limits">06 Limits</a>
     </div>
   </nav>
@@ -1883,7 +1890,7 @@
         <span>24 November 2026</span>
       </div>
       <h1 class="hero-title" id="heroTitle">Lattice quantization, from silicon to model</h1>
-      <p class="hero-sub">Siliquant rounds LLM weights onto the A<sub>16</sub> Hamming lattice, decodes them with hand-written CUDA kernels on a laptop RTX 3080, and checks them for flipped bits at no storage cost. Six models are released with their full records.</p>
+      <p class="hero-sub">Siliquant rounds LLM weights onto the A<sub>16</sub> Hamming lattice, decodes them with hand-written CUDA kernels on a laptop RTX 3080, and checks them for flipped bits at no storage cost in the engine's packed layout. Ten models are released with their full records.</p>
       <div class="hero-cta">
         <a class="btn-primary" href="https://huggingface.co/collections/ahrazzle/siliquant-stratified-lattice-quantized-llms-6b060e6988afd65942cd7768" target="_blank" rel="noopener noreferrer">Models on Hugging Face <span aria-hidden="true">↗</span></a>
       </div>
@@ -1903,13 +1910,13 @@
         <li class="kpi">
           <div class="kpi-pillar">Bit flips</div>
           <p class="kpi-num"><span class="kpi-lead">In-engine bit-flip detection, </span><span class="kpi-big">0 extra bytes</span></p>
-          <p class="kpi-scope kpi-qual">detects flips in the lowest bit of each 4-bit weight code; costs 3.1% tok/s end to end</p>
+          <p class="kpi-scope kpi-qual">in the engine's packed layout; detects flips in the lowest bit of each 4-bit weight code; costs 3.1% tok/s end to end</p>
           <p class="kpi-ev"><a href="https://github.com/Moissanite-Labs/siliquant/blob/main/studies/aletheion-qwen25-live-llm-engine/qwen25_sm86_a16_engine.cu" target="_blank" rel="noopener noreferrer">Engine kernel (.cu) ↗</a></p>
         </li>
         <li class="kpi">
           <div class="kpi-pillar">Release</div>
-          <p class="kpi-num"><span class="kpi-big">6 models</span><span class="sr-only">, </span><span class="kpi-rest">4.5 bpw target</span></p>
-          <p class="kpi-scope">360M to 3B base models, embeddings in BF16; three Apache-2.0, three Qwen Research</p>
+          <p class="kpi-num"><span class="kpi-big">10 models</span><span class="sr-only">, </span><span class="kpi-rest">4.5 bpw target</span></p>
+          <p class="kpi-scope">360M to 3B base models, embeddings in BF16; five Apache-2.0, five Qwen Research; one Qwen2.5-3B at a 3.0 bpw target</p>
           <p class="kpi-ev"><a href="https://huggingface.co/ahrazzle/models" target="_blank" rel="noopener noreferrer">All models ↗</a> <span class="kpi-dot" aria-hidden="true">·</span> <a href="#bench">Model table</a></p>
         </li>
       </ol>
@@ -1948,6 +1955,7 @@
           <li><a href="#integer-ball" class="toc-link"><span class="toc-num">04</span><span>Integer Ball &amp; Sweep</span></a></li>
           <li><a href="#nov24" class="toc-link"><span class="toc-num">04b</span><span>24 Nov: A<sub>16</sub> &amp; sm<sub>86</sub></span></a></li>
           <li><a href="#systems" class="toc-link"><span class="toc-num">05</span><span>Matrix, Codec &amp; Kernel</span></a></li>
+          <li><a href="#ecosystem" class="toc-link"><span class="toc-num">05b</span><span>Silikernels &amp; HoloSphere</span></a></li>
           <li><a href="#limits" class="toc-link"><span class="toc-num">06</span><span>Limits &amp; Known Issues</span></a></li>
         </ul>
       </div>
@@ -2098,7 +2106,7 @@
           <article class="hl">
             <div class="hl-k">3 &middot; The format checks itself</div>
             <div class="hl-v">0 extra bytes</div>
-            <div class="hl-sub">Bit-flip detection with no ECC hardware</div>
+            <div class="hl-sub">in the engine's packed layout · bit-flip detection with no ECC hardware</div>
             <p class="hl-limit"><strong>Limit:</strong> the check sees only the lowest of each weight's 4 stored bits, so flips in the other 3 bits, the scales, activations or the KV cache go unseen. The Hugging Face files rely on SHA-256 checks instead. No flipped bit has been caught live in the middle of a run yet.</p>
             <details class="hl-more">
               <summary>Details</summary>
@@ -2108,11 +2116,23 @@
               Details: <a href="https://github.com/Moissanite-Labs/siliquant/tree/main/studies/aletheion-qwen25-live-llm-engine">engine study (PR #88)</a> and <a href="https://github.com/Moissanite-Labs/siliquant/tree/main/studies/rtx3080-siliquant-a16">A<sub>16</sub> kernel study</a>.</p>
             </details>
           </article>
+          <article class="hl">
+            <div class="hl-k">4 &middot; Same error, fewer stored bits on Gemma 3</div>
+            <div class="hl-v">9–19% less block storage at equal KL</div>
+            <div class="hl-sub">Calibrated integer ball <code>hZBG128</code> vs <code>Q4_K_M</code>-imat · Gemma 3 270M / 1B / 4B · both texts</div>
+            <p class="hl-limit"><strong>Limit:</strong> the matched rates come from bracketing interpolation between measured points, not from measured iso-quality runs, and the savings are in quantized-block storage, not whole-model memory or serving. On 270M and 1B the stock file falls back to 5.43–5.48 bpw; the 4B rows use the reported BF16 reference, whose label these rows do not prove.</p>
+            <details class="hl-more">
+              <summary>Details</summary>
+              <p>In the merged Gemma 3 ball sweep (PR #57), the plain 128-weight ball cuts mean KL by <strong>50–64% versus <code>Q4_0</code></strong> at practically the same block rate in every comparison located: Gemma 3 270M / 1B / 4B plus the committed Qwen2.5 and SmolLM2 runs. At interpolated KL parity against <code>Q4_K_M</code>-imat, the calibrated ball needs <strong>9.1–18.8% less quantized-block storage</strong> on all three Gemma sizes and both texts (4B: 9.1–9.4%, against stock's normal 4.8151 bpw).
+              Every headline row is receipt-backed: SHA-256 digests pinned to runner commits, strict JSONL parsing, and an append-only audit ratchet.
+              Details: <a href="#gemma-impact">§04 matched-KL table</a> and the <a href="https://github.com/Moissanite-Labs/siliquant/tree/ce3fb14ec8e7e9d7c682b6bd463995baa1683819/experiments/model-output-gemma-ball-2026-11-23/reports/impact" target="_blank" rel="noopener noreferrer">impact reports</a>.</p>
+            </details>
+          </article>
         </div>
 
         <div class="models" id="models">
           <div class="models-head">
-            <h2 class="models-title">Released weights · 4.5 bpw target, 5.17–5.40 packed</h2>
+            <h2 class="models-title">Released weights · 4.5 bpw target, 5.17–5.44 packed; one at 3.0 (3.91 packed)</h2>
             <a href="https://huggingface.co/collections/ahrazzle/siliquant-stratified-lattice-quantized-llms-6b060e6988afd65942cd7768" target="_blank" rel="noopener noreferrer">Collection on Hugging Face ↗</a>
           </div>
           <ul class="models-list">
@@ -2122,6 +2142,10 @@
             <li><a href="https://huggingface.co/ahrazzle/Qwen2.5-3B-Siliquant-A16-BlockH4-QuadSnake-4.5bpw" target="_blank" rel="noopener noreferrer"><span><span class="m-base">Qwen2.5-3B</span>-Siliquant-A16-BlockH4-QuadSnake-4.5bpw</span><span class="m-lic">Qwen Research</span></a></li>
             <li><a href="https://huggingface.co/ahrazzle/Qwen2.5-3B-Siliquant-A16-BlockH4-QuadLPT-Sqrt-4.5bpw" target="_blank" rel="noopener noreferrer"><span><span class="m-base">Qwen2.5-3B</span>-Siliquant-A16-BlockH4-QuadLPT-Sqrt-4.5bpw</span><span class="m-lic">Qwen Research</span></a></li>
             <li><a href="https://huggingface.co/ahrazzle/Qwen2.5-3B-Siliquant-A16-ProjTypeUniform-ZeroCal-4.5bpw" target="_blank" rel="noopener noreferrer"><span><span class="m-base">Qwen2.5-3B</span>-Siliquant-A16-ProjTypeUniform-ZeroCal-4.5bpw</span><span class="m-lic">Qwen Research · Transformers load test pending</span></a></li>
+            <li><a href="https://huggingface.co/ahrazzle/Qwen2.5-3B-Siliquant-A16-BlockH4-QuadLPT-p0375-4.5bpw" target="_blank" rel="noopener noreferrer"><span><span class="m-base">Qwen2.5-3B</span>-Siliquant-A16-BlockH4-QuadLPT-p0375-4.5bpw</span><span class="m-lic">Qwen Research · Transformers load test pending</span></a></li>
+            <li><a href="https://huggingface.co/ahrazzle/Qwen2.5-3B-Siliquant-A16-BlockH4-QuadSnake-3.0bpw" target="_blank" rel="noopener noreferrer"><span><span class="m-base">Qwen2.5-3B</span>-Siliquant-A16-BlockH4-QuadSnake-3.0bpw</span><span class="m-lic">Qwen Research · Transformers load test pending</span></a></li>
+            <li><a href="https://huggingface.co/ahrazzle/Qwen2.5-1.5B-Siliquant-A16-BlockH4-QuadSnake-DownZeroCost-4.5bpw" target="_blank" rel="noopener noreferrer"><span><span class="m-base">Qwen2.5-1.5B</span>-Siliquant-A16-BlockH4-QuadSnake-DownZeroCost-4.5bpw</span><span class="m-lic">Apache-2.0 · Transformers load test pending</span></a></li>
+            <li><a href="https://huggingface.co/ahrazzle/SmolLM2-360M-Siliquant-A16-BlockH4-QuadSnake-DownZeroCost-4.5bpw" target="_blank" rel="noopener noreferrer"><span><span class="m-base">SmolLM2-360M</span>-Siliquant-A16-BlockH4-QuadSnake-DownZeroCost-4.5bpw</span><span class="m-lic">Apache-2.0 · Transformers load test pending</span></a></li>
           </ul>
         </div>
           <div class="bench" id="bench">
@@ -2136,13 +2160,17 @@
                 <tr><td>SmolLM2-1.7B-Instruct</td><td>4.5</td><td>KL 0.048</td><td>imatrix Q4_K_M 0.038 (A<sub>16</sub> higher)</td><td>CPU, llama.cpp <code>eada89c</code></td><td><a href="#nov24-kl">§04b 4.2</a></td></tr>
                 <tr class="grp"><th scope="rowgroup" colspan="6">Engine build (uncalibrated A<sub>16</sub>, BF16 embeddings and head)</th></tr>
                 <tr><td>Qwen2.5-0.5B</td><td>4.5 linears</td><td>400&#8239;tok/s decode, 5.6× faster</td><td>PyTorch BF16, eager, batch 1</td><td>laptop RTX 3080</td><td><a href="https://github.com/Moissanite-Labs/siliquant/blob/main/studies/aletheion-qwen25-live-llm-engine/ALETHEION_LIVE_LLM_ENGINE_REPORT.md" target="_blank" rel="noopener noreferrer">engine report</a></td></tr>
-                <tr class="grp"><th scope="rowgroup" colspan="6">Released on Hugging Face · 4.5&#8239;bpw target, linears 5.17–5.40 packed</th></tr>
+                <tr class="grp"><th scope="rowgroup" colspan="6">Released on Hugging Face · 4.5&#8239;bpw target, linears 5.17–5.44 packed; one at 3.0 (3.91 packed)</th></tr>
                 <tr><td>SmolLM2-360M <span class="m-meta">A16-BlockH4-AdaptZeroCal</span></td><td>4.5</td><td>—</td><td>—</td><td>—</td><td><a href="https://huggingface.co/ahrazzle/SmolLM2-360M-Siliquant-A16-BlockH4-AdaptZeroCal-4.5bpw" target="_blank" rel="noopener noreferrer">model card ↗</a></td></tr>
                 <tr><td>Qwen2.5-0.5B <span class="m-meta">A16-BlockH4-QuadLPT</span></td><td>4.5</td><td>—</td><td>—</td><td>—</td><td><a href="https://huggingface.co/ahrazzle/Qwen2.5-0.5B-Siliquant-A16-BlockH4-QuadLPT-4.5bpw" target="_blank" rel="noopener noreferrer">model card ↗</a></td></tr>
                 <tr><td>Qwen2.5-1.5B <span class="m-meta">A16-BlockH4-QuadLPT-SharedNorm</span></td><td>4.5</td><td>—</td><td>—</td><td>—</td><td><a href="https://huggingface.co/ahrazzle/Qwen2.5-1.5B-Siliquant-A16-BlockH4-QuadLPT-SharedNorm-4.5bpw" target="_blank" rel="noopener noreferrer">model card ↗</a></td></tr>
                 <tr><td>Qwen2.5-3B <span class="m-meta">A16-BlockH4-QuadSnake</span></td><td>4.5</td><td>WikiText-2 PPL 10.97 → 11.06 (+0.85%)</td><td>its own BF16</td><td>—</td><td><a href="https://huggingface.co/ahrazzle/Qwen2.5-3B-Siliquant-A16-BlockH4-QuadSnake-4.5bpw" target="_blank" rel="noopener noreferrer">model card ↗</a></td></tr>
                 <tr><td>Qwen2.5-3B <span class="m-meta">A16-BlockH4-QuadLPT-Sqrt</span></td><td>4.5</td><td>WikiText-2 PPL 10.97 → 11.19 (+1.98%)</td><td>its own BF16</td><td>—</td><td><a href="https://huggingface.co/ahrazzle/Qwen2.5-3B-Siliquant-A16-BlockH4-QuadLPT-Sqrt-4.5bpw" target="_blank" rel="noopener noreferrer">model card ↗</a></td></tr>
                 <tr><td>Qwen2.5-3B <span class="m-meta">A16-ProjTypeUniform-ZeroCal · Transformers load test pending</span></td><td>4.5</td><td>WikiText-2 PPL 10.97 → 11.27 (+2.72%)</td><td>its own BF16</td><td>—</td><td><a href="https://huggingface.co/ahrazzle/Qwen2.5-3B-Siliquant-A16-ProjTypeUniform-ZeroCal-4.5bpw" target="_blank" rel="noopener noreferrer">model card ↗</a></td></tr>
+                <tr><td>Qwen2.5-3B <span class="m-meta">A16-BlockH4-QuadLPT-p0375 · Transformers load test pending</span></td><td>4.5</td><td>WikiText-2 PPL 10.97 → 11.13 (+1.47%)</td><td>its own BF16</td><td>—</td><td><a href="https://huggingface.co/ahrazzle/Qwen2.5-3B-Siliquant-A16-BlockH4-QuadLPT-p0375-4.5bpw/blob/e1317c861723c1fd47b671eeac82ffbbd2fd874c/README.md" target="_blank" rel="noopener noreferrer">model card ↗</a></td></tr>
+                <tr><td>Qwen2.5-3B <span class="m-meta">A16-BlockH4-QuadSnake-3.0bpw · Transformers load test pending</span></td><td>3.0</td><td>WikiText-2 PPL 10.97 → 12.14 (+10.67%)</td><td>its own BF16</td><td>—</td><td><a href="https://huggingface.co/ahrazzle/Qwen2.5-3B-Siliquant-A16-BlockH4-QuadSnake-3.0bpw/blob/e92c49c0b7d17df7cdfac5155b02c2a7504e1491/README.md" target="_blank" rel="noopener noreferrer">model card ↗</a></td></tr>
+                <tr><td>Qwen2.5-1.5B <span class="m-meta">A16-BlockH4-QuadSnake-DownZeroCost · Transformers load test pending</span></td><td>4.5</td><td>—</td><td>—</td><td>—</td><td><a href="https://huggingface.co/ahrazzle/Qwen2.5-1.5B-Siliquant-A16-BlockH4-QuadSnake-DownZeroCost-4.5bpw/blob/f910a11a788b81b1e7c7522dc8d14e5b47ff7bf8/README.md" target="_blank" rel="noopener noreferrer">model card ↗</a></td></tr>
+                <tr><td>SmolLM2-360M <span class="m-meta">A16-BlockH4-QuadSnake-DownZeroCost · Transformers load test pending</span></td><td>4.5</td><td>—</td><td>—</td><td>—</td><td><a href="https://huggingface.co/ahrazzle/SmolLM2-360M-Siliquant-A16-BlockH4-QuadSnake-DownZeroCost-4.5bpw/blob/14b6f0a61d1037f6ae6abc41a86bc9e6c0aaa536/README.md" target="_blank" rel="noopener noreferrer">model card ↗</a></td></tr>
               </tbody>
             </table>
             </div>
@@ -2674,7 +2702,7 @@
             <span class="sec-num">04</span>
             <h2 class="sec-title">Integer Ball, Hadamard E<sub>8</sub> &amp; Gemma 3 Sweep</h2>
           </div>
-          <span class="sec-spec">hZBG128 · Hadamard-turned E8 · 16-bit ref · Preregistration scoring</span>
+          <span class="sec-spec">hZBG128 · Hadamard-turned E8 · 16-bit ref · Preregistration scoring · impact analysis (PR #57, merged 2026-11-25)</span>
         </div>
 
         <!-- 4.1 Multi-model 4.5 bpw arms -->
@@ -2829,7 +2857,7 @@
         </div>
 
         <p class="prose">
-          Without calibration, the plain 128-weight ball cuts mean KL by 50–63% versus Q4_0 across the three Gemma models and both texts, at practically the same block rate.
+          Without calibration, the plain 128-weight ball cuts mean KL by 50–63% versus Q4_0 across the three Gemma models and both texts (50–64% including the committed Qwen2.5 and SmolLM2 runs), at practically the same block rate.
         </p>
 
         <div class="table-wrap">
@@ -2926,6 +2954,35 @@
               <svg id="windowChart" class="chart-svg" viewBox="0 0 440 160" role="img" aria-label="Gemma 3 4B Ball KL divergence at 4.0, 4.5, and 5.0 bits per weight"></svg>
               <div class="chart-tooltip" id="windowTooltip"></div>
             </div>
+          </div>
+        </div>
+
+        <h4 class="sub-title" id="gemma-impact" style="margin-top: 12px;">Gemma 3 270M / 1B / 4B · matched-KL block-storage savings (impact analysis, PR #57)</h4>
+        <p class="prose">
+          The fixed-rate table above compares unequal rates on the small models, where stock <code>Q4_K_M</code> falls back to <code>5.43–5.48 bpw</code>. Bracketing interpolation to each stock arm's own mean KL gives the storage the calibrated ball needs at parity: below the stock rate on all three sizes, on both texts. Against <code>Q4_K_M</code>-imat the calibrated <code>hZBG128</code> ball saves <strong>9.1–18.8% of quantized-block storage</strong>; on 4B the stock file is at its normal <code>4.8151 bpw</code>.
+        </p>
+        <div class="table-wrap">
+          <table class="sci-table">
+            <thead>
+              <tr>
+                <th>Model · text</th>
+                <th class="num">Ball matched bpw</th>
+                <th class="num">Stock bpw (Q4_K_M-imat)</th>
+                <th class="num">Block storage saved</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>270M</strong> · WikiText</td><td class="num">4.4137</td><td class="num">5.4338</td><td class="num"><span class="pill pill-win">−18.77%</span></td></tr>
+              <tr><td><strong>270M</strong> · Python</td><td class="num">4.6562</td><td class="num">5.4338</td><td class="num"><span class="pill pill-win">−14.31%</span></td></tr>
+              <tr><td><strong>1B</strong> · WikiText</td><td class="num">4.6547</td><td class="num">5.4818</td><td class="num"><span class="pill pill-win">−15.09%</span></td></tr>
+              <tr><td><strong>1B</strong> · Python</td><td class="num">4.6610</td><td class="num">5.4818</td><td class="num"><span class="pill pill-win">−14.97%</span></td></tr>
+              <tr class="row-highlight"><td><strong>4B</strong> · WikiText</td><td class="num">4.3644</td><td class="num">4.8151</td><td class="num"><span class="pill pill-win">−9.36%</span></td></tr>
+              <tr class="row-highlight"><td><strong>4B</strong> · Python</td><td class="num">4.3790</td><td class="num">4.8151</td><td class="num"><span class="pill pill-win">−9.06%</span></td></tr>
+            </tbody>
+          </table>
+          <div style="padding: 10px 12px; border-top: 1px solid var(--border-hairline); font-size: 0.75rem; color: var(--text-muted); line-height: 1.5;">
+            <div><strong>Basis:</strong> "matched bpw" is interpolated between measured ball points at the stock arm's mean KL, not a measured iso-quality run. Savings are quantized-block storage only, not whole-model memory or serving throughput. The 4B rows use the reported BF16 reference; the <code>token_embd.weight</code> stock-side difference flagged above stands. KL SE uses marginal quadrature and does not establish paired significance.</div>
+            <div><strong>Sources:</strong> impact tables for <a href="https://github.com/Moissanite-Labs/siliquant/blob/ce3fb14ec8e7e9d7c682b6bd463995baa1683819/experiments/model-output-gemma-ball-2026-11-23/reports/impact/gemma-3-270m-it/IMPACT_TABLES.md" target="_blank" rel="noopener noreferrer">270M</a>, <a href="https://github.com/Moissanite-Labs/siliquant/blob/ce3fb14ec8e7e9d7c682b6bd463995baa1683819/experiments/model-output-gemma-ball-2026-11-23/reports/impact/gemma-3-1b-it/IMPACT_TABLES.md" target="_blank" rel="noopener noreferrer">1B</a>, <a href="https://github.com/Moissanite-Labs/siliquant/blob/ce3fb14ec8e7e9d7c682b6bd463995baa1683819/experiments/model-output-gemma-ball-2026-11-23/reports/impact/gemma-3-4b-it/IMPACT_TABLES.md" target="_blank" rel="noopener noreferrer">4B</a>, <a href="https://github.com/Moissanite-Labs/siliquant/blob/ce3fb14ec8e7e9d7c682b6bd463995baa1683819/experiments/model-output-gemma-ball-2026-11-23/reports/impact/CROSS_MODEL_TRANSFER.md" target="_blank" rel="noopener noreferrer">cross-model transfer</a>, <a href="https://github.com/Moissanite-Labs/siliquant/blob/ce3fb14ec8e7e9d7c682b6bd463995baa1683819/experiments/model-output-gemma-ball-2026-11-23/reports/impact/RESULTS_RECEIPTS.md" target="_blank" rel="noopener noreferrer">SHA-256 receipts</a>, analysis code <a href="https://github.com/Moissanite-Labs/siliquant/blob/ce3fb14ec8e7e9d7c682b6bd463995baa1683819/experiments/model-output-gemma-ball-2026-11-23/analyze.py" target="_blank" rel="noopener noreferrer">analyze.py</a> and <a href="https://github.com/Moissanite-Labs/siliquant/pull/57" target="_blank" rel="noopener noreferrer">PR #57</a>.</div>
           </div>
         </div>
 
@@ -3281,6 +3338,77 @@
               <span class="callout-tag">Status</span>
               <div>Pallas and TPU v5e kernel speed remain <strong>unmeasured</strong>. Eliminating or vectorizing Stage-1 leaf unranking is the dominant systems bottleneck.</div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           05b LATEST ACROSS THE LAB: SILIKERNELS & HOLOSPHERE
+           =================================================================== -->
+      <section id="ecosystem" class="paper-section">
+        <div class="sec-head">
+          <div class="sec-title-wrap">
+            <span class="sec-num">05b</span>
+            <h2 class="sec-title">Latest across the lab: silikernels &amp; HoloSphere</h2>
+          </div>
+          <span class="sec-spec">merged and reviewed results from the companion repos, each with its source</span>
+        </div>
+
+        <p class="prose">
+          Siliquant shares its A<sub>16</sub> format and kernels with two companion repos in Moissanite Labs. Only results that were merged after review, or that sit on a public model card, are listed here.
+        </p>
+
+        <div class="table-wrap">
+          <table class="sci-table">
+            <thead>
+              <tr>
+                <th>Repo</th>
+                <th>Result</th>
+                <th>Scope</th>
+                <th>Source</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>silikernels</strong></td>
+                <td>27 of 27 SU(2) holonomy, SLERP/Hopf-S<sup>3</sup> and Cayley kernels compile for <code>sm_86</code> with 0 B register spill, 0 PTX <code>ld/st.local</code> and 0 SASS <code>LDL</code>/<code>STL</code></td>
+                <td>compile-time receipt from <code>nvcc 13.4</code>; review reproduced the ptxas counts on nvcc 13.0 and 13.2; no GPU run was part of the review</td>
+                <td><a href="https://github.com/Moissanite-Labs/silikernels/blob/d4a61afe17e592a7a74f3cc1017fc72b0709d65c/receipts/su2_holonomy_sm86_ptxas_receipt.json" target="_blank" rel="noopener noreferrer">ptxas/SASS receipt</a> · <a href="https://github.com/Moissanite-Labs/silikernels/pull/3" target="_blank" rel="noopener noreferrer">PR #3</a></td>
+              </tr>
+              <tr>
+                <td><strong>HoloSphere</strong></td>
+                <td>36 of 36 pure-<code>Init</code> Lean 4.36.0 invariants verified (<code>lean/HoloSphereInvariants.lean</code>)</td>
+                <td>algebraic identities over integer quaternions; no Mathlib</td>
+                <td><a href="https://github.com/Moissanite-Labs/holosphere/blob/42acf10c42a74e7ccfb2d61af5e69ab68058675e/lean/HoloSphereInvariants.lean" target="_blank" rel="noopener noreferrer">HoloSphereInvariants.lean</a> · <a href="https://github.com/Moissanite-Labs/holosphere/pull/1" target="_blank" rel="noopener noreferrer">PR #1</a> (review ran the Lean verifier)</td>
+              </tr>
+              <tr>
+                <td><strong>HoloSphere</strong></td>
+                <td>24 of 24 CPU tests pass in three isolated Python modes</td>
+                <td>CPU only; CUDA paths not exercised</td>
+                <td><a href="https://github.com/Moissanite-Labs/holosphere/blob/42acf10c42a74e7ccfb2d61af5e69ab68058675e/tests/run_all.py" target="_blank" rel="noopener noreferrer">tests/run_all.py</a> · <a href="https://github.com/Moissanite-Labs/holosphere/pull/1" target="_blank" rel="noopener noreferrer">PR #1</a></td>
+              </tr>
+              <tr>
+                <td><strong>HoloSphere model</strong></td>
+                <td>Preregistered primary arm (HoloSphere-V2-SU2-Unlooped): 2.6484 bits per byte at T=2048, 10.00% lower than the RoPE-2D-nGPT baseline (3 seeds, p<sub>t</sub>=0.00076); hypothesis H14b recorded as confirmed</td>
+                <td>byte-level model of about 15M parameters, trained at T=512 and tested at 4× length on an offline corpus; one laptop RTX 3080; the released checkpoint is a separate exploratory arm</td>
+                <td><a href="https://huggingface.co/ahrazzle/holosphere-v2-cayleysu2-15m/blob/994afb8ce47c41d1cfbe015c7c4dbff580c10ca7/README.md" target="_blank" rel="noopener noreferrer">model card</a></td>
+              </tr>
+              <tr>
+                <td><strong>HoloSphere</strong></td>
+                <td>Hypothesis H14c (full covariant Q/K/V transport) recorded as falsified: 35.30% out-of-distribution accuracy on the S<sub>3</sub> task against a preregistered 50% gate</td>
+                <td>negative result, kept on the scorecard</td>
+                <td><a href="https://github.com/Moissanite-Labs/holosphere/blob/42acf10c42a74e7ccfb2d61af5e69ab68058675e/research/SCORECARD_S106_S114.md" target="_blank" rel="noopener noreferrer">scorecard S106–S114</a></td>
+              </tr>
+              <tr>
+                <td><strong>siliquant</strong></td>
+                <td>Two Lean 4.36.0 studies merged after review: 21 theorems on heavy-tail LPT starvation (PR #99) and 17 on joint (bpw, LoRA rank) bit allocation (PR #105)</td>
+                <td>formal and exact-arithmetic results, not measurements</td>
+                <td><a href="https://github.com/Moissanite-Labs/siliquant/pull/99" target="_blank" rel="noopener noreferrer">PR #99</a> · <a href="https://github.com/Moissanite-Labs/siliquant/pull/105" target="_blank" rel="noopener noreferrer">PR #105</a> · <a href="https://github.com/Moissanite-Labs/siliquant/tree/ce3fb14ec8e7e9d7c682b6bd463995baa1683819/studies/s73b-heavy-tail-lpt-starvation-lean4" target="_blank" rel="noopener noreferrer">s73b study</a> · <a href="https://github.com/Moissanite-Labs/siliquant/tree/ce3fb14ec8e7e9d7c682b6bd463995baa1683819/studies/s78-engram-lora-capacity-siliquant-mdl" target="_blank" rel="noopener noreferrer">s78 study</a></td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="padding: 10px 12px; border-top: 1px solid var(--border-hairline); font-size: 0.75rem; color: var(--text-muted); line-height: 1.5;">
+            <div>Speed and energy figures in these repos were not re-measured in review and are not repeated here.</div>
           </div>
         </div>
       </section>
