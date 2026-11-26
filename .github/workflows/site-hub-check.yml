@@ -1,0 +1,36 @@
+name: site hub check
+
+on:
+  pull_request:
+    paths:
+      - experiments/**
+      - studies/**
+      - site/**
+      - docs/index.html
+      - docs/hub.html
+      - docs/data.json
+      - .github/workflows/site-hub-check.yml
+  push:
+    branches:
+      - main
+    paths:
+      - experiments/**
+      - studies/**
+      - site/**
+      - docs/index.html
+      - docs/hub.html
+      - docs/data.json
+      - .github/workflows/site-hub-check.yml
+
+permissions:
+  contents: read
+
+jobs:
+  hub-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - run: python3 site/build_hub.py --check
+      - run: python3 -I -B site/test_build_hub.py
