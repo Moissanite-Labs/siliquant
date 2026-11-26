@@ -3,7 +3,10 @@
 All rows in this tree were produced on 2026-11-24 on an M1 Max (MacBookPro18,2, 64 GB, 10 cores)
 with llama.cpp `0.5.0 (build 11146, commit 7fe450e19)` (AppleClang arm64), `-ngl 999` (Metal),
 `-t 4`, `--workers 4`, `--chunks 40 --ctx 512 --batch 512 --imatrix-chunks 100`.
-Every row records `backend`, `ngl` and `threads`.
+Of the 79 rows in this tree, the 61 base rows from runner `ccf045d` record `ngl` only
+(Metal `-ngl 999`, `-t 4` per the environment above); the 18 addendum rows from runner
+`31bbd3c+` record `backend`, `ngl` and `threads` (as do the 6 rows of the 27B pilot in
+`../15b0964/`).
 
 Runner commits:
 - Base Priority-1 rows (stock-matched reruns, hEBG/hHBG arms, E4B full sweep + bridge):
@@ -16,6 +19,11 @@ Inputs (SHA-256 in each row and matching HANDOFF.md section 2): `gemma-3-4b-it-B
 `7bcfca74…`, `gemma-3-12b-it-BF16.gguf` `276920b1…`, `gemma-4-E4B-it-BF16.gguf` `38e0dba6…`,
 `gemma-4-E4B-it-Q8_0.gguf` `f8854aa4…`, `wiki.test.raw` `173c87a5…`, `wiki.train.raw` `6707892f…`,
 `base.py` `e38975e1…`, `eval.txt` `df574878…`; per-model imatrix SHA-256 as in HANDOFF.md.
+Hash coverage per row (counted over all 85 rows under `out/`): `model_sha256` and
+`text_sha256` are in every row; `file_sha256` of the produced GGUF only in the 32 `file:`
+rows (26 in this tree, 6 in `../15b0964/`), and `source_file_sha256` only in the 8 `@16`
+control rows. The 53 ball-arm rows carry `model_sha256`, `text_sha256` and, on `h*` arms,
+`imatrix_sha256`, but no `file_sha256` for the produced GGUF.
 
 Directories:
 - `gemma-3-4b-it-stock-matched/`, `gemma-3-12b-it-stock-matched/`: Priority 1a tensor-matched

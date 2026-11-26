@@ -15,8 +15,10 @@ Written per `experiments/model-output-gemma-ball-2026-11-23/HANDOFF.md` (main) a
 - Base rows runner: `ccf045d04ada2170eeafaa37254a764b96552723` (`exp/gemma-ball-runner` HEAD).
 - Addendum-arm rows runner: `exp/gemma-a16-port` @ `31bbd3c` (off `ccf045d`).
 - All runs: `--ngl 999` (Metal), `--threads 4`, `--workers 4`, `--chunks 40 --ctx 512 --batch 512
-  --imatrix-chunks 100`, texts `wikitext,python` (bridge: `eval.txt`). Every row records
-  `backend` (`metal`), `ngl` and `threads`.
+  --imatrix-chunks 100`, texts `wikitext,python` (bridge: `eval.txt`). Of the 85 rows under
+  `out/`, the 61 base rows from runner `ccf045d` record `ngl` only; the 18 addendum rows from
+  runner `31bbd3c+` record `backend` (`metal`), `ngl` and `threads`, as do the 6 rows of the
+  27B pilot in `out/15b0964/`.
 
 ## Input verification (SHA-256, all match HANDOFF.md section 2)
 
@@ -50,7 +52,8 @@ Written per `experiments/model-output-gemma-ball-2026-11-23/HANDOFF.md` (main) a
   file's block matrices decoded to 16-bit floats inside a copy of the 16-bit model (the
   addendum's activation-rounding control, as `baselines.py` does on the other models).
   Rows carry `source_file_sha256` and `other_tensors_that_differ == []`.
-- `backend`, `ngl`, `threads` added to every row.
+- `backend`, `ngl`, `threads` added to every row the port writes (the 18 addendum rows; the
+  61 base `ccf045d` rows predate these fields).
 - `PREREG-ADDENDUM-2026-11-24.md` committed **before** any addendum-arm data (plan before data);
   `checks/plan_before_data.py` passes with the data committed on top.
 - Tests: 13 tests in `test_run.py` pass in all 3 modes (`-B`, `-O -B`, `-B -W error`), including
@@ -91,8 +94,12 @@ trusting a cached baseline. Runner commits were only switched between model jobs
 ## Results
 
 Raw rows: `experiments/model-output-gemma-ball-2026-11-23/out/ccf045d/*/results.jsonl`
-(+ `results.out`), with per-row provenance (`model_sha256`, `imatrix_sha256`, `text_sha256`,
-`file_sha256` / `source_file_sha256`, `backend`, `ngl`, `threads`, timestamps).
+(+ `results.out`). Per-row provenance, counted over all 85 rows under `out/`: every row
+carries `model_sha256`, `text_sha256`, `ngl` and `timestamp_utc`; `imatrix_sha256` on the
+`h*` / imat arms; `file_sha256` of the produced GGUF only on the 32 `file:` rows (26 here,
+6 in `out/15b0964/`), with `source_file_sha256` only on the 8 `@16` control rows — the 53
+ball-arm rows carry no `file_sha256`; `backend` and `threads` only on the 18 addendum rows
+from runner `31bbd3c+` and the 6 rows of `out/15b0964/`.
 
 ### 4B stock-matched (ccf045d) + @16 rows
 | variant | text | bpw | KL ± SE | PPL | top-1 | other_tensors_that_differ |

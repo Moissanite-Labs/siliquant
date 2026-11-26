@@ -680,7 +680,10 @@ class TestAddendumArms(unittest.TestCase):
             lo = np.where(ok, lo, mid)
         t = R._hamming_block_scales(X, 4, bound, margin)
         np.testing.assert_array_equal(t, hi)
-        self.assertEqual((math.log2(points) + 16) / 128, (math.log2(points) + 16) / 128)
+        # bpw of A16BG128:b560s16 must equal the stored counted bits_per_weight of the committed
+        # receipt rows (out/ccf045d/gemma-3-12b-it-hebg/results.jsonl, variant A16BG128:b560s16:
+        # bits_per_weight = 4.49973479628501; PREREG-ADDENDUM-2026-11-24.md line 61: B = 560 -> 4.4997 bits)
+        self.assertAlmostEqual((math.log2(points) + 16) / 128, 4.49973479628501, places=12)
 
 
 
