@@ -1,5 +1,7 @@
 # Siliquant: 8D E8 Lattice Weight Quantization Brief
-## Executive Summary & Roofline Projections## Core Hypothesis & Motivation
+## Executive Summary & Roofline Projections
+
+## Core Hypothesis & Motivation
 Large Language Model (LLM) decoding on TPU v5e at low batch sizes is strictly memory-bound, where High Bandwidth Memory (HBM) bandwidth dictates token generation speed. Siliquant addresses this bottleneck by quantizing model weights using 8-dimensional $E_8$ lattice codes (via both an integer ball $hZBG128$ arm and a Hadamard-turned $E_8$ arm) at ~4.5 bits per weight (bpw). Reducing the bytes transferred per token increases effective chip bandwidth, raising pod density and decode throughput.
 ## Theoretical Bandwidth Ceilings (TPU v5e)
 Assuming a TPU v5e HBM bandwidth ceiling of 819 GB/s (weight-only, batch size 1, exact rational arithmetic), reducing weight precision from 16-bit (FP16) or 8-bit (INT8/FP8) to ~4.5 bpw yields the following theoretical decode throughput ceilings:
@@ -11,31 +13,33 @@ Assuming a TPU v5e HBM bandwidth ceiling of 819 GB/s (weight-only, batch size 1,
 | Hadamard-Turned $E_8$ | 4.47 | 949.5 tok/s | 366.4 tok/s | 3.58x | 1.79x |
 
 Note: Ratios derive directly from bit-width compression ($16 / 4.50 = 3.56\times$; $8 / 4.47 = 1.79\times$) and represent theoretical memory-bandwidth upper bounds. Practical kernel execution speeds are detailed in Section 4.
-## 1. Bit-Matched Accuracy Benchmarks## 1.1 Gemma 4 E4B-it (vs. 8-Bit Reference)
+## 1. Bit-Matched Accuracy Benchmarks
+
+## 1.1 Gemma 4 E4B-it (vs. 8-Bit Reference)
 Evaluated across 7.5B weights (294 matrices, 10,200 token positions, 61 variants) using KL divergence relative to an 8-bit reference (lower is better).
 
 | Quantization Scheme | Bits / Weight | KL Divergence | Top-1 Token Agreement | Relative Performance vs. $Q4\_0$ |
 | $E_8$ Lattice | 4.005 | 0.215 | — | >50% lower KL |
-| $Q4\_0$ | 4.005 | 0.448 | — | Baseline |
+| XR (largest-entry scalar rounding, q=16) | 4.005 | 0.448 | — | Baseline |
 | $E_8$ Lattice | 4.500 | 0.075 | 91.6% | 36% lower KL |
 | $Q4\_0$ | 4.500 | 0.117 | 89.4% | Baseline |
 | $E_8$ Lattice | 5.005 | 0.059 | — | 50% lower KL |
-| $Q4\_0$ | 5.005 | 0.118 | — | Baseline |
+| XR (largest-entry scalar rounding, q=32) | 5.005 | 0.118 | — | Baseline |
 | $Q4\_K\_M$ (Context Only) | 4.800 | 0.069 | — | Unmatched bit-width reference |
 
 ## 1.2 Small-Scale Model Sweep at 4.5 bpw (vs. 16-Bit Reference)
-Evaluated two independent experimental arms at ~4.5 bpw against a 16-bit reference without calibration data, using calibrated $Q4\_K\_M$ as the baseline:
+Evaluated two independent experimental arms at ~4.5 bpw against a 16-bit reference, both on the WikiText-2 test text (10,200 positions). Arm A is calibration-free: the Hadamard-turned $E_8$ ball is compared against uncalibrated stock $Q4\_K\_M$. Arm B is calibrated: the integer ball $hZBG128$ with a half-strength importance matrix is compared against $Q4\_K\_M$ given that same matrix:
 
 * Arm A (Hadamard-Turned $E_8$): Evaluated on WikiText-2 (85.9% zero-retention on smallest-magnitude weights).
-* Arm B (Integer Ball $hZBG128$): Evaluated on Python text using a half-strength importance matrix.
+* Arm B (Integer Ball $hZBG128$): Evaluated on WikiText-2 using a half-strength WikiText-2-training-text importance matrix on both sides.
 
-| Model | Hadamard $E_8$ KL | $Q4\_K\_M$ KL (Wiki) | Hadamard Gain | Ball $hZBG128$ KL | $Q4\_K\_M$ KL (Code) | Ball Gain |
-| Qwen2.5-1.5B | 0.0189 | 0.0333 | -43.0% | 0.0209 | 0.0282 | -26.0% |
-| SmolLM2-1.7B | 0.0515 | 0.0838 | -38.5% | 0.0282 | 0.0378 | -25.0% |
-| Llama-3.2-1B | 0.0360 | 0.0432 | -17.0% | 0.0242 | 0.0359 | -33.0% |
+| Model | Hadamard $E_8$ KL | $Q4\_K\_M$ KL (Wiki, stock) | Hadamard Gain | Ball $hZBG128$ KL | $Q4\_K\_M$ KL (Wiki, matrix) | Ball Gain |
+| Qwen2.5-1.5B | 0.0189 | 0.0333 | -43.4% | 0.0209 | 0.0282 | -25.9% |
+| SmolLM2-1.7B | 0.0515 | 0.0838 | -38.5% | 0.0282 | 0.0378 | -25.4% |
+| Llama-3.2-1B | 0.0360 | 0.0432 | -16.5% | 0.0242 | 0.0359 | -32.6% |
 
 
-* Outlier Mitigation (Ten-Column Repair): Preserving 10 high-magnitude $$ffn_down$$ columns in full precision (+0.005 bpw overhead) allows the plain integer ball to outperform $Q4\_K\_M$ across all three models (KL: $$0.0222$$ Qwen, $$0.0528$$ SmolLM2, $$0.0302$$ Llama).
+* Outlier Mitigation (Ten-Column Repair): Preserving 10 high-magnitude `ffn_down` columns in full precision (+0.005 bpw overhead) allows the plain integer ball to outperform $Q4\_K\_M$ across all three models (KL: `0.0222` Qwen, `0.0528` SmolLM2, `0.0302` Llama).
 * Downstream Validation: A bit-exact packed file at 4.505 bpw maintains MMLU accuracy within -0.70 to +0.15 points of the 16-bit model while reducing total error counts below $Q4\_K\_M$ by 10.2 (Qwen), 13.5 (SmolLM2), and 11.9 (Llama).
 * Data-Free Importance Matrices: Matrices constructed from random vocabulary pieces recover 77% (Qwen), 96% (SmolLM2), and 69% (Llama) of the quality achieved by real-text calibration matrices.
 
@@ -48,12 +52,14 @@ Mean KL divergence to the 16-bit reference across WikiText-2 and Python (10,200 
 | 4B | 0.0716 | 0.0884 | 0.0311 | 0.0417 | Wins both (-19% Wiki, -25% Python at lower bpw) |
 
 
-* Scaling at 5.0 bpw: Increasing bit-width to ~5.0 bpw enables the integer ball to win 4 of 4 small-model cells (270M: $$0.0366$$ Wiki / $$0.0558$$ Python; 1B: $$0.0310$$ Wiki / $$0.0309$$ Python). Across all three Gemma 3 sizes and both domains, the plain ball achieves 50% to 63% lower KL than $Q4\_0$. Unlike the 1B–1.7B sweep, ten-column repair yields no measurable gain on Gemma 3.
+* Scaling at 5.0 bpw: Increasing bit-width to ~5.0 bpw enables the integer ball to win 4 of 4 small-model cells (270M: `0.0366` Wiki / `0.0558` Python; 1B: `0.0310` Wiki / `0.0309` Python). Across all three Gemma 3 sizes and both domains, the plain ball achieves 50% to 63% lower KL than $Q4\_0$. Unlike the 1B–1.7B sweep, ten-column repair yields no measurable gain on Gemma 3.
 
-## 2. Scaling Dynamics & Structural Weight Probes## Quantization Scale & Sensitivity Analysis
+## 2. Scaling Dynamics & Structural Weight Probes
+
+## Quantization Scale & Sensitivity Analysis
 
 * Scale Selection Rule: Per-row maximum scaling preserves the top-1 token on 90% of evaluated positions, substantially outperforming per-matrix least-squares scaling (62% top-1 retention).
-* Clipping vs. Rounding Sensitivity: Clipping just 0.17% of extreme weights degrades SNR to -27.5 dB (KL: $$0.318$$ ), whereas uniform 5-bit rounding yields -21.7 dB (KL: $$0.118$$ ), confirming high sensitivity to weight outliers.
+* Clipping vs. Rounding Sensitivity: Clipping just 0.17% of extreme weights degrades SNR to -27.5 dB (KL: `0.318` ), whereas uniform 5-bit rounding yields -21.7 dB (KL: `0.118` ), confirming high sensitivity to weight outliers.
 * Error Prediction: Spectral rank correlation serves as a strong predictor of quantization degradation ($r = 0.889$, squared error $0.603$).
 
 ## Exact Structural Closures (Weight Sparsity)
@@ -61,20 +67,24 @@ Mean KL divergence to the 16-bit reference across WikiText-2 and Python (10,200 
 * Context-Specific Zero-Load Weights: Up to 2.79B weights in Gemma can be zeroed out for a specific text sequence with 0.000000 KL divergence.
 * Universal Core Sparsity: A subset of 55M weights can be zeroed across any tested text with 0.000000 KL divergence, indicating a structural dead-weight core.
 
-## 3. Systems Implementation & Current Bottlenecks## Decoder Architecture & Verification
+## 3. Systems Implementation & Current Bottlenecks
+
+## Decoder Architecture & Verification
 
 * Algebraic Construction: $E_8$ is constructed via an index-4 glue group over two copies of $D_4$ (the union of four cosets).
-* Branchless Integer Decoder: Implemented with zero dynamic branches using mandatory $$int64$$ lanes (52-bit intermediate peaks). Passes 48/48 exact squared-distance audit vectors.
+* Branchless Integer Decoder: Implemented with zero dynamic branches using mandatory `int64` lanes (52-bit intermediate peaks). Passes 48/48 exact squared-distance audit vectors.
 
 ## Current Runtime Bottlenecks (Work in Progress)
 While quality metrics and roofline models validate the quantization scheme, CPU decode throughput currently sits well below hardware bandwidth limits:
 
-* Packed Codec Throughput: The fastest research codec ($$E8 compact 88b$$ ) decodes at 58–65M weights/sec/core (up from the $$ballpack$$ baseline of 18–23M weights/sec/core), remaining orders of magnitude below the 45,000M weights/sec target required to saturate memory bandwidth.
+* Packed Codec Throughput: The fastest research codec (`E8 compact 88b` ) decodes at 58–65M weights/sec/core (up from the `ballpack` baseline of 18–23M weights/sec/core), remaining orders of magnitude below the 45,000M weights/sec target required to saturate memory bandwidth.
 * Fused GEMV Overhead: On a Zen 1 CPU, the fused Hadamard $E_8$ GEMV kernel runs 178x to 220x slower than a standard $Q4$ proxy, with 72–75% of stage time spent in Stage-1 leaf unranking.
 
-## 4. Limitations & Next Experimental Steps## Scope & Boundary Conditions
+## 4. Limitations & Next Experimental Steps
 
-   1. Bit-Width Operating Window: The optimal operating regime lies between 4.0 and 4.5 bpw (with KL continuing to improve up to 5.0 bpw; e.g., Gemma 3 4B WikiText KL drops from $$0.131$$ at 4.0 bpw $\rightarrow$ $$0.072$$ at 4.5 bpw $\rightarrow$ $$0.038$$ at 5.0 bpw). Below the 4.0 bpw INT4 roofline floor, KL divergence degrades sharply.
+## Scope & Boundary Conditions
+
+   1. Bit-Width Operating Window: The optimal operating regime lies between 4.0 and 4.5 bpw (with KL continuing to improve up to 5.0 bpw; e.g., Gemma 3 4B WikiText KL drops from `0.131` at 4.0 bpw $\rightarrow$ `0.072` at 4.5 bpw $\rightarrow$ `0.038` at 5.0 bpw). Below the 4.0 bpw INT4 roofline floor, KL divergence degrades sharply.
    2. Evaluation Boundaries: Gemma 4 E4B benchmarks use an 8-bit reference on a single text; Gemma 3 benchmarks use a 16-bit reference across two domains. Furthermore, zero-codeword behavior is model-dependent, and the observed output law holds on two tested models but breaks on the third.
    
 ## Immediate Roadmap
