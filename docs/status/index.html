@@ -83,7 +83,7 @@
     </tbody>
   </table>
   <p class="note">At 3.0 bits on SmolLM2, A32 scores 0.358845 and A16 0.380994 against 0.419643 for integer levels; A16 is the lowest arm on Qwen2.5 (0.160368). The packed A16 file is the same 18 bytes per 32 weights as the Z^32 file, read back bit for bit, 0.83 dB lower weight error, and 4.6–12.7 errors lower with no columns kept; it decodes 2.5–3.0x slower on one core (9.4–10.1M weights/s). The 128-weight ball with a 16-bit scale stays 3.1–6.7 errors lower still.</p>
-  <p class="note">Live RTX 3080 (sm_86) studies merged the same day: 3B scale law with the opposite-sign A16 law returning (#86), A16_BlockH4 #1 on 3B Python (#90), 592.31 Gw/s zero-spill PTX kernel (#91), global-sort cannibalization falsified with a coupled-coherent cure (#93), and the stratified quad-snake 3B record 0.023154 / 0.020494 (#95), plus a 0.5B full-model engine at 400.58 tok/s and 4.91x lower energy (#88) and three pure-Init Lean 4.36.0 theory studies (#87, #92, #94).</p>
+  <p class="note">Live RTX 3080 (sm_86) studies merged the same day: 3B scale law with the opposite-sign A16 law returning (#86), A16_BlockH4 #1 on 3B Python (#90), 592.31 Gw/s zero-spill PTX kernel (#91), global-sort cannibalization falsified with a coupled-coherent cure (#93), and the stratified quad-snake 3B record 0.023154 / 0.020494 (#95), plus a 0.5B full-model engine at 400.58 tok/s, 5.60× faster than PyTorch BF16 (#88), and three pure-Init Lean 4.36.0 theory studies (#87, #92, #94).</p>
 </section>
 
 <section>
