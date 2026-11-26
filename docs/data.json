@@ -206,6 +206,8 @@
       "has_results_out": false,
       "name": "model-output-gemma-ball-2026-11-23",
       "prereg_files": [
+        "PREREG-1E-2026-11-24.md",
+        "PREREG-ADDENDUM-2026-11-24.md",
         "PREREG.md",
         "PREREG_ANALYSIS.md"
       ],
@@ -591,6 +593,11 @@
       "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/studies/rtx3080-live-llm-a16-eval"
     },
     {
+      "name": "rtx3080-s73-lowbit-and-sharednorm-quad-snake",
+      "title": "RTX 3080 Live-Weight Study: PTX-Ready Shared-RMSNorm quad_snake, Exact Load-Power p-Curve, and the 3.0 bpw Two-Level Stratified BlockH4 Frontier",
+      "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/studies/rtx3080-s73-lowbit-and-sharednorm-quad-snake"
+    },
+    {
       "name": "rtx3080-siliquant-a16",
       "title": "RTX 3080 sm_86 A_16 / Block-H2 / 18B & 72B Wire-Format CUDA & Anisotropic Calibration Study",
       "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/studies/rtx3080-siliquant-a16"
@@ -601,9 +608,24 @@
       "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/studies/s73b-heavy-tail-lpt-starvation-lean4"
     },
     {
+      "name": "s74-siliquant-hf-v1-publisher",
+      "title": "Siliquant HF v1 (siliquant-hf-v1): Bit-Packed A_16 Lattice Model Publisher & transformers Loader",
+      "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/studies/s74-siliquant-hf-v1-publisher"
+    },
+    {
       "name": "s78-engram-lora-capacity-siliquant-mdl",
       "title": "Engram LoRA Bit-Capacity, Two-Part MDL, and Joint (bpw, rank) Bit-Allocation Law (Lean 4.36.0 Formal Companion)",
       "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/studies/s78-engram-lora-capacity-siliquant-mdl"
+    },
+    {
+      "name": "s79-2dsd-multipole-dense-sparse-laws",
+      "title": "Exact Operator & Roofline Laws for 2DSD, Dense-and-Sparse CSR vs. siliquant, and Fast-Multipole Attention (Lean 4.36.0 Formal Companion)",
+      "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/studies/s79-2dsd-multipole-dense-sparse-laws"
+    },
+    {
+      "name": "track-s20b-gate8-live-eval",
+      "title": "Track S20b Live Gate-8 Evaluation (studies/track-s20b-gate8-live-eval)",
+      "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/studies/track-s20b-gate8-live-eval"
     }
   ]
 }

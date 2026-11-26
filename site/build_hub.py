@@ -42,6 +42,42 @@ MINUS = "−"  # U+2212, used by docs/index.html in the saved-% cells
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# Words that must never reach the public hub (docs/hub.html, docs/data.json),
+# whatever a study or experiment README calls itself. Matched case-insensitively
+# against the generated text, so a rebuild fails instead of publishing them.
+#   drop-in      barred in public copy while the ZeroCal Transformers load test is pending
+#   post-freeze  not supported by a checkable git freeze (siliquant#116 review)
+#   lossless     not allowed without the measured number beside it
+#   tok/s, GB/s, Gw/s, 1000+   no speed claims and no FP16 1000+ figure on the hub
+#   mj/tok, less energy, joules, 173656 / 173,656   no energy figures: the laptop
+#                runs were not under controlled conditions
+BANNED_PUBLIC_TERMS = ("drop-in", "post-freeze", "lossless",
+                       "tok/s", "gb/s", "gw/s", "1000+",
+                       "mj/tok", "less energy", "lower energy", "joule",
+                       "rapl", "173656", "173,656")
+
+
+def banned_terms_in(text):
+    low = text.lower()
+    return [t for t in BANNED_PUBLIC_TERMS if t in low]
+
+
+def guard_public_text(data, fresh_json, fresh_html):
+    """Fail the build if generated public text carries a banned term.
+    Names the offending folder when the term comes from a README title."""
+    for kind in ("studies", "experiments"):
+        for entry in data.get(kind, []):
+            hits = banned_terms_in(entry.get("title", ""))
+            if hits:
+                fail("%s/%s/README.md title %r contains banned public term(s) %s; "
+                     "retitle the README before rebuilding the hub"
+                     % (kind, entry["name"], entry["title"], ", ".join(hits)))
+    for name, text in (("docs/data.json", fresh_json), ("docs/hub.html", fresh_html)):
+        hits = banned_terms_in(text)
+        if hits:
+            fail("%s would contain banned public term(s) %s" % (name, ", ".join(hits)))
+
+
 IMPACT_DIR = os.path.join(
     "experiments/model-output-gemma-ball-2026-11-23/reports/impact")
 IMPACT_MODELS = (("270m", "270M"), ("1b", "1B"), ("4b", "4B"))
@@ -592,6 +628,7 @@ def main():
     cross_check_index(data["gemma_matched_kl"])
     fresh_json = dump_data(data)
     fresh_html = render(data)
+    guard_public_text(data, fresh_json, fresh_html)
 
     if args.check:
         for name, fresh in (("docs/data.json", fresh_json), ("docs/hub.html", fresh_html)):

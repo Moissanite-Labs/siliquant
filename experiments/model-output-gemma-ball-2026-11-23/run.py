@@ -27,6 +27,7 @@ import os
 import platform
 import re
 import resource
+import shutil
 import subprocess
 import sys
 import time
@@ -77,6 +78,13 @@ BRIDGE_ARMS = (
 GROUP_BALL_RE = re.compile(r"^(ZBG|EBG|HBG)(\d+):b(\d+)s(\d+)$")
 WEIGHTED_BALL_RE = re.compile(r"^([ih])(ZBG|EBG|HBG)(\d+):b(\d+)s(\d+)(?:~(rand))?$")
 LOUD_BALL_RE = re.compile(r"^(h?ZBG)(\d+):b(\d+)s(\d+)\+K(\d+)$")
+# 2026-11-24 addendum arms: Construction-A lattices A_n from extended Hamming codes (vendored hamming.py)
+# in one ball per group of n weights, optionally with the (half-strength) imatrix column weights.
+HAMMING_BALL_RE = re.compile(r"^([ih]?)(A(?:8|16|32))BG(\d+):b(\d+)s(\d+)(?:~(rand))?$")
+HAMMING_M = {"A8": 3, "A16": 4, "A32": 5}
+# Stock file decoded to 16-bit block weights: the same quantized weights the `file:` arm scores,
+# but multiplied by llama.cpp as 16-bit weights instead of 4-bit blocks (activation-rounding control).
+STOCK16_RE = re.compile(r"^file:(Q4_0|Q4_K_M|Q4_K_M-imat)@16$")
 ROW_BALL_RE = re.compile(r"^(ZB|EB)(\d+)@R:(\d+)$")
 VORONOI_RE = re.compile(r"^(H?)VE8(Z?)(\d+|R):(\d+)$")
 
@@ -130,6 +138,12 @@ def arm_needs_real_imat(arm):
         return True
     if LOUD_BALL_RE.match(arm) and arm.startswith("h"):
         return True
+    m = HAMMING_BALL_RE.match(arm)
+    if m and m.group(1) in ("i", "h"):
+        return True
+    mm = STOCK16_RE.match(arm)
+    if mm and mm.group(1) == "Q4_K_M-imat":
+        return True
     return False
 
 # Worker process globals (populated via Pool initializer or direct call)
@@ -139,6 +153,7 @@ _worker_imatrix_real_path = None
 _worker_imatrix_rand_path = None
 _worker_imatrix_cache = {}
 _bd_mod = None
+_ham_mod = None
 _bounds_cache = {}
 _e8_lattice = None
 _e8_offset = None
@@ -218,6 +233,19 @@ def ball_bound(lattice, n, bits):
     return _bounds_cache[key]
 
 
+def hamming_module():
+    """The vendored hamming.py (Construction-A lattices A_n) next to this runner."""
+    global _ham_mod
+    if _ham_mod is None:
+        spec = importlib.util.spec_from_file_location("gemma_hamming", HERE / "hamming.py")
+        if spec is None or spec.loader is None:
+            raise RuntimeError("failed to load hamming.py next to run.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        _ham_mod = mod
+    return _ham_mod
+
+
 def finish(W, Y, bits, shrunk):
     """Cast rounded float64 matrix Y to float16 once, and compute float64 relative error vs W."""
     Wh = np.asarray(Y, dtype=np.float64).astype(np.float16)
@@ -265,6 +293,71 @@ def _group_ball_core(W64, lattice, n, block_bits, scale_bits, colscale=None):
         Wh64 = Wh64 / colscale[None, :]
     bits = (math.log2(points) + scale_bits) / n + extra
     return Wh64, bits, float(np.mean(out))
+
+
+def _hamming_block_scales(X, m, bound, margin):
+    """bd.block_scales for an A_n lattice: the same bisection, with the lattice's covering margin
+    sqrt(covering_sq(m, n)) in place of sqrt(n)/2 and hamming.closest as the nearest point."""
+    bd = ball_module()
+    ham = hamming_module()
+    g = np.maximum(np.sqrt((X ** 2).sum(axis=1)), 1e-30)
+    r = math.sqrt(bound)
+    lo = g / (r + margin) * 0.99
+    hi = g / max(r - margin, 0.05 * r) * 1.01
+    for _ in range(bd.BISECT_STEPS):
+        mid = np.sqrt(lo * hi)
+        ok = (ham.closest(X / mid[:, None], m) ** 2).sum(axis=1) <= bound + 1e-9
+        hi = np.where(ok, mid, hi)
+        lo = np.where(ok, lo, mid)
+    return hi
+
+
+def group_hamming_ball_round(W, lattice, n, block_bits, scale_bits, colscale=None):
+    """One ball per group of n weights of the Construction-A lattice A_{2^m} (hamming.py), one scale per group.
+
+    The same steps as _group_ball_core, with hamming.closest(X, m) as the nearest point,
+    hamming.ball_bound(m, n, block_bits) for the bound and the count of points, and
+    sqrt(hamming.covering_sq(m, n)) as the bisection's margin in place of sqrt(n)/2.
+    """
+    bd = ball_module()
+    ham = hamming_module()
+    m = HAMMING_M[lattice]
+    W64 = np.asarray(W, dtype=np.float64)
+    rows, cols = W64.shape
+    if cols % n != 0:
+        raise ValueError(f"group size {n} does not divide row length {cols}")
+    bound, points = ham.ball_bound(m, n, block_bits)
+    extra = 0.0
+    work = W64
+    if colscale is not None:
+        work = work * colscale[None, :]
+        extra += 16.0 / rows
+    X = work.reshape(-1, n)
+    t = _hamming_block_scales(X, m, bound, math.sqrt(ham.covering_sq(m, n)))
+    steps = SCALE_STEPS[scale_bits]
+    if steps is not None:
+        top = float(t.max())
+        k = np.floor(np.log2(top / np.maximum(t, 1e-300)) * steps + 1e-9)
+        k = np.clip(k, 0, (1 << scale_bits) - 1)
+        t = top * 2.0 ** (-k / steps)
+        extra += 16.0 / W64.size
+    safe_t = np.where(t > 0, t, 1.0)
+    Y = ham.closest(X / safe_t[:, None], m)
+    out = (Y ** 2).sum(axis=1) > bound + 1e-9
+    if np.any(out):
+        xo = X[out] / safe_t[out, None]
+        lo, hi = np.zeros(len(xo)), np.ones(len(xo))
+        for _ in range(bd.SHRINK_STEPS):
+            mid = 0.5 * (lo + hi)
+            good = (ham.closest(xo * mid[:, None], m) ** 2).sum(axis=1) <= bound + 1e-9
+            lo = np.where(good, mid, lo)
+            hi = np.where(good, hi, mid)
+        Y[out] = ham.closest(xo * lo[:, None], m)
+    Wh64 = (Y * t[:, None]).reshape(rows, cols)
+    if colscale is not None:
+        Wh64 = Wh64 / colscale[None, :]
+    bits = (math.log2(points) + scale_bits) / n + extra
+    return finish(W, Wh64, bits, float(np.mean(out)))
 
 
 def group_ball_round(W, lattice, n, block_bits, scale_bits, colscale=None, hadamard=False):
@@ -471,13 +564,17 @@ def _load_ggufedit():
     return ggufedit
 
 
-def _worker_init(model_path, imatrix_real_path, imatrix_rand_path):
-    global _worker_model_path, _worker_reader, _worker_imatrix_real_path, _worker_imatrix_rand_path, _worker_imatrix_cache
+_worker_tensor_dir = None
+
+
+def _worker_init(model_path, imatrix_real_path, imatrix_rand_path, tensor_dir=None):
+    global _worker_model_path, _worker_reader, _worker_imatrix_real_path, _worker_imatrix_rand_path, _worker_imatrix_cache, _worker_tensor_dir
     _worker_model_path = model_path
     _worker_reader = None
     _worker_imatrix_real_path = imatrix_real_path
     _worker_imatrix_rand_path = imatrix_rand_path
     _worker_imatrix_cache = {}
+    _worker_tensor_dir = tensor_dir
 
 
 def _get_reader():
@@ -573,6 +670,13 @@ def round_matrix_variant(variant, name, W, colscale_fn=None):
         else:
             Wh, info = group_ball_round(W, "Z8", n, bbits, sbits, colscale=cs, hadamard=False)
             info["kept_columns"] = 0
+    elif HAMMING_BALL_RE.match(variant):
+        m = HAMMING_BALL_RE.match(variant)
+        prefix, lattice, n, bbits, sbits, src = m.group(1), m.group(2), int(m.group(3)), int(m.group(4)), int(m.group(5)), m.group(6) or "real"
+        power = 0.5 if prefix == "i" else 0.25
+        cs = colscale_fn(name, W.shape[1], power, src) if prefix in ("i", "h") else None
+        imatrix_fallback = prefix in ("i", "h") and cs is None
+        Wh, info = group_hamming_ball_round(W, lattice, n, bbits, sbits, colscale=cs)
     elif WEIGHTED_BALL_RE.match(variant):
         m = WEIGHTED_BALL_RE.match(variant)
         prefix, kind_code, n, bbits, sbits, src = m.group(1), m.group(2), int(m.group(3)), int(m.group(4)), int(m.group(5)), m.group(6) or "real"
@@ -618,7 +722,14 @@ def _round_one_worker(task):
     t = next(t for t in _get_reader().tensors if t.name == name)
     W = _matrix_of(t)
     Wh, info = round_matrix_variant(variant, name, W, colscale_fn=_column_weights)
-    return name, Wh, info
+    if _worker_tensor_dir:
+        # Stream mode: hand the rounded matrix to disk instead of through IPC, so the
+        # parent never holds the whole model's replacements in RAM (27B-class models).
+        os.makedirs(_worker_tensor_dir, exist_ok=True)
+        sidecar = os.path.join(_worker_tensor_dir, re.sub(r"[^A-Za-z0-9_.+-]", "_", name) + ".f16.npy")
+        np.save(sidecar, Wh)
+        return name, None, info, sidecar
+    return name, Wh, info, None
 
 
 def stats_of(infos, model_id, n_layers):
@@ -757,6 +868,42 @@ def _run_cmd(cmd, label):
         raise RuntimeError(f"{label} failed with exit code {proc.returncode}: {' '.join(cmd)}")
 
 
+_FLOAT_GGML_TYPES = (0, 1, 30)  # F32, F16, BF16
+
+
+def _valid_gguf(path):
+    """A cached GGUF is trusted only if it starts with the GGUF magic (a killed run can
+    leave a zero-header partial file behind)."""
+    try:
+        with open(path, "rb") as f:
+            return f.read(4) == b"GGUF"
+    except OSError:
+        return False
+
+
+def _source_is_quantized(tensors):
+    """True if any source tensor is already quantized: llama-quantize then needs
+    --allow-requantize (Q8_0-reference stratum, e.g. gemma-3-27b-it)."""
+    return any(int(getattr(t, "tensor_type", 0)) not in _FLOAT_GGML_TYPES for t in tensors)
+
+
+def _drop_file_cache(path):
+    """Best-effort POSIX_FADV_DONTNEED on a file's clean pages.
+
+    After a 27B-class arm build, the source model's ~29 GB of page cache is still
+    resident; dropping it before scoring frees DRAM so the Metal backend can map the
+    ~53 GB float16-block arm without an out-of-memory command buffer failure.
+    """
+    try:
+        fd = os.open(path, os.O_RDONLY)
+        try:
+            os.posix_fadvise(fd, 0, 0, os.POSIX_FADV_DONTNEED)
+        finally:
+            os.close(fd)
+    except (OSError, AttributeError):
+        pass
+
+
 def ensure_kld(model_path, text_path, kld_path, binary, chunks, ctx, batch, ngl, threads, dry_run=False):
     cmd = [
         binary,
@@ -769,8 +916,11 @@ def ensure_kld(model_path, text_path, kld_path, binary, chunks, ctx, batch, ngl,
         "-t", str(threads),
         "--kl-divergence-base", str(kld_path),
     ]
-    if dry_run or os.path.exists(kld_path):
+    # .kld files are not GGUF (they start with "_log"); trust any non-empty cache.
+    if dry_run or (os.path.exists(kld_path) and os.path.getsize(kld_path) > 0):
         return cmd
+    if os.path.exists(kld_path):
+        os.remove(kld_path)
     os.makedirs(os.path.dirname(os.path.abspath(kld_path)), exist_ok=True)
     _run_cmd(cmd, f"kld:{os.path.basename(kld_path)}")
     return cmd
@@ -788,8 +938,10 @@ def ensure_imatrix(model_path, text_path, imatrix_path, binary, chunks, ctx, bat
         "-t", str(threads),
         "-o", str(imatrix_path),
     ]
-    if dry_run or os.path.exists(imatrix_path):
+    if dry_run or (os.path.exists(imatrix_path) and _valid_gguf(imatrix_path)):
         return cmd
+    if os.path.exists(imatrix_path):
+        os.remove(imatrix_path)
     os.makedirs(os.path.dirname(os.path.abspath(imatrix_path)), exist_ok=True)
     _run_cmd(cmd, f"imatrix:{os.path.basename(imatrix_path)}")
     return cmd
@@ -881,12 +1033,16 @@ def quantize_tensor_type_flags(tensors, token_embd_type=None):
 
 def ensure_baseline_gguf(model_path, out_path, qtype, binary, tensors, imatrix_path=None, threads=4, dry_run=False, token_embd_type=None):
     cmd = [binary]
+    if _source_is_quantized(tensors):
+        cmd.append("--allow-requantize")
     if imatrix_path:
         cmd.extend(["--imatrix", str(imatrix_path)])
     cmd.extend(quantize_tensor_type_flags(tensors, token_embd_type=token_embd_type))
     cmd.extend([str(model_path), str(out_path), qtype, str(threads)])
-    if dry_run or os.path.exists(out_path):
+    if dry_run or (os.path.exists(out_path) and _valid_gguf(out_path)):
         return cmd
+    if os.path.exists(out_path):
+        os.remove(out_path)  # partial/corrupt cache from a killed run
     os.makedirs(os.path.dirname(os.path.abspath(out_path)), exist_ok=True)
     _run_cmd(cmd, f"quantize:{qtype}")
     return cmd
@@ -1018,6 +1174,8 @@ def parse_args(argv=None):
     ap.add_argument("--batch", type=int, default=512, help="Batch size (default 512)")
     ap.add_argument("--threads", type=int, default=4, help="CPU threads for llama.cpp (default 4)")
     ap.add_argument("--workers", type=int, default=4, help="Worker processes for matrix rounding (default 4)")
+    ap.add_argument("--stream-arms", action="store_true",
+                    help="Write ball-arm GGUFs from per-tensor .npy sidecars (bounded parent RAM for 27B-class models); byte-identical to the default path")
     ap.add_argument("--pilot-only", action="store_true", help="Run Step 2/3 one-layer pilot and zero-codeword verification only")
     ap.add_argument("--pilot-layer", type=int, default=0, help="Layer index for --pilot-only (default 0)")
     ap.add_argument("--metrics-only", action="store_true", help="Compute weight metrics only without calling llama-perplexity")
@@ -1129,6 +1287,16 @@ def run_sweep(args):
         ensure_baseline_gguf(args.model_path, baseline_paths["file:Q4_K_M"], "Q4_K_M", args.llama_quantize, all_tensors, threads=args.threads)
     if "file:Q4_K_M-imat" in arms:
         ensure_baseline_gguf(args.model_path, baseline_paths["file:Q4_K_M-imat"], "Q4_K_M", args.llama_quantize, all_tensors, imatrix_path=imatrix_real, threads=args.threads)
+    # @16 arms decode the stock quantized file to 16-bit block weights; they need that file built first
+    for arm in arms:
+        mm = STOCK16_RE.match(arm)
+        if not mm:
+            continue
+        base_arm = "file:" + mm.group(1)
+        if base_arm == "file:Q4_K_M-imat":
+            ensure_baseline_gguf(args.model_path, baseline_paths[base_arm], "Q4_K_M", args.llama_quantize, all_tensors, imatrix_path=imatrix_real, threads=args.threads)
+        else:
+            ensure_baseline_gguf(args.model_path, baseline_paths[base_arm], base_arm.split(":", 1)[1], args.llama_quantize, all_tensors, threads=args.threads)
 
     # Load already-completed (model_id, text, variant) keys for clean resume
     done = set()
@@ -1165,7 +1333,10 @@ def run_sweep(args):
             "model_sha256": model_sha,
             "variant": arm,
             "ngl": args.ngl,
+            "backend": "metal" if (platform.system() == "Darwin" and args.ngl > 0) else "cpu",
+            "threads": args.threads,
             "bridge": bridge_mode,
+            "stream_arms": bool(args.stream_arms),
         }
         if arm_needs_real_imat(arm):
             base_row["imatrix_sha256"] = imat_real_sha
@@ -1178,27 +1349,84 @@ def run_sweep(args):
             base_row.update(compare_file(rd, eval_path, args.model_id, n_layers))
             base_row["file_sha256"] = sha256_of(eval_path)
             base_row["build_seconds"] = round(time.time() - t0, 1)
+        elif STOCK16_RE.match(arm):
+            # Decode the stock quantized file's block matrices to 16-bit floats in a copy of the
+            # 16-bit model: the same weights the `file:` arm scores, multiplied as 16-bit weights.
+            mm = STOCK16_RE.match(arm)
+            base_arm = "file:" + mm.group(1)
+            q_path = baseline_paths[base_arm]
+            eval_path = os.path.join(work_dir, re.sub(r"[^A-Za-z0-9_.+-]", "_", f"{args.model_id}_{arm}") + ".gguf")
+            made_temp = True
+            qmap = {t.name: t for t in ggufedit.open_model(q_path).tensors}
+            ref = {t.name: t for t in rd.tensors}
+            replace, infos, replace_files = {}, {}, {}
+            tensor_dir = os.path.join(work_dir, "tensors") if args.stream_arms else None
+            if tensor_dir:
+                os.makedirs(tensor_dir, exist_ok=True)
+            for n in names:
+                W = _matrix_of(ref[n])
+                qt = qmap[n]
+                Wh = ggufedit.tensor_float(qt).reshape(W.shape)
+                bits = 8.0 * qt.data.nbytes / W.size
+                Wh16, _ = finish(W, Wh, bits, 0.0)
+                if tensor_dir:
+                    sidecar = os.path.join(tensor_dir, re.sub(r"[^A-Za-z0-9_.+-]", "_", n) + ".f16.npy")
+                    np.save(sidecar, Wh16)
+                    replace_files[n] = sidecar
+                else:
+                    replace[n] = Wh16
+                W64 = np.asarray(W, dtype=np.float64)
+                energy = float(np.sum(W64 ** 2))
+                rel = float(np.sum((W64 - Wh16.astype(np.float64)) ** 2) / energy) if energy > 0 else 0.0
+                infos[n] = {"rel_err": rel, "bits": bits, "overload": 0.0, "energy": energy,
+                            "size": int(W.size), "kept_columns": 0, "imatrix_fallback": False}
+            base_row.update(stats_of(infos, args.model_id, n_layers))
+            base_row["source_file_sha256"] = sha256_of(q_path)
+            base_row["build_seconds"] = round(time.time() - t0, 1)
+            if not args.metrics_only:
+                if args.stream_arms:
+                    ggufedit.write_copy_streaming(rd, eval_path, replace_files)
+                else:
+                    ggufedit.write_copy(rd, eval_path, replace)
+                base_row["other_tensors_that_differ"] = compare_file(rd, eval_path, args.model_id, n_layers)["other_tensors_that_differ"]
+                base_row["file_sha256"] = sha256_of(eval_path)
+            if tensor_dir and os.path.isdir(tensor_dir):
+                shutil.rmtree(tensor_dir, ignore_errors=True)
+            del replace
         else:
             eval_path = os.path.join(work_dir, re.sub(r"[^A-Za-z0-9_.+-]", "_", f"{args.model_id}_{arm}") + ".gguf")
             made_temp = True
-            replace, infos = {}, {}
+            replace, infos, replace_files = {}, {}, {}
+            tensor_dir = os.path.join(work_dir, "tensors") if args.stream_arms else None
+            if tensor_dir:
+                os.makedirs(tensor_dir, exist_ok=True)
+            initargs = (args.model_path,
+                        imatrix_real if needs_real_imat else None,
+                        imatrix_rand if needs_rand_imat else None,
+                        tensor_dir)
             if args.workers <= 1:
-                _worker_init(args.model_path, imatrix_real if needs_real_imat else None, imatrix_rand if needs_rand_imat else None)
-                for n in names:
-                    name, Wh, info = _round_one_worker((arm, n))
-                    replace[name], infos[name] = Wh, info
+                _worker_init(*initargs)
+                results = [_round_one_worker((arm, n)) for n in names]
             else:
-                with Pool(
-                    args.workers,
-                    initializer=_worker_init,
-                    initargs=(args.model_path, imatrix_real if needs_real_imat else None, imatrix_rand if needs_rand_imat else None),
-                ) as pool:
-                    for name, Wh, info in pool.imap_unordered(_round_one_worker, [(arm, n) for n in names], chunksize=1):
-                        replace[name], infos[name] = Wh, info
+                with Pool(args.workers, initializer=_worker_init, initargs=initargs) as pool:
+                    results = list(pool.imap_unordered(_round_one_worker, [(arm, n) for n in names], chunksize=1))
+            for name, Wh, info, sidecar in results:
+                infos[name] = info
+                if sidecar:
+                    replace_files[name] = sidecar
+                else:
+                    replace[name] = Wh
             base_row.update(stats_of(infos, args.model_id, n_layers))
             base_row["build_seconds"] = round(time.time() - t0, 1)
             if not args.metrics_only:
-                ggufedit.write_copy(rd, eval_path, replace)
+                if args.stream_arms:
+                    ggufedit.write_copy_streaming(rd, eval_path, replace_files)
+                else:
+                    ggufedit.write_copy(rd, eval_path, replace)
+            if tensor_dir and os.path.isdir(tensor_dir):
+                shutil.rmtree(tensor_dir, ignore_errors=True)
+            if args.stream_arms and not args.metrics_only:
+                _drop_file_cache(args.model_path)
             del replace
 
         try:
@@ -1208,6 +1436,22 @@ def run_sweep(args):
                 row["text_sha256"] = kld_info[tname]["text_sha256"]
                 row["timestamp_utc"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
                 if not args.metrics_only:
+                    # Free DRAM before each scoring: drop the source model's page cache and
+                    # every other text's KLD cache (a 27B ball arm is ~53 GB and the wikitext
+                    # KLD alone is 5.3 GB; left cached, Metal OOMs mid-arm on a 64 GB host).
+                    _drop_file_cache(args.model_path)
+                    _drop_file_cache(eval_path)
+                    for tn2, info2 in kld_info.items():
+                        if tn2 != tname:
+                            _drop_file_cache(info2["kld_path"])
+                    # Drop every other cached artifact (stock baselines are ~50 GB at 27B):
+                    # left cached, they starve Metal's allocation at model load on a 64 GB host.
+                    cur_kld = kld_info[tname]["kld_path"]
+                    if os.path.isdir(cache_dir):
+                        for fn in os.listdir(cache_dir):
+                            p = os.path.join(cache_dir, fn)
+                            if p != cur_kld:
+                                _drop_file_cache(p)
                     t1 = time.time()
                     scores, _ = evalkl.score(
                         eval_path,
