@@ -66,6 +66,9 @@ MODEL_DIMENSIONS: dict[str, tuple[int, int, int, int]] = {
 }
 
 # Verbatim decimal tokens pinned to rtx3080_s73_empirical_results.json (exact Q parity).
+# FROZEN_S73_TOKENS are PR-controlled constants of this study: the oracle does not hash its own
+# source file, so --check full_replay replays these constants and proves internal consistency
+# with the committed empirical JSON, not independent re-execution of the GPU run.
 FROZEN_S73_TOKENS: dict[str, Any] = {
     "smollm2": {
         "wt_kl": {

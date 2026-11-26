@@ -1,7 +1,7 @@
 """Comprehensive Unit & Adversarial Verification Suite for Track S73:
 PTX-Ready Shared-RMSNorm quad_snake, Load-Power p-Curve, & 3.0 bpw Low-Bitrate Frontier.
 
-Covers 100% of oracle & verifier mutation surfaces, whole-file DFS AST BoolOp clauses,
+Covers 100% of oracle & verifier mutation surfaces,
 float and float-subclass rejection across dict/list/tuple and container subclasses,
 strict ASCII-digit ISO-8601 parsing, bool-in-int receipt rejection (incl. out_of_ball_groups),
 inner receipt SHA verification, ZeroDivisionError, EIO on fstat/read, surrogate/NUL paths on
