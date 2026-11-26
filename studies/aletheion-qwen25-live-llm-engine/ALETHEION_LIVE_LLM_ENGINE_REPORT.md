@@ -2,7 +2,7 @@
 
 **Hardware Platform:** ASUS ZenBook Pro Duo `UX582HS` — Intel Core `i9-11900H` (`8C/16T`, `AVX-512` `VBMI`/`VNNI`/`VPOPCNTDQ`) + NVIDIA GeForce RTX 3080 Laptop (`GA104M`, Ampere `sm_86`, `48` SMs, `8 GiB` `256-bit` GDDR6).  
 **Model Under Test (`measured_live_model_weights: true`):** Offline-cached `Qwen/Qwen2.5-0.5B` snapshot `060db6499f32faf8b98477b0a26969ef7d8b9987` (`model.safetensors` SHA-256 `88c142557820ccad55bb59756bfcfcf891de9cc6202816bd346445188a0ed342`, `24` transformer layers, `168` real linear weight matrices = `357,826,560` weights + `122` preserved `BF16` non-block tensors).  
-**Ring-0 Provenance:** Executed inside exclusive `mlos gpu-lease --mode train` + `mlos stamp-run --profile ux582hs-rtx3080-8gb.toml --zone B --require-gpu --strict-anomalies` (`clean_hardware_run: true`, `exit_code: 0`, `anomalies: []`, `graphics_processes: []`, `compute_processes: []`, `linux_kmd_baseline_vram_mib: 2`, `thermal_throttled: false`, `slowdown_active: false`, receipt SHA-256 `208e14b27757d6adef80df9d0378ee813976694d95f99dcd2893b92354add666`).
+**Ring-0 Provenance:** Executed inside exclusive `mlos gpu-lease --mode train` + `mlos stamp-run --profile ux582hs-rtx3080-8gb.toml --zone B --require-gpu --strict-anomalies` (`clean_hardware_run: true`, `exit_code: 0`, `anomalies: []`, `graphics_processes: []`, `compute_processes: []`, `linux_kmd_baseline_vram_mib: 2`, `thermal_throttled: false`, `slowdown_active: false`, receipt SHA-256 `208e14b27757d6adef80df9d0378ee813976694d95f99dcd2893b92354add666`). `clean_hardware_run: true` covers the receipt's GPU-side checks only (no GPU processes, idle at start and end, no throttling); it applies to the throughput and latency figures, not to the energy figures, which are uncontrolled and provisional (see §3).
 
 ---
 
@@ -36,6 +36,8 @@
 
 ## 3. Empirical 4-Arm Latency & Energy (`mJ/tok`) Pareto Frontier (`measured_live_model_weights: true`)
 
+> **Energy figures: uncontrolled, provisional.** Every energy figure in this report (`mJ/tok`, W, and the energy ratios) comes from one laptop run with one measurement window per arm, no repeats and no reported spread. CPU energy is the `intel-rapl` package counter for the whole CPU, so it also counts anything else the CPU was doing. AC power, battery state, CPU load, other processes and user activity were not recorded. No controlled rerun has been done yet. The raw values are kept as measured.
+
 Energy methodology: Synchronized Linux `powercap` `intel-rapl` hardware microjoule counters (`package-0`, `core`, `uncore`, `psys`) paired with `100 Hz` trapezoidal integration of `nvmlDeviceGetPowerUsage` (mW INA3221 rail sensor) over sustained `>= 2.1 s` steady-state windows. (As calibrated pre-run, `GA104M` laptop `nvmlDeviceGetTotalEnergyConsumption` exhibited `>16x` spurious idle counter drift vs. INA3221 rail power and was rejected.) During Arm C (`CUDA_VISIBLE_DEVICES=""`, `OMP_NUM_THREADS=8 OMP_PROC_BIND=spread OMP_PLACES=cores`), parent `cudaDeviceReset()` dropped the dGPU to true idle `P8` (`210.0 MHz`, `13.49–13.74 W`) across all four CPU-only windows.
 
 ### 3.1 24-Layer Transformer Backbone Decode (`168` Real Matrices = `357,826,560` Weights)
@@ -48,7 +50,9 @@ Energy methodology: Synchronized Linux `powercap` `intel-rapl` hardware microjou
 | **Arm C1:** `i9-11900H` `AVX-512` `8C` (`GPU P8`) | `60.794` | `16.44899` | `226.65052` *(idle)* | `1,277.95499` | `1,504.60551` | `84.43221` | baseline | — |
 | **Arm C2:** `AVX-512` `8C` + Live `vpopcntq` (`GPU P8`) | `58.775` | `17.01412` | `231.23638` *(idle)* | `1,357.69352` | `1,588.92990` | `90.05067` | `+3.436%` | **`0`** |
 
-- **Backbone Speedup & Energy Ratios (Exact $\mathbb{Q}$ certified):** Arm B1 is **`7.428x`** faster than PyTorch `BF16` (`571367/76921`) and **`9.398x`** faster than `AVX-512 8C` (`571367/60794`), delivering **`408.901 GB/s`** `BF16`-equivalent effective bandwidth (`115.003 GB/s` physical) at **`6.148x`** lower combined `mJ/tok` than PyTorch `BF16` and **`5.479x`** lower than `AVX-512` CPU-pkg alone.
+*Energy columns (`mJ/tok`): uncontrolled, provisional (see the note at the top of §3).*
+
+- **Backbone Speedup & Energy Ratios (Exact $\mathbb{Q}$ certified):** Arm B1 is **`7.428x`** faster than PyTorch `BF16` (`571367/76921`) and **`9.398x`** faster than `AVX-512 8C` (`571367/60794`), delivering **`408.901 GB/s`** `BF16`-equivalent effective bandwidth (`115.003 GB/s` physical) at **`6.148x`** lower combined `mJ/tok` than PyTorch `BF16` and **`5.479x`** lower than `AVX-512` CPU-pkg alone (energy ratios uncontrolled, provisional).
 
 ### 3.2 Full End-to-End Decode (24 Layers + `151,936`-Vocab Tied `BF16` `lm_head` + Greedy `argmax`)
 
@@ -60,11 +64,13 @@ Energy methodology: Synchronized Linux `powercap` `intel-rapl` hardware microjou
 | **Arm C1:** `i9-11900H` `AVX-512` `8C` (`GPU P8`) | `31.697` | `31.54842` | `432.14531` *(idle)* | `2,393.15939` | `2,825.30469` | `159.87605` | baseline | — |
 | **Arm C2:** `AVX-512` `8C` + Live `vpopcntq` (`GPU P8`) | `29.926` | `33.41520` | `451.03351` *(idle)* | `2,668.59100` | `3,119.62451` | `178.37388` | `+5.917%` | **`0`** |
 
-- **Pareto Conclusion:** On `UX582HS`, **Arm B1 (`sm_86` PTX `A_16`) strictly Pareto-dominates both Arm A (`BF16` GPU) and Arm C (`AVX-512` CPU-only)** in both throughput (`5.597x` vs. `BF16`, `12.638x` vs. `AVX-512`) and energy per token (`4.908x` lower combined `mJ/tok` than `BF16`; `7.651x` lower than CPU-pkg alone) because its race-to-sleep speedup far exceeds active dGPU power draw (`76.4 W` vs. `75.8 W` 8-core AVX-512 turbo). **Arm C1** remains a practical **`31.70 tok/s`** zero-VRAM CPU-only serving tier when the dGPU is idle (`P8`) or occupied by training.
+*Energy columns (`mJ/tok`): uncontrolled, provisional (see the note at the top of §3).*
+
+- **Pareto Conclusion:** On `UX582HS`, **Arm B1 (`sm_86` PTX `A_16`) strictly Pareto-dominates both Arm A (`BF16` GPU) and Arm C (`AVX-512` CPU-only)** in both throughput (`5.597x` vs. `BF16`, `12.638x` vs. `AVX-512`) and energy per token (`4.908x` lower combined `mJ/tok` than `BF16`; `7.651x` lower than CPU-pkg alone; both energy ratios and the power figures in this bullet are uncontrolled, provisional) because its race-to-sleep speedup far exceeds active dGPU power draw (`76.4 W` vs. `75.8 W` 8-core AVX-512 turbo). **Arm C1** remains a practical **`31.70 tok/s`** zero-VRAM CPU-only serving tier when the dGPU is idle (`P8`) or occupied by training.
 
 ### 3.3 Batched `B=32` Prefill (`168` Real Linear Matrices) & Arm D Cold-Disk `18 B` Transcode + 128-Token Generation
 
-- **Prefill `B=32` (`Arm A3` vs. `Arm B3`):** PyTorch `BF16` cuBLAS reaches `9,473.749 tok/s` (`3.3776 ms/batch`, `6.78 BF16 TFLOPS`, `14.7487 mJ/tok` combined); custom zero-spill `cp.async` + `IMMA` (`Arm B3`, `32x32` tiled SWAR on-the-fly dequant) reaches **`8,383.469 tok/s`** (`3.81704 ms/batch`, `6.00 INT8 TOPS`, `0.885x` cuBLAS, `15.08536 mJ/tok` combined, `l0_q_proj_rel_l2_vs_fp64 = 2.7e-8`).
+- **Prefill `B=32` (`Arm A3` vs. `Arm B3`):** PyTorch `BF16` cuBLAS reaches `9,473.749 tok/s` (`3.3776 ms/batch`, `6.78 BF16 TFLOPS`, `14.7487 mJ/tok` combined, uncontrolled, provisional); custom zero-spill `cp.async` + `IMMA` (`Arm B3`, `32x32` tiled SWAR on-the-fly dequant) reaches **`8,383.469 tok/s`** (`3.81704 ms/batch`, `6.00 INT8 TOPS`, `0.885x` cuBLAS, `15.08536 mJ/tok` combined, uncontrolled, provisional, `l0_q_proj_rel_l2_vs_fp64 = 2.7e-8`).
 - **Arm D Cold-Disk `18 B` -> Hot VRAM Transcode:** Real `201,277,440`-byte `18 B / 32 w` binary (`cold_18b_sha256 = d986dd20062e7c5ea80b3564603271a5fb080ce0b6115bef551bf68ac2004fbf`) read from disk in **`65.896 ms`** (`3.054 GB/s`) + GPU H2D and live `5-POPC` SoA transcode in **`25.8844 ms`** (**`13.824 Gweights/s`**, **`0` syndrome errors**) = **`91.7804 ms`** total cold-to-hot load.
 - **Real Technical Prompt (`49` tokens) TTFT, 128-Token Generation & Cross-Hardware Parity:**
   - **TTFT:** **`88.0389 ms`** (`sm_86` `A_16`) vs. `239.2169 ms` (PyTorch `BF16`) -> **`2.717x` faster TTFT**.
