@@ -1,0 +1,210 @@
+{
+  "contrast": "Model Carving arXiv 2611.27962 g = 0 lockout",
+  "lean": {
+    "lean_files": 3,
+    "lean_loc": 562,
+    "public_theorems": 36,
+    "theorem_names": [
+      "a16_masks_and_anchor_codewords",
+      "par8_complement",
+      "syn_complement",
+      "syn_complement_codeword",
+      "complement_involution",
+      "bipolar_complement_neg",
+      "bipolar_normSq_sixteen",
+      "normSq_neg",
+      "h4_parseval",
+      "normSq_scale",
+      "blockh4_weight_normSq",
+      "scale_flip_negates_preserves_norm",
+      "applySigns_parity",
+      "applySigns_normSq",
+      "flipParity_append",
+      "applySigns_self_append",
+      "multi_round_scale_zero_drift",
+      "ternary_syndrome_all_states",
+      "ternary_switch_closed",
+      "ternary_reversible_from_any",
+      "int32_roundtrip",
+      "int32_byte_roundtrip",
+      "pack16B_roundtrip",
+      "pack16B_unpack16B",
+      "spinor_flip_runs_preserve_norm",
+      "weft_rollback_exact",
+      "unpack16B_length",
+      "weft_rollback_rejects_tampered",
+      "up_row_zero_collapse",
+      "up_row_zero_noninjective",
+      "chantless_retention_witness",
+      "carving_zero_absorbing",
+      "hold_open_positive_and_reopenable",
+      "carving_positive_gate_reopens",
+      "carving_lockout_witness",
+      "duality_lockout_vs_recovery"
+    ],
+    "toolchain": "leanprover/lean4:v4.36.0"
+  },
+  "payload_sha256": "b45432ea7bb4993f1848b170d97878983d532f66eceb79032d408763b09538b4",
+  "pillar1_a16_complement": {
+    "bipolar_0xFFFF_head": [
+      -1,
+      -1,
+      -1,
+      -1
+    ],
+    "bipolar_norm_sq": 16,
+    "codewords": 2048,
+    "codewords_closed_under_flip": 2048,
+    "flip": "0xFFFF",
+    "mask_weights": [
+      16,
+      8,
+      8,
+      8,
+      8
+    ],
+    "masks": [
+      "0xFFFF",
+      "0xAAAA",
+      "0xCCCC",
+      "0xF0F0",
+      "0xFF00"
+    ],
+    "syndrome_0x0000": 0,
+    "syndrome_0x0001": 1,
+    "syndrome_0xFFFF": 0,
+    "vectors_checked": 65536
+  },
+  "pillar2_blockh4_scale_flip": {
+    "blocks": 2048,
+    "even_identity_returns": 4,
+    "flip_norm_drift": "0/1",
+    "flip_payload_bytes_changed": 0,
+    "h4_gram_diag": [
+      4,
+      4,
+      4,
+      4
+    ],
+    "odd_negations": 4,
+    "probe_block_hex": "d6700ba54ee8822c",
+    "round_lengths": [
+      1,
+      1,
+      2,
+      4,
+      6,
+      7,
+      8,
+      64
+    ],
+    "round_norm_drift": "0/1",
+    "scale": "3/8",
+    "sequences": 8,
+    "sum_c_sq": 704512,
+    "sum_h4_sq": 2818048,
+    "sum_w_sq": "99072/1"
+  },
+  "pillar2_ternary": {
+    "blocks": 32,
+    "bounced_invalid_requests": 3,
+    "exact_restores": 64,
+    "neg_state_is_negation": true,
+    "state_syndromes_zero": 96,
+    "zero_state_norm_sq": "0/1"
+  },
+  "pillar3_weft_rollback": {
+    "bounced_assignments": 2,
+    "bounced_switch_requests": 2,
+    "bounced_tampered_checkpoints": 3,
+    "byte_roundtrip_probes": 256,
+    "checkpoint_bytes": 16,
+    "checkpoint_hex": "00000030000000f000000020000000d8",
+    "checkpoint_sha256": "6656d55dab3f0361e702a8dc316fbca03a31173d17f3bac94b9e99a634a1bba4",
+    "d": 1207959552,
+    "d_sq": 1459166279268040704,
+    "ops": 19,
+    "post_rollback_switches": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "pre_rollback_spinor": [
+      -805306368,
+      268435456,
+      -536870912,
+      671088640
+    ],
+    "pre_rollback_switches": [
+      -1,
+      -1,
+      -1,
+      -1,
+      1,
+      0,
+      0,
+      -1
+    ],
+    "roundtrip_probes": 4,
+    "spinor": [
+      805306368,
+      -268435456,
+      536870912,
+      -671088640
+    ],
+    "spinor_flips": 9,
+    "spinor_norm_drift": "0/1",
+    "weight_norm_drift": "0/1"
+  },
+  "pillar4_carving": {
+    "hold_open_eps": "1/1000000",
+    "hold_open_reopened_count": 193,
+    "horizon": 48,
+    "kept": 671,
+    "kept_half_reopen": "141/184",
+    "kept_tenth_reopen": "33/35",
+    "locked_reopened": "0/193",
+    "locked_reopened_count": 0,
+    "positive_gate_after_step": "11/15",
+    "removed": 193
+  },
+  "pillar4_chantless": {
+    "distinct_images": 1,
+    "inkling": "3/23",
+    "retention_den": 10000,
+    "retention_drops": [
+      "397/2500",
+      "537/5000",
+      "829/10000"
+    ],
+    "retention_pairs": [
+      [
+        9921,
+        8333
+      ],
+      [
+        9396,
+        8322
+      ],
+      [
+        9558,
+        8729
+      ]
+    ],
+    "strict_collapses": 64,
+    "witness_blocks": 64
+  },
+  "pillar4_duality": {
+    "carving_lockout": "193/193",
+    "ternary_lockout": "0/193",
+    "ternary_recovered": "193/193"
+  },
+  "queue_id": "EXP-Q42a",
+  "schema": "s163.ternary_a16_carving.v1",
+  "track": "S163"
+}

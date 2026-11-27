@@ -604,6 +604,11 @@
       "name": "s78-engram-lora-capacity-siliquant-mdl",
       "title": "Engram LoRA Bit-Capacity, Two-Part MDL, and Joint (bpw, rank) Bit-Allocation Law (Lean 4.36.0 Formal Companion)",
       "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/studies/s78-engram-lora-capacity-siliquant-mdl"
+    },
+    {
+      "name": "ternary-a16-carving-lockout",
+      "title": "Ternary A_16 Extended-Hamming Sign-Flip Switch vs. Clip-at-Zero Lockout (Lean 4.36.0 & Exact Pure-Z/Q Verification)",
+      "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/studies/ternary-a16-carving-lockout"
     }
   ]
 }
