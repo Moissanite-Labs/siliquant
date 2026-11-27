@@ -506,6 +506,11 @@
       "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/studies/audit116r-e8-leaf-stage1-attack"
     },
     {
+      "name": "es-siliquant-holosphere",
+      "title": "Backprop-Free Evolution Strategies on SiliQuant (A_16 Block-H4) and HoloSphere-V4 (Cayley-SU(2))",
+      "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/studies/es-siliquant-holosphere"
+    },
+    {
       "name": "expedition-atomic-mova-uno-roofline",
       "title": "Exact Pure-Q SSD-Streaming Roofline, DSpark-vs-Uno Budget Crossover, and Sparse MoVA Water-Filling Study",
       "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/studies/expedition-atomic-mova-uno-roofline"
