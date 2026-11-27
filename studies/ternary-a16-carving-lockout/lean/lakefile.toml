@@ -1,0 +1,6 @@
+name = "TernaryA16Carving"
+version = "0.1.0"
+defaultTargets = ["TernaryA16Carving"]
+
+[[lean_lib]]
+name = "TernaryA16Carving"
