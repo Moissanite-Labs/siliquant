@@ -581,6 +581,11 @@
       "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/studies/expedition-wsp-self-rewriting-audit097r"
     },
     {
+      "name": "hadwiger-john-siliquant",
+      "title": "Hadwiger-3D Convex-Covering Operators on SiliQuant (E_8 and A_16 Block-H4)",
+      "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/studies/hadwiger-john-siliquant"
+    },
+    {
       "name": "hamming-construction-a-lattices",
       "title": "Extended Hamming Construction-A Lattices (A_8, A_{16}, A_{32}), Exact Syndrome Decoding & Sharp f64 Exact-Decode Threshold",
       "url": "https://github.com/Moissanite-Labs/siliquant/tree/main/studies/hamming-construction-a-lattices"

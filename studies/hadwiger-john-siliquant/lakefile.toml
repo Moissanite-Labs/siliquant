@@ -1,0 +1,5 @@
+name = "JohnQuantOperators"
+defaultTargets = ["JohnQuantOperators"]
+
+[[lean_lib]]
+name = "JohnQuantOperators"
