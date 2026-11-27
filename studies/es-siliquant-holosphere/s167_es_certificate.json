@@ -1,0 +1,135 @@
+{
+  "energy_claim": "UNCONTROLLED_LAPTOP_NOT_CLAIMED",
+  "experiment_ids": [
+    "EXP-Q51a",
+    "EXP-Q51b",
+    "EXP-Q51c"
+  ],
+  "lean": {
+    "lakefile_sha256": "4e16492fd574731d4dc2a998c56d596198dc3083565a768c28dfbd9dad60ece4",
+    "lean_files": 1,
+    "lean_module": "EvolutionOperators",
+    "lean_sha256": "62c416750d66def4fa3e003363c134d421d300996a234af16841580497490dd3",
+    "manifest_sha256": "5437b4c916b5f0610868c90230b06aac0abd9c11ba0639837e654b03c001c122",
+    "public_theorems": 21,
+    "toolchain": "leanprover/lean4:v4.36.0",
+    "toolchain_sha256": "582a63f8f9c5128067b688778c1051cf1464c3ca9d57b9325025c051c29b774a"
+  },
+  "novelty_classification": "N1",
+  "oracle_class": "exact_and_sampled",
+  "payload_sha256": "9474c1b5ee619c5906b8a807f5361b31089cd4ef1caf3787eb6bbf8bd9cc645a",
+  "pillar1_antithetic_cancellation": {
+    "onesided_bias_excess_sq2": "111392/1225",
+    "poly4_antithetic_diff": "-29399919/1372000000",
+    "poly4_antithetic_sum": "9329627719919/274400000000",
+    "vec4_antithetic_diff": "201/8000",
+    "vec4_antithetic_sum": "472/35"
+  },
+  "pillar2_orthogonal_hadamard_h4": {
+    "choromanski_orth_over_iid_mse": {
+      "d128_n16": "38/43",
+      "d128_n30": "100/129",
+      "d16_n16": "2/17",
+      "d4_n4": "2/5"
+    },
+    "h4_exact_recovery_err_sq": 0,
+    "h4_input_sq": 204,
+    "h4_parseval_sq": 816
+  },
+  "pillar3_heat_kernel_goodhart": {
+    "pascal_center_spike_masses_m0_to_m6": [
+      "1",
+      "1/2",
+      "3/8",
+      "5/16",
+      "35/128",
+      "63/256",
+      "231/1024"
+    ],
+    "pascal_plateau_conservation_exact": true,
+    "spike_over_plateau_ratio": {
+      "r1": "1/100",
+      "r2": "1/10000",
+      "r4": "1/100000000"
+    }
+  },
+  "pillar4_bf16_alkashi_cs08": {
+    "alkashi_q64_16x8_residual": 0,
+    "alkashi_q64_16x8_weight_advance": 2,
+    "bf16_canonical_g7_moves": 0,
+    "bf16_canonical_g8_moves": 1,
+    "bf16_half_ulp_at_1": "1/256",
+    "bf16_ulp_at_1": "1/128",
+    "cs08_es_over_drgrpo_flops": "1/3",
+    "cs08_es_over_grpo_flops": "1/4",
+    "cs08_hbm_ratio_n16": "32/3",
+    "cs08_hbm_ratio_n30": "20",
+    "folded_scale_dot_exact": "211/112",
+    "folded_scale_extra_bytes": 0,
+    "vsonic_alpha_over_half_ulp": "16/125"
+  },
+  "pillar5_cayley_su2_so3_manifold": {
+    "cayley_so3_det": "1",
+    "cayley_so3_m00": "2489/2529",
+    "cayley_so3_m01": "-224/2529",
+    "cayley_so3_orth_max_err": "0",
+    "cayley_su2_denom": 2529,
+    "cayley_su2_norm_sq": "1",
+    "euclidean_additive_shell_err": "1/100"
+  },
+  "pillar6_empirical_live_gates": {
+    "bench_script_sha256": "759852360383f08c46eb10fcb3e8aa1c744e11bfc8b7e8a6c9427f19ae8e4439",
+    "empirical_receipt_sha256": "d1ee363f31f40cf793bdc74ac56f5378196aa50f4c0b64c75b9cc6d152dd66b4",
+    "empirical_results_sha256": "d6edf352c5b8ba76d04550a506812c8c22223cb117a666582fb065f65cde9e67",
+    "gates": {
+      "exp_q51a": {
+        "delta_t1_vs_c1_pp": "225/112",
+        "delta_t1_vs_c2_pp": "-25/28",
+        "ge_2pp_over_int4": false,
+        "m15_a16_lattice_flips": 94633548,
+        "m15_layers_quantized": 28,
+        "m15_linear_layers_quantized": 196,
+        "m15_total_a16_blocks": 81887232,
+        "mean_bf16_ulp_stalled_micro": 255587,
+        "mean_c1_test_acc": "3/56",
+        "mean_c2_test_acc": "37/448",
+        "mean_t1_test_acc": "33/448",
+        "p_exact_perm_t1_vs_c1": "1/8",
+        "p_exact_perm_t1_vs_c2": "3/4",
+        "p_holm_lt_005": false,
+        "p_holm_t1_vs_c1": "1/4",
+        "p_holm_t1_vs_c2": "3/4",
+        "peak_vram_05b_kib": 2967638,
+        "peak_vram_15b_kib": 5191617,
+        "verdict": "FALSIFIED",
+        "vram_under_65gib": true,
+        "zero_syndrome_errors": true
+      },
+      "exp_q51b": {
+        "arm_a_wikitext2_nan_seeds": 3,
+        "arm_c_a16_codeword_flips_total": 19859742,
+        "bpb_drift_le_002": false,
+        "bptt_ckpt_max_vram_kib": 7757178,
+        "bptt_ckpt_oom_cells": 0,
+        "bptt_oom_cells": 3,
+        "es_o1_vram_max_kib": 82794,
+        "es_o1_vram_min_kib": 80546,
+        "es_o1_vram_spread_kib": 2248,
+        "euclid_shell_err_overflow_seeds": 3,
+        "max_su2_shell_err_cayley_nano": 417,
+        "max_su2_shell_err_euclid_nano": 1000000000000000,
+        "mean_ood_8x_gain_pp_cayley": "0",
+        "mean_wikitext2_bpb_drift_cayley": "5903/250000",
+        "o1_vram_under_512mib": false,
+        "ood_ge_10pp": false,
+        "shell_err_lt_1e5": true,
+        "verdict": "FALSIFIED"
+      },
+      "overall_empirical_verdict": "Q51a_FALSIFIED_Q51b_FALSIFIED_Q51c_CONFIRMED"
+    }
+  },
+  "prereg_id": "PREREG-W22-ES-SCALE",
+  "prereg_sha256": "1f9db607ce34de1e0cbd472625d411d8c5e9857468a107a0cc24e558a733d3f6",
+  "schema": "s167.q51.es_siliquant_holosphere.v2",
+  "track": "S167"
+}

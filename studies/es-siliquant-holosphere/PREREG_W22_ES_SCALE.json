@@ -1,0 +1,38 @@
+{
+  "schema": "aletheia.prereg.v1",
+  "prereg_id": "PREREG-W22-ES-SCALE",
+  "timestamp_utc": "2026-11-27T01:08:00Z",
+  "portal": "Portal 199 (arXiv:2509.24372v3)",
+  "dossier_path": "scratch/wave22/portal_arxiv_2509_24372/DOSSIER_ES_SCALE.md",
+  "link_graph_path": "scratch/wave22/portal_arxiv_2509_24372/nested_link_graph.json",
+  "experiments": [
+    {
+      "queue_id": "EXP-Q51a",
+      "codename": "SiliQuant-ES",
+      "target_hardware": "Single RTX 3080 (< 6.5 GiB VRAM)",
+      "models": ["Qwen2.5-0.5B", "Qwen2.5-1.5B"],
+      "precision": "A_16 Block-H4 (3.0/4.5 bpw) + [16,11,4] SECDED + int8 seed-replayed EF + +0 B Folded-Scale",
+      "controls": ["QES-unblocked-INT4", "BF16-es-at-scale", "zero-perturbation-null"],
+      "kill_gate": "0 SECDED syndromes AND VRAM < 6.5 GiB AND >= +2.0 pp over unblocked INT4 ES at matched FLOPs (p_Holm < 0.05)"
+    },
+    {
+      "queue_id": "EXP-Q51b",
+      "codename": "HoloSphere-Cayley-ES",
+      "target_architecture": "HoloSphere-V4/V5 (15.11M, 54 A_16 layers, FWHT_256 x bent4 + Monarch head)",
+      "manifold": "SU(2) rational Cayley retraction from su(2) tangent perturbations",
+      "controls": ["Euclidean-additive-ES", "Chunk32-BPTT-GRPO-VRAM-capped"],
+      "kill_gate": "max_su2_shell_err < 1e-5 AND O(1) VRAM across T in {512,2048,8192}, R in {1,4,8} AND >= +10 pp OOD S_3/A_5 with <= 0.02 BPB drift"
+    },
+    {
+      "queue_id": "EXP-Q51c",
+      "codename": "Aletheia-ES-Theory",
+      "target_stack": "Pure-Q (fractions.Fraction) + pure-Init Lean 4.36.0 (ESScaleOperators.lean)",
+      "theorems": [
+        "Antithetic + Orthogonal-Hadamard ES MSE reduction & Block-H4 Parseval norm",
+        "Heat-Kernel / Gaussian mollifier Goodhart narrow-spike attenuation",
+        "CS-08 FLOP/KV-prefix crossover & BF16/INT4 ULP-stall vs error-feedback invariant"
+      ],
+      "kill_gate": "3x -I bit-identical + RO --live-lean PASS (0 sorry/Mathlib/Classical.choice) + 100% dual mutate + audit-check PASS"
+    }
+  ]
+}

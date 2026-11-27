@@ -1,0 +1,5 @@
+name = "EvolutionOperators"
+defaultTargets = ["EvolutionOperators"]
+
+[[lean_lib]]
+name = "EvolutionOperators"
