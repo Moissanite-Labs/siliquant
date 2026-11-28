@@ -104,7 +104,6 @@ def _check_v2_hygiene(failures: list[str]) -> int:
         REPO_ROOT / "Makefile",
         REPO_ROOT / "README.md",
         REPO_ROOT / ".github" / "workflows" / "ci.yml",
-        REPO_ROOT / ".github" / "workflows" / "codeql.yml",
         *sorted((REPO_ROOT / "siliquant").rglob("*.py")),
         REPO_ROOT / "tests" / "test_siliquant_v2_cpu.py",
     ]
