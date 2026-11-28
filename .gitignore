@@ -1,4 +1,9 @@
 __pycache__/
 *.pyc
+*.pyo
 results.partial.jsonl
 /site/.build/
+build/
+dist/
+*.egg-info/
+.pytest_cache/

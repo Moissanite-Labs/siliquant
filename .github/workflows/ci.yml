@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  cpu-parity-and-hygiene:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install siliquant package (pure-stdlib core)
+        run: |
+          python3 -m pip install "setuptools>=77"
+          python3 -m pip install --no-build-isolation --no-deps -e .
+
+      - name: Run V2 hygiene, 3x -I isolated CPU unit tests, and combinatorics sanity
+        env:
+          CUDA_VISIBLE_DEVICES: ""
+          PYTHONDONTWRITEBYTECODE: "1"
+        run: |
+          make test-3mode
+          python3 -I -B perm/test_permlib.py
+          python3 -I -B site/build_hub.py --check
+          python3 -I -B site/test_build_hub.py
+          make clean

@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "siliquant"
+version = "0.2.0"
+description = "Extended Hamming [16, 11, 4] A_16 lattice quantization, exact G1..G4 zero-drift gauges, QuadLPT-SharedNorm, MXFP8 cliff protection, Sloane Had.16.3 minimax rotation, pure-Q Pareto-Lagrangian BPW allocation, and .slqi/.slgb/.slqw wire contracts."
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [{name = "Moissanite Labs"}]
+requires-python = ">=3.11"
+dependencies = []
+keywords = [
+    "quantization",
+    "lattice-quantization",
+    "extended-hamming",
+    "hadamard-rotation",
+    "mxfp8",
+    "pareto-optimization",
+    "secded",
+    "llm-compression",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+[project.optional-dependencies]
+torch = [
+    "torch>=2.4,<3.0",
+]
+dev = [
+    "pytest>=8.0,<10.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/Moissanite-Labs/siliquant"
+Repository = "https://github.com/Moissanite-Labs/siliquant"
+Issues = "https://github.com/Moissanite-Labs/siliquant/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["siliquant*"]

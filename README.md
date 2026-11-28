@@ -4,6 +4,24 @@ Research on rounding model weights to a few bits each (quantisation), and on the
 
 The repository follows one rule from weft-loom: a path is closed only on a proof. So it keeps a table of proved limits, and a proposal is read against that table before anything is run.
 
+## SiliQuant V2 Package (`siliquant.codecs`)
+
+The `siliquant` Python package (`dependencies = []`, zero PyTorch required for pure-CPU verification) packages the V2 quantization codecs, algebraic gauges, minimax rotations, Pareto BPW optimizer, and binary wire contracts:
+
+| Module | Capabilities & Verified Invariants |
+|---|---|
+| [`siliquant/codecs/gauges.py`](siliquant/codecs/gauges.py) | Exact zero-drift `G1..G4` transformer gauge group: `BF16`-compensated RMSNorm folding (`\|gamma\| >= 1e-4`), half-split RoPE `(k, k + hd/2)` `Q <-> K` pair scaling, `O(d_h)` Walsh–Hadamard + `D_v` head gauge (`H_4^2 = I_4` cancellation guard requiring `"axis"` on `o_proj`), and explicit global residual / RoPE non-commutation obstruction checks |
+| [`siliquant/codecs/quadlpt_mxfp8.py`](siliquant/codecs/quadlpt_mxfp8.py) | Extended Hamming `[16, 11, 4]` `A_16` fast Wagner/ML decoders (`R^2 = 5213`/`651` for `g=128`, `1207`/`151` for `g=32`), `QuadLPT-SharedNorm` (`colscale_fp32_bits` + `perm_in` dtype-immune round-trip), Block-32 `MXFP8` (`E4M3FN + UE8M0`, `8.25 bpw`) `L0/L27` cliff protection (`+0.1835 bpw <= 0.20` budget), and streaming `A16ChunkAccumulator` |
+| [`siliquant/codecs/sloane_had16.py`](siliquant/codecs/sloane_had16.py) | Pure-$\mathbb{Q}$ `Sloane Had.16.3` minimax block-16 Hadamard matrix (`H^T H = 16 I`, automorphism order `86,016`), exact rational $t=6$ subset minimax separation (`-3/7` vs Sylvester `>= -1/3`), and block-16 orthogonal rotation (`-30.5%` WT2 PPL measured on Gemma-4 under `A_16` block-16 rotation vs `Block-H4`) |
+| [`siliquant/codecs/pareto_bpw.py`](siliquant/codecs/pareto_bpw.py) | Pure-$\mathbb{Q}$ (`fractions.Fraction`) Pareto-Lagrangian per-tensor BPW optimizer (`prune_pareto_frontier_q`, $\lambda$-bisection, greedy slack fill) with fail-closed `16`-bit critical-layer pinning (e.g. `message_gate.down_proj`) |
+| [`siliquant/codecs/wire_format.py`](siliquant/codecs/wire_format.py) | Binary `.slqi` (`128 B`), `.slgb` (`64 B`), and `.slqw` (`64 B`) wire headers, canonical IEEE `CRC32`, 64-bit `[16, 11, 4]` `SECDED` (`1`-bit SEC repair / `2`-bit DED fail-closed trap), and `IRIS` (`0x9E3779B9`) telemetry watchdog |
+
+```bash
+python3 -m pip install --no-build-isolation --no-deps -e .
+make test-3mode   # 3x -I bit-identical CPU verification (-I -B, -I -O -B, -I -B -W error)
+make clean
+```
+
 ## What is here
 
 | Folder | What it holds |
@@ -269,7 +287,7 @@ The twenty-sixth, of 2026-11-24, puts A_16 in the repository's file format: the 
 
 ## Licence
 
-No licence file yet. The owner has not chosen one.
+Apache License 2.0 — see [LICENSE](LICENSE).
 
 ## Disclosure
 
